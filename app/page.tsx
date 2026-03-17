@@ -54,7 +54,7 @@ export default function HomePage() {
         .from("players")
         .insert({
           room_code: newRoomCode,
-          player_name: playerName.trim(),
+          name: playerName.trim(),
           is_host: true,
           score: 0,
         })
@@ -117,7 +117,7 @@ export default function HomePage() {
         .from("players")
         .insert({
           room_code: upperRoomCode,
-          player_name: playerName.trim(),
+          name: playerName.trim(),
           is_host: false,
           score: 0,
         })
