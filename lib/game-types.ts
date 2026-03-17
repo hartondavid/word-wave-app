@@ -14,10 +14,12 @@ export interface GameRoom {
   player2_score: number
   player2_ready: boolean
   game_status: 'waiting' | 'ready' | 'playing' | 'round_end' | 'finished'
-  round_number: number
+  current_round: number
+  total_rounds: number
   round_winner: string | null
-  timer_end: string | null
+  round_end_time: string | null
   created_at: string
+  updated_at: string
 }
 
 export interface WordPair {

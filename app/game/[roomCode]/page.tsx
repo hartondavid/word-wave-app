@@ -104,10 +104,10 @@ export default function GamePage({ params }: GamePageProps) {
 
   // Timer countdown
   useEffect(() => {
-    if (room?.game_status !== "playing" || !room.timer_end) return
+    if (room?.game_status !== "playing" || !room.round_end_time) return
 
     const interval = setInterval(() => {
-      const endTime = new Date(room.timer_end!).getTime()
+      const endTime = new Date(room.round_end_time!).getTime()
       const now = Date.now()
       const remaining = Math.max(0, Math.ceil((endTime - now) / 1000))
       setTimeRemaining(remaining)
@@ -118,7 +118,7 @@ export default function GamePage({ params }: GamePageProps) {
     }, 100)
 
     return () => clearInterval(interval)
-  }, [room?.timer_end, room?.game_status])
+  }, [room?.round_end_time, room?.game_status])
 
   // My player slot (1 or 2)
   const mySlot = playerInfo?.playerSlot || 1
@@ -170,7 +170,7 @@ export default function GamePage({ params }: GamePageProps) {
     const winnerName = mySlot === 1 ? room.player1_name : room.player2_name
 
     // Check if game is finished
-    const isGameFinished = newScore >= WIN_SCORE || room.round_number >= TOTAL_ROUNDS
+    const isGameFinished = newScore >= WIN_SCORE || room.current_round >= TOTAL_ROUNDS
 
     await supabase
       .from("game_rooms")
@@ -186,7 +186,7 @@ export default function GamePage({ params }: GamePageProps) {
   async function handleTimerEnd() {
     if (!room) return
 
-    const isGameFinished = room.round_number >= TOTAL_ROUNDS
+    const isGameFinished = room.current_round >= TOTAL_ROUNDS
 
     await supabase
       .from("game_rooms")
@@ -232,8 +232,8 @@ export default function GamePage({ params }: GamePageProps) {
         player2_ready: false,
         round_winner: null,
         game_status: "playing",
-        round_number: (room?.round_number || 0) + 1,
-        timer_end: timerEnd,
+        current_round: (room?.current_round || 0) + 1,
+        round_end_time: timerEnd,
       })
       .eq("room_code", roomCode)
   }
@@ -268,7 +268,7 @@ export default function GamePage({ params }: GamePageProps) {
         player2_score: 0,
         player1_ready: false,
         player2_ready: false,
-        round_number: 0,
+        current_round: 0,
         game_status: "waiting",
         current_word: null,
         current_definition: null,
@@ -497,7 +497,7 @@ export default function GamePage({ params }: GamePageProps) {
             </div>
 
             <p className="text-sm text-muted-foreground">
-              Round {room.round_number} of {TOTAL_ROUNDS}
+              Round {room.current_round} of {TOTAL_ROUNDS}
             </p>
 
             <Button className="w-full" size="lg" onClick={handleNextRound}>
@@ -519,7 +519,7 @@ export default function GamePage({ params }: GamePageProps) {
           Exit
         </Button>
         <div className="text-sm font-medium">
-          Round {room.round_number}/{TOTAL_ROUNDS}
+          Round {room.current_round}/{TOTAL_ROUNDS}
         </div>
         <div className={cn(
           "flex items-center gap-2 text-lg font-bold px-3 py-1 rounded-lg",

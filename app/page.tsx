@@ -71,7 +71,7 @@ export default function HomePage() {
           player2_score: 0,
           player2_ready: false,
           game_status: "waiting",
-          round_number: 0,
+          current_round: 0,
         })
       
       if (roomError) throw roomError
