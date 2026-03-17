@@ -129,7 +129,36 @@ export async function fetchWordPair(): Promise<WordPair> {
   }
 }
 
-// Calculate letter-by-letter progress display
+// Try to place a letter in the progress string
+// Returns new progress if letter can be placed, null if not valid
+export function tryPlaceLetter(
+  letter: string, 
+  currentProgress: string, 
+  answer: string
+): string | null {
+  const letterLower = letter.toLowerCase()
+  const answerLower = answer.toLowerCase()
+  const progressArray = currentProgress.split("")
+  
+  // Find the first unfilled position where this letter belongs
+  for (let i = 0; i < answerLower.length; i++) {
+    // If this position matches the letter and is still unfilled
+    if (answerLower[i] === letterLower && progressArray[i] === "_") {
+      progressArray[i] = letterLower.toUpperCase()
+      return progressArray.join("")
+    }
+  }
+  
+  // Letter doesn't fit anywhere
+  return null
+}
+
+// Check if all letters are filled (word is complete)
+export function isWordComplete(progress: string): boolean {
+  return !progress.includes("_")
+}
+
+// Calculate letter-by-letter progress display (for initial setup)
 export function calculateProgress(input: string, answer: string): string {
   const result: string[] = []
   const inputLower = input.toLowerCase()
@@ -146,7 +175,7 @@ export function calculateProgress(input: string, answer: string): string {
   return result.join("")
 }
 
-// Check if answer is complete and correct
+// Check if answer is complete and correct (legacy - still needed for direct typing)
 export function isCorrectAnswer(input: string, answer: string): boolean {
   return input.toLowerCase().trim() === answer.toLowerCase().trim()
 }

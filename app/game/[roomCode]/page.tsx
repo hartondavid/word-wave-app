@@ -5,9 +5,8 @@ import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import type { GameRoom } from "@/lib/game-types"
 import { ROUND_DURATION, WIN_SCORE, TOTAL_ROUNDS } from "@/lib/game-types"
-import { fetchWordPair, calculateProgress, isCorrectAnswer } from "@/lib/words"
+import { fetchWordPair, tryPlaceLetter, isWordComplete } from "@/lib/words"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
@@ -31,11 +30,11 @@ export default function GamePage({ params }: GamePageProps) {
   const [playerInfo, setPlayerInfo] = useState<PlayerInfo | null>(null)
   const [timeRemaining, setTimeRemaining] = useState(ROUND_DURATION)
   const [isLoading, setIsLoading] = useState(true)
-  const [userInput, setUserInput] = useState("")
   const [isShaking, setIsShaking] = useState(false)
   const [copied, setCopied] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const [lastPlacedIndex, setLastPlacedIndex] = useState<number | null>(null)
+  const gameContainerRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const supabase = createClient()
 
@@ -87,10 +86,9 @@ export default function GamePage({ params }: GamePageProps) {
               setTimeout(() => setShowConfetti(false), 3000)
             }
             
-            // Reset input when new round starts
+            // Reset when new round starts
             if (newRoom.game_status === "playing") {
-              setUserInput("")
-              setTimeout(() => inputRef.current?.focus(), 100)
+              setLastPlacedIndex(null)
             }
           }
         }
@@ -132,6 +130,21 @@ export default function GamePage({ params }: GamePageProps) {
     return () => clearInterval(interval)
   }, [room?.round_end_time, room?.game_status])
 
+  // Handle keyboard input for letter placement
+  useEffect(() => {
+    if (room?.game_status !== "playing" || !room.current_word) return
+
+    function handleKeyDown(e: KeyboardEvent) {
+      // Only handle letter keys
+      if (!/^[a-zA-Z]$/.test(e.key)) return
+      
+      handleLetterInput(e.key)
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [room?.game_status, room?.current_word, room?.player1_progress, room?.player2_progress, playerInfo])
+
   // My player slot (1 or 2)
   const mySlot = playerInfo?.playerSlot || 1
   const opponentSlot = mySlot === 1 ? 2 : 1
@@ -151,48 +164,56 @@ export default function GamePage({ params }: GamePageProps) {
   // Check if room is full
   const roomIsFull = room?.player1_id && room?.player2_id
 
-  // Handle input change with real-time progress update
-  const handleInputChange = useCallback(async (value: string) => {
-    if (room?.game_status !== "playing" || !room.current_word) return
+  // Handle single letter input
+  const handleLetterInput = useCallback(async (letter: string) => {
+    if (!room || !playerInfo || room.game_status !== "playing" || !room.current_word) return
 
-    const cleaned = value.replace(/[^a-zA-Z]/g, "")
-    setUserInput(cleaned)
+    const currentProgress = mySlot === 1 ? room.player1_progress : room.player2_progress
+    if (!currentProgress) return
 
-    // Calculate and update progress in realtime
-    const progress = calculateProgress(cleaned, room.current_word)
-    const progressField = mySlot === 1 ? "player1_progress" : "player2_progress"
+    // Try to place the letter
+    const newProgress = tryPlaceLetter(letter, currentProgress, room.current_word)
+    
+    if (newProgress) {
+      // Find which index was just filled
+      for (let i = 0; i < newProgress.length; i++) {
+        if (currentProgress[i] === "_" && newProgress[i] !== "_") {
+          setLastPlacedIndex(i)
+          break
+        }
+      }
 
-    await supabase
-      .from("game_rooms")
-      .update({ [progressField]: progress })
-      .eq("room_code", roomCode)
+      const progressField = mySlot === 1 ? "player1_progress" : "player2_progress"
 
-    // Check if answer is correct
-    if (isCorrectAnswer(cleaned, room.current_word)) {
-      handleCorrectAnswer()
+      // Check if word is now complete - player wins!
+      if (isWordComplete(newProgress)) {
+        const scoreField = mySlot === 1 ? "player1_score" : "player2_score"
+        const newScore = (mySlot === 1 ? room.player1_score : room.player2_score) + 1
+        const winnerName = mySlot === 1 ? room.player1_name : room.player2_name
+        const isGameFinished = newScore >= WIN_SCORE || room.current_round >= TOTAL_ROUNDS
+
+        await supabase
+          .from("game_rooms")
+          .update({
+            [progressField]: newProgress,
+            [scoreField]: newScore,
+            round_winner: winnerName,
+            game_status: isGameFinished ? "finished" : "round_end",
+          })
+          .eq("room_code", roomCode)
+      } else {
+        // Just update progress
+        await supabase
+          .from("game_rooms")
+          .update({ [progressField]: newProgress })
+          .eq("room_code", roomCode)
+      }
+    } else {
+      // Wrong letter - shake animation
+      setIsShaking(true)
+      setTimeout(() => setIsShaking(false), 500)
     }
-  }, [room, mySlot, roomCode, supabase])
-
-  // Handle correct answer - player wins the round
-  async function handleCorrectAnswer() {
-    if (!room || !playerInfo) return
-
-    const scoreField = mySlot === 1 ? "player1_score" : "player2_score"
-    const newScore = (mySlot === 1 ? room.player1_score : room.player2_score) + 1
-    const winnerName = mySlot === 1 ? room.player1_name : room.player2_name
-
-    // Check if game is finished
-    const isGameFinished = newScore >= WIN_SCORE || room.current_round >= TOTAL_ROUNDS
-
-    await supabase
-      .from("game_rooms")
-      .update({
-        [scoreField]: newScore,
-        round_winner: winnerName,
-        game_status: isGameFinished ? "finished" : "round_end",
-      })
-      .eq("room_code", roomCode)
-  }
+  }, [room, mySlot, roomCode, supabase, playerInfo])
 
   // Handle timer end - no winner for this round
   async function handleTimerEnd() {
@@ -240,14 +261,15 @@ export default function GamePage({ params }: GamePageProps) {
   async function startNewRound() {
     const word = await fetchWordPair()
     const timerEnd = new Date(Date.now() + ROUND_DURATION * 1000).toISOString()
+    const initialProgress = "_".repeat(word.word.length)
 
     await supabase
       .from("game_rooms")
       .update({
         current_word: word.word,
         current_definition: word.definition,
-        player1_progress: "_".repeat(word.word.length),
-        player2_progress: "_".repeat(word.word.length),
+        player1_progress: initialProgress,
+        player2_progress: initialProgress,
         player1_ready: false,
         player2_ready: false,
         round_winner: null,
@@ -270,15 +292,6 @@ export default function GamePage({ params }: GamePageProps) {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  // Handle submit (Enter key)
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (room?.current_word && !isCorrectAnswer(userInput, room.current_word)) {
-      setIsShaking(true)
-      setTimeout(() => setIsShaking(false), 500)
-    }
-  }
-
   // Restart game
   async function handlePlayAgain() {
     await supabase
@@ -297,6 +310,38 @@ export default function GamePage({ params }: GamePageProps) {
         round_winner: null,
       })
       .eq("room_code", roomCode)
+  }
+
+  // Render letter boxes for a player
+  function renderLetterBoxes(progress: string | null, isMe: boolean) {
+    if (!progress) return null
+
+    return (
+      <div className="flex justify-center gap-1.5 flex-wrap">
+        {progress.split("").map((char, i) => {
+          const isFilled = char !== "_"
+          const isJustPlaced = isMe && i === lastPlacedIndex
+          
+          return (
+            <div
+              key={i}
+              className={cn(
+                "w-10 h-12 flex items-center justify-center text-xl font-bold rounded-lg border-2 transition-all duration-200",
+                isFilled
+                  ? isMe 
+                    ? "bg-accent/20 border-accent text-accent-foreground" 
+                    : "bg-accent/20 border-accent"
+                  : "bg-muted/50 border-muted-foreground/30 text-muted-foreground",
+                isJustPlaced && "scale-110 ring-2 ring-accent ring-offset-2"
+              )}
+            >
+              {/* Show letter for self, show filled indicator for opponent */}
+              {isMe ? (isFilled ? char : "_") : (isFilled ? "" : "_")}
+            </div>
+          )
+        })}
+      </div>
+    )
   }
 
   if (isLoading || !playerInfo) {
@@ -531,7 +576,14 @@ export default function GamePage({ params }: GamePageProps) {
 
   // PLAYING
   return (
-    <main className="min-h-screen flex flex-col p-4 bg-gradient-to-b from-background to-secondary/30">
+    <main 
+      ref={gameContainerRef}
+      className={cn(
+        "min-h-screen flex flex-col p-4 bg-gradient-to-b from-background to-secondary/30 outline-none",
+        isShaking && "animate-[shake_0.3s_ease-in-out]"
+      )}
+      tabIndex={0}
+    >
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <Button variant="ghost" size="sm" onClick={() => router.push("/")}>
@@ -573,91 +625,53 @@ export default function GamePage({ params }: GamePageProps) {
         {/* Definition Card */}
         <Card className="w-full">
           <CardContent className="pt-6 pb-6">
-            <p className="text-lg text-center leading-relaxed">
+            <p className="text-lg text-center leading-relaxed text-balance">
               {room.current_definition}
             </p>
           </CardContent>
         </Card>
 
         {/* Progress Displays Side by Side */}
-        <div className="w-full grid grid-cols-2 gap-4">
+        <div className="w-full grid grid-cols-2 gap-6">
           {/* Player 1 Progress */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             <p className={cn(
               "text-sm font-medium text-center",
               mySlot === 1 ? "text-primary" : "text-muted-foreground"
             )}>
               {room.player1_name} {mySlot === 1 && "(You)"}
             </p>
-            <div className="flex justify-center gap-1 flex-wrap">
-              {(room.player1_progress || "").split("").map((char, i) => (
-                <div
-                  key={i}
-                  className={cn(
-                    "w-8 h-10 flex items-center justify-center text-lg font-bold rounded border-2 transition-all",
-                    char !== "_"
-                      ? "bg-accent text-accent-foreground border-accent animate-pulse"
-                      : "bg-muted/50 border-muted-foreground/20 text-muted-foreground"
-                  )}
-                >
-                  {char}
-                </div>
-              ))}
-            </div>
+            {renderLetterBoxes(room.player1_progress, mySlot === 1)}
           </div>
 
           {/* Player 2 Progress */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             <p className={cn(
               "text-sm font-medium text-center",
               mySlot === 2 ? "text-primary" : "text-muted-foreground"
             )}>
               {room.player2_name} {mySlot === 2 && "(You)"}
             </p>
-            <div className="flex justify-center gap-1 flex-wrap">
-              {(room.player2_progress || "").split("").map((char, i) => (
-                <div
-                  key={i}
-                  className={cn(
-                    "w-8 h-10 flex items-center justify-center text-lg font-bold rounded border-2 transition-all",
-                    char !== "_"
-                      ? "bg-accent text-accent-foreground border-accent animate-pulse"
-                      : "bg-muted/50 border-muted-foreground/20 text-muted-foreground"
-                  )}
-                >
-                  {char}
-                </div>
-              ))}
-            </div>
+            {renderLetterBoxes(room.player2_progress, mySlot === 2)}
           </div>
         </div>
 
-        {/* Input Form */}
-        <form onSubmit={handleSubmit} className="w-full space-y-4">
-          <Input
-            ref={inputRef}
-            value={userInput}
-            onChange={(e) => handleInputChange(e.target.value)}
-            placeholder="Type your answer..."
-            className={cn(
-              "text-center text-xl h-14 tracking-wider uppercase",
-              isShaking && "animate-[shake_0.5s_ease-in-out]"
-            )}
-            autoComplete="off"
-            autoCapitalize="off"
-            autoCorrect="off"
-          />
-          <Button type="submit" className="w-full h-12" size="lg">
-            Submit
-          </Button>
-        </form>
+        {/* Keyboard instruction */}
+        <div className="text-center space-y-2">
+          <p className="text-sm text-muted-foreground">
+            Press letter keys on your keyboard to guess!
+          </p>
+          <p className="text-xs text-muted-foreground/70">
+            Each correct letter fills in its position. First to complete wins!
+          </p>
+        </div>
       </div>
 
       <style jsx global>{`
         @keyframes shake {
           0%, 100% { transform: translateX(0); }
-          10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-          20%, 40%, 60%, 80% { transform: translateX(5px); }
+          20%, 60% { transform: translateX(-4px); }
+          40%, 80% { transform: translateX(4px); }
         }
       `}</style>
     </main>
