@@ -76,7 +76,8 @@ export default function GamePage({ params }: GamePageProps) {
         "postgres_changes",
         { event: "*", schema: "public", table: "game_rooms", filter: `room_code=eq.${roomCode}` },
         (payload) => {
-          if (payload.eventType === "UPDATE") {
+          console.log("[v0] Realtime update received:", payload.eventType, payload.new)
+          if (payload.eventType === "UPDATE" || payload.eventType === "INSERT") {
             const newRoom = payload.new as GameRoom
             setRoom(newRoom)
             
@@ -93,7 +94,9 @@ export default function GamePage({ params }: GamePageProps) {
           }
         }
       )
-      .subscribe()
+      .subscribe((status) => {
+        console.log("[v0] Subscription status:", status)
+      })
 
     return () => {
       supabase.removeChannel(channel)
@@ -101,13 +104,18 @@ export default function GamePage({ params }: GamePageProps) {
   }, [roomCode, supabase])
 
   // Watch for both players ready - start game automatically
+  const startGameRef = useRef(false)
   useEffect(() => {
     if (!room || !playerInfo) return
     if (room.game_status !== "waiting") return
     if (!room.player1_id || !room.player2_id) return
     
-    // Both players are ready - start the game
-    if (room.player1_ready && room.player2_ready) {
+    console.log("[v0] Ready check - p1:", room.player1_ready, "p2:", room.player2_ready)
+    
+    // Both players are ready - start the game (only once)
+    if (room.player1_ready && room.player2_ready && !startGameRef.current) {
+      console.log("[v0] Both ready, starting game!")
+      startGameRef.current = true
       startNewRound()
     }
   }, [room?.player1_ready, room?.player2_ready, room?.game_status, room?.player1_id, room?.player2_id])
@@ -230,31 +238,19 @@ export default function GamePage({ params }: GamePageProps) {
       .eq("room_code", roomCode)
   }
 
-  // Handle ready toggle
+  // Handle ready toggle - just update ready status, the useEffect will handle starting the game
   async function handleToggleReady() {
     if (!room || !playerInfo) return
 
     const readyField = mySlot === 1 ? "player1_ready" : "player2_ready"
     const newReady = !myReady
 
-    // Get the current state of opponent's ready status directly from room
-    const opponentCurrentlyReady = opponentSlot === 1 ? room.player1_ready : room.player2_ready
+    console.log("[v0] Toggling ready:", readyField, "to", newReady)
 
-    // If both will be ready after this toggle, start the game
-    if (newReady && opponentCurrentlyReady && roomIsFull) {
-      // Update ready status and start game in one operation
-      await supabase
-        .from("game_rooms")
-        .update({ [readyField]: newReady })
-        .eq("room_code", roomCode)
-      
-      await startNewRound()
-    } else {
-      await supabase
-        .from("game_rooms")
-        .update({ [readyField]: newReady })
-        .eq("room_code", roomCode)
-    }
+    await supabase
+      .from("game_rooms")
+      .update({ [readyField]: newReady })
+      .eq("room_code", roomCode)
   }
 
   // Start new round
@@ -294,6 +290,7 @@ export default function GamePage({ params }: GamePageProps) {
 
   // Restart game
   async function handlePlayAgain() {
+    startGameRef.current = false // Reset so we can start a new game
     await supabase
       .from("game_rooms")
       .update({
