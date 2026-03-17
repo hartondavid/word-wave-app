@@ -54,7 +54,7 @@ export function GuesserView({
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Clue Giver</p>
-            <p className="font-semibold text-lg">{clueGiver?.player_name || "..."}</p>
+            <p className="font-semibold text-lg">{clueGiver?.name || "..."}</p>
           </div>
         </CardContent>
       </Card>
@@ -71,7 +71,7 @@ export function GuesserView({
             <HelpCircle className="w-16 h-16 text-primary" />
           </div>
           <p className="text-xl text-center text-muted-foreground text-balance">
-            Listen to {clueGiver?.player_name}{"'"}s clues and shout out your guess!
+            Listen to {clueGiver?.name}{"'"}s clues and shout out your guess!
           </p>
         </CardContent>
       </Card>
@@ -95,10 +95,10 @@ export function GuesserView({
               .map((player) => (
                 <Badge 
                   key={player.id} 
-                  variant={player.player_name === currentPlayerName ? "default" : "secondary"} 
+                  variant={player.name === currentPlayerName ? "default" : "secondary"} 
                   className="text-sm"
                 >
-                  {player.player_name}: {player.score}
+                  {player.name}: {player.score}
                 </Badge>
               ))}
           </div>

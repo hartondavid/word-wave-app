@@ -76,9 +76,9 @@ export function Lobby({ roomCode, players, isHost, onStartGame, isStarting }: Lo
               >
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
-                    {player.player_name.charAt(0).toUpperCase()}
+                    {player.name.charAt(0).toUpperCase()}
                   </div>
-                  <span className="font-medium">{player.player_name}</span>
+                  <span className="font-medium">{player.name}</span>
                 </div>
                 {player.is_host && (
                   <Badge variant="outline" className="gap-1">

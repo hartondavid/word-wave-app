@@ -26,7 +26,7 @@ export function WinScreen({ players, currentPlayerName }: WinScreenProps) {
   
   const sortedPlayers = [...players].sort((a, b) => b.score - a.score)
   const winner = sortedPlayers[0]
-  const isCurrentPlayerWinner = winner?.player_name === currentPlayerName
+  const isCurrentPlayerWinner = winner?.name === currentPlayerName
 
   useEffect(() => {
     // Generate confetti
@@ -80,7 +80,7 @@ export function WinScreen({ players, currentPlayerName }: WinScreenProps) {
               <Trophy className="w-10 h-10 text-primary" />
             </div>
             <CardTitle className="text-2xl">
-              {isCurrentPlayerWinner ? "You Win!" : `${winner?.player_name} Wins!`}
+              {isCurrentPlayerWinner ? "You Win!" : `${winner?.name} Wins!`}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -123,10 +123,10 @@ export function WinScreen({ players, currentPlayerName }: WinScreenProps) {
                   </div>
                   <span className={cn(
                     "font-medium",
-                    player.player_name === currentPlayerName && "text-primary"
+                    player.name === currentPlayerName && "text-primary"
                   )}>
-                    {player.player_name}
-                    {player.player_name === currentPlayerName && " (You)"}
+                    {player.name}
+                    {player.name === currentPlayerName && " (You)"}
                   </span>
                 </div>
                 <span className="font-bold">{player.score} pts</span>

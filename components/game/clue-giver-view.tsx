@@ -112,7 +112,7 @@ export function ClueGiverView({
               .sort((a, b) => b.score - a.score)
               .map((player) => (
                 <Badge key={player.id} variant="secondary" className="text-sm">
-                  {player.player_name}: {player.score}
+                  {player.name}: {player.score}
                 </Badge>
               ))}
           </div>

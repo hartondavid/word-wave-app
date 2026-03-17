@@ -105,7 +105,7 @@ export default function GamePage({ params }: GamePageProps) {
 
   const getCurrentPlayerId = useCallback(() => {
     if (!currentPlayer) return null
-    const player = players.find(p => p.player_name === currentPlayer.name)
+    const player = players.find(p => p.name === currentPlayer.name)
     return player?.id || null
   }, [currentPlayer, players])
 

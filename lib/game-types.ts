@@ -1,7 +1,7 @@
 export interface Player {
   id: string
   room_code: string
-  player_name: string
+  name: string
   score: number
   is_host: boolean
   created_at: string
