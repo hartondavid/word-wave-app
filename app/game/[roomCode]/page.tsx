@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, use } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { GameRoom, Player, ROUND_DURATION, WIN_SCORE } from "@/lib/game-types"
-import { getRandomCards } from "@/lib/words"
+import { getRandomWordCard, getRandomLocalCard } from "@/lib/words"
 import { Lobby } from "@/components/game/lobby"
 import { ClueGiverView } from "@/components/game/clue-giver-view"
 import { GuesserView } from "@/components/game/guesser-view"
@@ -121,7 +121,8 @@ export default function GamePage({ params }: GamePageProps) {
   }
 
   async function startNewRound() {
-    const card = getRandomCards(1)[0]
+    // Fetch word from API with fallback to local
+    const card = await getRandomWordCard()
     const currentPlayerId = getCurrentPlayerId()
     
     // Select next clue giver (rotate through players)
@@ -181,8 +182,8 @@ export default function GamePage({ params }: GamePageProps) {
   }
 
   async function handleSkipWord() {
-    // Get new word and continue
-    const card = getRandomCards(1)[0]
+    // Get new word from API with fallback - use local for speed during skip
+    const card = getRandomLocalCard()
     
     await supabase
       .from("game_rooms")
