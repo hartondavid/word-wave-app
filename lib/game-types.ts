@@ -1,32 +1,30 @@
-export interface Player {
-  id: string
-  room_code: string
-  name: string
-  score: number
-  is_host: boolean
-  created_at: string
-}
-
 export interface GameRoom {
   id: string
   room_code: string
   current_word: string | null
-  taboo_words: string[] | null
-  current_clue_giver: string | null
-  game_status: 'waiting' | 'playing' | 'round_end' | 'game_over'
+  current_definition: string | null
+  player1_id: string | null
+  player1_name: string | null
+  player1_progress: string | null
+  player1_score: number
+  player1_ready: boolean
+  player2_id: string | null
+  player2_name: string | null
+  player2_progress: string | null
+  player2_score: number
+  player2_ready: boolean
+  game_status: 'waiting' | 'ready' | 'playing' | 'round_end' | 'finished'
   round_number: number
+  round_winner: string | null
   timer_end: string | null
   created_at: string
 }
 
-export interface GameState {
-  room: GameRoom | null
-  players: Player[]
-  currentPlayer: Player | null
-  isClueGiver: boolean
-  timeRemaining: number
+export interface WordPair {
+  definition: string
+  word: string
 }
 
-export const ROUND_DURATION = 60 // seconds
-export const TOTAL_ROUNDS = 3
-export const WIN_SCORE = 10
+export const ROUND_DURATION = 60 // seconds per round
+export const TOTAL_ROUNDS = 10 // best of 10
+export const WIN_SCORE = 6 // first to 6 wins (majority)

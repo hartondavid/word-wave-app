@@ -1,192 +1,152 @@
-export interface WordCard {
-  word: string
-  tabooWords: string[]
-}
+import type { WordPair } from "./game-types"
 
-// Fallback local words (50 pairs) - used when API fails or offline
-export const localWordCards: WordCard[] = [
-  { word: "BEACH", tabooWords: ["sand", "ocean", "sun", "water", "waves"] },
-  { word: "PIZZA", tabooWords: ["cheese", "pepperoni", "Italian", "slice", "crust"] },
-  { word: "BASKETBALL", tabooWords: ["hoop", "court", "dribble", "NBA", "ball"] },
-  { word: "ELEPHANT", tabooWords: ["trunk", "big", "Africa", "gray", "ears"] },
-  { word: "BIRTHDAY", tabooWords: ["cake", "candles", "party", "presents", "celebrate"] },
-  { word: "SUPERHERO", tabooWords: ["cape", "powers", "save", "villain", "mask"] },
-  { word: "CAMPING", tabooWords: ["tent", "fire", "outdoors", "sleep", "nature"] },
-  { word: "CHOCOLATE", tabooWords: ["candy", "sweet", "brown", "cocoa", "dessert"] },
-  { word: "RAINBOW", tabooWords: ["colors", "rain", "sky", "arc", "pot of gold"] },
-  { word: "DENTIST", tabooWords: ["teeth", "drill", "cavity", "floss", "brush"] },
-  { word: "VOLCANO", tabooWords: ["lava", "eruption", "mountain", "hot", "ash"] },
-  { word: "ASTRONAUT", tabooWords: ["space", "rocket", "moon", "NASA", "suit"] },
-  { word: "LIBRARY", tabooWords: ["books", "quiet", "read", "shelves", "borrow"] },
-  { word: "SNOWMAN", tabooWords: ["snow", "carrot", "winter", "cold", "Frosty"] },
-  { word: "GUITAR", tabooWords: ["strings", "music", "strum", "rock", "acoustic"] },
-  { word: "PENGUIN", tabooWords: ["Antarctica", "ice", "waddle", "bird", "black and white"] },
-  { word: "BREAKFAST", tabooWords: ["eggs", "morning", "cereal", "bacon", "toast"] },
-  { word: "VAMPIRE", tabooWords: ["blood", "fangs", "Dracula", "bat", "night"] },
-  { word: "ROLLERCOASTER", tabooWords: ["amusement park", "ride", "loops", "fast", "scary"] },
-  { word: "WEDDING", tabooWords: ["bride", "groom", "ring", "marriage", "ceremony"] },
-  { word: "PIRATE", tabooWords: ["ship", "treasure", "parrot", "eyepatch", "hook"] },
-  { word: "SUNGLASSES", tabooWords: ["eyes", "shade", "summer", "UV", "cool"] },
-  { word: "FIREFIGHTER", tabooWords: ["fire", "hose", "truck", "rescue", "helmet"] },
-  { word: "KARAOKE", tabooWords: ["sing", "microphone", "lyrics", "song", "bar"] },
-  { word: "MAGICIAN", tabooWords: ["magic", "trick", "rabbit", "hat", "wand"] },
-  { word: "SKYSCRAPER", tabooWords: ["tall", "building", "city", "floors", "elevator"] },
-  { word: "TORNADO", tabooWords: ["wind", "storm", "funnel", "destroy", "Kansas"] },
-  { word: "SUSHI", tabooWords: ["fish", "rice", "Japan", "raw", "roll"] },
-  { word: "DETECTIVE", tabooWords: ["mystery", "clues", "solve", "crime", "investigate"] },
-  { word: "UNICORN", tabooWords: ["horn", "magical", "horse", "rainbow", "mythical"] },
-  { word: "POPCORN", tabooWords: ["movie", "butter", "kernel", "snack", "theater"] },
-  { word: "DINOSAUR", tabooWords: ["extinct", "prehistoric", "T-Rex", "fossils", "Jurassic"] },
-  { word: "PHOTOGRAPHER", tabooWords: ["camera", "picture", "photo", "lens", "shoot"] },
-  { word: "HAMBURGER", tabooWords: ["beef", "bun", "patty", "fast food", "grill"] },
-  { word: "KOALA", tabooWords: ["Australia", "eucalyptus", "bear", "cute", "tree"] },
-  { word: "LIGHTHOUSE", tabooWords: ["beacon", "ocean", "ships", "light", "coast"] },
-  { word: "MERMAID", tabooWords: ["tail", "ocean", "fish", "swim", "Ariel"] },
-  { word: "AIRPORT", tabooWords: ["plane", "fly", "terminal", "boarding", "travel"] },
-  { word: "GIRAFFE", tabooWords: ["neck", "tall", "spots", "Africa", "zoo"] },
-  { word: "TREEHOUSE", tabooWords: ["tree", "kids", "climb", "ladder", "fort"] },
-  { word: "COFFEE", tabooWords: ["caffeine", "espresso", "morning", "beans", "Starbucks"] },
-  { word: "HOSPITAL", tabooWords: ["doctor", "nurse", "sick", "emergency", "medicine"] },
-  { word: "BUTTERFLY", tabooWords: ["wings", "caterpillar", "metamorphosis", "colorful", "insect"] },
-  { word: "CARNIVAL", tabooWords: ["rides", "games", "cotton candy", "ferris wheel", "clown"] },
-  { word: "MOTORCYCLE", tabooWords: ["bike", "helmet", "wheels", "Harley", "ride"] },
-  { word: "AQUARIUM", tabooWords: ["fish", "tank", "water", "sharks", "marine"] },
-  { word: "ORCHESTRA", tabooWords: ["music", "symphony", "conductor", "instruments", "classical"] },
-  { word: "SUBMARINE", tabooWords: ["underwater", "navy", "periscope", "ocean", "dive"] },
-  { word: "TREASURE", tabooWords: ["gold", "chest", "pirate", "map", "buried"] },
-  { word: "WATERFALL", tabooWords: ["water", "cliff", "Niagara", "nature", "cascade"] },
+// 50 fallback word pairs for offline/API failure
+export const LOCAL_WORD_PAIRS: WordPair[] = [
+  { definition: "Animal that meows and chases mice", word: "cat" },
+  { definition: "You drink this when thirsty", word: "water" },
+  { definition: "Largest planet in our solar system", word: "jupiter" },
+  { definition: "Frozen water falling from sky", word: "snow" },
+  { definition: "Yellow fruit monkeys love", word: "banana" },
+  { definition: "King of the jungle", word: "lion" },
+  { definition: "Hot drink made from beans", word: "coffee" },
+  { definition: "Earth's natural satellite", word: "moon" },
+  { definition: "Device for making phone calls", word: "phone" },
+  { definition: "Red fruit used in ketchup", word: "tomato" },
+  { definition: "Large body of salt water", word: "ocean" },
+  { definition: "Flying mammal active at night", word: "bat" },
+  { definition: "Tool for writing with ink", word: "pen" },
+  { definition: "Frozen treat on a stick", word: "popsicle" },
+  { definition: "Vehicle with two wheels", word: "bicycle" },
+  { definition: "Tall plant with trunk and leaves", word: "tree" },
+  { definition: "Building where you sleep at home", word: "house" },
+  { definition: "Star at the center of our solar system", word: "sun" },
+  { definition: "Sweet dessert for birthdays", word: "cake" },
+  { definition: "Animal that barks", word: "dog" },
+  { definition: "Writing tool that can be erased", word: "pencil" },
+  { definition: "White liquid from cows", word: "milk" },
+  { definition: "Colorful arc after rain", word: "rainbow" },
+  { definition: "Game with black and white squares", word: "chess" },
+  { definition: "Instrument with black and white keys", word: "piano" },
+  { definition: "Portable computer", word: "laptop" },
+  { definition: "Room where you cook food", word: "kitchen" },
+  { definition: "Season after winter", word: "spring" },
+  { definition: "Day after Monday", word: "tuesday" },
+  { definition: "Opposite of day", word: "night" },
+  { definition: "Place with sand and waves", word: "beach" },
+  { definition: "Flying insect that makes honey", word: "bee" },
+  { definition: "Meal eaten in the morning", word: "breakfast" },
+  { definition: "Piece of furniture for sitting", word: "chair" },
+  { definition: "Timepiece worn on wrist", word: "watch" },
+  { definition: "Person who teaches students", word: "teacher" },
+  { definition: "Sport with goals and a round ball", word: "soccer" },
+  { definition: "Fruit that keeps doctors away", word: "apple" },
+  { definition: "Month of Halloween", word: "october" },
+  { definition: "Animal with a long neck", word: "giraffe" },
+  { definition: "Striped animal like a horse", word: "zebra" },
+  { definition: "Place to borrow books", word: "library" },
+  { definition: "Day for gifts and a tree", word: "christmas" },
+  { definition: "Meal eaten at midday", word: "lunch" },
+  { definition: "Eight-legged sea creature", word: "octopus" },
+  { definition: "Cloth worn on your feet", word: "socks" },
+  { definition: "Vehicle that flies in the sky", word: "airplane" },
+  { definition: "Green vegetable that looks like a tree", word: "broccoli" },
+  { definition: "Round vegetable that makes you cry", word: "onion" },
+  { definition: "Cold season with short days", word: "winter" },
 ]
 
-interface TriviaResponse {
-  response_code: number
-  results: {
-    category: string
-    type: string
-    difficulty: string
-    question: string
-    correct_answer: string
-    incorrect_answers: string[]
-  }[]
+// Get a random local word pair
+export function getRandomLocalPair(): WordPair {
+  const index = Math.floor(Math.random() * LOCAL_WORD_PAIRS.length)
+  return LOCAL_WORD_PAIRS[index]
 }
 
 // Decode HTML entities from API response
-function decodeHtml(html: string): string {
-  const txt = document.createElement("textarea")
-  txt.innerHTML = html
-  return txt.value
+function decodeHTMLEntities(text: string): string {
+  const entities: Record<string, string> = {
+    "&amp;": "&",
+    "&lt;": "<",
+    "&gt;": ">",
+    "&quot;": '"',
+    "&#039;": "'",
+    "&apos;": "'",
+    "&nbsp;": " ",
+  }
+
+  let decoded = text
+  for (const [entity, char] of Object.entries(entities)) {
+    decoded = decoded.replace(new RegExp(entity, "g"), char)
+  }
+
+  // Handle numeric entities
+  decoded = decoded.replace(/&#(\d+);/g, (_, num) => 
+    String.fromCharCode(parseInt(num, 10))
+  )
+  decoded = decoded.replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => 
+    String.fromCharCode(parseInt(hex, 16))
+  )
+
+  return decoded
 }
 
-// Extract keywords from a question to use as taboo words
-function extractTabooWords(question: string, answer: string, incorrectAnswers: string[]): string[] {
-  // Decode HTML entities
-  const decodedQuestion = decodeHtml(question)
-  const decodedAnswer = decodeHtml(answer)
-  
-  // Common words to exclude
-  const stopWords = new Set([
-    "the", "a", "an", "is", "are", "was", "were", "what", "which", "who", "whom",
-    "this", "that", "these", "those", "am", "been", "being", "have", "has", "had",
-    "do", "does", "did", "will", "would", "could", "should", "may", "might", "must",
-    "shall", "can", "need", "dare", "ought", "used", "to", "of", "in", "for", "on",
-    "with", "at", "by", "from", "as", "into", "through", "during", "before", "after",
-    "above", "below", "between", "under", "again", "further", "then", "once", "here",
-    "there", "when", "where", "why", "how", "all", "each", "few", "more", "most",
-    "other", "some", "such", "no", "nor", "not", "only", "own", "same", "so", "than",
-    "too", "very", "just", "also", "now", "and", "but", "or", "because", "if", "its",
-    "following", "called", "known", "name", "named", "following", "word", "term"
-  ])
-
-  // Extract words from question (excluding the answer itself)
-  const questionWords = decodedQuestion
-    .replace(/[^a-zA-Z\s]/g, " ")
-    .split(/\s+/)
-    .filter(word => word.length > 2)
-    .filter(word => !stopWords.has(word.toLowerCase()))
-    .filter(word => word.toLowerCase() !== decodedAnswer.toLowerCase())
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-
-  // Add incorrect answers as taboo words (up to 2)
-  const incorrectTaboo = incorrectAnswers
-    .slice(0, 2)
-    .map(a => decodeHtml(a))
-    .filter(a => a.toLowerCase() !== decodedAnswer.toLowerCase())
-
-  // Combine and dedupe
-  const allWords = [...new Set([...incorrectTaboo, ...questionWords])]
-  
-  // Return first 5 unique taboo words
-  return allWords.slice(0, 5)
-}
-
-// Fetch a word card from Open Trivia Database API
-export async function fetchWordFromAPI(): Promise<WordCard | null> {
+// Fetch word from Open Trivia Database API with fallback
+export async function fetchWordPair(): Promise<WordPair> {
   try {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 5000)
+
     const response = await fetch(
       "https://opentdb.com/api.php?amount=1&difficulty=easy&type=multiple",
-      { 
-        cache: "no-store",
-        signal: AbortSignal.timeout(5000) // 5 second timeout
-      }
+      { signal: controller.signal }
     )
     
+    clearTimeout(timeoutId)
+
     if (!response.ok) {
       throw new Error("API response not ok")
     }
 
-    const data: TriviaResponse = await response.json()
+    const data = await response.json()
     
-    if (data.response_code !== 0 || !data.results.length) {
-      throw new Error("No trivia results")
+    if (data.response_code !== 0 || !data.results || data.results.length === 0) {
+      throw new Error("No results from API")
     }
 
     const trivia = data.results[0]
-    const answer = decodeHtml(trivia.correct_answer).toUpperCase()
-    const tabooWords = extractTabooWords(
-      trivia.question,
-      trivia.correct_answer,
-      trivia.incorrect_answers
-    )
+    const answer = decodeHTMLEntities(trivia.correct_answer).toLowerCase().trim()
+    const question = decodeHTMLEntities(trivia.question)
 
-    // Make sure we have at least 3 taboo words
-    if (tabooWords.length < 3) {
-      throw new Error("Not enough taboo words generated")
+    // Filter: only accept 3-7 letter single-word answers with only letters
+    if (answer.length < 3 || answer.length > 7 || answer.includes(" ") || !/^[a-z]+$/.test(answer)) {
+      return getRandomLocalPair()
     }
 
     return {
+      definition: question,
       word: answer,
-      tabooWords,
     }
-  } catch (error) {
-    console.error("Failed to fetch from trivia API:", error)
-    return null
+  } catch {
+    return getRandomLocalPair()
   }
 }
 
-// Get a random word card - tries API first, falls back to local
-export async function getRandomWordCard(): Promise<WordCard> {
-  // Try API first
-  const apiCard = await fetchWordFromAPI()
-  if (apiCard) {
-    return apiCard
+// Calculate letter-by-letter progress display
+export function calculateProgress(input: string, answer: string): string {
+  const result: string[] = []
+  const inputLower = input.toLowerCase()
+  const answerLower = answer.toLowerCase()
+
+  for (let i = 0; i < answerLower.length; i++) {
+    if (i < inputLower.length && inputLower[i] === answerLower[i]) {
+      result.push(answerLower[i].toUpperCase())
+    } else {
+      result.push("_")
+    }
   }
 
-  // Fallback to local words
-  const randomIndex = Math.floor(Math.random() * localWordCards.length)
-  return localWordCards[randomIndex]
+  return result.join("")
 }
 
-// Synchronous fallback for immediate use (local only)
-export function getRandomLocalCard(): WordCard {
-  const randomIndex = Math.floor(Math.random() * localWordCards.length)
-  return localWordCards[randomIndex]
-}
-
-// Legacy function for compatibility
-export function getRandomCards(count: number): WordCard[] {
-  const shuffled = [...localWordCards].sort(() => Math.random() - 0.5)
-  return shuffled.slice(0, count)
-}
-
-export function getCardByWord(word: string): WordCard | undefined {
-  return localWordCards.find(card => card.word === word)
+// Check if answer is complete and correct
+export function isCorrectAnswer(input: string, answer: string): boolean {
+  return input.toLowerCase().trim() === answer.toLowerCase().trim()
 }
