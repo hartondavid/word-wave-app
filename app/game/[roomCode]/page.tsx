@@ -102,6 +102,18 @@ export default function GamePage({ params }: GamePageProps) {
     }
   }, [roomCode, supabase])
 
+  // Watch for both players ready - start game automatically
+  useEffect(() => {
+    if (!room || !playerInfo) return
+    if (room.game_status !== "waiting") return
+    if (!room.player1_id || !room.player2_id) return
+    
+    // Both players are ready - start the game
+    if (room.player1_ready && room.player2_ready) {
+      startNewRound()
+    }
+  }, [room?.player1_ready, room?.player2_ready, room?.game_status, room?.player1_id, room?.player2_id])
+
   // Timer countdown
   useEffect(() => {
     if (room?.game_status !== "playing" || !room.round_end_time) return
@@ -204,15 +216,23 @@ export default function GamePage({ params }: GamePageProps) {
     const readyField = mySlot === 1 ? "player1_ready" : "player2_ready"
     const newReady = !myReady
 
-    await supabase
-      .from("game_rooms")
-      .update({ [readyField]: newReady })
-      .eq("room_code", roomCode)
+    // Get the current state of opponent's ready status directly from room
+    const opponentCurrentlyReady = opponentSlot === 1 ? room.player1_ready : room.player2_ready
 
-    // Check if both players are ready to start
-    const otherReady = opponentSlot === 1 ? room.player1_ready : room.player2_ready
-    if (newReady && otherReady && roomIsFull) {
-      startNewRound()
+    // If both will be ready after this toggle, start the game
+    if (newReady && opponentCurrentlyReady && roomIsFull) {
+      // Update ready status and start game in one operation
+      await supabase
+        .from("game_rooms")
+        .update({ [readyField]: newReady })
+        .eq("room_code", roomCode)
+      
+      await startNewRound()
+    } else {
+      await supabase
+        .from("game_rooms")
+        .update({ [readyField]: newReady })
+        .eq("room_code", roomCode)
     }
   }
 
