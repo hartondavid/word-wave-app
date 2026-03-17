@@ -7,8 +7,8 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'WordMatch - Multiplayer Word Guessing Game',
-  description: 'A fun multiplayer word guessing game where players take turns giving clues and guessing words!',
+  title: 'WordDuel - Head-to-Head Word Guessing Game',
+  description: 'Compete head-to-head in this fast-paced word guessing game! Race to type the correct word first.',
   generator: 'v0.app',
   icons: {
     icon: [
