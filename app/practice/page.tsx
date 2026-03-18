@@ -106,14 +106,13 @@ export default function PracticePage() {
     }
   }, [gameStatus])
 
-  // Keep word mask above the virtual keyboard using visualViewport
+  // Scroll word mask into view when keyboard opens
   useEffect(() => {
     const vv = window.visualViewport
     if (!vv) return
     const onResize = () => {
-      const offset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop)
-      if (offset > 100) {
-        setTimeout(() => wordMaskRef.current?.scrollIntoView({ behavior: "smooth", block: "end" }), 150)
+      if (window.innerHeight - vv.height > 100) {
+        setTimeout(() => wordMaskRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 200)
       }
     }
     vv.addEventListener("resize", onResize)
@@ -175,7 +174,7 @@ export default function PracticePage() {
   return (
     <main
       className={cn(
-        "min-h-screen flex flex-col bg-gradient-to-b from-background to-secondary/30 outline-none",
+        "h-dvh flex flex-col overflow-hidden bg-gradient-to-b from-background to-secondary/30 outline-none",
         isShaking && "animate-[shake_0.3s_ease-in-out]"
       )}
       tabIndex={0}
@@ -242,7 +241,7 @@ export default function PracticePage() {
 
       {/* Main content — tap anywhere to re-focus keyboard on iOS */}
       <div
-        className="flex-1 flex flex-col items-center justify-start px-4 pt-5 pb-6 max-w-2xl mx-auto w-full gap-5"
+        className="flex-1 overflow-y-auto flex flex-col items-center justify-start px-4 pt-5 pb-6 max-w-2xl mx-auto w-full gap-5"
         onClick={() => { if (gameStatus === "playing") hiddenInputRef.current?.focus() }}
       >
 
