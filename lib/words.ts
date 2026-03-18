@@ -8,10 +8,16 @@ interface MultilingualEntry {
   definitions: Record<string, string>  // translated definitions per language
 }
 
+// Strip diacritics from a word so players only need to type plain letters
+function removeDiacritics(str: string): string {
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+}
+
 function extractPair(entry: MultilingualEntry | WordPair, language: string): WordPair {
   if ("definitions" in entry && entry.definitions) {
     const def  = entry.definitions[language] ?? entry.definitions["en"] ?? ""
-    const word = entry.words?.[language] ?? entry.words?.["en"] ?? entry.word
+    const rawWord = entry.words?.[language] ?? entry.words?.["en"] ?? entry.word
+    const word = removeDiacritics(rawWord)
     return { word, definition: def }
   }
   return entry as WordPair
