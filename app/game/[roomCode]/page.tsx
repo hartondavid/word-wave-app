@@ -67,6 +67,8 @@ export default function GamePage({ params }: GamePageProps) {
   const startGameRef = useRef(false)
   const hiddenInputRef = useRef<HTMLInputElement>(null)
   const wordMaskRef = useRef<HTMLDivElement>(null)
+  // Local progress ref to avoid race condition on rapid key presses
+  const localProgressRef = useRef<string | null>(null)
   const router = useRouter()
   const supabase = createClient()
 
@@ -147,6 +149,13 @@ export default function GamePage({ params }: GamePageProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [room?.round_end_time, room?.game_status])
 
+  // Reset local progress ref at the start of each new round
+  useEffect(() => {
+    if (room?.game_status === "playing") {
+      localProgressRef.current = null
+    }
+  }, [room?.game_status, room?.current_word])
+
   // Auto-focus hidden input when round starts (shows mobile keyboard),
   // blur when round ends (hides mobile keyboard)
   useEffect(() => {
@@ -192,10 +201,12 @@ export default function GamePage({ params }: GamePageProps) {
 
   const handleLetterInput = useCallback(async (letter: string) => {
     if (!room || !playerInfo || room.game_status !== "playing" || !room.current_word) return
-    const cur = slotData(mySlot, room).progress
+    // Use localProgressRef to avoid stale state on rapid key presses
+    const cur = localProgressRef.current ?? slotData(mySlot, room).progress
     if (!cur) return
     const next = tryPlaceLetter(letter, cur, room.current_word)
     if (next) {
+      localProgressRef.current = next
       for (let i = 0; i < next.length; i++) {
         if (cur[i] === "_" && next[i] !== "_") { setLastPlacedIndex(i); break }
       }
@@ -389,7 +400,7 @@ export default function GamePage({ params }: GamePageProps) {
 
               {/* My letter or placeholder */}
               {filled
-                ? <span className="relative z-10 text-xl sm:text-3xl font-black text-emerald-600">{ch}</span>
+                ? <span className="relative z-10 text-xl sm:text-3xl font-black text-emerald-600">{ch.toUpperCase()}</span>
                 : <span className="text-muted-foreground/20 text-base sm:text-xl select-none">_</span>
               }
             </div>
@@ -674,12 +685,7 @@ export default function GamePage({ params }: GamePageProps) {
               )}
             </div>
           </div>
-          <div className={cn(
-            "flex items-center gap-1.5 text-sm font-bold px-3 py-1.5 rounded-lg",
-            timeRemaining <= 10 ? "bg-destructive/10 text-destructive animate-pulse" : "bg-muted"
-          )}>
-            <Timer className="w-3.5 h-3.5" />{timeRemaining}s
-          </div>
+          <div className="w-16" />
         </div>
 
         {/* Player top bar */}
@@ -691,6 +697,14 @@ export default function GamePage({ params }: GamePageProps) {
         className="flex-1 overflow-y-auto flex flex-col items-center justify-start px-4 pt-5 pb-6 max-w-2xl mx-auto w-full gap-5"
         onClick={() => hiddenInputRef.current?.focus()}
       >
+
+        {/* Timer */}
+        <div className={cn(
+          "flex items-center justify-center gap-1.5 text-sm font-bold px-4 py-2 rounded-lg w-full",
+          timeRemaining <= 10 ? "bg-destructive/10 text-destructive animate-pulse" : "bg-muted"
+        )}>
+          <Timer className="w-3.5 h-3.5" />{timeRemaining}s
+        </div>
 
         {/* Definition */}
         <Card className="w-full shadow-sm">

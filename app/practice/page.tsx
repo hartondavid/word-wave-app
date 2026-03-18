@@ -41,6 +41,7 @@ export default function PracticePage() {
   const [showConfetti, setShowConfetti] = useState(false)
   const hiddenInputRef = useRef<HTMLInputElement>(null)
   const wordMaskRef = useRef<HTMLDivElement>(null)
+  const progressRef = useRef("")
   const router = useRouter()
 
   useEffect(() => {
@@ -57,7 +58,9 @@ export default function PracticePage() {
     setGameStatus("loading")
     const word = await fetchWordPairForCategory(category, language)
     setCurrentWord(word)
-    setProgress("_".repeat(word.word.length))
+    const initProgress = "_".repeat(word.word.length)
+    progressRef.current = initProgress
+    setProgress(initProgress)
     setLastPlacedIndex(null)
     setTimeLeft(ROUND_DURATION)
     setGameStatus("playing")
@@ -77,12 +80,14 @@ export default function PracticePage() {
   }, [gameStatus])
 
   const handleLetterInput = useCallback((letter: string) => {
-    if (gameStatus !== "playing" || !currentWord || !progress) return
-    const newProgress = tryPlaceLetter(letter, progress, currentWord.word)
+    if (gameStatus !== "playing" || !currentWord) return
+    const cur = progressRef.current
+    const newProgress = tryPlaceLetter(letter, cur, currentWord.word)
     if (newProgress) {
       for (let i = 0; i < newProgress.length; i++) {
-        if (progress[i] === "_" && newProgress[i] !== "_") { setLastPlacedIndex(i); break }
+        if (cur[i] === "_" && newProgress[i] !== "_") { setLastPlacedIndex(i); break }
       }
+      progressRef.current = newProgress
       setProgress(newProgress)
       if (isWordComplete(newProgress)) {
         hiddenInputRef.current?.blur()
@@ -95,7 +100,7 @@ export default function PracticePage() {
       setIsShaking(true)
       setTimeout(() => setIsShaking(false), 500)
     }
-  }, [currentWord, gameStatus, progress])
+  }, [currentWord, gameStatus])
 
   // Auto-focus hidden input when round starts, blur when it ends
   useEffect(() => {
@@ -194,22 +199,15 @@ export default function PracticePage() {
             </span>
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground/60">
               {category && CATEGORIES[category as CategoryKey] && (
-                <span>{CATEGORIES[category as CategoryKey].emoji} {CATEGORIES[category as CategoryKey].label}</span>
+                <span suppressHydrationWarning>{CATEGORIES[category as CategoryKey].emoji} {CATEGORIES[category as CategoryKey].label}</span>
               )}
               {language && LANGUAGES[language as LanguageKey] && (
-                <span>· {LANGUAGES[language as LanguageKey].flag}</span>
+                <span suppressHydrationWarning>· {LANGUAGES[language as LanguageKey].flag}</span>
               )}
             </div>
           </div>
 
           <div className="flex items-center gap-1.5">
-            {/* Timer */}
-            <div className={cn(
-              "flex items-center gap-1.5 text-sm font-bold px-3 py-1.5 rounded-lg",
-              timeLeft <= 10 ? "bg-destructive/10 text-destructive animate-pulse" : "bg-muted"
-            )}>
-              <Timer className="w-3.5 h-3.5" />{timeLeft}s
-            </div>
             {/* Score */}
             <div className="flex items-center gap-1 text-sm font-bold px-3 py-1.5 rounded-lg bg-muted">
               <Trophy className="w-3.5 h-3.5 text-primary" />{score}
@@ -223,6 +221,14 @@ export default function PracticePage() {
         className="flex-1 overflow-y-auto flex flex-col items-center justify-start px-4 pt-5 pb-6 max-w-2xl mx-auto w-full gap-5"
         onClick={() => { if (gameStatus === "playing") hiddenInputRef.current?.focus() }}
       >
+
+        {/* Timer */}
+        <div className={cn(
+          "flex items-center justify-center gap-1.5 text-sm font-bold px-4 py-2 rounded-lg w-full",
+          timeLeft <= 10 ? "bg-destructive/10 text-destructive animate-pulse" : "bg-muted"
+        )}>
+          <Timer className="w-3.5 h-3.5" />{timeLeft}s
+        </div>
 
         {/* Definition */}
         <Card className="w-full shadow-sm">
@@ -276,7 +282,7 @@ export default function PracticePage() {
                 )}
               >
                 {filled
-                  ? <span className="text-xl sm:text-3xl font-black text-emerald-600">{ch}</span>
+                  ? <span className="text-xl sm:text-3xl font-black text-emerald-600">{ch.toUpperCase()}</span>
                   : <span className="text-muted-foreground/20 text-base sm:text-xl select-none">_</span>
                 }
               </div>
