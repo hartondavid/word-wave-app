@@ -63,7 +63,6 @@ export default function GamePage({ params }: GamePageProps) {
   const [lastPlacedIndex, setLastPlacedIndex] = useState<number | null>(null)
   // tracks which positions just received a new enemy hit (for pulse)
   const [newEnemyHits, setNewEnemyHits] = useState<Set<number>>(new Set())
-  const [keyboardOffset, setKeyboardOffset] = useState(0)
   const prevProgressRef = useRef<Record<number, string>>({})
   const startGameRef = useRef(false)
   const hiddenInputRef = useRef<HTMLInputElement>(null)
@@ -164,13 +163,12 @@ export default function GamePage({ params }: GamePageProps) {
     if (!vv) return
     const onResize = () => {
       const offset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop)
-      setKeyboardOffset(offset)
       if (offset > 100) {
-        setTimeout(() => wordMaskRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 150)
+        setTimeout(() => wordMaskRef.current?.scrollIntoView({ behavior: "smooth", block: "end" }), 150)
       }
     }
     vv.addEventListener("resize", onResize)
-    return () => { vv.removeEventListener("resize", onResize); setKeyboardOffset(0) }
+    return () => vv.removeEventListener("resize", onResize)
   }, [])
 
   // Keyboard input
@@ -713,7 +711,6 @@ export default function GamePage({ params }: GamePageProps) {
       {/* Main content — tap anywhere to re-focus keyboard on iOS */}
       <div
         className="flex-1 flex flex-col items-center justify-start px-4 pt-5 pb-6 max-w-2xl mx-auto w-full gap-5"
-        style={{ paddingBottom: keyboardOffset > 0 ? `${keyboardOffset + 16}px` : undefined }}
         onClick={() => hiddenInputRef.current?.focus()}
       >
 

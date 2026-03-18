@@ -39,7 +39,6 @@ export default function PracticePage() {
   const [isShaking, setIsShaking] = useState(false)
   const [lastPlacedIndex, setLastPlacedIndex] = useState<number | null>(null)
   const [showConfetti, setShowConfetti] = useState(false)
-  const [keyboardOffset, setKeyboardOffset] = useState(0)
   const hiddenInputRef = useRef<HTMLInputElement>(null)
   const wordMaskRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
@@ -113,13 +112,12 @@ export default function PracticePage() {
     if (!vv) return
     const onResize = () => {
       const offset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop)
-      setKeyboardOffset(offset)
       if (offset > 100) {
-        setTimeout(() => wordMaskRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 150)
+        setTimeout(() => wordMaskRef.current?.scrollIntoView({ behavior: "smooth", block: "end" }), 150)
       }
     }
     vv.addEventListener("resize", onResize)
-    return () => { vv.removeEventListener("resize", onResize); setKeyboardOffset(0) }
+    return () => vv.removeEventListener("resize", onResize)
   }, [])
 
   useEffect(() => {
@@ -245,7 +243,6 @@ export default function PracticePage() {
       {/* Main content — tap anywhere to re-focus keyboard on iOS */}
       <div
         className="flex-1 flex flex-col items-center justify-start px-4 pt-5 pb-6 max-w-2xl mx-auto w-full gap-5"
-        style={{ paddingBottom: keyboardOffset > 0 ? `${keyboardOffset + 16}px` : undefined }}
         onClick={() => { if (gameStatus === "playing") hiddenInputRef.current?.focus() }}
       >
 
