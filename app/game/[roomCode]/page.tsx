@@ -3,8 +3,8 @@
 import { useEffect, useState, useCallback, useRef, use } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
-import type { GameRoom, PlayerSlot, CategoryKey } from "@/lib/game-types"
-import { ROUND_DURATION, WIN_SCORE, TOTAL_ROUNDS, PLAYER_COLORS, CATEGORIES } from "@/lib/game-types"
+import type { GameRoom, PlayerSlot, CategoryKey, LanguageKey } from "@/lib/game-types"
+import { ROUND_DURATION, WIN_SCORE, TOTAL_ROUNDS, PLAYER_COLORS, CATEGORIES, LANGUAGES } from "@/lib/game-types"
 import { fetchWordPairForCategory, tryPlaceLetter, isWordComplete } from "@/lib/words"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -213,7 +213,7 @@ export default function GamePage({ params }: GamePageProps) {
 
   async function startNewRound() {
     if (!room) return
-    const word = await fetchWordPairForCategory(room.category)
+    const word = await fetchWordPairForCategory(room.category, room.language ?? "en")
     const init = "_".repeat(word.word.length)
     const active = activeSlots(room)
 
@@ -639,11 +639,14 @@ export default function GamePage({ params }: GamePageProps) {
             <span className="text-sm font-medium text-muted-foreground">
               Round {room.current_round}/{room.total_rounds ?? TOTAL_ROUNDS}
             </span>
-            {room.category && CATEGORIES[room.category as CategoryKey] && (
-              <span className="text-xs text-muted-foreground/60">
-                {CATEGORIES[room.category as CategoryKey].emoji} {CATEGORIES[room.category as CategoryKey].label}
-              </span>
-            )}
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground/60">
+              {room.category && CATEGORIES[room.category as CategoryKey] && (
+                <span>{CATEGORIES[room.category as CategoryKey].emoji} {CATEGORIES[room.category as CategoryKey].label}</span>
+              )}
+              {room.language && LANGUAGES[room.language as LanguageKey] && (
+                <span>· {LANGUAGES[room.language as LanguageKey].flag}</span>
+              )}
+            </div>
           </div>
           <div className={cn(
             "flex items-center gap-1.5 text-sm font-bold px-3 py-1.5 rounded-lg",

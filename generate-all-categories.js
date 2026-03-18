@@ -2,23 +2,29 @@
 /**
  * generate-all-categories.js
  *
- * Run ONCE locally to populate public/*.json with word definitions.
+ * Run ONCE locally to populate public/*.json with multilingual word definitions.
  * No extra dependencies — uses Node built-in https module.
+ *
+ * Each JSON entry format:
+ *   { "word": "cat", "definitions": { "en": "...", "ro": "...", "es": "...", "fr": "...", "de": "..." } }
  *
  * Usage:
  *   node generate-all-categories.js
  *
  * After it finishes:
  *   git add public/*.json
- *   git commit -m "Add category definitions"
+ *   git commit -m "feat: add multilingual category definitions"
  *   vercel --prod
  */
 
-const fs   = require('fs')
+const fs    = require('fs')
 const https = require('https')
 const path  = require('path')
 
-// ── Word lists per category ───────────────────────────────────────────────────
+// Languages to translate to (besides English source)
+const TARGET_LANGS = ['ro', 'es', 'fr', 'de']
+
+// ── Word lists per category ────────────────────────────────────────────────────
 const CATEGORIES = {
   animals:  ['cat','dog','bird','fish','lion','tiger','bear','wolf','horse','cow',
              'deer','fox','frog','duck','eagle','shark','whale','goat','crane','hawk',
@@ -64,38 +70,51 @@ const CATEGORIES = {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function fetchDef(word) {
+function httpsGet(url) {
   return new Promise(resolve => {
-    const req = https.get(
-      `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`,
-      { headers: { 'User-Agent': 'wordwave-generator/1.0' } },
-      res => {
-        let data = ''
-        res.on('data', c => { data += c })
-        res.on('end', () => {
-          try {
-            const json = JSON.parse(data)
-            if (!Array.isArray(json) || !json[0]) return resolve(null)
-
-            const entry   = json[0]
-            const w       = entry.word?.toLowerCase().replace(/[^a-z]/g, '')
-            const meaning = entry.meanings?.[0]
-            const def     = meaning?.definitions?.[0]?.definition
-
-            if (!w || !def) return resolve(null)
-            if (w.length < 3 || w.length > 9) return resolve(null)
-            if (w.includes(' ')) return resolve(null)
-
-            resolve({ word: w, definition: def.charAt(0).toUpperCase() + def.slice(1) })
-          } catch {
-            resolve(null)
-          }
-        })
-      }
-    )
+    const req = https.get(url, { headers: { 'User-Agent': 'wordwave-generator/1.0' } }, res => {
+      let data = ''
+      res.on('data', c => { data += c })
+      res.on('end', () => resolve({ status: res.statusCode, body: data }))
+    })
     req.on('error', () => resolve(null))
-    req.setTimeout(6000, () => { req.destroy(); resolve(null) })
+    req.setTimeout(8000, () => { req.destroy(); resolve(null) })
   })
+}
+
+// Fetch English definition from dictionaryapi.dev
+async function fetchEnDef(word) {
+  const r = await httpsGet(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`)
+  if (!r) return null
+  try {
+    const json = JSON.parse(r.body)
+    if (!Array.isArray(json) || !json[0]) return null
+    const entry   = json[0]
+    const w       = entry.word?.toLowerCase().replace(/[^a-z]/g, '')
+    const meaning = entry.meanings?.[0]
+    const def     = meaning?.definitions?.[0]?.definition
+    if (!w || !def) return null
+    if (w.length < 3 || w.length > 9) return null
+    if (w.includes(' ')) return null
+    return { word: w, def: def.charAt(0).toUpperCase() + def.slice(1) }
+  } catch {
+    return null
+  }
+}
+
+// Translate text using MyMemory free API (no key needed, ~5000 words/day)
+async function translate(text, targetLang) {
+  const encoded = encodeURIComponent(text)
+  const r = await httpsGet(`https://api.mymemory.translated.net/get?q=${encoded}&langpair=en|${targetLang}`)
+  if (!r || r.status !== 200) return null
+  try {
+    const json = JSON.parse(r.body)
+    const t = json?.responseData?.translatedText
+    if (!t || t === text || json?.responseStatus !== 200) return null
+    return t.charAt(0).toUpperCase() + t.slice(1)
+  } catch {
+    return null
+  }
 }
 
 const sleep = ms => new Promise(r => setTimeout(r, ms))
@@ -114,26 +133,44 @@ async function run() {
 
     for (const word of words) {
       process.stdout.write(`    ${word.padEnd(14)} `)
-      const result = await fetchDef(word)
-      if (result) {
-        defs.push(result)
-        console.log(`✅  ${result.definition.substring(0, 60)}${result.definition.length > 60 ? '…' : ''}`)
-      } else {
-        console.log('❌  (skipped)')
+
+      const en = await fetchEnDef(word)
+      if (!en) { console.log('❌  (skipped — no EN def)'); await sleep(700); continue }
+
+      const definitions = { en: en.def }
+      const words = { en: en.word }
+
+      // Translate both the definition and the word to each target language
+      for (const lang of TARGET_LANGS) {
+        const translatedDef  = await translate(en.def,  lang)
+        if (translatedDef)  definitions[lang] = translatedDef
+        await sleep(300)
+
+        const translatedWord = await translate(en.word, lang)
+        // Accept only single-word translations (no spaces, reasonable length)
+        if (translatedWord && !translatedWord.includes(' ') && translatedWord.length <= 20) {
+          words[lang] = translatedWord.toLowerCase()
+        }
+        await sleep(300)
       }
-      await sleep(700) // respect rate limit
+
+      defs.push({ word: en.word, words, definitions })
+      const langs = Object.keys(definitions).join(', ')
+      const wordVariants = Object.entries(words).map(([l, w]) => `${l}:${w}`).join(' ')
+      console.log(`✅  [${langs}] ${wordVariants} — ${en.def.substring(0, 40)}${en.def.length > 40 ? '…' : ''}`)
+      await sleep(400)
     }
 
     const outPath = path.join(publicDir, `${category}.json`)
     fs.writeFileSync(outPath, JSON.stringify(defs, null, 2))
-    console.log(`    → saved ${defs.length} definitions to public/${category}.json`)
+    console.log(`    → saved ${defs.length} entries to public/${category}.json`)
     totalDefs += defs.length
   }
 
-  console.log(`\n🎉  Done! ${totalDefs} total definitions across ${Object.keys(CATEGORIES).length} categories.\n`)
+  console.log(`\n🎉  Done! ${totalDefs} total entries across ${Object.keys(CATEGORIES).length} categories.\n`)
   console.log('Next steps:')
   console.log('  git add public/*.json')
-  console.log('  git commit -m "feat: add category word definitions"')
+  console.log('  git commit -m "feat: add multilingual category definitions"')
   console.log('  vercel --prod\n')
 }
 

@@ -1,162 +1,442 @@
 [
   {
     "word": "cat",
-    "definition": "An animal of the family Felidae:"
+    "words": {
+      "en": "cat",
+      "ro": "pisică"
+    },
+    "definitions": {
+      "en": "An animal of the family Felidae:",
+      "ro": "Un animal din familia Felidae"
+    }
   },
   {
     "word": "dog",
-    "definition": "A mammal, Canis familiaris or Canis lupus familiaris, that has been domesticated for thousands of years, of highly variable appearance due to human breeding."
+    "words": {
+      "en": "dog",
+      "ro": "câine"
+    },
+    "definitions": {
+      "en": "A mammal, Canis familiaris or Canis lupus familiaris, that has been domesticated for thousands of years, of highly variable appearance due to human breeding.",
+      "ro": "Un mamifer, Canis familiaris sau Canis lupus familiaris, care a fost domesticit de mii de ani, cu aspect foarte variabil"
+    }
   },
   {
     "word": "bird",
-    "definition": "A member of the class of animals Aves in the phylum Chordata, characterized by being warm-blooded, having feathers and wings usually capable of flight, and laying eggs."
+    "words": {
+      "en": "bird",
+      "ro": "pasăre"
+    },
+    "definitions": {
+      "en": "A member of the class of animals Aves in the phylum Chordata, characterized by being warm-blooded, having feathers and wings usually capable of flight, and laying eggs.",
+      "ro": "Un membru al clasei de animale Aves din filum Chordata, caracterizat prin sânge cald, având pene și aripi de obicei"
+    }
   },
   {
     "word": "fish",
-    "definition": "A cold-blooded vertebrate animal that lives in water, moving with the help of fins and breathing with gills."
+    "words": {
+      "en": "fish",
+      "ro": "pete"
+    },
+    "definitions": {
+      "en": "A cold-blooded vertebrate animal that lives in water, moving with the help of fins and breathing with gills.",
+      "ro": "Un animal vertebrat cu sânge rece care trăiește în apă, mișcându-se cu ajutorul aripioarelor și respirând cu branhii"
+    }
   },
   {
     "word": "lion",
-    "definition": "A big cat, Panthera leo, native to Africa, India and formerly much of Europe."
+    "words": {
+      "en": "lion",
+      "ro": "leu"
+    },
+    "definitions": {
+      "en": "A big cat, Panthera leo, native to Africa, India and formerly much of Europe.",
+      "ro": "O pisică mare, Panthera leo, originară din Africa, India și, anterior, o mare parte din Europa"
+    }
   },
   {
     "word": "tiger",
-    "definition": "Panthera tigris, a large predatory mammal of the cat family, indigenous to Asia."
+    "words": {
+      "en": "tiger",
+      "ro": "tigru"
+    },
+    "definitions": {
+      "en": "Panthera tigris, a large predatory mammal of the cat family, indigenous to Asia.",
+      "ro": "Panthera tigris, un mare mamifer prădător din familia pisicilor, originar din Asia"
+    }
   },
   {
     "word": "bear",
-    "definition": "A large omnivorous mammal, related to the dog and raccoon, having shaggy hair, a very small tail, and flat feet; a member of family Ursidae."
+    "words": {
+      "en": "bear",
+      "ro": "urs"
+    },
+    "definitions": {
+      "en": "A large omnivorous mammal, related to the dog and raccoon, having shaggy hair, a very small tail, and flat feet; a member of family Ursidae.",
+      "ro": "Un mamifer omnivor mare, înrudit cu câinele și ratonul, având părul șubres, o coadă foarte mică și picioarele plate"
+    }
   },
   {
     "word": "wolf",
-    "definition": "The gray wolf, specifically all subspecies of the gray wolf (Canis lupus) that are not dingoes or dogs."
+    "words": {
+      "en": "wolf",
+      "ro": "lup"
+    },
+    "definitions": {
+      "en": "The gray wolf, specifically all subspecies of the gray wolf (Canis lupus) that are not dingoes or dogs.",
+      "ro": "Lupul cenușiu, în special toate subspeciile de lup gri (Canis lupus) care nu sunt dingo sau câini"
+    }
   },
   {
     "word": "horse",
-    "definition": "Any of several animals related to Equus ferus caballus."
+    "words": {
+      "en": "horse",
+      "ro": "cal"
+    },
+    "definitions": {
+      "en": "Any of several animals related to Equus ferus caballus.",
+      "ro": "Oricare dintre mai multe animale înrudite cu Equus ferus caballus"
+    }
   },
   {
     "word": "cow",
-    "definition": "(properly) An adult female of the species Bos taurus, especially one that has calved."
+    "words": {
+      "en": "cow",
+      "ro": "vacă"
+    },
+    "definitions": {
+      "en": "(properly) An adult female of the species Bos taurus, especially one that has calved.",
+      "ro": "(corespunzător) O femelă adultă din specia Bos taurus, în special una care a fătat"
+    }
   },
   {
     "word": "deer",
-    "definition": "A ruminant mammal with antlers and hooves of the family Cervidae, or one of several similar animals from related families of the order Artiodactyla"
+    "words": {
+      "en": "deer",
+      "ro": "cerb"
+    },
+    "definitions": {
+      "en": "A ruminant mammal with antlers and hooves of the family Cervidae, or one of several similar animals from related families of the order Artiodactyla",
+      "ro": "Un mamifer rumegător cu coarne și copite din familia Cervidae sau unul dintre mai multe animale similare din familiile înrudite ale o"
+    }
   },
   {
     "word": "fox",
-    "definition": "A red fox, small carnivore (Vulpes vulpes), related to dogs and wolves, with red or silver fur and a bushy tail."
+    "words": {
+      "en": "fox",
+      "ro": "vulpe"
+    },
+    "definitions": {
+      "en": "A red fox, small carnivore (Vulpes vulpes), related to dogs and wolves, with red or silver fur and a bushy tail.",
+      "ro": "O vulpe roșie, carnivoră mică (Vulpes vulpes), înrudită cu câini și lupi, cu blană roșie sau argintie și o coadă stufoasă"
+    }
   },
   {
     "word": "frog",
-    "definition": "A small tailless amphibian of the order Anura that typically hops."
+    "words": {
+      "en": "frog",
+      "ro": "broască"
+    },
+    "definitions": {
+      "en": "A small tailless amphibian of the order Anura that typically hops.",
+      "ro": "Un mic amfibian fără coadă din ordinul Anura care de obicei țopăie"
+    }
   },
   {
     "word": "duck",
-    "definition": "To quickly lower the head or body in order to prevent it from being struck by something."
+    "words": {
+      "en": "duck",
+      "ro": "rață"
+    },
+    "definitions": {
+      "en": "To quickly lower the head or body in order to prevent it from being struck by something.",
+      "ro": "A coborî rapid capul sau corpul pentru a preveni să fie lovit de ceva"
+    }
   },
   {
     "word": "eagle",
-    "definition": "Any of several large carnivorous and carrion-eating birds in the family Accipitridae, having a powerful hooked bill and keen vision."
+    "words": {
+      "en": "eagle",
+      "ro": "vultur"
+    },
+    "definitions": {
+      "en": "Any of several large carnivorous and carrion-eating birds in the family Accipitridae, having a powerful hooked bill and keen vision.",
+      "ro": "Oricare dintre câteva păsări mari carnivore și mâncătoare de carii din familia Accipitridae, având un cic puternic cârlig și o viziune ascuțită"
+    }
   },
   {
     "word": "shark",
-    "definition": "A scaleless, predatory fish of the superorder Selachimorpha, with a cartilaginous skeleton and 5 to 7 gill slits on each side of its head."
+    "words": {
+      "en": "shark",
+      "ro": "rechin"
+    },
+    "definitions": {
+      "en": "A scaleless, predatory fish of the superorder Selachimorpha, with a cartilaginous skeleton and 5 to 7 gill slits on each side of its head.",
+      "ro": "Un pește prădător fără solzi din superordinul Selachimorpha, cu un schelet cartilaginos și 5 până la 7 fante branhiale pe fiecare parte a i"
+    }
   },
   {
     "word": "whale",
-    "definition": "Any of several species of large sea mammals of the infraorder Cetacea."
+    "words": {
+      "en": "whale",
+      "ro": "balenă"
+    },
+    "definitions": {
+      "en": "Any of several species of large sea mammals of the infraorder Cetacea.",
+      "ro": "Oricare dintre mai multe specii de mamifere marine mari din infraordinul Cetacee"
+    }
   },
   {
     "word": "goat",
-    "definition": "A mammal, Capra aegagrus hircus, and similar species of the genus Capra."
+    "words": {
+      "en": "goat",
+      "ro": "capră"
+    },
+    "definitions": {
+      "en": "A mammal, Capra aegagrus hircus, and similar species of the genus Capra.",
+      "ro": "Un mamifer, Capra aegagrus hircus și specii similare din genul Capra"
+    }
   },
   {
     "word": "crane",
-    "definition": "Any bird of the family Gruidae, large birds with long legs and a long neck which is extended during flight."
+    "words": {
+      "en": "crane",
+      "ro": "macara"
+    },
+    "definitions": {
+      "en": "Any bird of the family Gruidae, large birds with long legs and a long neck which is extended during flight.",
+      "ro": "Orice pasăre din familia Gruidae, păsări mari cu picioare lungi și un gât lung care se extinde în timpul zborului"
+    }
   },
   {
     "word": "hawk",
-    "definition": "A diurnal predatory bird of the family Accipitridae, smaller than an eagle."
+    "words": {
+      "en": "hawk",
+      "ro": "oim"
+    },
+    "definitions": {
+      "en": "A diurnal predatory bird of the family Accipitridae, smaller than an eagle.",
+      "ro": "O pasăre prădătoare diurnă din familia Accipitridae, mai mică decât un vultur"
+    }
   },
   {
     "word": "mole",
-    "definition": "A pigmented spot on the skin, a naevus, slightly raised, and sometimes hairy."
+    "words": {
+      "en": "mole",
+      "ro": "mol"
+    },
+    "definitions": {
+      "en": "A pigmented spot on the skin, a naevus, slightly raised, and sometimes hairy.",
+      "ro": "O pată pigmentată pe piele, un nev, ușor înălțat și uneori păros"
+    }
   },
   {
     "word": "seal",
-    "definition": "A pinniped (Pinnipedia), particularly an earless seal (true seal) or eared seal."
+    "words": {
+      "en": "seal",
+      "ro": "sigiliu"
+    },
+    "definitions": {
+      "en": "A pinniped (Pinnipedia), particularly an earless seal (true seal) or eared seal.",
+      "ro": "Un pinniped (Pinnipedia), în special un sigiliu fără urechi (sigiliu adevărat) sau un sigiliu cu urechi"
+    }
   },
   {
     "word": "crab",
-    "definition": "A crustacean of the infraorder Brachyura, having five pairs of legs, the foremost of which are in the form of claws, and a carapace."
+    "words": {
+      "en": "crab",
+      "ro": "crab"
+    },
+    "definitions": {
+      "en": "A crustacean of the infraorder Brachyura, having five pairs of legs, the foremost of which are in the form of claws, and a carapace.",
+      "ro": "Un crustaceu din infraordinul Brachyura, având cinci perechi de picioare, dintre care cele mai înalte sunt sub formă de gheare și un carapac."
+    }
   },
   {
     "word": "snail",
-    "definition": "Any of very many animals (either hermaphroditic or nonhermaphroditic), of the class Gastropoda, having a coiled shell."
+    "words": {
+      "en": "snail",
+      "ro": "melc"
+    },
+    "definitions": {
+      "en": "Any of very many animals (either hermaphroditic or nonhermaphroditic), of the class Gastropoda, having a coiled shell.",
+      "ro": "Oricare dintre foarte multe animale (fie hermafrodite sau nehermafrodite), din clasa Gastropoda, având o coajă încolăcită"
+    }
   },
   {
     "word": "toad",
-    "definition": "An amphibian, a kind of frog (order Anura) with shorter hindlegs and a drier, wartier skin, many in family Bufonidae."
+    "words": {
+      "en": "toad",
+      "ro": "broască"
+    },
+    "definitions": {
+      "en": "An amphibian, a kind of frog (order Anura) with shorter hindlegs and a drier, wartier skin, many in family Bufonidae.",
+      "ro": "Un amfibian, un fel de broasca (ordinul Anura) cu picioarele posterioare mai scurte si o piele mai uscata, mai razboioasa, multe din familia Bufonidae"
+    }
   },
   {
     "word": "dove",
-    "definition": "A pigeon, especially one smaller in size; a bird (often arbitrarily called either a pigeon or a dove or both) of more than 300 species of the family Columbidae."
+    "words": {
+      "en": "dove",
+      "ro": "porumbel"
+    },
+    "definitions": {
+      "en": "A pigeon, especially one smaller in size; a bird (often arbitrarily called either a pigeon or a dove or both) of more than 300 species of the family Columbidae.",
+      "ro": "Un porumbel, mai ales unul mai mic"
+    }
   },
   {
     "word": "lynx",
-    "definition": "Any of several medium-sized wild cats, mostly of the genus Lynx."
+    "words": {
+      "en": "lynx",
+      "ro": "râs"
+    },
+    "definitions": {
+      "en": "Any of several medium-sized wild cats, mostly of the genus Lynx.",
+      "ro": "Oricare dintre mai multe pisici sălbatice de talie medie, mai ales din genul Lynx"
+    }
   },
   {
     "word": "moose",
-    "definition": "The largest member of the deer family (Alces americanus, sometimes included in Alces alces), of which the male has very large, palmate antlers."
+    "words": {
+      "en": "moose",
+      "ro": "elan"
+    },
+    "definitions": {
+      "en": "The largest member of the deer family (Alces americanus, sometimes included in Alces alces), of which the male has very large, palmate antlers.",
+      "ro": "Cel mai mare membru al familiei cerbului (Alces americanus, uneori inclus în Alces alces), dintre care masculul are un pal foarte mare,"
+    }
   },
   {
     "word": "otter",
-    "definition": "An aquatic or marine carnivorous mammal in the subfamily Lutrinae of the family Mustelidae, which also includes weasels, polecats, badgers, and others."
+    "words": {
+      "en": "otter",
+      "ro": "vidră"
+    },
+    "definitions": {
+      "en": "An aquatic or marine carnivorous mammal in the subfamily Lutrinae of the family Mustelidae, which also includes weasels, polecats, badgers, and others.",
+      "ro": "Un mamifer carnivor acvatic sau marin din subfamilia Lutrinae din familia Mustelidae, care include, de asemenea, nevăstuici, purici,"
+    }
   },
   {
     "word": "bison",
-    "definition": "A wild ox, Bison bonasus."
+    "words": {
+      "en": "bison",
+      "ro": "zimbri"
+    },
+    "definitions": {
+      "en": "A wild ox, Bison bonasus.",
+      "ro": "Un bou sălbatic, Bison bonasus"
+    }
   },
   {
     "word": "gecko",
-    "definition": "Any lizard of the family Gekkonidae. They are small, carnivorous, mostly nocturnal animals with large eyes and adhesive toes enabling them to climb on vertical and upside-down surfaces."
+    "words": {
+      "en": "gecko",
+      "ro": "gecko"
+    },
+    "definitions": {
+      "en": "Any lizard of the family Gekkonidae. They are small, carnivorous, mostly nocturnal animals with large eyes and adhesive toes enabling them to climb on vertical and upside-down surfaces.",
+      "ro": "Orice șopârlă din familia Gekkonidae"
+    }
   },
   {
     "word": "koala",
-    "definition": "A tree-dwelling marsupial, Phascolarctos cinereus, that resembles a small bear with a broad head, large ears and sharp claws, mainly found in eastern Australia."
+    "words": {
+      "en": "koala",
+      "ro": "koala"
+    },
+    "definitions": {
+      "en": "A tree-dwelling marsupial, Phascolarctos cinereus, that resembles a small bear with a broad head, large ears and sharp claws, mainly found in eastern Australia.",
+      "ro": "Un marsupial care locuiește în copac, Phascolarctos cinereus, care seamănă cu un urs mic, cu un cap lat, urechi mari și gheare ascuțite, principal"
+    }
   },
   {
     "word": "panda",
-    "definition": "The red panda (Ailurus fulgens), a small raccoon-like animal of northeast Asia with reddish fur and a long, ringed tail."
+    "words": {
+      "en": "panda",
+      "ro": "panda"
+    },
+    "definitions": {
+      "en": "The red panda (Ailurus fulgens), a small raccoon-like animal of northeast Asia with reddish fur and a long, ringed tail.",
+      "ro": "Panda roșu (Ailurus fulgens), un mic animal asemănător unui raton din nord-estul Asiei, cu blană roșiatică și o coadă lungă și inelată"
+    }
   },
   {
     "word": "llama",
-    "definition": "A South American mammal of the camel family, Lama glama, used as a domestic beast of burden and a source of wool and meat."
+    "words": {
+      "en": "llama",
+      "ro": "lamă"
+    },
+    "definitions": {
+      "en": "A South American mammal of the camel family, Lama glama, used as a domestic beast of burden and a source of wool and meat.",
+      "ro": "Un mamifer sud-american din familia cămilelor, Lama glama, folosit ca fiară domestică de povară și sursă de lână și carne"
+    }
   },
   {
     "word": "hyena",
-    "definition": "Any of the medium-sized to large feliform carnivores of the subfamily Hyaeninae (genera Hyaena and Crocuta), native to Africa and Asia and noted for the sound similar to laughter which they can make if excited."
+    "words": {
+      "en": "hyena",
+      "ro": "hienă"
+    },
+    "definitions": {
+      "en": "Any of the medium-sized to large feliform carnivores of the subfamily Hyaeninae (genera Hyaena and Crocuta), native to Africa and Asia and noted for the sound similar to laughter which they can make if excited.",
+      "ro": "Oricare dintre carnivorele feliforme de talie medie până la mari din subfamilia Hyaeninae (genurile Hyaena și Crocuta), originare din Africa și"
+    }
   },
   {
     "word": "zebra",
-    "definition": "Any of three species of genus Equus: E. grevyi, E. quagga, or E. zebra, all with black and white stripes and native to Africa."
+    "words": {
+      "en": "zebra",
+      "ro": "zebră"
+    },
+    "definitions": {
+      "en": "Any of three species of genus Equus: E. grevyi, E. quagga, or E. zebra, all with black and white stripes and native to Africa.",
+      "ro": "Oricare dintre cele trei specii din genul Equus"
+    }
   },
   {
     "word": "rhino",
-    "definition": "A rhinoceros."
+    "words": {
+      "en": "rhino",
+      "ro": "rinocer"
+    },
+    "definitions": {
+      "en": "A rhinoceros.",
+      "ro": "Un rinocer"
+    }
   },
   {
     "word": "camel",
-    "definition": "A beast of burden, much used in desert areas, of the genus Camelus."
+    "words": {
+      "en": "camel",
+      "ro": "cămilă"
+    },
+    "definitions": {
+      "en": "A beast of burden, much used in desert areas, of the genus Camelus.",
+      "ro": "O fiară de povară, foarte folosită în zonele deșertice, din genul Camelus"
+    }
   },
   {
     "word": "cobra",
-    "definition": "Any of various venomous snakes of the family Elapidae."
+    "words": {
+      "en": "cobra",
+      "ro": "cobra"
+    },
+    "definitions": {
+      "en": "Any of various venomous snakes of the family Elapidae.",
+      "ro": "Oricare dintre diferiții șerpi veninoși din familia Elapidae"
+    }
   },
   {
     "word": "raven",
-    "definition": "Any of several, generally large and lustrous black species of birds in the genus Corvus, especially the common raven, Corvus corax."
+    "words": {
+      "en": "raven",
+      "ro": "corb"
+    },
+    "definitions": {
+      "en": "Any of several, generally large and lustrous black species of birds in the genus Corvus, especially the common raven, Corvus corax.",
+      "ro": "Oricare dintre mai multe specii de păsări negre, în general mari și strălucitoare din genul Corvus, în special corbul comun, Corvus corax"
+    }
   }
 ]

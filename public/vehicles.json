@@ -1,98 +1,266 @@
 [
   {
     "word": "car",
-    "definition": "A wheeled vehicle that moves independently, with at least three wheels, powered mechanically, steered by a driver and mostly for personal transportation."
+    "words": {
+      "en": "car",
+      "ro": "masina"
+    },
+    "definitions": {
+      "en": "A wheeled vehicle that moves independently, with at least three wheels, powered mechanically, steered by a driver and mostly for personal transportation.",
+      "ro": "Un vehicul cu roți care se mișcă independent, cu cel puțin trei roți, acționat mecanic, condus de un șofer și mai ales pentru p"
+    }
   },
   {
     "word": "bike",
-    "definition": "A vehicle that has two wheels, one behind the other, a steering handle, and a saddle seat or seats and is usually propelled by the action of a rider’s feet upon pedals."
+    "words": {
+      "en": "bike",
+      "ro": "bicicleta"
+    },
+    "definitions": {
+      "en": "A vehicle that has two wheels, one behind the other, a steering handle, and a saddle seat or seats and is usually propelled by the action of a rider’s feet upon pedals.",
+      "ro": "Un vehicul care are două roți, una în spatele celeilalte, un mâner de direcție și un scaun sau scaune și este de obicei propulsat de"
+    }
   },
   {
     "word": "bus",
-    "definition": "A motor vehicle for transporting large numbers of people along roads."
+    "words": {
+      "en": "bus",
+      "ro": "autobuz"
+    },
+    "definitions": {
+      "en": "A motor vehicle for transporting large numbers of people along roads.",
+      "ro": "Un autovehicul pentru transportul unui număr mare de persoane de-a lungul drumurilor"
+    }
   },
   {
     "word": "train",
-    "definition": "Elongated portion."
+    "words": {
+      "en": "train",
+      "ro": "tren"
+    },
+    "definitions": {
+      "en": "Elongated portion.",
+      "ro": "Porțiune alungită"
+    }
   },
   {
     "word": "plane",
-    "definition": "A level or flat surface."
+    "words": {
+      "en": "plane",
+      "ro": "avion"
+    },
+    "definitions": {
+      "en": "A level or flat surface.",
+      "ro": "O suprafață plană sau plană"
+    }
   },
   {
     "word": "ship",
-    "definition": "A water-borne vessel generally larger than a boat."
+    "words": {
+      "en": "ship",
+      "ro": "navă"
+    },
+    "definitions": {
+      "en": "A water-borne vessel generally larger than a boat.",
+      "ro": "O navă pe apă, în general, mai mare decât o barcă"
+    }
   },
   {
     "word": "truck",
-    "definition": "A small wheel or roller, specifically the wheel of a gun carriage."
+    "words": {
+      "en": "truck",
+      "ro": "camion"
+    },
+    "definitions": {
+      "en": "A small wheel or roller, specifically the wheel of a gun carriage.",
+      "ro": "O roată mică sau rolă, în special roata unui cărucior de armă"
+    }
   },
   {
     "word": "boat",
-    "definition": "A craft used for transportation of goods, fishing, racing, recreational cruising, or military use on or in the water, propelled by oars or outboard motor or inboard motor or by wind."
+    "words": {
+      "en": "boat",
+      "ro": "barca"
+    },
+    "definitions": {
+      "en": "A craft used for transportation of goods, fishing, racing, recreational cruising, or military use on or in the water, propelled by oars or outboard motor or inboard motor or by wind.",
+      "ro": "O ambarcațiune utilizată pentru transportul de mărfuri, pescuit, curse, croazieră de agrement sau utilizare militară pe sau în apă, propulsată de"
+    }
   },
   {
     "word": "rocket",
-    "definition": "A rocket engine."
+    "words": {
+      "en": "rocket",
+      "ro": "rachetă"
+    },
+    "definitions": {
+      "en": "A rocket engine.",
+      "ro": "Un motor rachetă"
+    }
   },
   {
     "word": "cart",
-    "definition": "A small, open, wheeled vehicle, drawn or pushed by a person or animal, more often used for transporting goods than passengers."
+    "words": {
+      "en": "cart",
+      "ro": "cart"
+    },
+    "definitions": {
+      "en": "A small, open, wheeled vehicle, drawn or pushed by a person or animal, more often used for transporting goods than passengers.",
+      "ro": "Un vehicul mic, deschis, cu roți, tras sau împins de o persoană sau un animal, folosit mai des pentru transportul de mărfuri decât de pasageri"
+    }
   },
   {
     "word": "sled",
-    "definition": "A small, light vehicle with runners, used recreationally, mostly by children, for sliding down snow-covered hills. (A \"sled\" in this sense is not pulled by an animal as a \"sleigh\" is.)"
+    "words": {
+      "en": "sled",
+      "ro": "sanie"
+    },
+    "definitions": {
+      "en": "A small, light vehicle with runners, used recreationally, mostly by children, for sliding down snow-covered hills. (A \"sled\" in this sense is not pulled by an animal as a \"sleigh\" is.)",
+      "ro": "Un vehicul mic, ușor, cu alergători, folosit în scopuri recreaționale, mai ales de copii, pentru alunecarea pe dealuri acoperite cu zăpadă"
+    }
   },
   {
     "word": "van",
-    "definition": "A covered vehicle used for carrying goods or people, usually roughly cuboid in shape, longer and higher than a car but smaller than a truck/lorry."
+    "words": {
+      "en": "van",
+      "ro": "dubă"
+    },
+    "definitions": {
+      "en": "A covered vehicle used for carrying goods or people, usually roughly cuboid in shape, longer and higher than a car but smaller than a truck/lorry.",
+      "ro": "Un vehicul acoperit folosit pentru transportul de mărfuri sau persoane, de obicei de formă aproximativ cuboidă, mai lung și mai înalt decât o mașină, dar mai mic decât"
+    }
   },
   {
     "word": "taxi",
-    "definition": "A vehicle that may be hired for single journeys by members of the public, driven by a taxi driver."
+    "words": {
+      "en": "taxi",
+      "ro": "taxi"
+    },
+    "definitions": {
+      "en": "A vehicle that may be hired for single journeys by members of the public, driven by a taxi driver.",
+      "ro": "Un vehicul care poate fi închiriat pentru călătorii unice de către membri ai publicului, condus de un taximetrist"
+    }
   },
   {
     "word": "tram",
-    "definition": "A passenger vehicle for public use that runs on tracks in the road (called a streetcar or trolley in North America)."
+    "words": {
+      "en": "tram",
+      "ro": "tramvai"
+    },
+    "definitions": {
+      "en": "A passenger vehicle for public use that runs on tracks in the road (called a streetcar or trolley in North America).",
+      "ro": "Un vehicul de pasageri pentru uz public care circulă pe șenile de pe drum (numit tramvai sau cărucior în America de Nord)"
+    }
   },
   {
     "word": "jeep",
-    "definition": "A small, blocky, military-style vehicle with four-wheel drive, suited to rough terrain."
+    "words": {
+      "en": "jeep",
+      "ro": "jeep"
+    },
+    "definitions": {
+      "en": "A small, blocky, military-style vehicle with four-wheel drive, suited to rough terrain.",
+      "ro": "Un vehicul mic, blocat, în stil militar, cu tracțiune integrală, potrivit pentru teren accidentat"
+    }
   },
   {
     "word": "canoe",
-    "definition": "A small long and narrow boat, propelled by one or more people (depending on the size of canoe), using single-bladed paddles. The paddlers face in the direction of travel, in either a seated position, or kneeling on the bottom of the boat. Canoes are open on top, and pointed at both ends."
+    "words": {
+      "en": "canoe",
+      "ro": "canoe"
+    },
+    "definitions": {
+      "en": "A small long and narrow boat, propelled by one or more people (depending on the size of canoe), using single-bladed paddles. The paddlers face in the direction of travel, in either a seated position, or kneeling on the bottom of the boat. Canoes are open on top, and pointed at both ends.",
+      "ro": "O barcă mică, lungă și îngustă, propulsată de una sau mai multe persoane (în funcție de dimensiunea canoei), folosind vâsle cu o singură lamă"
+    }
   },
   {
     "word": "barge",
-    "definition": "A large flat-bottomed towed or self-propelled boat used mainly for river and canal transport of heavy goods or bulk cargo."
+    "words": {
+      "en": "barge",
+      "ro": "şlep"
+    },
+    "definitions": {
+      "en": "A large flat-bottomed towed or self-propelled boat used mainly for river and canal transport of heavy goods or bulk cargo.",
+      "ro": "O barcă mare, cu fund plat, tractată sau autopropulsată, utilizată în principal pentru transportul fluvial și pe canal de mărfuri grele sau de mărfuri în vrac"
+    }
   },
   {
     "word": "yacht",
-    "definition": "A slick and light ship for making pleasure trips or racing on water, having sails but often motor-powered. At times used as a residence offshore on a dock."
+    "words": {
+      "en": "yacht",
+      "ro": "iaht"
+    },
+    "definitions": {
+      "en": "A slick and light ship for making pleasure trips or racing on water, having sails but often motor-powered. At times used as a residence offshore on a dock.",
+      "ro": "O navă sleapoasă și ușoară pentru călătorii de plăcere sau curse pe apă, având vele, dar adesea propulsată de motor"
+    }
   },
   {
     "word": "glider",
-    "definition": "The act of gliding."
+    "words": {
+      "en": "glider",
+      "ro": "planor"
+    },
+    "definitions": {
+      "en": "The act of gliding.",
+      "ro": "Actul de alunecare"
+    }
   },
   {
     "word": "scooter",
-    "definition": "A kick scooter or push scooter; a human-powered land vehicle with a handlebar, deck and wheels that is propelled by a rider pushing off the ground."
+    "words": {
+      "en": "scooter",
+      "ro": "scuter"
+    },
+    "definitions": {
+      "en": "A kick scooter or push scooter; a human-powered land vehicle with a handlebar, deck and wheels that is propelled by a rider pushing off the ground.",
+      "ro": "O trotinetă cu picior sau o trotinetă"
+    }
   },
   {
     "word": "ferry",
-    "definition": "A ship used to transport people, smaller vehicles and goods from one port to another, usually on a regular schedule."
+    "words": {
+      "en": "ferry",
+      "ro": "feribotul"
+    },
+    "definitions": {
+      "en": "A ship used to transport people, smaller vehicles and goods from one port to another, usually on a regular schedule.",
+      "ro": "O navă folosită pentru a transporta oameni, vehicule mai mici și mărfuri dintr-un port în altul, de obicei la un program regulat"
+    }
   },
   {
     "word": "cable",
-    "definition": "(material) A long object used to make a physical connection."
+    "words": {
+      "en": "cable",
+      "ro": "cablu"
+    },
+    "definitions": {
+      "en": "(material) A long object used to make a physical connection.",
+      "ro": "(material) Un obiect lung folosit pentru a face o legătură fizică"
+    }
   },
   {
     "word": "metro",
-    "definition": "An underground railway."
+    "words": {
+      "en": "metro",
+      "ro": "metroul"
+    },
+    "definitions": {
+      "en": "An underground railway.",
+      "ro": "O cale ferată subterană"
+    }
   },
   {
     "word": "tractor",
-    "definition": "A vehicle used in farms e.g. for pulling farm equipment and preparing the fields."
+    "words": {
+      "en": "tractor",
+      "ro": "tractor"
+    },
+    "definitions": {
+      "en": "A vehicle used in farms e.g. for pulling farm equipment and preparing the fields.",
+      "ro": "Un vehicul folosit în ferme e"
+    }
   }
 ]

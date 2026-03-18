@@ -1,122 +1,272 @@
 [
   {
     "word": "hand",
-    "definition": "The part of the forelimb below the forearm or wrist in a human, and the corresponding part in many other animals."
+    "words": {
+      "en": "hand"
+    },
+    "definitions": {
+      "en": "The part of the forelimb below the forearm or wrist in a human, and the corresponding part in many other animals."
+    }
   },
   {
     "word": "foot",
-    "definition": "A biological structure found in many animals that is used for locomotion and that is frequently a separate organ at the terminal part of the leg."
+    "words": {
+      "en": "foot"
+    },
+    "definitions": {
+      "en": "A biological structure found in many animals that is used for locomotion and that is frequently a separate organ at the terminal part of the leg."
+    }
   },
   {
     "word": "head",
-    "definition": "The part of the body of an animal or human which contains the brain, mouth and main sense organs."
+    "words": {
+      "en": "head"
+    },
+    "definitions": {
+      "en": "The part of the body of an animal or human which contains the brain, mouth and main sense organs."
+    }
   },
   {
     "word": "eye",
-    "definition": "An organ through which animals see (perceive surroundings via light)."
+    "words": {
+      "en": "eye"
+    },
+    "definitions": {
+      "en": "An organ through which animals see (perceive surroundings via light)."
+    }
   },
   {
     "word": "nose",
-    "definition": "A protuberance on the face housing the nostrils, which are used to breathe or smell."
+    "words": {
+      "en": "nose"
+    },
+    "definitions": {
+      "en": "A protuberance on the face housing the nostrils, which are used to breathe or smell."
+    }
   },
   {
     "word": "ear",
-    "definition": "The organ of hearing, consisting of the pinna, auditory canal, eardrum, malleus, incus, stapes and cochlea."
+    "words": {
+      "en": "ear"
+    },
+    "definitions": {
+      "en": "The organ of hearing, consisting of the pinna, auditory canal, eardrum, malleus, incus, stapes and cochlea."
+    }
   },
   {
     "word": "mouth",
-    "definition": "The opening of a creature through which food is ingested."
+    "words": {
+      "en": "mouth"
+    },
+    "definitions": {
+      "en": "The opening of a creature through which food is ingested."
+    }
   },
   {
     "word": "arm",
-    "definition": "The portion of the upper human appendage, from the shoulder to the wrist and sometimes including the hand."
+    "words": {
+      "en": "arm"
+    },
+    "definitions": {
+      "en": "The portion of the upper human appendage, from the shoulder to the wrist and sometimes including the hand."
+    }
   },
   {
     "word": "leg",
-    "definition": "A limb or appendage that an animal uses for support or locomotion."
+    "words": {
+      "en": "leg"
+    },
+    "definitions": {
+      "en": "A limb or appendage that an animal uses for support or locomotion."
+    }
   },
   {
     "word": "heart",
-    "definition": "A muscular organ that pumps blood through the body, traditionally thought to be the seat of emotion."
+    "words": {
+      "en": "heart"
+    },
+    "definitions": {
+      "en": "A muscular organ that pumps blood through the body, traditionally thought to be the seat of emotion."
+    }
   },
   {
     "word": "back",
-    "definition": "The rear of the body, especially the part between the neck and the end of the spine and opposite the chest and belly."
+    "words": {
+      "en": "back"
+    },
+    "definitions": {
+      "en": "The rear of the body, especially the part between the neck and the end of the spine and opposite the chest and belly."
+    }
   },
   {
     "word": "neck",
-    "definition": "The part of the body connecting the head and the trunk found in humans and some animals."
+    "words": {
+      "en": "neck"
+    },
+    "definitions": {
+      "en": "The part of the body connecting the head and the trunk found in humans and some animals."
+    }
   },
   {
     "word": "knee",
-    "definition": "In humans, the joint or the region of the joint in the middle part of the leg between the thigh and the shank."
+    "words": {
+      "en": "knee"
+    },
+    "definitions": {
+      "en": "In humans, the joint or the region of the joint in the middle part of the leg between the thigh and the shank."
+    }
   },
   {
     "word": "hip",
-    "definition": "The outward-projecting parts of the pelvis and top of the femur and the overlying tissue."
+    "words": {
+      "en": "hip"
+    },
+    "definitions": {
+      "en": "The outward-projecting parts of the pelvis and top of the femur and the overlying tissue."
+    }
   },
   {
     "word": "jaw",
-    "definition": "One of the bones, usually bearing teeth, which form the framework of the mouth."
+    "words": {
+      "en": "jaw"
+    },
+    "definitions": {
+      "en": "One of the bones, usually bearing teeth, which form the framework of the mouth."
+    }
   },
   {
     "word": "chin",
-    "definition": "The bottom of a face, (specifically) the typically jutting jawline below the mouth."
+    "words": {
+      "en": "chin"
+    },
+    "definitions": {
+      "en": "The bottom of a face, (specifically) the typically jutting jawline below the mouth."
+    }
   },
   {
     "word": "lip",
-    "definition": "Either of the two fleshy protrusions around the opening of the mouth."
+    "words": {
+      "en": "lip"
+    },
+    "definitions": {
+      "en": "Either of the two fleshy protrusions around the opening of the mouth."
+    }
   },
   {
     "word": "rib",
-    "definition": "Any of a series of long curved bones occurring in 12 pairs in humans and other animals and extending from the spine to or toward the sternum"
+    "words": {
+      "en": "rib"
+    },
+    "definitions": {
+      "en": "Any of a series of long curved bones occurring in 12 pairs in humans and other animals and extending from the spine to or toward the sternum"
+    }
   },
   {
     "word": "heel",
-    "definition": "The rear part of the foot, where it joins the leg."
+    "words": {
+      "en": "heel"
+    },
+    "definitions": {
+      "en": "The rear part of the foot, where it joins the leg."
+    }
   },
   {
     "word": "palm",
-    "definition": "Any of various evergreen trees from the family Palmae or Arecaceae, which are mainly found in the tropics."
+    "words": {
+      "en": "palm"
+    },
+    "definitions": {
+      "en": "Any of various evergreen trees from the family Palmae or Arecaceae, which are mainly found in the tropics."
+    }
   },
   {
     "word": "thumb",
-    "definition": "The short thick digit of the hand that for humans has the most mobility and can be made to oppose (moved to touch) all of the other fingers."
+    "words": {
+      "en": "thumb"
+    },
+    "definitions": {
+      "en": "The short thick digit of the hand that for humans has the most mobility and can be made to oppose (moved to touch) all of the other fingers."
+    }
   },
   {
     "word": "elbow",
-    "definition": "The joint between the upper arm and the forearm."
+    "words": {
+      "en": "elbow"
+    },
+    "definitions": {
+      "en": "The joint between the upper arm and the forearm."
+    }
   },
   {
     "word": "ankle",
-    "definition": "The skeletal joint which connects the foot with the leg; the uppermost portion of the foot and lowermost portion of the leg, which contain this skeletal joint."
+    "words": {
+      "en": "ankle"
+    },
+    "definitions": {
+      "en": "The skeletal joint which connects the foot with the leg; the uppermost portion of the foot and lowermost portion of the leg, which contain this skeletal joint."
+    }
   },
   {
     "word": "wrist",
-    "definition": "The complex joint between forearm bones, carpus, and metacarpals where the hand is attached to the arm; the carpus in a narrow sense."
+    "words": {
+      "en": "wrist"
+    },
+    "definitions": {
+      "en": "The complex joint between forearm bones, carpus, and metacarpals where the hand is attached to the arm; the carpus in a narrow sense."
+    }
   },
   {
     "word": "spine",
-    "definition": "The series of bones situated at the back from the head to the pelvis of a person, or from the head to the tail of an animal; backbone, vertebral column."
+    "words": {
+      "en": "spine"
+    },
+    "definitions": {
+      "en": "The series of bones situated at the back from the head to the pelvis of a person, or from the head to the tail of an animal; backbone, vertebral column."
+    }
   },
   {
     "word": "skull",
-    "definition": "The main bones of the head considered as a unit; including the cranium, facial bones, and mandible."
+    "words": {
+      "en": "skull"
+    },
+    "definitions": {
+      "en": "The main bones of the head considered as a unit; including the cranium, facial bones, and mandible."
+    }
   },
   {
     "word": "chest",
-    "definition": "A box, now usually a large strong box with a secure convex lid."
+    "words": {
+      "en": "chest"
+    },
+    "definitions": {
+      "en": "A box, now usually a large strong box with a secure convex lid."
+    }
   },
   {
     "word": "belly",
-    "definition": "The abdomen, especially a fat one."
+    "words": {
+      "en": "belly"
+    },
+    "definitions": {
+      "en": "The abdomen, especially a fat one."
+    }
   },
   {
     "word": "shoulder",
-    "definition": "The part of an animal's body between the base of the neck and forearm socket."
+    "words": {
+      "en": "shoulder"
+    },
+    "definitions": {
+      "en": "The part of an animal's body between the base of the neck and forearm socket."
+    }
   },
   {
     "word": "temple",
-    "definition": "A house of worship, especially:"
+    "words": {
+      "en": "temple"
+    },
+    "definitions": {
+      "en": "A house of worship, especially:"
+    }
   }
 ]

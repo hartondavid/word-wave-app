@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
-import { PLAYER_COLORS, CATEGORIES, TOTAL_ROUNDS, type CategoryKey } from "@/lib/game-types"
+import { PLAYER_COLORS, CATEGORIES, LANGUAGES, TOTAL_ROUNDS, type CategoryKey, type LanguageKey } from "@/lib/game-types"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -27,6 +27,7 @@ export default function HomePage() {
   const [maxRoundsInput, setMaxRoundsInput] = useState<string>(String(TOTAL_ROUNDS))
   const [roundsError, setRoundsError] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<CategoryKey>("animals")
+  const [selectedLanguage, setSelectedLanguage] = useState<LanguageKey>("en")
   const [activeTab, setActiveTab] = useState<"create" | "join">("create")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
@@ -35,11 +36,14 @@ export default function HomePage() {
 
   async function handlePracticeSolo() {
     if (!playerName.trim()) { setError("Please enter your name"); return }
+    const rounds = parseInt(maxRoundsInput, 10)
     localStorage.setItem("wordmatch_player", JSON.stringify({
       id: generatePlayerId(),
       name: playerName.trim(),
       mode: "practice",
       category: selectedCategory,
+      language: selectedLanguage,
+      max_rounds: !isNaN(rounds) && rounds > 0 ? rounds : 10,
     }))
     router.push("/practice")
   }
@@ -67,10 +71,11 @@ export default function HomePage() {
 
       // Optional columns added by migrations 005/006; removed from payload if
       // the column doesn't exist yet and retried automatically.
-      const OPTIONAL_COLUMNS = ["category", "max_players"] as const
+      const OPTIONAL_COLUMNS = ["language", "category", "max_players"] as const
       const optionalValues: Record<string, unknown> = {
         max_players: maxPlayers,
         category: selectedCategory,
+        language: selectedLanguage,
       }
 
       let payload = { ...basePayload, ...optionalValues }
@@ -254,6 +259,28 @@ export default function HomePage() {
                     )}
                   >
                     {emoji} {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Language selector */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Definition Language</label>
+              <div className="flex flex-wrap gap-1.5">
+                {(Object.entries(LANGUAGES) as [LanguageKey, { label: string; flag: string }][]).map(([key, { label, flag }]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setSelectedLanguage(key)}
+                    className={cn(
+                      "px-2.5 py-1 rounded-lg text-xs font-medium border transition-all",
+                      selectedLanguage === key
+                        ? "border-2 border-blue-500 text-foreground bg-transparent"
+                        : "border bg-muted/40 text-muted-foreground border-transparent hover:border-muted-foreground/30 hover:bg-muted/70"
+                    )}
+                  >
+                    {flag} {label}
                   </button>
                 ))}
               </div>

@@ -1,110 +1,299 @@
 [
   {
     "word": "city",
-    "definition": "A large settlement, bigger than a town; sometimes with a specific legal definition, depending on the place."
+    "words": {
+      "en": "city",
+      "ro": "oraş"
+    },
+    "definitions": {
+      "en": "A large settlement, bigger than a town; sometimes with a specific legal definition, depending on the place.",
+      "ro": "O aşezare mare, mai mare decât un oraş"
+    }
   },
   {
     "word": "school",
-    "definition": "(collective) A group of fish or a group of marine mammals such as porpoises, dolphins, or whales."
+    "words": {
+      "en": "school",
+      "ro": "şcoală"
+    },
+    "definitions": {
+      "en": "(collective) A group of fish or a group of marine mammals such as porpoises, dolphins, or whales.",
+      "ro": "(colectiv) Un grup de pești sau un grup de mamifere marine, cum ar fi marsuini, delfini sau balene"
+    }
   },
   {
     "word": "hospital",
-    "definition": "A large medical facility, usually in a building with multiple floors, where seriously ill or injured patients are given extensive medical and/or surgical treatment."
+    "words": {
+      "en": "hospital",
+      "ro": "spital"
+    },
+    "definitions": {
+      "en": "A large medical facility, usually in a building with multiple floors, where seriously ill or injured patients are given extensive medical and/or surgical treatment.",
+      "ro": "O unitate medicală mare, de obicei într-o clădire cu mai multe etaje, unde pacienților grav bolnavi sau răniți li se administrează numeroase"
+    }
   },
   {
     "word": "park",
-    "definition": "An area of land set aside for environment preservation or recreation."
+    "words": {
+      "en": "park",
+      "ro": "parc"
+    },
+    "definitions": {
+      "en": "An area of land set aside for environment preservation or recreation.",
+      "ro": "O zonă de teren rezervată pentru conservarea mediului sau recreere"
+    }
   },
   {
     "word": "beach",
-    "definition": "The shore of a body of water, especially when sandy or pebbly."
+    "words": {
+      "en": "beach",
+      "ro": "plajă"
+    },
+    "definitions": {
+      "en": "The shore of a body of water, especially when sandy or pebbly.",
+      "ro": "Malul unui corp de apă, mai ales când este nisipos sau pietriș"
+    }
   },
   {
     "word": "mountain",
-    "definition": "An elevation of land of considerable dimensions rising more or less abruptly, forming a conspicuous figure in the landscape, usually having a small extent of surface at its summit."
+    "words": {
+      "en": "mountain",
+      "ro": "munte"
+    },
+    "definitions": {
+      "en": "An elevation of land of considerable dimensions rising more or less abruptly, forming a conspicuous figure in the landscape, usually having a small extent of surface at its summit.",
+      "ro": "O cotă de teren de dimensiuni considerabile care se ridică mai mult sau mai puțin brusc, formând o figură vizibilă în peisaj, obișnuită"
+    }
   },
   {
     "word": "river",
-    "definition": "A large and often winding stream which drains a land mass, carrying water down from higher areas to a lower point, oftentimes ending in another body of water, such as an ocean or in an inland sea."
+    "words": {
+      "en": "river",
+      "ro": "râu"
+    },
+    "definitions": {
+      "en": "A large and often winding stream which drains a land mass, carrying water down from higher areas to a lower point, oftentimes ending in another body of water, such as an ocean or in an inland sea.",
+      "ro": "Un curent mare și adesea întortocheat care drenează o masă de pământ, ducând apa în jos din zone mai înalte către un punct mai jos, adesea termina"
+    }
   },
   {
     "word": "forest",
-    "definition": "A dense uncultivated tract of trees and undergrowth, larger than woods."
+    "words": {
+      "en": "forest",
+      "ro": "pădure"
+    },
+    "definitions": {
+      "en": "A dense uncultivated tract of trees and undergrowth, larger than woods.",
+      "ro": "Un tract dens necultivat de copaci și tufături, mai mare decât pădurile"
+    }
   },
   {
     "word": "desert",
-    "definition": "(usually in the plural) That which is deserved or merited; a just punishment or reward"
+    "words": {
+      "en": "desert",
+      "ro": "deşert"
+    },
+    "definitions": {
+      "en": "(usually in the plural) That which is deserved or merited; a just punishment or reward",
+      "ro": "(de obicei la plural) Ceea ce este meritat sau meritat"
+    }
   },
   {
     "word": "cave",
-    "definition": "A large, naturally-occurring cavity formed underground or in the face of a cliff or a hillside."
+    "words": {
+      "en": "cave",
+      "ro": "peşteră"
+    },
+    "definitions": {
+      "en": "A large, naturally-occurring cavity formed underground or in the face of a cliff or a hillside.",
+      "ro": "O cavitate mare, naturală, formată în subteran sau în fața unei stânci sau a unui deal"
+    }
   },
   {
     "word": "lake",
-    "definition": "A small stream of running water; a channel for water; a drain."
+    "words": {
+      "en": "lake",
+      "ro": "lac"
+    },
+    "definitions": {
+      "en": "A small stream of running water; a channel for water; a drain.",
+      "ro": "Un mic curent de apă curgătoare"
+    }
   },
   {
     "word": "island",
-    "definition": "A contiguous area of land, smaller than a continent, totally surrounded by water."
+    "words": {
+      "en": "island",
+      "ro": "insulă"
+    },
+    "definitions": {
+      "en": "A contiguous area of land, smaller than a continent, totally surrounded by water.",
+      "ro": "O zonă de pământ învecinată, mai mică decât un continent, înconjurată total de apă"
+    }
   },
   {
     "word": "valley",
-    "definition": "An elongated depression between hills or mountains, often with a river flowing through it."
+    "words": {
+      "en": "valley",
+      "ro": "vale"
+    },
+    "definitions": {
+      "en": "An elongated depression between hills or mountains, often with a river flowing through it.",
+      "ro": "O depresiune alungită între dealuri sau munți, adesea cu un râu care curge prin ea"
+    }
   },
   {
     "word": "cliff",
-    "definition": "A vertical (or nearly vertical) rock face."
+    "words": {
+      "en": "cliff",
+      "ro": "stâncă"
+    },
+    "definitions": {
+      "en": "A vertical (or nearly vertical) rock face.",
+      "ro": "O suprafață de stâncă verticală (sau aproape verticală)."
+    }
   },
   {
     "word": "tower",
-    "definition": "A very tall iron-framed structure, usually painted red and white, on which microwave, radio, satellite, or other communication antennas are installed; mast."
+    "words": {
+      "en": "tower",
+      "ro": "turn"
+    },
+    "definitions": {
+      "en": "A very tall iron-framed structure, usually painted red and white, on which microwave, radio, satellite, or other communication antennas are installed; mast.",
+      "ro": "O structură foarte înaltă cu cadru de fier, de obicei vopsită în roșu și alb, pe care cuptorul cu microunde, radio, satelit sau altă furnică de comunicare"
+    }
   },
   {
     "word": "bridge",
-    "definition": "A construction or natural feature that spans a divide."
+    "words": {
+      "en": "bridge",
+      "ro": "pod"
+    },
+    "definitions": {
+      "en": "A construction or natural feature that spans a divide.",
+      "ro": "O construcție sau o caracteristică naturală care se întinde pe o diviziune"
+    }
   },
   {
     "word": "castle",
-    "definition": "A large building that is fortified and contains many defences; in previous ages often inhabited by a nobleman or king."
+    "words": {
+      "en": "castle",
+      "ro": "castel"
+    },
+    "definitions": {
+      "en": "A large building that is fortified and contains many defences; in previous ages often inhabited by a nobleman or king.",
+      "ro": "O clădire mare care este fortificată și conține multe apărări"
+    }
   },
   {
     "word": "temple",
-    "definition": "A house of worship, especially:"
+    "words": {
+      "en": "temple",
+      "ro": "templu"
+    },
+    "definitions": {
+      "en": "A house of worship, especially:",
+      "ro": "O casă de cult, mai ales"
+    }
   },
   {
     "word": "church",
-    "definition": "A Christian house of worship; a building where Christian religious services take place."
+    "words": {
+      "en": "church",
+      "ro": "biserică"
+    },
+    "definitions": {
+      "en": "A Christian house of worship; a building where Christian religious services take place.",
+      "ro": "O casă de cult creștină"
+    }
   },
   {
     "word": "farm",
-    "definition": "A place where agricultural and similar activities take place, especially the growing of crops or the raising of livestock."
+    "words": {
+      "en": "farm",
+      "ro": "fermă"
+    },
+    "definitions": {
+      "en": "A place where agricultural and similar activities take place, especially the growing of crops or the raising of livestock.",
+      "ro": "Un loc în care se desfășoară activități agricole și similare, în special cultivarea culturilor sau creșterea animalelor"
+    }
   },
   {
     "word": "mine",
-    "definition": "My; belonging to me; that which belongs to me."
+    "words": {
+      "en": "mine",
+      "ro": "mina"
+    },
+    "definitions": {
+      "en": "My; belonging to me; that which belongs to me.",
+      "ro": "Mele; aparținând mie; ceea ce îmi aparține."
+    }
   },
   {
     "word": "port",
-    "definition": "A place on the coast at which ships can shelter, or dock to load and unload cargo or passengers."
+    "words": {
+      "en": "port",
+      "ro": "port"
+    },
+    "definitions": {
+      "en": "A place on the coast at which ships can shelter, or dock to load and unload cargo or passengers.",
+      "ro": "Un loc de pe coastă în care navele se pot adăposti sau se pot andoca pentru a încărca și descărca marfă sau pasageri"
+    }
   },
   {
     "word": "yard",
-    "definition": "A small, usually uncultivated area adjoining or (now especially) within the precincts of a house or other building."
+    "words": {
+      "en": "yard",
+      "ro": "curte"
+    },
+    "definitions": {
+      "en": "A small, usually uncultivated area adjoining or (now especially) within the precincts of a house or other building.",
+      "ro": "O zonă mică, de obicei necultivată, învecinată sau (acum mai ales) în incinta unei case sau a altei clădiri"
+    }
   },
   {
     "word": "garden",
-    "definition": "An outdoor area containing one or more types of plants, usually plants grown for food or ornamental purposes."
+    "words": {
+      "en": "garden",
+      "ro": "grădină"
+    },
+    "definitions": {
+      "en": "An outdoor area containing one or more types of plants, usually plants grown for food or ornamental purposes.",
+      "ro": "O zonă exterioară care conține unul sau mai multe tipuri de plante, de obicei plante cultivate în scopuri alimentare sau ornamentale"
+    }
   },
   {
     "word": "plaza",
-    "definition": "A town's public square."
+    "words": {
+      "en": "plaza",
+      "ro": "piata"
+    },
+    "definitions": {
+      "en": "A town's public square.",
+      "ro": "Piața publică a orașului"
+    }
   },
   {
     "word": "alley",
-    "definition": "A narrow street or passageway, especially one through the middle of a block giving access to the rear of lots or buildings."
+    "words": {
+      "en": "alley",
+      "ro": "alee"
+    },
+    "definitions": {
+      "en": "A narrow street or passageway, especially one through the middle of a block giving access to the rear of lots or buildings.",
+      "ro": "O stradă îngustă sau un pasaj, în special unul prin mijlocul unui bloc care oferă acces în spatele loturilor sau clădirilor"
+    }
   },
   {
     "word": "harbor",
-    "definition": "Any place of shelter."
+    "words": {
+      "en": "harbor",
+      "ro": "port"
+    },
+    "definitions": {
+      "en": "Any place of shelter.",
+      "ro": "Orice loc de adăpost"
+    }
   }
 ]

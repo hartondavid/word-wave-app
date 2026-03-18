@@ -5,6 +5,7 @@ export interface GameRoom {
   room_code: string
   max_players: number
   category?: string | null
+  language?: string | null
 
   current_word: string | null
   current_definition: string | null
@@ -53,6 +54,16 @@ export const WIN_SCORE = 6
 
 // P1 Blue | P2 Amber | P3 Emerald | P4 Violet
 export const PLAYER_COLORS = ['#3B82F6', '#F59E0B', '#10B981', '#8B5CF6'] as const
+
+export const LANGUAGES = {
+  en: { label: 'English', flag: '🇬🇧' },
+  ro: { label: 'Română', flag: '🇷🇴' },
+  es: { label: 'Español', flag: '🇪🇸' },
+  fr: { label: 'Français', flag: '🇫🇷' },
+  de: { label: 'Deutsch', flag: '🇩🇪' },
+} as const
+
+export type LanguageKey = keyof typeof LANGUAGES
 
 export const CATEGORIES = {
   general:  { label: 'General',  emoji: '🌐' },

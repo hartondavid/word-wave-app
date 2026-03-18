@@ -1,122 +1,332 @@
 [
   {
     "word": "apple",
-    "definition": "A common, round fruit produced by the tree Malus domestica, cultivated in temperate climates."
+    "words": {
+      "en": "apple",
+      "ro": "măr"
+    },
+    "definitions": {
+      "en": "A common, round fruit produced by the tree Malus domestica, cultivated in temperate climates.",
+      "ro": "Un fruct comun, rotund, produs de arborele Malus domestica, cultivat în climat temperat"
+    }
   },
   {
     "word": "bread",
-    "definition": "A foodstuff made by baking dough made from cereals."
+    "words": {
+      "en": "bread",
+      "ro": "pâine"
+    },
+    "definitions": {
+      "en": "A foodstuff made by baking dough made from cereals.",
+      "ro": "Un produs alimentar obținut prin copt aluat din cereale"
+    }
   },
   {
     "word": "milk",
-    "definition": "A white liquid produced by the mammary glands of female mammals to nourish their young. From certain animals, especially cows, it is also called dairy milk and is a common food for humans as a beverage or used to produce various dairy products such as butter, cheese, and yogurt."
+    "words": {
+      "en": "milk",
+      "ro": "lapte"
+    },
+    "definitions": {
+      "en": "A white liquid produced by the mammary glands of female mammals to nourish their young. From certain animals, especially cows, it is also called dairy milk and is a common food for humans as a beverage or used to produce various dairy products such as butter, cheese, and yogurt.",
+      "ro": "Un lichid alb produs de glandele mamare ale mamiferelor femele pentru a-și hrăni puii"
+    }
   },
   {
     "word": "rice",
-    "definition": "Cereal plants, Oryza sativa of the grass family whose seeds are used as food."
+    "words": {
+      "en": "rice",
+      "ro": "orez"
+    },
+    "definitions": {
+      "en": "Cereal plants, Oryza sativa of the grass family whose seeds are used as food.",
+      "ro": "Plante de cereale, Oryza sativa din familia ierburilor ale căror semințe sunt folosite ca hrană"
+    }
   },
   {
     "word": "soup",
-    "definition": "Any of various dishes commonly made by combining liquids, such as water or stock with other ingredients, such as meat and vegetables, that contribute flavor and texture."
+    "words": {
+      "en": "soup",
+      "ro": "supă"
+    },
+    "definitions": {
+      "en": "Any of various dishes commonly made by combining liquids, such as water or stock with other ingredients, such as meat and vegetables, that contribute flavor and texture.",
+      "ro": "Oricare dintre felurile de mâncare preparate în mod obișnuit prin combinarea lichidelor, cum ar fi apa sau bulionul cu alte ingrediente, cum ar fi carnea și legumele."
+    }
   },
   {
     "word": "cake",
-    "definition": "A rich, sweet dessert food, typically made of flour, sugar and eggs and baked in an oven, and often covered in icing."
+    "words": {
+      "en": "cake",
+      "ro": "tort"
+    },
+    "definitions": {
+      "en": "A rich, sweet dessert food, typically made of flour, sugar and eggs and baked in an oven, and often covered in icing.",
+      "ro": "Un desert bogat, dulce, de obicei făcut din făină, zahăr și ouă și copt în cuptor și adesea acoperit cu glazură"
+    }
   },
   {
     "word": "cheese",
-    "definition": "A dairy product made from curdled or cultured milk."
+    "words": {
+      "en": "cheese",
+      "ro": "brânză"
+    },
+    "definitions": {
+      "en": "A dairy product made from curdled or cultured milk.",
+      "ro": "Un produs lactat obținut din lapte coagulat sau de cultură"
+    }
   },
   {
     "word": "egg",
-    "definition": "An approximately spherical or ellipsoidal body produced by birds, reptiles, insects and other animals, housing the embryo during its development."
+    "words": {
+      "en": "egg",
+      "ro": "ou"
+    },
+    "definitions": {
+      "en": "An approximately spherical or ellipsoidal body produced by birds, reptiles, insects and other animals, housing the embryo during its development.",
+      "ro": "Un corp aproximativ sferic sau elipsoidal produs de păsări, reptile, insecte și alte animale, care adăpostește embrionul în timpul i"
+    }
   },
   {
     "word": "corn",
-    "definition": "The main cereal plant grown for its grain in a given region, such as oats in parts of Scotland and Ireland, and wheat or barley in England and Wales."
+    "words": {
+      "en": "corn",
+      "ro": "porumb"
+    },
+    "definitions": {
+      "en": "The main cereal plant grown for its grain in a given region, such as oats in parts of Scotland and Ireland, and wheat or barley in England and Wales.",
+      "ro": "Principala plantă de cereale cultivată pentru cerealele sale într-o regiune dată, cum ar fi ovăzul în anumite părți ale Scoției și Irlanda și grâul sau orzul în"
+    }
   },
   {
     "word": "plum",
-    "definition": "The fruit and its tree."
+    "words": {
+      "en": "plum",
+      "ro": "prună"
+    },
+    "definitions": {
+      "en": "The fruit and its tree.",
+      "ro": "Fructul și pomul lui"
+    }
   },
   {
     "word": "pear",
-    "definition": "An edible fruit produced by the pear tree, similar to an apple but elongated towards the stem."
+    "words": {
+      "en": "pear",
+      "ro": "pară"
+    },
+    "definitions": {
+      "en": "An edible fruit produced by the pear tree, similar to an apple but elongated towards the stem.",
+      "ro": "Un fruct comestibil produs de par, asemănător cu un măr, dar alungit spre tulpină"
+    }
   },
   {
     "word": "lime",
-    "definition": "Any inorganic material containing calcium, usually calcium oxide (quicklime) or calcium hydroxide (slaked lime)."
+    "words": {
+      "en": "lime",
+      "ro": "lămâie"
+    },
+    "definitions": {
+      "en": "Any inorganic material containing calcium, usually calcium oxide (quicklime) or calcium hydroxide (slaked lime).",
+      "ro": "Orice material anorganic care conține calciu, de obicei oxid de calciu (var neted) sau hidroxid de calciu (var stins)"
+    }
   },
   {
     "word": "fig",
-    "definition": "A fruit-bearing tree or shrub of the genus Ficus that is native mainly to the tropics."
+    "words": {
+      "en": "fig",
+      "ro": "smochin"
+    },
+    "definitions": {
+      "en": "A fruit-bearing tree or shrub of the genus Ficus that is native mainly to the tropics.",
+      "ro": "Un arbore sau arbust fructifer din genul Ficus, originar în principal din zonele tropicale"
+    }
   },
   {
     "word": "grape",
-    "definition": "A small, round, smooth-skinned edible fruit, usually purple, red, or green, that grows in bunches on vines of genus Vitis."
+    "words": {
+      "en": "grape",
+      "ro": "struguri"
+    },
+    "definitions": {
+      "en": "A small, round, smooth-skinned edible fruit, usually purple, red, or green, that grows in bunches on vines of genus Vitis.",
+      "ro": "Un fruct mic, rotund, cu coajă netedă, comestibil, de obicei violet, roșu sau verde, care crește în ciorchini pe viță de vie din genul Vitis"
+    }
   },
   {
     "word": "olive",
-    "definition": "A tree, Olea europaea, cultivated since ancient times in the Mediterranean for its fruit and the oil obtained from it."
+    "words": {
+      "en": "olive",
+      "ro": "măsline"
+    },
+    "definitions": {
+      "en": "A tree, Olea europaea, cultivated since ancient times in the Mediterranean for its fruit and the oil obtained from it.",
+      "ro": "Un arbore, Olea europaea, cultivat din cele mai vechi timpuri în Marea Mediterană pentru fructele sale și uleiul obținut din acesta"
+    }
   },
   {
     "word": "lemon",
-    "definition": "A yellowish citrus fruit."
+    "words": {
+      "en": "lemon",
+      "ro": "lămâie"
+    },
+    "definitions": {
+      "en": "A yellowish citrus fruit.",
+      "ro": "Un citric gălbui"
+    }
   },
   {
     "word": "peach",
-    "definition": "A tree (Prunus persica), native to China and now widely cultivated throughout temperate regions, having pink flowers and edible fruit."
+    "words": {
+      "en": "peach",
+      "ro": "piersică"
+    },
+    "definitions": {
+      "en": "A tree (Prunus persica), native to China and now widely cultivated throughout temperate regions, having pink flowers and edible fruit.",
+      "ro": "Un copac (Prunus persica), originar din China și acum cultivat pe scară largă în regiunile temperate, având flori roz și comestibile."
+    }
   },
   {
     "word": "mango",
-    "definition": "A tropical Asian fruit tree, Mangifera indica."
+    "words": {
+      "en": "mango",
+      "ro": "mango"
+    },
+    "definitions": {
+      "en": "A tropical Asian fruit tree, Mangifera indica.",
+      "ro": "Un pom fructifer tropical asiatic, Mangifera indica"
+    }
   },
   {
     "word": "onion",
-    "definition": "A monocotyledonous plant (Allium cepa), allied to garlic, used as vegetable and spice."
+    "words": {
+      "en": "onion",
+      "ro": "ceapă"
+    },
+    "definitions": {
+      "en": "A monocotyledonous plant (Allium cepa), allied to garlic, used as vegetable and spice.",
+      "ro": "O plantă monocotiledonată (Allium cepa), aliată cu usturoiul, folosită ca legumă și condiment"
+    }
   },
   {
     "word": "garlic",
-    "definition": "A plant, Allium sativum, related to the onion, having a pungent bulb much used in cooking."
+    "words": {
+      "en": "garlic",
+      "ro": "usturoi"
+    },
+    "definitions": {
+      "en": "A plant, Allium sativum, related to the onion, having a pungent bulb much used in cooking.",
+      "ro": "O plantă, Allium sativum, înrudită cu ceapa, având un bulb înțepător foarte folosit în gătit"
+    }
   },
   {
     "word": "cream",
-    "definition": "The butterfat/milkfat part of milk which rises to the top; this part when separated from the remainder."
+    "words": {
+      "en": "cream",
+      "ro": "cremă"
+    },
+    "definitions": {
+      "en": "The butterfat/milkfat part of milk which rises to the top; this part when separated from the remainder.",
+      "ro": "Partea de grăsime de unt/grăsimi de lapte a laptelui care urcă în vârf"
+    }
   },
   {
     "word": "honey",
-    "definition": "A viscous, sweet fluid produced from plant nectar by bees. Often used to sweeten tea or to spread on baked goods."
+    "words": {
+      "en": "honey",
+      "ro": "miere"
+    },
+    "definitions": {
+      "en": "A viscous, sweet fluid produced from plant nectar by bees. Often used to sweeten tea or to spread on baked goods.",
+      "ro": "Un fluid vâscos, dulce produs din nectarul plantelor de către albine"
+    }
   },
   {
     "word": "flour",
-    "definition": "Powder obtained by grinding or milling cereal grains, especially wheat, or other foodstuffs such as soybeans and potatoes, and used to bake bread, cakes, and pastry."
+    "words": {
+      "en": "flour",
+      "ro": "făină"
+    },
+    "definitions": {
+      "en": "Powder obtained by grinding or milling cereal grains, especially wheat, or other foodstuffs such as soybeans and potatoes, and used to bake bread, cakes, and pastry.",
+      "ro": "Pulbere obținută prin măcinarea sau măcinarea cerealelor, în special a grâului, sau a altor produse alimentare precum soia și cartofii și utilizarea"
+    }
   },
   {
     "word": "pasta",
-    "definition": "Dough made from wheat and water and sometimes mixed with egg and formed into various shapes; often sold in dried form and typically boiled for eating."
+    "words": {
+      "en": "pasta",
+      "ro": "paste"
+    },
+    "definitions": {
+      "en": "Dough made from wheat and water and sometimes mixed with egg and formed into various shapes; often sold in dried form and typically boiled for eating.",
+      "ro": "Aluat făcut din grâu și apă și uneori amestecat cu ou și format în diferite forme"
+    }
   },
   {
     "word": "toast",
-    "definition": "Toasted bread."
+    "words": {
+      "en": "toast",
+      "ro": "toast"
+    },
+    "definitions": {
+      "en": "Toasted bread.",
+      "ro": "Pâine prăjită"
+    }
   },
   {
     "word": "butter",
-    "definition": "A soft, fatty foodstuff made by churning the cream of milk (generally cow's milk)."
+    "words": {
+      "en": "butter",
+      "ro": "unt"
+    },
+    "definitions": {
+      "en": "A soft, fatty foodstuff made by churning the cream of milk (generally cow's milk).",
+      "ro": "Un aliment moale, gras, obținut prin amestecarea smântânii de lapte (în general lapte de vacă)"
+    }
   },
   {
     "word": "salt",
-    "definition": "A common substance, chemically consisting mainly of sodium chloride (NaCl), used extensively as a condiment and preservative."
+    "words": {
+      "en": "salt",
+      "ro": "sare"
+    },
+    "definitions": {
+      "en": "A common substance, chemically consisting mainly of sodium chloride (NaCl), used extensively as a condiment and preservative.",
+      "ro": "O substanță comună, compusă din punct de vedere chimic în principal din clorură de sodiu (NaCl), utilizată pe scară largă ca condiment și conservant"
+    }
   },
   {
     "word": "sugar",
-    "definition": "Sucrose in the form of small crystals, obtained from sugar cane or sugar beet and used to sweeten food and drink."
+    "words": {
+      "en": "sugar",
+      "ro": "zahăr"
+    },
+    "definitions": {
+      "en": "Sucrose in the form of small crystals, obtained from sugar cane or sugar beet and used to sweeten food and drink.",
+      "ro": "Zaharoza sub formă de cristale mici, obținută din trestie de zahăr sau sfeclă de zahăr și folosită pentru a îndulci alimente și băuturi"
+    }
   },
   {
     "word": "coffee",
-    "definition": "A beverage made by infusing the beans of the coffee plant in hot water."
+    "words": {
+      "en": "coffee",
+      "ro": "cafea"
+    },
+    "definitions": {
+      "en": "A beverage made by infusing the beans of the coffee plant in hot water.",
+      "ro": "O băutură obținută prin infuzarea boabelor plantei de cafea în apă fierbinte"
+    }
   },
   {
     "word": "tea",
-    "definition": "A drug smoked or ingested for euphoric effect, cannabis."
+    "words": {
+      "en": "tea",
+      "ro": "ceai"
+    },
+    "definitions": {
+      "en": "A drug smoked or ingested for euphoric effect, cannabis.",
+      "ro": "Un drog fumat sau ingerat pentru efect euforic, canabis"
+    }
   }
 ]

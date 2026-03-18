@@ -1,122 +1,331 @@
 [
   {
     "word": "shirt",
-    "definition": "An article of clothing that is worn on the upper part of the body, and often has sleeves, either long or short, that cover the arms."
+    "words": {
+      "en": "shirt",
+      "ro": "cămaşă"
+    },
+    "definitions": {
+      "en": "An article of clothing that is worn on the upper part of the body, and often has sleeves, either long or short, that cover the arms.",
+      "ro": "Un articol de îmbrăcăminte care se poartă pe partea superioară a corpului și are adesea mâneci, lungi sau scurte, care acoperă brațul"
+    }
   },
   {
     "word": "pants",
-    "definition": "(Manchester) An outer garment that covers the body from the waist downwards, covering each leg separately, usually as far as the ankles; trousers."
+    "words": {
+      "en": "pants",
+      "ro": "pantaloni"
+    },
+    "definitions": {
+      "en": "(Manchester) An outer garment that covers the body from the waist downwards, covering each leg separately, usually as far as the ankles; trousers.",
+      "ro": "(Manchester) O îmbrăcăminte exterioară care acoperă corpul de la talie în jos, acoperind fiecare picior separat, de obicei până la a"
+    }
   },
   {
     "word": "shoes",
-    "definition": "A protective covering for the foot, with a bottom part composed of thick leather or plastic sole and often a thicker heel, and a softer upper part made of leather or synthetic material. Shoes generally do not extend above the ankle, as opposed to boots, which do."
+    "words": {
+      "en": "shoes",
+      "ro": "pantofi"
+    },
+    "definitions": {
+      "en": "A protective covering for the foot, with a bottom part composed of thick leather or plastic sole and often a thicker heel, and a softer upper part made of leather or synthetic material. Shoes generally do not extend above the ankle, as opposed to boots, which do.",
+      "ro": "Un înveliș de protecție pentru picior, cu o parte inferioară compusă din talpă groasă din piele sau plastic și adesea un călcâi mai gros și un s"
+    }
   },
   {
     "word": "hat",
-    "definition": "A covering for the head, often in the approximate form of a cone or a cylinder closed at its top end, and sometimes having a brim and other decoration."
+    "words": {
+      "en": "hat",
+      "ro": "pălărie"
+    },
+    "definitions": {
+      "en": "A covering for the head, often in the approximate form of a cone or a cylinder closed at its top end, and sometimes having a brim and other decoration.",
+      "ro": "O acoperire pentru cap, adesea sub forma aproximativă a unui con sau a unui cilindru închis la capătul său superior și uneori având un bor"
+    }
   },
   {
     "word": "jacket",
-    "definition": "A piece of clothing worn on the upper body outside a shirt or blouse, often waist length to thigh length."
+    "words": {
+      "en": "jacket",
+      "ro": "sacou"
+    },
+    "definitions": {
+      "en": "A piece of clothing worn on the upper body outside a shirt or blouse, often waist length to thigh length.",
+      "ro": "O piesă de îmbrăcăminte purtată pe partea superioară a corpului în afara unei cămăși sau bluze, adesea de la lungimea taliei până la lungimea coapsei"
+    }
   },
   {
     "word": "dress",
-    "definition": "An item of clothing (usually worn by a woman or young girl) which both covers the upper part of the body and includes skirts below the waist."
+    "words": {
+      "en": "dress",
+      "ro": "rochie"
+    },
+    "definitions": {
+      "en": "An item of clothing (usually worn by a woman or young girl) which both covers the upper part of the body and includes skirts below the waist.",
+      "ro": "Un articol de îmbrăcăminte (purtat de obicei de o femeie sau de o fată tânără) care acoperă partea superioară a corpului și include fuste dedesubt"
+    }
   },
   {
     "word": "sock",
-    "definition": "A knitted or woven covering for the foot."
+    "words": {
+      "en": "sock",
+      "ro": "ciorap"
+    },
+    "definitions": {
+      "en": "A knitted or woven covering for the foot.",
+      "ro": "Un înveliș tricotat sau țesut pentru picior"
+    }
   },
   {
     "word": "scarf",
-    "definition": "A long, often knitted, garment worn around the neck."
+    "words": {
+      "en": "scarf",
+      "ro": "eşarfă"
+    },
+    "definitions": {
+      "en": "A long, often knitted, garment worn around the neck.",
+      "ro": "O haină lungă, adesea tricotată, purtată la gât"
+    }
   },
   {
     "word": "coat",
-    "definition": "An outer garment covering the upper torso and arms.Wp"
+    "words": {
+      "en": "coat",
+      "ro": "haina"
+    },
+    "definitions": {
+      "en": "An outer garment covering the upper torso and arms.Wp",
+      "ro": "O îmbrăcăminte exterioară care acoperă partea superioară a trunchiului și a brațelor"
+    }
   },
   {
     "word": "suit",
-    "definition": "A set of clothes to be worn together, now especially a man's matching jacket and trousers (also business suit or lounge suit), or a similar outfit for a woman."
+    "words": {
+      "en": "suit",
+      "ro": "costum"
+    },
+    "definitions": {
+      "en": "A set of clothes to be worn together, now especially a man's matching jacket and trousers (also business suit or lounge suit), or a similar outfit for a woman.",
+      "ro": "Un set de haine pentru a fi purtat împreună, acum în special o jachetă și pantaloni asortați pentru un bărbat (de asemenea, costum de afaceri sau costum de lounge), sau"
+    }
   },
   {
     "word": "tie",
-    "definition": "A knot; a fastening."
+    "words": {
+      "en": "tie",
+      "ro": "cravată"
+    },
+    "definitions": {
+      "en": "A knot; a fastening.",
+      "ro": "Un nod"
+    }
   },
   {
     "word": "belt",
-    "definition": "A band worn around the waist to hold clothing to one's body (usually pants), hold weapons (such as a gun or sword), or serve as a decorative piece of clothing."
+    "words": {
+      "en": "belt",
+      "ro": "centura"
+    },
+    "definitions": {
+      "en": "A band worn around the waist to hold clothing to one's body (usually pants), hold weapons (such as a gun or sword), or serve as a decorative piece of clothing.",
+      "ro": "O bandă purtată în jurul taliei pentru a ține îmbrăcămintea de corp (de obicei pantaloni), pentru a ține arme (cum ar fi o armă sau o sabie) sau pentru a servi drept"
+    }
   },
   {
     "word": "boot",
-    "definition": "A heavy shoe that covers part of the leg."
+    "words": {
+      "en": "boot",
+      "ro": "cizme"
+    },
+    "definitions": {
+      "en": "A heavy shoe that covers part of the leg.",
+      "ro": "Un pantof greu care acoperă o parte a piciorului"
+    }
   },
   {
     "word": "vest",
-    "definition": "A loose robe or outer garment worn historically by men in Arab or Middle Eastern countries."
+    "words": {
+      "en": "vest",
+      "ro": "vestă"
+    },
+    "definitions": {
+      "en": "A loose robe or outer garment worn historically by men in Arab or Middle Eastern countries.",
+      "ro": "Un halat largi sau o haină exterioară purtată istoric de bărbați din țările arabe sau din Orientul Mijlociu"
+    }
   },
   {
     "word": "skirt",
-    "definition": "An article of clothing, usually worn by women and girls, that hangs from the waist and covers the lower part of the body."
+    "words": {
+      "en": "skirt",
+      "ro": "fusta"
+    },
+    "definitions": {
+      "en": "An article of clothing, usually worn by women and girls, that hangs from the waist and covers the lower part of the body.",
+      "ro": "Un articol de îmbrăcăminte, purtat de obicei de femei și fete, care atârnă de talie și acoperă partea inferioară a corpului"
+    }
   },
   {
     "word": "gown",
-    "definition": "A loose, flowing upper garment."
+    "words": {
+      "en": "gown",
+      "ro": "rochie"
+    },
+    "definitions": {
+      "en": "A loose, flowing upper garment.",
+      "ro": "O îmbrăcăminte superioară lejeră, curgătoare"
+    }
   },
   {
     "word": "robe",
-    "definition": "A long loose outer garment, often signifying honorary stature."
+    "words": {
+      "en": "robe",
+      "ro": "halat"
+    },
+    "definitions": {
+      "en": "A long loose outer garment, often signifying honorary stature.",
+      "ro": "O îmbrăcăminte exterioară lungă, care deseori semnifică statura onorifică"
+    }
   },
   {
     "word": "cap",
-    "definition": "A close-fitting hat, either brimless or peaked."
+    "words": {
+      "en": "cap",
+      "ro": "capac"
+    },
+    "definitions": {
+      "en": "A close-fitting hat, either brimless or peaked.",
+      "ro": "O pălărie strânsă, fără boruri sau cu vârf"
+    }
   },
   {
     "word": "jeans",
-    "definition": "Denim."
+    "words": {
+      "en": "jeans",
+      "ro": "blugi"
+    },
+    "definitions": {
+      "en": "Denim."
+    }
   },
   {
     "word": "sweater",
-    "definition": "A knitted jacket or jersey, usually of thick wool, worn by athletes before or after exercise."
+    "words": {
+      "en": "sweater",
+      "ro": "pulover"
+    },
+    "definitions": {
+      "en": "A knitted jacket or jersey, usually of thick wool, worn by athletes before or after exercise.",
+      "ro": "O jachetă sau un tricou tricotat, de obicei din lână groasă, purtat de sportivi înainte sau după antrenament"
+    }
   },
   {
     "word": "glove",
-    "definition": "An item of clothing other than a mitten, covering all or part of the hand and fingers, but usually allowing independent movement of the fingers."
+    "words": {
+      "en": "glove",
+      "ro": "mănușă"
+    },
+    "definitions": {
+      "en": "An item of clothing other than a mitten, covering all or part of the hand and fingers, but usually allowing independent movement of the fingers.",
+      "ro": "Un articol de îmbrăcăminte, altul decât mănușa, care acoperă toată sau o parte a mâinii și a degetelor, dar care, de obicei, permite mișcarea independentă."
+    }
   },
   {
     "word": "apron",
-    "definition": "An article of clothing worn over the front of the torso and/or legs for protection from spills; also historically worn by Freemasons and as part of women's fashion."
+    "words": {
+      "en": "apron",
+      "ro": "şorţ"
+    },
+    "definitions": {
+      "en": "An article of clothing worn over the front of the torso and/or legs for protection from spills; also historically worn by Freemasons and as part of women's fashion.",
+      "ro": "Un articol de îmbrăcăminte purtat peste partea din față a trunchiului și/sau a picioarelor pentru protecție împotriva scurgerilor"
+    }
   },
   {
     "word": "beret",
-    "definition": "A type of round, brimless cap with a soft top and a headband to secure it to the head; usually culturally associated with France."
+    "words": {
+      "en": "beret",
+      "ro": "beretă"
+    },
+    "definitions": {
+      "en": "A type of round, brimless cap with a soft top and a headband to secure it to the head; usually culturally associated with France.",
+      "ro": "Un tip de șapcă rotundă, fără boruri, cu o capotă moale și o bandă pentru a o fixa pe cap"
+    }
   },
   {
     "word": "shawl",
-    "definition": "A square or rectangular piece of cloth worn as a covering for the head, neck, and shoulders, typically by women."
+    "words": {
+      "en": "shawl",
+      "ro": "şal"
+    },
+    "definitions": {
+      "en": "A square or rectangular piece of cloth worn as a covering for the head, neck, and shoulders, typically by women.",
+      "ro": "O bucată pătrată sau dreptunghiulară de pânză purtată ca acoperire pentru cap, gât și umeri, de obicei de către femei"
+    }
   },
   {
     "word": "tunic",
-    "definition": "A garment worn over the torso, with or without sleeves, and of various lengths reaching from the hips to the ankles."
+    "words": {
+      "en": "tunic",
+      "ro": "tunică"
+    },
+    "definitions": {
+      "en": "A garment worn over the torso, with or without sleeves, and of various lengths reaching from the hips to the ankles.",
+      "ro": "O îmbrăcăminte purtată peste trunchi, cu sau fără mâneci și de diferite lungimi, de la șolduri până la glezne"
+    }
   },
   {
     "word": "cloak",
-    "definition": "A long outer garment worn over the shoulders covering the back; a cape, often with a hood."
+    "words": {
+      "en": "cloak",
+      "ro": "mantie"
+    },
+    "definitions": {
+      "en": "A long outer garment worn over the shoulders covering the back; a cape, often with a hood.",
+      "ro": "O îmbrăcăminte exterioară lungă, purtată peste umeri, acoperind spatele"
+    }
   },
   {
     "word": "blouse",
-    "definition": "A shirt, typically loose and reaching from the neck to the waist."
+    "words": {
+      "en": "blouse",
+      "ro": "bluză"
+    },
+    "definitions": {
+      "en": "A shirt, typically loose and reaching from the neck to the waist.",
+      "ro": "O cămașă, de obicei largi și care ajunge de la gât până la talie"
+    }
   },
   {
     "word": "shorts",
-    "definition": "A short circuit."
+    "words": {
+      "en": "shorts",
+      "ro": "pantaloni"
+    },
+    "definitions": {
+      "en": "A short circuit.",
+      "ro": "Un scurtcircuit"
+    }
   },
   {
     "word": "uniform",
-    "definition": "A distinctive outfit that serves to identify members of a group."
+    "words": {
+      "en": "uniform",
+      "ro": "uniformă"
+    },
+    "definitions": {
+      "en": "A distinctive outfit that serves to identify members of a group.",
+      "ro": "O ținută distinctivă care servește la identificarea membrilor unui grup"
+    }
   },
   {
     "word": "sandal",
-    "definition": "A type of open shoe made up of straps or bands holding a sole to the foot"
+    "words": {
+      "en": "sandal",
+      "ro": "sandală"
+    },
+    "definitions": {
+      "en": "A type of open shoe made up of straps or bands holding a sole to the foot",
+      "ro": "Un tip de pantof deschis alcătuit din curele sau benzi care țin o talpă de picior"
+    }
   }
 ]

@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { fetchWordPairForCategory, tryPlaceLetter, isWordComplete } from "@/lib/words"
-import type { WordPair, CategoryKey } from "@/lib/game-types"
-import { CATEGORIES } from "@/lib/game-types"
+import type { WordPair, CategoryKey, LanguageKey } from "@/lib/game-types"
+import { CATEGORIES, LANGUAGES } from "@/lib/game-types"
 import { ArrowLeft, RotateCcw, Trophy, Timer, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Confetti from "react-confetti"
@@ -28,6 +28,7 @@ function readStoredField<T>(field: string, fallback: T): T {
 export default function PracticePage() {
   const [playerName, setPlayerName] = useState("")
   const [category] = useState<string>(() => readStoredField("category", "general"))
+  const [language] = useState<string>(() => readStoredField("language", "en"))
   const [totalRounds] = useState<number>(() => readStoredField("max_rounds", 10))
   const [currentWord, setCurrentWord] = useState<WordPair | null>(null)
   const [progress, setProgress] = useState("")
@@ -52,13 +53,13 @@ export default function PracticePage() {
 
   const loadNewWord = useCallback(async () => {
     setGameStatus("loading")
-    const word = await fetchWordPairForCategory(category)
+    const word = await fetchWordPairForCategory(category, language)
     setCurrentWord(word)
     setProgress("_".repeat(word.word.length))
     setLastPlacedIndex(null)
     setTimeLeft(ROUND_DURATION)
     setGameStatus("playing")
-  }, [category])
+  }, [category, language])
 
   useEffect(() => { loadNewWord() }, [loadNewWord])
 
@@ -166,11 +167,14 @@ export default function PracticePage() {
             <span className="text-sm font-medium text-muted-foreground">
               Round {round}/{totalRounds}
             </span>
-            {category && CATEGORIES[category as CategoryKey] && (
-              <span className="text-xs text-muted-foreground/60">
-                {CATEGORIES[category as CategoryKey].emoji} {CATEGORIES[category as CategoryKey].label}
-              </span>
-            )}
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground/60">
+              {category && CATEGORIES[category as CategoryKey] && (
+                <span>{CATEGORIES[category as CategoryKey].emoji} {CATEGORIES[category as CategoryKey].label}</span>
+              )}
+              {language && LANGUAGES[language as LanguageKey] && (
+                <span>· {LANGUAGES[language as LanguageKey].flag}</span>
+              )}
+            </div>
           </div>
 
           <div className="flex items-center gap-1.5">
