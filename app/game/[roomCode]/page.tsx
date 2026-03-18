@@ -178,7 +178,8 @@ export default function GamePage({ params }: GamePageProps) {
       if (isWordComplete(next)) {
         const sf = `player${mySlot}_score`
         const newScore = (slotData(mySlot, room).score ?? 0) + 1
-        const isOver = newScore >= WIN_SCORE || room.current_round >= TOTAL_ROUNDS
+        const totalRounds = room.total_rounds ?? TOTAL_ROUNDS
+        const isOver = newScore >= WIN_SCORE || room.current_round >= totalRounds
         await supabase.from("game_rooms").update({
           [pf]: next,
           [sf]: newScore,
@@ -196,9 +197,10 @@ export default function GamePage({ params }: GamePageProps) {
 
   async function handleTimerEnd() {
     if (!room) return
+    const totalRounds = room.total_rounds ?? TOTAL_ROUNDS
     await supabase.from("game_rooms").update({
       round_winner: null,
-      game_status: room.current_round >= TOTAL_ROUNDS ? "finished" : "round_end",
+      game_status: room.current_round >= totalRounds ? "finished" : "round_end",
     }).eq("room_code", roomCode)
   }
 
@@ -608,7 +610,7 @@ export default function GamePage({ params }: GamePageProps) {
                 )
               })}
             </div>
-            <p className="text-sm text-muted-foreground">Round {room.current_round} of {TOTAL_ROUNDS}</p>
+            <p className="text-sm text-muted-foreground">Round {room.current_round} of {room.total_rounds ?? TOTAL_ROUNDS}</p>
             <Button className="w-full" size="lg" onClick={() => startNewRound()}>Next Round</Button>
           </CardContent>
         </Card>
@@ -635,7 +637,7 @@ export default function GamePage({ params }: GamePageProps) {
           </Button>
           <div className="flex flex-col items-center gap-0.5">
             <span className="text-sm font-medium text-muted-foreground">
-              Round {room.current_round}/{TOTAL_ROUNDS}
+              Round {room.current_round}/{room.total_rounds ?? TOTAL_ROUNDS}
             </span>
             {room.category && CATEGORIES[room.category as CategoryKey] && (
               <span className="text-xs text-muted-foreground/60">

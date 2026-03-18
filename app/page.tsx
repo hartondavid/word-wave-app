@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
-import { PLAYER_COLORS, CATEGORIES, type CategoryKey } from "@/lib/game-types"
+import { PLAYER_COLORS, CATEGORIES, TOTAL_ROUNDS, type CategoryKey } from "@/lib/game-types"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -24,7 +24,10 @@ export default function HomePage() {
   const [playerName, setPlayerName] = useState("")
   const [roomCode, setRoomCode] = useState("")
   const [maxPlayers, setMaxPlayers] = useState<2 | 3 | 4>(2)
+  const [maxRoundsInput, setMaxRoundsInput] = useState<string>(String(TOTAL_ROUNDS))
+  const [roundsError, setRoundsError] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<CategoryKey>("animals")
+  const [activeTab, setActiveTab] = useState<"create" | "join">("create")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
@@ -43,6 +46,11 @@ export default function HomePage() {
 
   async function handleCreateRoom() {
     if (!playerName.trim()) { setError("Please enter your name"); return }
+    const maxRounds = parseInt(maxRoundsInput, 10)
+    if (!maxRoundsInput.trim() || isNaN(maxRounds) || maxRounds <= 0) {
+      setRoundsError("Number of rounds must be at least 1")
+      return
+    }
     setIsLoading(true)
     setError("")
     try {
@@ -54,30 +62,29 @@ export default function HomePage() {
         player1_name: playerName.trim(),
         game_status: "waiting",
         current_round: 0,
+        total_rounds: maxRounds,   // existing column — no migration needed
       }
 
-      // Try with max_players + category (require migrations 005/006).
-      // Retry with progressively fewer fields if columns are missing.
-      let { error: roomError } = await supabase
-        .from("game_rooms")
-        .insert({ ...basePayload, max_players: maxPlayers, category: selectedCategory })
+      // Optional columns added by migrations 005/006; removed from payload if
+      // the column doesn't exist yet and retried automatically.
+      const OPTIONAL_COLUMNS = ["category", "max_players"] as const
+      const optionalValues: Record<string, unknown> = {
+        max_players: maxPlayers,
+        category: selectedCategory,
+      }
 
-      if (roomError) {
+      let payload = { ...basePayload, ...optionalValues }
+      let { error: roomError } = await supabase.from("game_rooms").insert(payload)
+
+      for (const col of OPTIONAL_COLUMNS) {
+        if (!roomError) break
         const msg = (roomError as { message?: string }).message ?? ""
-        if (msg.includes("category")) {
-          // migration 006 not run — retry without category
-          const r2 = await supabase.from("game_rooms").insert({ ...basePayload, max_players: maxPlayers })
-          roomError = r2.error
-          if (!r2.error) console.warn("category column missing — run scripts/006_add_category.sql")
-        }
-        if (roomError) {
-          const msg2 = (roomError as { message?: string }).message ?? ""
-          if (msg2.includes("max_players")) {
-            // migration 005 not run either — bare insert
-            const r3 = await supabase.from("game_rooms").insert(basePayload)
-            roomError = r3.error
-            if (!r3.error) console.warn("max_players column missing — run scripts/005_add_4player_support.sql")
-          }
+        if (msg.includes(col)) {
+          console.warn(`${col} column missing — run the relevant migration script`)
+          const { [col]: _removed, ...rest } = payload
+          payload = rest
+          const r = await supabase.from("game_rooms").insert(payload)
+          roomError = r.error
         }
       }
 
@@ -201,7 +208,7 @@ export default function HomePage() {
           {[
             { icon: <Swords className="w-5 h-5 mx-auto mb-1 text-primary" />, label: "2–4 Players" },
             { icon: <Timer className="w-5 h-5 mx-auto mb-1 text-primary" />, label: "60s Rounds" },
-            { icon: <Trophy className="w-5 h-5 mx-auto mb-1 text-primary" />, label: "Best of 10" },
+            { icon: <Trophy className="w-5 h-5 mx-auto mb-1 text-primary" />, label: "1–? Rounds" },
           ].map(({ icon, label }) => (
             <div key={label} className="p-3 rounded-xl bg-card border">
               {icon}
@@ -242,8 +249,8 @@ export default function HomePage() {
                     className={cn(
                       "px-2.5 py-1 rounded-lg text-xs font-medium border transition-all",
                       selectedCategory === key
-                        ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                        : "bg-muted/40 text-muted-foreground border-transparent hover:border-muted-foreground/30 hover:bg-muted/70"
+                        ? "border-2 border-blue-500 text-foreground bg-transparent"
+                        : "border bg-muted/40 text-muted-foreground border-transparent hover:border-muted-foreground/30 hover:bg-muted/70"
                     )}
                   >
                     {emoji} {label}
@@ -251,6 +258,36 @@ export default function HomePage() {
                 ))}
               </div>
             </div>
+
+            {/* Round count input — hidden when joining (only host sets rounds) */}
+            {activeTab === "create" && (
+              <div className="space-y-2">
+                <label htmlFor="maxRounds" className="text-sm font-medium">
+                  Number of Rounds <span className="text-muted-foreground font-normal">(min 1)</span>
+                </label>
+                <Input
+                  id="maxRounds"
+                  type="number"
+                  min={1}
+                  placeholder="e.g. 10"
+                  value={maxRoundsInput}
+                  onChange={(e) => {
+                    const raw = e.target.value
+                    setMaxRoundsInput(raw)
+                    const val = parseInt(raw, 10)
+                    if (!raw.trim() || isNaN(val) || val <= 0) {
+                      setRoundsError("Number of rounds must be at least 1")
+                    } else {
+                      setRoundsError("")
+                    }
+                  }}
+                  className={cn("text-center font-bold", roundsError && "border-destructive focus-visible:ring-destructive")}
+                />
+                {roundsError && (
+                  <p className="text-xs text-destructive">{roundsError}</p>
+                )}
+              </div>
+            )}
 
             {/* Practice */}
             <Button variant="outline" className="w-full" size="lg" onClick={handlePracticeSolo} disabled={isLoading}>
@@ -266,7 +303,11 @@ export default function HomePage() {
             </div>
 
             {/* Tabs */}
-            <Tabs defaultValue="create" className="w-full">
+            <Tabs
+              defaultValue="create"
+              className="w-full"
+              onValueChange={(v) => { setActiveTab(v as "create" | "join"); setRoundsError("") }}
+            >
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="create">Create Room</TabsTrigger>
                 <TabsTrigger value="join">Join Room</TabsTrigger>
@@ -284,8 +325,8 @@ export default function HomePage() {
                         className={cn(
                           "flex-1 py-3 rounded-xl border-2 font-bold text-sm transition-all",
                           maxPlayers === n
-                            ? "border-primary bg-primary text-primary-foreground shadow-sm"
-                            : "border-muted bg-muted/40 text-muted-foreground hover:border-muted-foreground/40"
+                            ? "border-[3px] border-blue-500 text-foreground bg-transparent"
+                            : "border-2 border-muted bg-muted/40 text-muted-foreground hover:border-muted-foreground/40"
                         )}
                       >
                         {n}
@@ -306,8 +347,9 @@ export default function HomePage() {
                     Share the room code with {maxPlayers - 1} friend{maxPlayers > 2 ? "s" : ""} to start
                   </p>
                 </div>
+
                 <Button className="w-full" size="lg" onClick={handleCreateRoom} disabled={isLoading}>
-                  {isLoading ? "Creating..." : `Create ${maxPlayers}-Player Room`}
+                  {isLoading ? "Creating..." : `Create ${maxPlayers} Players Room`}
                 </Button>
               </TabsContent>
 

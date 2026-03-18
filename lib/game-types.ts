@@ -55,6 +55,7 @@ export const WIN_SCORE = 6
 export const PLAYER_COLORS = ['#3B82F6', '#F59E0B', '#10B981', '#8B5CF6'] as const
 
 export const CATEGORIES = {
+  general:  { label: 'General',  emoji: '🌐' },
   animals:  { label: 'Animals',  emoji: '🐾' },
   food:     { label: 'Food',     emoji: '🍕' },
   objects:  { label: 'Objects',  emoji: '📦' },
@@ -68,3 +69,6 @@ export const CATEGORIES = {
 } as const
 
 export type CategoryKey = keyof typeof CATEGORIES
+
+// All specific category keys (excludes 'general')
+export const SPECIFIC_CATEGORIES = Object.keys(CATEGORIES).filter(k => k !== 'general') as Exclude<CategoryKey, 'general'>[]

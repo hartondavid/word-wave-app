@@ -332,11 +332,23 @@ export async function getDefinitionByCategory(category: string): Promise<WordPai
   }
 }
 
-// Unified word fetcher: uses static JSON when a category is provided,
-// otherwise falls back to the Open Trivia API / local pairs.
+// All specific category keys (must stay in sync with CATEGORIES in game-types.ts)
+const SPECIFIC_CATEGORY_KEYS = [
+  'animals','food','objects','people','places','nature','vehicles','clothes','sports','body',
+]
+
+// Pick a random definition from ALL categories combined.
+async function getDefinitionForGeneral(): Promise<WordPair> {
+  const randomCategory = SPECIFIC_CATEGORY_KEYS[Math.floor(Math.random() * SPECIFIC_CATEGORY_KEYS.length)]
+  return getDefinitionByCategory(randomCategory)
+}
+
+// Unified word fetcher:
+//   general  → random pick across all categories
+//   specific → uses that category's JSON (falls back to built-in pairs)
+//   null/undefined → Open Trivia API
 export async function fetchWordPairForCategory(category?: string | null): Promise<WordPair> {
-  if (category && category !== 'general') {
-    return getDefinitionByCategory(category)
-  }
-  return fetchWordPair()
+  if (!category) return fetchWordPair()
+  if (category === 'general') return getDefinitionForGeneral()
+  return getDefinitionByCategory(category)
 }
