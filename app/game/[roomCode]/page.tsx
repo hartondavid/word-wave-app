@@ -173,7 +173,7 @@ export default function GamePage({ params }: GamePageProps) {
   // Keyboard input
   useEffect(() => {
     if (room?.game_status !== "playing" || !room.current_word) return
-    const onKey = (e: KeyboardEvent) => { if (/^[a-zA-Z]$/.test(e.key)) handleLetterInput(e.key) }
+    const onKey = (e: KeyboardEvent) => { if (/^\p{L}$/u.test(e.key)) handleLetterInput(e.key) }
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -717,7 +717,7 @@ export default function GamePage({ params }: GamePageProps) {
               const v = e.target.value
               if (v) {
                 const ch = v[v.length - 1]
-                if (/[a-zA-Z]/.test(ch)) handleLetterInput(ch)
+                if (/\p{L}/u.test(ch)) handleLetterInput(ch)
                 e.target.value = ""
               }
             }}

@@ -121,7 +121,7 @@ export default function PracticePage() {
 
   useEffect(() => {
     if (gameStatus !== "playing" || !currentWord) return
-    const onKey = (e: KeyboardEvent) => { if (/^[a-zA-Z]$/.test(e.key)) handleLetterInput(e.key) }
+    const onKey = (e: KeyboardEvent) => { if (/^\p{L}$/u.test(e.key)) handleLetterInput(e.key) }
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
   }, [gameStatus, currentWord, handleLetterInput])
@@ -255,7 +255,7 @@ export default function PracticePage() {
               const v = e.target.value
               if (v) {
                 const ch = v[v.length - 1]
-                if (/[a-zA-Z]/.test(ch)) handleLetterInput(ch)
+                if (/\p{L}/u.test(ch)) handleLetterInput(ch)
                 e.target.value = ""
               }
             }}

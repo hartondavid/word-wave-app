@@ -8,16 +8,15 @@ interface MultilingualEntry {
   definitions: Record<string, string>  // translated definitions per language
 }
 
-// Strip diacritics from a word so players only need to type plain letters
-function removeDiacritics(str: string): string {
+// Normalize a string by removing diacritics, used for loose comparison
+export function removeDiacritics(str: string): string {
   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
 }
 
 function extractPair(entry: MultilingualEntry | WordPair, language: string): WordPair {
   if ("definitions" in entry && entry.definitions) {
     const def  = entry.definitions[language] ?? entry.definitions["en"] ?? ""
-    const rawWord = entry.words?.[language] ?? entry.words?.["en"] ?? entry.word
-    const word = removeDiacritics(rawWord)
+    const word = entry.words?.[language] ?? entry.words?.["en"] ?? entry.word
     return { word, definition: def }
   }
   return entry as WordPair
@@ -159,20 +158,19 @@ export function tryPlaceLetter(
   currentProgress: string, 
   answer: string
 ): string | null {
-  const letterLower = letter.toLowerCase()
-  const answerLower = answer.toLowerCase()
+  // Normalize both sides so typing 'a' matches 'â', 'ă' etc.
+  const letterNorm = removeDiacritics(letter.toLowerCase())
   const progressArray = currentProgress.split("")
   
-  // Find the first unfilled position where this letter belongs
-  for (let i = 0; i < answerLower.length; i++) {
-    // If this position matches the letter and is still unfilled
-    if (answerLower[i] === letterLower && progressArray[i] === "_") {
-      progressArray[i] = letterLower.toUpperCase()
+  for (let i = 0; i < answer.length; i++) {
+    const answerNorm = removeDiacritics(answer[i].toLowerCase())
+    if (answerNorm === letterNorm && progressArray[i] === "_") {
+      // Place the original answer character (preserves diacritics for display)
+      progressArray[i] = answer[i]
       return progressArray.join("")
     }
   }
   
-  // Letter doesn't fit anywhere
   return null
 }
 
