@@ -686,27 +686,6 @@ export default function GamePage({ params }: GamePageProps) {
         {renderPlayerTopBar()}
       </div>
 
-      {/* Hidden input — captures mobile virtual keyboard */}
-      <input
-        ref={hiddenInputRef}
-        type="text"
-        inputMode="text"
-        autoComplete="off"
-        autoCorrect="off"
-        autoCapitalize="none"
-        spellCheck={false}
-        className="fixed opacity-0 w-px h-px bottom-0 left-0 pointer-events-none"
-        style={{ fontSize: 16 }}
-        onChange={(e) => {
-          const v = e.target.value
-          if (v) {
-            const ch = v[v.length - 1]
-            if (/[a-zA-Z]/.test(ch)) handleLetterInput(ch)
-            e.target.value = ""
-          }
-        }}
-      />
-
       {/* Main content — tap anywhere to re-focus keyboard on iOS */}
       <div
         className="flex-1 overflow-y-auto flex flex-col items-center justify-start px-4 pt-5 pb-6 max-w-2xl mx-auto w-full gap-5"
@@ -722,8 +701,29 @@ export default function GamePage({ params }: GamePageProps) {
           </CardContent>
         </Card>
 
-        {/* Word mask */}
-        <div ref={wordMaskRef}>{renderWordMask()}</div>
+        {/* Word mask — hidden input placed here so browser auto-scroll targets this area */}
+        <div ref={wordMaskRef} className="relative w-full flex justify-center">
+          <input
+            ref={hiddenInputRef}
+            type="text"
+            inputMode="text"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="none"
+            spellCheck={false}
+            className="absolute opacity-0 w-px h-px top-1/2 left-1/2 pointer-events-none"
+            style={{ fontSize: 16 }}
+            onChange={(e) => {
+              const v = e.target.value
+              if (v) {
+                const ch = v[v.length - 1]
+                if (/[a-zA-Z]/.test(ch)) handleLetterInput(ch)
+                e.target.value = ""
+              }
+            }}
+          />
+          {renderWordMask()}
+        </div>
 
         {/* Legend */}
         <div className="text-center space-y-2">
