@@ -4,6 +4,8 @@ export interface GameRoom {
   id: string
   room_code: string
   max_players: number
+  category?: string | null
+
   current_word: string | null
   current_definition: string | null
 
@@ -51,3 +53,18 @@ export const WIN_SCORE = 6
 
 // P1 Blue | P2 Amber | P3 Emerald | P4 Violet
 export const PLAYER_COLORS = ['#3B82F6', '#F59E0B', '#10B981', '#8B5CF6'] as const
+
+export const CATEGORIES = {
+  animals:  { label: 'Animals',  emoji: '🐾' },
+  food:     { label: 'Food',     emoji: '🍕' },
+  objects:  { label: 'Objects',  emoji: '📦' },
+  people:   { label: 'People',   emoji: '👤' },
+  places:   { label: 'Places',   emoji: '🌍' },
+  nature:   { label: 'Nature',   emoji: '🌿' },
+  vehicles: { label: 'Vehicles', emoji: '🚗' },
+  clothes:  { label: 'Clothes',  emoji: '👕' },
+  sports:   { label: 'Sports',   emoji: '⚽' },
+  body:     { label: 'Body',     emoji: '🫀' },
+} as const
+
+export type CategoryKey = keyof typeof CATEGORIES

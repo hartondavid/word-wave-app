@@ -4,15 +4,29 @@ import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { fetchWordPair, tryPlaceLetter, isWordComplete } from "@/lib/words"
-import type { WordPair } from "@/lib/game-types"
+import { fetchWordPairForCategory, tryPlaceLetter, isWordComplete } from "@/lib/words"
+import type { WordPair, CategoryKey } from "@/lib/game-types"
+import { CATEGORIES } from "@/lib/game-types"
 import { ArrowLeft, RotateCcw, Trophy, Timer, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const ROUND_DURATION = 60
 
+function readStoredCategory(): string {
+  if (typeof window === "undefined") return "general"
+  try {
+    const stored = localStorage.getItem("wordmatch_player")
+    if (!stored) return "general"
+    return JSON.parse(stored).category || "general"
+  } catch {
+    return "general"
+  }
+}
+
 export default function PracticePage() {
   const [playerName, setPlayerName] = useState("")
+  // Initialise synchronously so loadNewWord never runs with the wrong category
+  const [category] = useState<string>(readStoredCategory)
   const [currentWord, setCurrentWord] = useState<WordPair | null>(null)
   const [progress, setProgress] = useState("")
   const [score, setScore] = useState(0)
@@ -37,13 +51,13 @@ export default function PracticePage() {
   // Fetch new word
   const loadNewWord = useCallback(async () => {
     setGameStatus("loading")
-    const word = await fetchWordPair()
+    const word = await fetchWordPairForCategory(category)
     setCurrentWord(word)
     setProgress("_".repeat(word.word.length))
     setLastPlacedIndex(null)
     setTimeLeft(ROUND_DURATION)
     setGameStatus("playing")
-  }, [])
+  }, [category])
 
   // Initial load
   useEffect(() => {
@@ -162,8 +176,13 @@ export default function PracticePage() {
           <ArrowLeft className="w-4 h-4 mr-2" />
           Exit
         </Button>
-        <div className="text-sm font-medium">
-          Round {round}/10
+        <div className="flex flex-col items-center gap-0.5">
+          <span className="text-sm font-medium">Round {round}/10</span>
+          {category && CATEGORIES[category as CategoryKey] && (
+            <span className="text-xs text-muted-foreground/60">
+              {CATEGORIES[category as CategoryKey].emoji} {CATEGORIES[category as CategoryKey].label}
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-2 text-sm font-medium">
           <Trophy className="w-4 h-4 text-primary" />

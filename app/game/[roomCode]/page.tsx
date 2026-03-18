@@ -3,9 +3,9 @@
 import { useEffect, useState, useCallback, useRef, use } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
-import type { GameRoom, PlayerSlot } from "@/lib/game-types"
-import { ROUND_DURATION, WIN_SCORE, TOTAL_ROUNDS, PLAYER_COLORS } from "@/lib/game-types"
-import { fetchWordPair, tryPlaceLetter, isWordComplete } from "@/lib/words"
+import type { GameRoom, PlayerSlot, CategoryKey } from "@/lib/game-types"
+import { ROUND_DURATION, WIN_SCORE, TOTAL_ROUNDS, PLAYER_COLORS, CATEGORIES } from "@/lib/game-types"
+import { fetchWordPairForCategory, tryPlaceLetter, isWordComplete } from "@/lib/words"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner"
@@ -211,7 +211,7 @@ export default function GamePage({ params }: GamePageProps) {
 
   async function startNewRound() {
     if (!room) return
-    const word = await fetchWordPair()
+    const word = await fetchWordPairForCategory(room.category)
     const init = "_".repeat(word.word.length)
     const active = activeSlots(room)
 
@@ -628,14 +628,21 @@ export default function GamePage({ params }: GamePageProps) {
     >
       {/* Sticky top bar */}
       <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b px-4 pt-3 pb-3 space-y-3">
-        {/* Row: Exit · Round · Timer */}
+        {/* Row: Exit · Round+Category · Timer */}
         <div className="flex items-center justify-between">
           <Button variant="ghost" size="sm" className="h-8 px-2" onClick={() => router.push("/")}>
             <ArrowLeft className="w-4 h-4 mr-1" />Exit
           </Button>
-          <span className="text-sm font-medium text-muted-foreground">
-            Round {room.current_round}/{TOTAL_ROUNDS}
-          </span>
+          <div className="flex flex-col items-center gap-0.5">
+            <span className="text-sm font-medium text-muted-foreground">
+              Round {room.current_round}/{TOTAL_ROUNDS}
+            </span>
+            {room.category && CATEGORIES[room.category as CategoryKey] && (
+              <span className="text-xs text-muted-foreground/60">
+                {CATEGORIES[room.category as CategoryKey].emoji} {CATEGORIES[room.category as CategoryKey].label}
+              </span>
+            )}
+          </div>
           <div className={cn(
             "flex items-center gap-1.5 text-sm font-bold px-3 py-1.5 rounded-lg",
             timeRemaining <= 10 ? "bg-destructive/10 text-destructive animate-pulse" : "bg-muted"

@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
-import { PLAYER_COLORS } from "@/lib/game-types"
+import { PLAYER_COLORS, CATEGORIES, type CategoryKey } from "@/lib/game-types"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -24,6 +24,7 @@ export default function HomePage() {
   const [playerName, setPlayerName] = useState("")
   const [roomCode, setRoomCode] = useState("")
   const [maxPlayers, setMaxPlayers] = useState<2 | 3 | 4>(2)
+  const [selectedCategory, setSelectedCategory] = useState<CategoryKey>("animals")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
@@ -35,6 +36,7 @@ export default function HomePage() {
       id: generatePlayerId(),
       name: playerName.trim(),
       mode: "practice",
+      category: selectedCategory,
     }))
     router.push("/practice")
   }
@@ -54,20 +56,27 @@ export default function HomePage() {
         current_round: 0,
       }
 
-      // Try with max_players first (requires migration 005).
-      // If the column doesn't exist yet, fall back silently to a 2-player room.
+      // Try with max_players + category (require migrations 005/006).
+      // Retry with progressively fewer fields if columns are missing.
       let { error: roomError } = await supabase
         .from("game_rooms")
-        .insert({ ...basePayload, max_players: maxPlayers })
+        .insert({ ...basePayload, max_players: maxPlayers, category: selectedCategory })
 
       if (roomError) {
         const msg = (roomError as { message?: string }).message ?? ""
-        if (msg.includes("max_players")) {
-          // Column not yet migrated — retry without it
-          const retry = await supabase.from("game_rooms").insert(basePayload)
-          roomError = retry.error
-          if (!retry.error) {
-            console.warn("max_players column missing. Run scripts/005_add_4player_support.sql for 3–4 player support.")
+        if (msg.includes("category")) {
+          // migration 006 not run — retry without category
+          const r2 = await supabase.from("game_rooms").insert({ ...basePayload, max_players: maxPlayers })
+          roomError = r2.error
+          if (!r2.error) console.warn("category column missing — run scripts/006_add_category.sql")
+        }
+        if (roomError) {
+          const msg2 = (roomError as { message?: string }).message ?? ""
+          if (msg2.includes("max_players")) {
+            // migration 005 not run either — bare insert
+            const r3 = await supabase.from("game_rooms").insert(basePayload)
+            roomError = r3.error
+            if (!r3.error) console.warn("max_players column missing — run scripts/005_add_4player_support.sql")
           }
         }
       }
@@ -183,7 +192,7 @@ export default function HomePage() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary text-primary-foreground mb-4 shadow-lg">
             <Swords className="w-8 h-8" />
           </div>
-          <h1 className="text-4xl font-black tracking-tight">WordMatch</h1>
+          <h1 className="text-4xl font-black tracking-tight">WordWave</h1>
           <p className="text-muted-foreground">Race to guess the word first. Up to 4 players.</p>
         </div>
 
@@ -219,6 +228,28 @@ export default function HomePage() {
                 maxLength={15}
                 onKeyDown={(e) => e.key === "Enter" && handlePracticeSolo()}
               />
+            </div>
+
+            {/* Category selector */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Category</label>
+              <div className="flex flex-wrap gap-1.5">
+                {(Object.entries(CATEGORIES) as [CategoryKey, { label: string; emoji: string }][]).map(([key, { label, emoji }]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setSelectedCategory(key)}
+                    className={cn(
+                      "px-2.5 py-1 rounded-lg text-xs font-medium border transition-all",
+                      selectedCategory === key
+                        ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                        : "bg-muted/40 text-muted-foreground border-transparent hover:border-muted-foreground/30 hover:bg-muted/70"
+                    )}
+                  >
+                    {emoji} {label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Practice */}

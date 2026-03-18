@@ -179,3 +179,164 @@ export function calculateProgress(input: string, answer: string): string {
 export function isCorrectAnswer(input: string, answer: string): boolean {
   return input.toLowerCase().trim() === answer.toLowerCase().trim()
 }
+
+// Built-in fallback pairs per category — used when the JSON file hasn't been
+// generated yet (before running generate-all-categories.js).
+const FALLBACK_BY_CATEGORY: Record<string, WordPair[]> = {
+  animals: [
+    { word: "cat",    definition: "Animal that meows and chases mice" },
+    { word: "dog",    definition: "Animal that barks" },
+    { word: "lion",   definition: "King of the jungle" },
+    { word: "bird",   definition: "Animal with wings and feathers" },
+    { word: "fish",   definition: "Animal that lives in water and has gills" },
+    { word: "bear",   definition: "Large furry animal that hibernates in winter" },
+    { word: "wolf",   definition: "Wild canine that howls at the moon" },
+    { word: "eagle",  definition: "Large bird of prey with sharp talons" },
+    { word: "frog",   definition: "Small amphibian that jumps and croaks" },
+    { word: "shark",  definition: "Large predatory fish with sharp teeth" },
+  ],
+  food: [
+    { word: "apple",    definition: "Red or green fruit that keeps doctors away" },
+    { word: "bread",    definition: "Baked food made from flour and yeast" },
+    { word: "cake",     definition: "Sweet dessert for birthdays" },
+    { word: "milk",     definition: "White liquid from cows" },
+    { word: "rice",     definition: "Small white grains eaten across Asia" },
+    { word: "soup",     definition: "Hot liquid food cooked in a pot" },
+    { word: "cheese",   definition: "Dairy product made from curdled milk" },
+    { word: "pasta",    definition: "Italian food made from flour and water" },
+    { word: "mango",    definition: "Tropical orange fruit with a big seed" },
+    { word: "honey",    definition: "Sweet golden syrup made by bees" },
+  ],
+  objects: [
+    { word: "book",   definition: "Bound collection of written pages" },
+    { word: "chair",  definition: "Piece of furniture for sitting" },
+    { word: "clock",  definition: "Device that shows what time it is" },
+    { word: "lamp",   definition: "Device that gives off light" },
+    { word: "key",    definition: "Small metal tool used to open locks" },
+    { word: "mirror", definition: "Reflective surface used to see yourself" },
+    { word: "phone",  definition: "Device for making calls" },
+    { word: "door",   definition: "Barrier that opens and closes an entrance" },
+    { word: "pen",    definition: "Tool for writing with ink" },
+    { word: "bag",    definition: "Container carried by hand or on the back" },
+  ],
+  people: [
+    { word: "doctor",  definition: "Person who treats illness and heals patients" },
+    { word: "teacher", definition: "Person who educates students" },
+    { word: "chef",    definition: "Person who cooks food professionally" },
+    { word: "pilot",   definition: "Person who flies an aircraft" },
+    { word: "nurse",   definition: "Person who cares for sick patients" },
+    { word: "judge",   definition: "Person who decides legal cases in court" },
+    { word: "farmer",  definition: "Person who grows crops and raises animals" },
+    { word: "actor",   definition: "Person who performs roles on stage or screen" },
+    { word: "king",    definition: "Male ruler of a kingdom" },
+    { word: "archer",  definition: "Person who shoots arrows with a bow" },
+  ],
+  places: [
+    { word: "school",   definition: "Building where students learn" },
+    { word: "hospital", definition: "Building where sick people are treated" },
+    { word: "beach",    definition: "Place with sand and waves" },
+    { word: "forest",   definition: "Large area covered with trees" },
+    { word: "mountain", definition: "Very tall rocky landform" },
+    { word: "library",  definition: "Place to borrow books" },
+    { word: "castle",   definition: "Large fortified building from medieval times" },
+    { word: "island",   definition: "Piece of land completely surrounded by water" },
+    { word: "desert",   definition: "Very dry sandy landscape with little rain" },
+    { word: "river",    definition: "Long body of water that flows to the sea" },
+  ],
+  nature: [
+    { word: "tree",   definition: "Tall plant with a trunk and leaves" },
+    { word: "rain",   definition: "Water droplets falling from clouds" },
+    { word: "snow",   definition: "Frozen water falling from the sky" },
+    { word: "cloud",  definition: "White fluffy mass of water vapour in the sky" },
+    { word: "sun",    definition: "Star at the center of our solar system" },
+    { word: "moon",   definition: "Earth's natural satellite" },
+    { word: "fire",   definition: "Hot glowing result of combustion" },
+    { word: "rock",   definition: "Hard solid mineral material" },
+    { word: "flower", definition: "Colourful bloom of a plant" },
+    { word: "wind",   definition: "Moving air you can feel but not see" },
+  ],
+  vehicles: [
+    { word: "car",        definition: "Four-wheeled motor vehicle for roads" },
+    { word: "bus",        definition: "Large vehicle that carries many passengers" },
+    { word: "train",      definition: "Vehicle that runs on rails" },
+    { word: "plane",      definition: "Vehicle that flies in the sky" },
+    { word: "boat",       definition: "Small vessel that travels on water" },
+    { word: "bike",       definition: "Vehicle with two wheels and pedals" },
+    { word: "truck",      definition: "Large vehicle for carrying heavy loads" },
+    { word: "ship",       definition: "Large vessel that sails across the ocean" },
+    { word: "rocket",     definition: "Vehicle that launches into space" },
+    { word: "helicopter", definition: "Aircraft that lifts off using rotating blades" },
+  ],
+  clothes: [
+    { word: "shirt",   definition: "Garment worn on the upper body" },
+    { word: "shoes",   definition: "Footwear worn to protect your feet" },
+    { word: "hat",     definition: "Head covering worn for fashion or sun protection" },
+    { word: "jacket",  definition: "Short coat worn over other clothes" },
+    { word: "dress",   definition: "One-piece garment worn by women" },
+    { word: "coat",    definition: "Long outer garment worn in cold weather" },
+    { word: "boots",   definition: "Footwear that covers the ankle and lower leg" },
+    { word: "gloves",  definition: "Garment worn on the hands for warmth" },
+    { word: "scarf",   definition: "Long fabric worn around the neck for warmth" },
+    { word: "suit",    definition: "Matching jacket and trousers for formal occasions" },
+  ],
+  sports: [
+    { word: "soccer",    definition: "Sport played with a round ball and two goals" },
+    { word: "tennis",    definition: "Sport played with rackets and a yellow ball" },
+    { word: "boxing",    definition: "Combat sport fought with fists and gloves" },
+    { word: "golf",      definition: "Sport where you hit a ball into a hole" },
+    { word: "rugby",     definition: "Contact sport played with an oval ball" },
+    { word: "hockey",    definition: "Sport played on ice or grass with a stick" },
+    { word: "swimming",  definition: "Sport where you move through water using your body" },
+    { word: "cycling",   definition: "Sport or activity of riding a bicycle" },
+    { word: "skiing",    definition: "Sport of sliding down snow on long runners" },
+    { word: "archery",   definition: "Sport of shooting arrows at a target" },
+  ],
+  body: [
+    { word: "hand",     definition: "Part of the arm below the wrist with fingers" },
+    { word: "heart",    definition: "Organ that pumps blood through your body" },
+    { word: "eye",      definition: "Organ used for seeing" },
+    { word: "nose",     definition: "Organ used for smelling and breathing" },
+    { word: "ear",      definition: "Organ used for hearing" },
+    { word: "mouth",    definition: "Opening in the face used for eating and speaking" },
+    { word: "knee",     definition: "Joint in the middle of your leg" },
+    { word: "thumb",    definition: "Shortest and thickest finger on the hand" },
+    { word: "spine",    definition: "Column of bones running down your back" },
+    { word: "skull",    definition: "Bony structure that protects the brain" },
+  ],
+}
+
+function getRandomFallback(category: string): WordPair {
+  const pairs = FALLBACK_BY_CATEGORY[category]
+  if (pairs && pairs.length > 0) {
+    return pairs[Math.floor(Math.random() * pairs.length)]
+  }
+  return getRandomLocalPair()
+}
+
+// Fetch a definition from a pre-generated static JSON file in /public/<category>.json.
+// Falls back to built-in category-specific pairs so the category always matches.
+export async function getDefinitionByCategory(category: string): Promise<WordPair> {
+  try {
+    // Absolute URL avoids path-resolution issues in all environments
+    const origin = typeof window !== "undefined" ? window.location.origin : ""
+    const res = await fetch(`${origin}/${category}.json`, { cache: "no-store" })
+    if (!res.ok) throw new Error(`HTTP ${res.status} for ${category}.json`)
+    const defs: WordPair[] = await res.json()
+    if (!Array.isArray(defs) || defs.length === 0) throw new Error(`${category}.json is empty`)
+    const pair = defs[Math.floor(Math.random() * defs.length)]
+    if (!pair?.word || !pair?.definition) throw new Error("invalid pair in JSON")
+    return pair
+  } catch (err) {
+    console.warn(`[WordWave] category JSON failed — using built-in fallback. Reason: ${err}`)
+    return getRandomFallback(category)
+  }
+}
+
+// Unified word fetcher: uses static JSON when a category is provided,
+// otherwise falls back to the Open Trivia API / local pairs.
+export async function fetchWordPairForCategory(category?: string | null): Promise<WordPair> {
+  if (category && category !== 'general') {
+    return getDefinitionByCategory(category)
+  }
+  return fetchWordPair()
+}
