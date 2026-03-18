@@ -1,11 +1,10 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
-import { fetchWordPair, calculateProgress, isCorrectAnswer } from "@/lib/words"
+import { fetchWordPair, tryPlaceLetter, isWordComplete } from "@/lib/words"
 import type { WordPair } from "@/lib/game-types"
 import { ArrowLeft, RotateCcw, Trophy, Timer, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -15,13 +14,13 @@ const ROUND_DURATION = 60
 export default function PracticePage() {
   const [playerName, setPlayerName] = useState("")
   const [currentWord, setCurrentWord] = useState<WordPair | null>(null)
-  const [userInput, setUserInput] = useState("")
+  const [progress, setProgress] = useState("")
   const [score, setScore] = useState(0)
   const [round, setRound] = useState(1)
   const [timeLeft, setTimeLeft] = useState(ROUND_DURATION)
   const [gameStatus, setGameStatus] = useState<"loading" | "playing" | "won" | "timeout" | "finished">("loading")
   const [isShaking, setIsShaking] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const [lastPlacedIndex, setLastPlacedIndex] = useState<number | null>(null)
   const router = useRouter()
 
   // Load player info
@@ -40,10 +39,10 @@ export default function PracticePage() {
     setGameStatus("loading")
     const word = await fetchWordPair()
     setCurrentWord(word)
-    setUserInput("")
+    setProgress("_".repeat(word.word.length))
+    setLastPlacedIndex(null)
     setTimeLeft(ROUND_DURATION)
     setGameStatus("playing")
-    setTimeout(() => inputRef.current?.focus(), 100)
   }, [])
 
   // Initial load
@@ -68,29 +67,44 @@ export default function PracticePage() {
     return () => clearInterval(timer)
   }, [gameStatus])
 
-  // Handle input change
-  function handleInputChange(value: string) {
+  // Handle keyboard input for letter placement (like multiplayer)
+  const handleLetterInput = useCallback((letter: string) => {
     if (gameStatus !== "playing" || !currentWord) return
+    if (!progress) return
 
-    // Only allow letters
-    const cleaned = value.replace(/[^a-zA-Z]/g, "")
-    setUserInput(cleaned)
-  }
+    const newProgress = tryPlaceLetter(letter, progress, currentWord.word)
 
-  // Handle submit
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (gameStatus !== "playing" || !currentWord) return
+    if (newProgress) {
+      for (let i = 0; i < newProgress.length; i++) {
+        if (progress[i] === "_" && newProgress[i] !== "_") {
+          setLastPlacedIndex(i)
+          break
+        }
+      }
 
-    if (isCorrectAnswer(userInput, currentWord.word)) {
-      setScore((prev) => prev + 1)
-      setGameStatus("won")
+      setProgress(newProgress)
+
+      if (isWordComplete(newProgress)) {
+        setScore((prev) => prev + 1)
+        setGameStatus("won")
+      }
     } else {
-      // Shake animation for wrong answer
       setIsShaking(true)
       setTimeout(() => setIsShaking(false), 500)
     }
-  }
+  }, [currentWord, gameStatus, progress])
+
+  useEffect(() => {
+    if (gameStatus !== "playing" || !currentWord) return
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (!/^[a-zA-Z]$/.test(e.key)) return
+      handleLetterInput(e.key)
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [gameStatus, currentWord, handleLetterInput])
 
   // Next round
   function handleNextRound() {
@@ -108,9 +122,6 @@ export default function PracticePage() {
     setRound(1)
     loadNewWord()
   }
-
-  // Calculate progress for display
-  const progress = currentWord ? calculateProgress(userInput, currentWord.word) : ""
 
   // Finished screen
   if (gameStatus === "finished") {
@@ -186,15 +197,17 @@ export default function PracticePage() {
         </Card>
 
         {/* Progress Display */}
-        <div className="flex justify-center gap-2">
+        <div className={cn(
+          "flex justify-center gap-2",
+          isShaking && "animate-[shake_0.5s_ease-in-out]"
+        )}>
           {progress.split("").map((char, i) => (
             <div
               key={i}
               className={cn(
                 "w-10 h-12 flex items-center justify-center text-2xl font-bold rounded-lg border-2 transition-all",
-                char !== "_"
-                  ? "bg-accent text-accent-foreground border-accent"
-                  : "bg-muted border-muted-foreground/20"
+                char !== "_" ? "bg-accent text-accent-foreground border-accent" : "bg-muted border-muted-foreground/20",
+                i === lastPlacedIndex && "scale-110 ring-2 ring-accent ring-offset-2"
               )}
             >
               {char}
@@ -202,26 +215,16 @@ export default function PracticePage() {
           ))}
         </div>
 
-        {/* Input Form */}
+        {/* Keyboard instruction */}
         {gameStatus === "playing" && (
-          <form onSubmit={handleSubmit} className="w-full space-y-4">
-            <Input
-              ref={inputRef}
-              value={userInput}
-              onChange={(e) => handleInputChange(e.target.value)}
-              placeholder="Type your answer..."
-              className={cn(
-                "text-center text-xl h-14 tracking-wider uppercase",
-                isShaking && "animate-[shake_0.5s_ease-in-out]"
-              )}
-              autoComplete="off"
-              autoCapitalize="off"
-              autoCorrect="off"
-            />
-            <Button type="submit" className="w-full h-12" size="lg">
-              Submit
-            </Button>
-          </form>
+          <div className="text-center space-y-2">
+            <p className="text-sm text-muted-foreground">
+              Press letter keys on your keyboard to guess!
+            </p>
+            <p className="text-xs text-muted-foreground/70">
+              Each correct letter fills in its position. Complete the word before time runs out.
+            </p>
+          </div>
         )}
 
         {/* Round Result */}
