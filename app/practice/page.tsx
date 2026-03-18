@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -39,6 +39,9 @@ export default function PracticePage() {
   const [isShaking, setIsShaking] = useState(false)
   const [lastPlacedIndex, setLastPlacedIndex] = useState<number | null>(null)
   const [showConfetti, setShowConfetti] = useState(false)
+  const [keyboardOffset, setKeyboardOffset] = useState(0)
+  const hiddenInputRef = useRef<HTMLInputElement>(null)
+  const wordMaskRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -83,6 +86,7 @@ export default function PracticePage() {
       }
       setProgress(newProgress)
       if (isWordComplete(newProgress)) {
+        hiddenInputRef.current?.blur()
         setScore((prev) => prev + 1)
         setGameStatus("won")
         setShowConfetti(true)
@@ -93,6 +97,30 @@ export default function PracticePage() {
       setTimeout(() => setIsShaking(false), 500)
     }
   }, [currentWord, gameStatus, progress])
+
+  // Auto-focus hidden input when round starts, blur when it ends
+  useEffect(() => {
+    if (gameStatus === "playing") {
+      setTimeout(() => hiddenInputRef.current?.focus(), 150)
+    } else {
+      hiddenInputRef.current?.blur()
+    }
+  }, [gameStatus])
+
+  // Keep word mask above the virtual keyboard using visualViewport
+  useEffect(() => {
+    const vv = window.visualViewport
+    if (!vv) return
+    const onResize = () => {
+      const offset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop)
+      setKeyboardOffset(offset)
+      if (offset > 100) {
+        setTimeout(() => wordMaskRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 150)
+      }
+    }
+    vv.addEventListener("resize", onResize)
+    return () => { vv.removeEventListener("resize", onResize); setKeyboardOffset(0) }
+  }, [])
 
   useEffect(() => {
     if (gameStatus !== "playing" || !currentWord) return
@@ -193,8 +221,33 @@ export default function PracticePage() {
         </div>
       </div>
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col items-center justify-start px-4 pt-5 pb-6 max-w-2xl mx-auto w-full gap-5">
+      {/* Hidden input — captures mobile virtual keyboard */}
+      <input
+        ref={hiddenInputRef}
+        type="text"
+        inputMode="text"
+        autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="none"
+        spellCheck={false}
+        className="fixed opacity-0 w-px h-px bottom-0 left-0 pointer-events-none"
+        style={{ fontSize: 16 }}
+        onChange={(e) => {
+          const v = e.target.value
+          if (v) {
+            const ch = v[v.length - 1]
+            if (/[a-zA-Z]/.test(ch)) handleLetterInput(ch)
+            e.target.value = ""
+          }
+        }}
+      />
+
+      {/* Main content — tap anywhere to re-focus keyboard on iOS */}
+      <div
+        className="flex-1 flex flex-col items-center justify-start px-4 pt-5 pb-6 max-w-2xl mx-auto w-full gap-5"
+        style={{ paddingBottom: keyboardOffset > 0 ? `${keyboardOffset + 16}px` : undefined }}
+        onClick={() => { if (gameStatus === "playing") hiddenInputRef.current?.focus() }}
+      >
 
         {/* Definition */}
         <Card className="w-full shadow-sm">
@@ -212,7 +265,7 @@ export default function PracticePage() {
         </Card>
 
         {/* Word mask */}
-        <div className="flex justify-center gap-2 sm:gap-3 flex-wrap">
+        <div ref={wordMaskRef} className="flex justify-center gap-2 sm:gap-3 flex-wrap">
           {progress.split("").map((ch, i) => {
             const filled = ch !== "_"
             const isLast = i === lastPlacedIndex

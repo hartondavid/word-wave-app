@@ -242,49 +242,53 @@ export default function HomePage() {
               />
             </div>
 
-            {/* Category selector */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Category</label>
-              <div className="flex flex-wrap gap-1.5">
-                {(Object.entries(CATEGORIES) as [CategoryKey, { label: string; emoji: string }][]).map(([key, { label, emoji }]) => (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => setSelectedCategory(key)}
-                    className={cn(
-                      "px-2.5 py-1 rounded-lg text-xs font-medium border transition-all",
-                      selectedCategory === key
-                        ? "border-2 border-blue-500 text-foreground bg-transparent"
-                        : "border bg-muted/40 text-muted-foreground border-transparent hover:border-muted-foreground/30 hover:bg-muted/70"
-                    )}
-                  >
-                    {emoji} {label}
-                  </button>
-                ))}
+            {/* Category selector — hidden when joining */}
+            {activeTab === "create" && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Category</label>
+                <div className="flex flex-wrap gap-1.5">
+                  {(Object.entries(CATEGORIES) as [CategoryKey, { label: string; emoji: string }][]).map(([key, { label, emoji }]) => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setSelectedCategory(key)}
+                      className={cn(
+                        "px-2.5 py-1 rounded-lg text-xs font-medium border transition-all",
+                        selectedCategory === key
+                          ? "border-2 border-blue-500 text-foreground bg-transparent"
+                          : "border bg-muted/40 text-muted-foreground border-transparent hover:border-muted-foreground/30 hover:bg-muted/70"
+                      )}
+                    >
+                      {emoji} {label}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
-            {/* Language selector */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Definition Language</label>
-              <div className="flex flex-wrap gap-1.5">
-                {(Object.entries(LANGUAGES) as [LanguageKey, { label: string; flag: string }][]).map(([key, { label, flag }]) => (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => setSelectedLanguage(key)}
-                    className={cn(
-                      "px-2.5 py-1 rounded-lg text-xs font-medium border transition-all",
-                      selectedLanguage === key
-                        ? "border-2 border-blue-500 text-foreground bg-transparent"
-                        : "border bg-muted/40 text-muted-foreground border-transparent hover:border-muted-foreground/30 hover:bg-muted/70"
-                    )}
-                  >
-                    {flag} {label}
-                  </button>
-                ))}
+            {/* Language selector — hidden when joining */}
+            {activeTab === "create" && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Definition Language</label>
+                <div className="flex flex-wrap gap-1.5">
+                  {(Object.entries(LANGUAGES) as [LanguageKey, { label: string; flag: string }][]).map(([key, { label, flag }]) => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setSelectedLanguage(key)}
+                      className={cn(
+                        "px-2.5 py-1 rounded-lg text-xs font-medium border transition-all",
+                        selectedLanguage === key
+                          ? "border-2 border-blue-500 text-foreground bg-transparent"
+                          : "border bg-muted/40 text-muted-foreground border-transparent hover:border-muted-foreground/30 hover:bg-muted/70"
+                      )}
+                    >
+                      {flag} {label}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Round count input — hidden when joining (only host sets rounds) */}
             {activeTab === "create" && (

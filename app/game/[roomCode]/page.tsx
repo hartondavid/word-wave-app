@@ -63,8 +63,11 @@ export default function GamePage({ params }: GamePageProps) {
   const [lastPlacedIndex, setLastPlacedIndex] = useState<number | null>(null)
   // tracks which positions just received a new enemy hit (for pulse)
   const [newEnemyHits, setNewEnemyHits] = useState<Set<number>>(new Set())
+  const [keyboardOffset, setKeyboardOffset] = useState(0)
   const prevProgressRef = useRef<Record<number, string>>({})
   const startGameRef = useRef(false)
+  const hiddenInputRef = useRef<HTMLInputElement>(null)
+  const wordMaskRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const supabase = createClient()
 
@@ -145,6 +148,31 @@ export default function GamePage({ params }: GamePageProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [room?.round_end_time, room?.game_status])
 
+  // Auto-focus hidden input when round starts (shows mobile keyboard),
+  // blur when round ends (hides mobile keyboard)
+  useEffect(() => {
+    if (room?.game_status === "playing") {
+      setTimeout(() => hiddenInputRef.current?.focus(), 150)
+    } else {
+      hiddenInputRef.current?.blur()
+    }
+  }, [room?.game_status])
+
+  // Keep word mask above the virtual keyboard using visualViewport
+  useEffect(() => {
+    const vv = window.visualViewport
+    if (!vv) return
+    const onResize = () => {
+      const offset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop)
+      setKeyboardOffset(offset)
+      if (offset > 100) {
+        setTimeout(() => wordMaskRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 150)
+      }
+    }
+    vv.addEventListener("resize", onResize)
+    return () => { vv.removeEventListener("resize", onResize); setKeyboardOffset(0) }
+  }, [])
+
   // Keyboard input
   useEffect(() => {
     if (room?.game_status !== "playing" || !room.current_word) return
@@ -176,6 +204,7 @@ export default function GamePage({ params }: GamePageProps) {
       }
       const pf = `player${mySlot}_progress`
       if (isWordComplete(next)) {
+        hiddenInputRef.current?.blur()
         const sf = `player${mySlot}_score`
         const newScore = (slotData(mySlot, room).score ?? 0) + 1
         const totalRounds = room.total_rounds ?? TOTAL_ROUNDS
@@ -660,8 +689,33 @@ export default function GamePage({ params }: GamePageProps) {
         {renderPlayerTopBar()}
       </div>
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col items-center justify-start px-4 pt-5 pb-6 max-w-2xl mx-auto w-full gap-5">
+      {/* Hidden input — captures mobile virtual keyboard */}
+      <input
+        ref={hiddenInputRef}
+        type="text"
+        inputMode="text"
+        autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="none"
+        spellCheck={false}
+        className="fixed opacity-0 w-px h-px bottom-0 left-0 pointer-events-none"
+        style={{ fontSize: 16 }}
+        onChange={(e) => {
+          const v = e.target.value
+          if (v) {
+            const ch = v[v.length - 1]
+            if (/[a-zA-Z]/.test(ch)) handleLetterInput(ch)
+            e.target.value = ""
+          }
+        }}
+      />
+
+      {/* Main content — tap anywhere to re-focus keyboard on iOS */}
+      <div
+        className="flex-1 flex flex-col items-center justify-start px-4 pt-5 pb-6 max-w-2xl mx-auto w-full gap-5"
+        style={{ paddingBottom: keyboardOffset > 0 ? `${keyboardOffset + 16}px` : undefined }}
+        onClick={() => hiddenInputRef.current?.focus()}
+      >
 
         {/* Definition */}
         <Card className="w-full shadow-sm">
@@ -673,7 +727,7 @@ export default function GamePage({ params }: GamePageProps) {
         </Card>
 
         {/* Word mask */}
-        {renderWordMask()}
+        <div ref={wordMaskRef}>{renderWordMask()}</div>
 
         {/* Legend */}
         <div className="text-center space-y-2">
