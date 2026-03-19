@@ -63,12 +63,26 @@ export default function GamePage({ params }: GamePageProps) {
   const [lastPlacedIndex, setLastPlacedIndex] = useState<number | null>(null)
   // tracks which positions just received a new enemy hit (for pulse)
   const [newEnemyHits, setNewEnemyHits] = useState<Set<number>>(new Set())
+  // Optimistic local progress so the word mask updates immediately without
+  // waiting for the Supabase subscription round-trip.
+  const [myDisplayProgress, setMyDisplayProgress] = useState<string | null>(null)
+  // Letters auto-revealed when time expires (shown in red)
+  const [revealProgress, setRevealProgress] = useState<string | null>(null)
   const prevProgressRef = useRef<Record<number, string>>({})
   const startGameRef = useRef(false)
   const hiddenInputRef = useRef<HTMLInputElement>(null)
   const wordMaskRef = useRef<HTMLDivElement>(null)
   // Local progress ref to avoid race condition on rapid key presses
   const localProgressRef = useRef<string | null>(null)
+  const shakeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const shouldShakeRef = useRef(false)
+  // Prevents double-firing: keydown sets this true so onChange skips the same key
+  const keyHandledRef = useRef(false)
+  // Consecutive-wrong-letter penalty: 2 wrong in a row → 2s input lockout
+  const consecutiveWrongRef = useRef(0)
+  const lockedUntilRef = useRef(0)
+  // Prevents handleTimerEnd from being called multiple times per round
+  const timerEndCalledRef = useRef(false)
   const router = useRouter()
   const supabase = createClient()
 
@@ -143,16 +157,54 @@ export default function GamePage({ params }: GamePageProps) {
     const iv = setInterval(() => {
       const rem = Math.max(0, Math.ceil((new Date(room.round_end_time!).getTime() - Date.now()) / 1000))
       setTimeRemaining(rem)
-      if (rem === 0) handleTimerEnd()
     }, 100)
     return () => clearInterval(iv)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [room?.round_end_time, room?.game_status])
 
-  // Reset local progress ref at the start of each new round
+  // When timer hits 0, animate auto-reveal of remaining letters, then end the round
+  useEffect(() => {
+    if (timeRemaining !== 0 || !room || room.game_status !== "playing") return
+    if (timerEndCalledRef.current) return
+    timerEndCalledRef.current = true
+
+    const cur = localProgressRef.current ?? slotData(mySlot, room).progress ?? ""
+    const word = room.current_word ?? ""
+    const positions: number[] = []
+    for (let i = 0; i < word.length; i++) {
+      if (cur[i] === "_") positions.push(i)
+    }
+
+    // Block input for the duration of the animation
+    const animDuration = positions.length * 150 + 500
+    lockedUntilRef.current = Date.now() + animDuration
+
+    if (positions.length > 0) {
+      setRevealProgress("_".repeat(word.length))
+      positions.forEach((pos, idx) => {
+        setTimeout(() => {
+          setRevealProgress(prev => {
+            if (!prev) return prev
+            const arr = prev.split("")
+            arr[pos] = word[pos]
+            return arr.join("")
+          })
+        }, (idx + 1) * 150)
+      })
+    }
+
+    setTimeout(() => handleTimerEnd(), animDuration)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeRemaining])
+
+  // Reset local progress, optimistic display and penalty counters at round start
   useEffect(() => {
     if (room?.game_status === "playing") {
       localProgressRef.current = null
+      setMyDisplayProgress(null)
+      setRevealProgress(null)
+      consecutiveWrongRef.current = 0
+      lockedUntilRef.current = 0
+      timerEndCalledRef.current = false
     }
   }, [room?.game_status, room?.current_word])
 
@@ -182,7 +234,12 @@ export default function GamePage({ params }: GamePageProps) {
   // Keyboard input
   useEffect(() => {
     if (room?.game_status !== "playing" || !room.current_word) return
-    const onKey = (e: KeyboardEvent) => { if (/^\p{L}$/u.test(e.key)) handleLetterInput(e.key) }
+    const onKey = (e: KeyboardEvent) => {
+      if (/^\p{L}$/u.test(e.key)) {
+        keyHandledRef.current = true
+        handleLetterInput(e.key)
+      }
+    }
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -199,14 +256,42 @@ export default function GamePage({ params }: GamePageProps) {
 
   // ── handlers ───────────────────────────────────────────────────────────────
 
+  // Restarts the shake animation even if it is already playing.
+  // Using double-rAF so the browser has time to paint without the class
+  // before re-adding it, which forces the CSS animation to restart.
+  function triggerShake() {
+    if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current)
+    shouldShakeRef.current = true
+    setIsShaking(false)
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        if (!shouldShakeRef.current) return
+        setIsShaking(true)
+        shakeTimeoutRef.current = setTimeout(() => setIsShaking(false), 300)
+      })
+    )
+  }
+
+  function cancelShake() {
+    shouldShakeRef.current = false
+    if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current)
+    setIsShaking(false)
+  }
+
   const handleLetterInput = useCallback(async (letter: string) => {
     if (!room || !playerInfo || room.game_status !== "playing" || !room.current_word) return
+    // Lockout: after 2 consecutive wrong letters, ignore all input for 2 s
+    if (Date.now() < lockedUntilRef.current) return
     // Use localProgressRef to avoid stale state on rapid key presses
     const cur = localProgressRef.current ?? slotData(mySlot, room).progress
     if (!cur) return
     const next = tryPlaceLetter(letter, cur, room.current_word)
     if (next) {
+      consecutiveWrongRef.current = 0
+      cancelShake()
       localProgressRef.current = next
+      // Update display immediately (optimistic) — don't wait for Supabase round-trip
+      setMyDisplayProgress(next)
       for (let i = 0; i < next.length; i++) {
         if (cur[i] === "_" && next[i] !== "_") { setLastPlacedIndex(i); break }
       }
@@ -227,8 +312,13 @@ export default function GamePage({ params }: GamePageProps) {
         await supabase.from("game_rooms").update({ [pf]: next }).eq("room_code", roomCode)
       }
     } else {
-      setIsShaking(true)
-      setTimeout(() => setIsShaking(false), 500)
+      consecutiveWrongRef.current++
+      if (consecutiveWrongRef.current >= 1) {
+        // First wrong letter: activate 3-second input lockout
+        lockedUntilRef.current = Date.now() + 3000
+        consecutiveWrongRef.current = 0
+      }
+      triggerShake()
     }
   }, [room, mySlot, roomCode, supabase, playerInfo])
 
@@ -353,14 +443,20 @@ export default function GamePage({ params }: GamePageProps) {
 
   function renderWordMask() {
     if (!room?.current_word) return null
-    const myProg = slotData(mySlot, room).progress ?? ""
+    // Prefer local optimistic state so letters appear instantly on key press,
+    // falling back to server state when no local update has happened yet.
+    const myProg = myDisplayProgress ?? slotData(mySlot, room).progress ?? ""
+    const myReveal = revealProgress ?? ""
     const active = activeSlots(room)
 
     return (
       <div className="flex justify-center gap-2 sm:gap-3 flex-wrap">
         {room.current_word.split("").map((_, i) => {
           const ch = myProg[i] ?? "_"
-          const filled = ch !== "_"
+          const playerFilled = ch !== "_"
+          const revealCh = myReveal[i] ?? "_"
+          const autoFilled = !playerFilled && revealCh !== "_"
+          const filled = playerFilled || autoFilled
           const isLast = i === lastPlacedIndex
           const isNewHit = newEnemyHits.has(i)
 
@@ -378,10 +474,12 @@ export default function GamePage({ params }: GamePageProps) {
               className={cn(
                 "relative flex items-center justify-center overflow-hidden select-none transition-all duration-200",
                 "w-12 h-[60px] sm:w-[72px] sm:h-[88px] rounded-xl border-2",
-                filled
+                playerFilled
                   ? "border-emerald-500 bg-emerald-500/10"
-                  : "border-muted-foreground/20 bg-muted/30",
-                isLast && "scale-110 ring-2 ring-emerald-500 ring-offset-2 z-10",
+                  : autoFilled
+                    ? "border-red-500 bg-red-500/10"
+                    : "border-muted-foreground/20 bg-muted/30",
+                isLast && !autoFilled && "scale-110 ring-2 ring-emerald-500 ring-offset-2 z-10",
                 isNewHit && !filled && "animate-[hitPulse_0.5s_ease-out]"
               )}
             >
@@ -399,9 +497,11 @@ export default function GamePage({ params }: GamePageProps) {
               ))}
 
               {/* My letter or placeholder */}
-              {filled
+              {playerFilled
                 ? <span className="relative z-10 text-xl sm:text-3xl font-black text-emerald-600">{ch.toUpperCase()}</span>
-                : <span className="text-muted-foreground/20 text-base sm:text-xl select-none">_</span>
+                : autoFilled
+                  ? <span className="relative z-10 text-xl sm:text-3xl font-black text-red-500">{revealCh.toUpperCase()}</span>
+                  : <span className="text-muted-foreground/20 text-base sm:text-xl select-none">_</span>
               }
             </div>
           )
@@ -731,7 +831,11 @@ export default function GamePage({ params }: GamePageProps) {
               const v = e.target.value
               if (v) {
                 const ch = v[v.length - 1]
-                if (/\p{L}/u.test(ch)) handleLetterInput(ch)
+                if (/\p{L}/u.test(ch)) {
+                  // Skip if keydown already handled this keystroke (desktop)
+                  if (!keyHandledRef.current) handleLetterInput(ch)
+                  keyHandledRef.current = false
+                }
                 e.target.value = ""
               }
             }}

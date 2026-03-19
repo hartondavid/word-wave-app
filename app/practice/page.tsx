@@ -35,13 +35,22 @@ export default function PracticePage() {
   const [score, setScore] = useState(0)
   const [round, setRound] = useState(1)
   const [timeLeft, setTimeLeft] = useState(ROUND_DURATION)
-  const [gameStatus, setGameStatus] = useState<"loading" | "playing" | "won" | "timeout" | "finished">("loading")
+  const [gameStatus, setGameStatus] = useState<"loading" | "playing" | "revealing" | "won" | "timeout" | "finished">("loading")
   const [isShaking, setIsShaking] = useState(false)
   const [lastPlacedIndex, setLastPlacedIndex] = useState<number | null>(null)
   const [showConfetti, setShowConfetti] = useState(false)
+  // Letters auto-revealed when time expires (shown in red)
+  const [revealProgress, setRevealProgress] = useState("")
   const hiddenInputRef = useRef<HTMLInputElement>(null)
   const wordMaskRef = useRef<HTMLDivElement>(null)
   const progressRef = useRef("")
+  const shakeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const shouldShakeRef = useRef(false)
+  // Prevents double-firing: keydown sets this true so onChange skips the same key
+  const keyHandledRef = useRef(false)
+  // Consecutive-wrong-letter penalty: 2 wrong in a row → 2s input lockout
+  const consecutiveWrongRef = useRef(0)
+  const lockedUntilRef = useRef(0)
   const router = useRouter()
 
   useEffect(() => {
@@ -60,7 +69,10 @@ export default function PracticePage() {
     setCurrentWord(word)
     const initProgress = "_".repeat(word.word.length)
     progressRef.current = initProgress
+    consecutiveWrongRef.current = 0
+    lockedUntilRef.current = 0
     setProgress(initProgress)
+    setRevealProgress("_".repeat(word.word.length))
     setLastPlacedIndex(null)
     setTimeLeft(ROUND_DURATION)
     setGameStatus("playing")
@@ -72,18 +84,50 @@ export default function PracticePage() {
     if (gameStatus !== "playing") return
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
-        if (prev <= 1) { setGameStatus("timeout"); return 0 }
+        if (prev <= 1) return 0
         return prev - 1
       })
     }, 1000)
     return () => clearInterval(timer)
   }, [gameStatus])
 
+  // When timer hits 0, animate auto-reveal of remaining letters (red), then show result
+  useEffect(() => {
+    if (timeLeft !== 0 || gameStatus !== "playing" || !currentWord) return
+    setGameStatus("revealing")
+    const cur = progressRef.current
+    const positions: number[] = []
+    for (let i = 0; i < currentWord.word.length; i++) {
+      if (cur[i] === "_") positions.push(i)
+    }
+    if (positions.length === 0) { setGameStatus("timeout"); return }
+    const base = "_".repeat(currentWord.word.length)
+    setRevealProgress(base)
+    positions.forEach((pos, idx) => {
+      setTimeout(() => {
+        setRevealProgress(prev => {
+          const arr = prev.split("")
+          arr[pos] = currentWord.word[pos]
+          return arr.join("")
+        })
+      }, (idx + 1) * 150)
+    })
+    setTimeout(() => setGameStatus("timeout"), positions.length * 150 + 500)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeLeft, gameStatus])
+
   const handleLetterInput = useCallback((letter: string) => {
     if (gameStatus !== "playing" || !currentWord) return
+    // Lockout: after 2 consecutive wrong letters, ignore all input for 2 s
+    if (Date.now() < lockedUntilRef.current) return
     const cur = progressRef.current
     const newProgress = tryPlaceLetter(letter, cur, currentWord.word)
     if (newProgress) {
+      consecutiveWrongRef.current = 0
+      // Cancel any pending/ongoing shake from a previous wrong letter
+      shouldShakeRef.current = false
+      if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current)
+      setIsShaking(false)
       for (let i = 0; i < newProgress.length; i++) {
         if (cur[i] === "_" && newProgress[i] !== "_") { setLastPlacedIndex(i); break }
       }
@@ -97,8 +141,22 @@ export default function PracticePage() {
         setTimeout(() => setShowConfetti(false), 2500)
       }
     } else {
-      setIsShaking(true)
-      setTimeout(() => setIsShaking(false), 500)
+      consecutiveWrongRef.current++
+      if (consecutiveWrongRef.current >= 1) {
+        // First wrong letter: activate 3-second input lockout
+        lockedUntilRef.current = Date.now() + 3000
+        consecutiveWrongRef.current = 0
+      }
+      if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current)
+      shouldShakeRef.current = true
+      setIsShaking(false)
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => {
+          if (!shouldShakeRef.current) return
+          setIsShaking(true)
+          shakeTimeoutRef.current = setTimeout(() => setIsShaking(false), 300)
+        })
+      )
     }
   }, [currentWord, gameStatus])
 
@@ -126,7 +184,12 @@ export default function PracticePage() {
 
   useEffect(() => {
     if (gameStatus !== "playing" || !currentWord) return
-    const onKey = (e: KeyboardEvent) => { if (/^\p{L}$/u.test(e.key)) handleLetterInput(e.key) }
+    const onKey = (e: KeyboardEvent) => {
+      if (/^\p{L}$/u.test(e.key)) {
+        keyHandledRef.current = true
+        handleLetterInput(e.key)
+      }
+    }
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
   }, [gameStatus, currentWord, handleLetterInput])
@@ -261,13 +324,19 @@ export default function PracticePage() {
               const v = e.target.value
               if (v) {
                 const ch = v[v.length - 1]
-                if (/\p{L}/u.test(ch)) handleLetterInput(ch)
+                if (/\p{L}/u.test(ch)) {
+                  // Skip if keydown already handled this keystroke (desktop)
+                  if (!keyHandledRef.current) handleLetterInput(ch)
+                  keyHandledRef.current = false
+                }
                 e.target.value = ""
               }
             }}
           />
           {progress.split("").map((ch, i) => {
-            const filled = ch !== "_"
+            const playerFilled = ch !== "_"
+            const revealCh = revealProgress[i] ?? "_"
+            const autoFilled = !playerFilled && revealCh !== "_"
             const isLast = i === lastPlacedIndex
             return (
               <div
@@ -275,15 +344,19 @@ export default function PracticePage() {
                 className={cn(
                   "relative flex items-center justify-center overflow-hidden select-none transition-all duration-200",
                   "w-12 h-[60px] sm:w-[72px] sm:h-[88px] rounded-xl border-2",
-                  filled
+                  playerFilled
                     ? "border-emerald-500 bg-emerald-500/10"
-                    : "border-muted-foreground/20 bg-muted/30",
+                    : autoFilled
+                      ? "border-red-500 bg-red-500/10"
+                      : "border-muted-foreground/20 bg-muted/30",
                   isLast && "scale-110 ring-2 ring-emerald-500 ring-offset-2 z-10"
                 )}
               >
-                {filled
+                {playerFilled
                   ? <span className="text-xl sm:text-3xl font-black text-emerald-600">{ch.toUpperCase()}</span>
-                  : <span className="text-muted-foreground/20 text-base sm:text-xl select-none">_</span>
+                  : autoFilled
+                    ? <span className="text-xl sm:text-3xl font-black text-red-500">{revealCh.toUpperCase()}</span>
+                    : <span className="text-muted-foreground/20 text-base sm:text-xl select-none">_</span>
                 }
               </div>
             )
