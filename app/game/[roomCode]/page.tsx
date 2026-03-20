@@ -1,8 +1,11 @@
 "use client"
 
-import { useEffect, useState, useCallback, useRef, use } from "react"
+import { useEffect, useState, useCallback, useRef, use, type CSSProperties } from "react"
+import { flushSync } from "react-dom"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
+import { getClearSlotPayload, patchClearPlayerSlotKeepalive } from "@/lib/supabase/clear-player-slot-keepalive"
+import { deleteGameRoomRow } from "@/lib/supabase/delete-game-room"
 import type { GameRoom, PlayerSlot, CategoryKey, LanguageKey } from "@/lib/game-types"
 import { ROUND_DURATION, WIN_SCORE, TOTAL_ROUNDS, PLAYER_COLORS, CATEGORIES, LANGUAGES } from "@/lib/game-types"
 import { fetchWordPairForCategory, tryPlaceLetter, isWordComplete } from "@/lib/words"
@@ -10,7 +13,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
-import { Copy, Check, Timer, Trophy, ArrowLeft } from "lucide-react"
+import { Copy, Check, Timer, Trophy, ArrowLeft, AlertCircle } from "lucide-react"
+import { Switch } from "@/components/ui/switch"
 import Image from "next/image"
 import Confetti from "react-confetti"
 
@@ -50,6 +54,59 @@ function allReady(room: GameRoom): boolean {
   return a.length >= 2 && a.every(s => slotData(s, room).ready)
 }
 
+/** Names of players who had a slot in `prev` but no longer in `next` (same slot index cleared). */
+function whoLeftPlayerNames(prev: GameRoom, next: GameRoom): string[] {
+  const names: string[] = []
+  for (const s of [1, 2, 3, 4] as PlayerSlot[]) {
+    const before = slotData(s, prev)
+    const after = slotData(s, next)
+    if (before.id && !after.id && before.name) names.push(before.name)
+  }
+  return names
+}
+
+/** Slots that were occupied in `prev` but cleared in `next`. */
+function whoLeftSlots(prev: GameRoom, next: GameRoom): PlayerSlot[] {
+  const slots: PlayerSlot[] = []
+  for (const s of [1, 2, 3, 4] as PlayerSlot[]) {
+    const before = slotData(s, prev)
+    const after = slotData(s, next)
+    if (before.id && !after.id) slots.push(s)
+  }
+  return slots
+}
+
+function formatDisconnectMessage(names: string[]): string {
+  if (names.length === 0) return ""
+  if (names.length === 1) return `${names[0]} a ieșit din joc`
+  return `${names.join(" și ")} au ieșit din joc`
+}
+
+function formatPlayerLeftPauseTitle(names: string[]): string {
+  if (names.length === 0) return "Un jucător a ieșit din joc"
+  if (names.length === 1) return `${names[0]} a ieșit din joc`
+  return `${names.join(" și ")} au ieșit din joc`
+}
+
+function normalizePlayerName(n: string | null | undefined): string {
+  return (n ?? "").trim().toLowerCase()
+}
+
+/**
+ * La join, `app/page.tsx` generează un id nou de fiecare dată — reintrarea nu poate fi detectată doar după id.
+ * Folosim același nume (normalizat) pe același slot după ce a fost golit.
+ */
+function isSamePlayerRejoin(
+  pending: { id: string; name: string },
+  afterId: string | null,
+  afterName: string | null | undefined
+): boolean {
+  if (afterId && pending.id && afterId === pending.id) return true
+  const pn = normalizePlayerName(pending.name)
+  const an = normalizePlayerName(afterName)
+  return pn.length > 0 && an.length > 0 && pn === an
+}
+
 // ── component ─────────────────────────────────────────────────────────────────
 
 export default function GamePage({ params }: GamePageProps) {
@@ -61,6 +118,17 @@ export default function GamePage({ params }: GamePageProps) {
   const [isShaking, setIsShaking] = useState(false)
   const [copied, setCopied] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
+  /** True until room reflects round_end — confetti shows immediately on local win */
+  const [optimisticRoundWin, setOptimisticRoundWin] = useState(false)
+  /** Set when opponents leave mid-round; shown on finished screen */
+  const [disconnectMessage, setDisconnectMessage] = useState<string | null>(null)
+  /** True când gazda pleacă dintr-un joc cu 2 jucători — ecran final doar cu Home */
+  const [disconnectHidePlayAgain, setDisconnectHidePlayAgain] = useState(false)
+  /** Banderolă sus ~3s: plecare (amber) sau reintrare același jucător (emerald) */
+  const [topTransientNotice, setTopTransientNotice] = useState<{
+    message: string
+    kind: "departed" | "returned"
+  } | null>(null)
   const [lastPlacedIndex, setLastPlacedIndex] = useState<number | null>(null)
   // tracks which positions just received a new enemy hit (for pulse)
   const [newEnemyHits, setNewEnemyHits] = useState<Set<number>>(new Set())
@@ -84,8 +152,55 @@ export default function GamePage({ params }: GamePageProps) {
   const lockedUntilRef = useRef(0)
   // Prevents handleTimerEnd from being called multiple times per round
   const timerEndCalledRef = useRef(false)
+  const startNewRoundRef = useRef<() => Promise<void>>(async () => {})
+  const prevRoomSnapshotRef = useRef<GameRoom | null>(null)
+  const disconnectHandledRef = useRef(false)
+  const leaveEventKeyRef = useRef<string | null>(null)
+  const rejoinEventKeyRef = useRef<string | null>(null)
+  /** Slot golit → ultimul jucător plecat (id+nume); reintrare = același nume sau același id */
+  const rejoinPendingBySlotRef = useRef<Map<PlayerSlot, { id: string; name: string }>>(new Map())
+  const topNoticeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const timeRemainingRef = useRef(ROUND_DURATION)
+  /** True după Exit explicit — evită dublarea PATCH la pagehide */
+  const leftVoluntarilyRef = useRef(false)
   const router = useRouter()
   const supabase = createClient()
+  /** Ultimul playerInfo fără a extinde deps la useEffect-ul de plecare/reintrare */
+  const playerInfoRef = useRef<PlayerInfo | null>(null)
+  playerInfoRef.current = playerInfo
+
+  function dismissTopTransientNotice() {
+    if (topNoticeTimeoutRef.current) {
+      clearTimeout(topNoticeTimeoutRef.current)
+      topNoticeTimeoutRef.current = null
+    }
+    setTopTransientNotice(null)
+  }
+
+  function scheduleTopTransientNotice(message: string, kind: "departed" | "returned") {
+    if (topNoticeTimeoutRef.current) {
+      clearTimeout(topNoticeTimeoutRef.current)
+      topNoticeTimeoutRef.current = null
+    }
+    setTopTransientNotice({ message, kind })
+    topNoticeTimeoutRef.current = setTimeout(() => {
+      setTopTransientNotice(null)
+      topNoticeTimeoutRef.current = null
+    }, 3000)
+  }
+
+  function scheduleDepartedNotice(message: string) {
+    scheduleTopTransientNotice(message, "departed")
+  }
+
+  useEffect(() => () => {
+    if (topNoticeTimeoutRef.current) clearTimeout(topNoticeTimeoutRef.current)
+  }, [])
+
+  useEffect(() => {
+    rejoinPendingBySlotRef.current.clear()
+    rejoinEventKeyRef.current = null
+  }, [roomCode])
 
   // ── effects ────────────────────────────────────────────────────────────────
 
@@ -96,6 +211,44 @@ export default function GamePage({ params }: GamePageProps) {
     if (parsed.roomCode === roomCode) setPlayerInfo(parsed)
     else router.push("/")
   }, [roomCode, router])
+
+  // Golire slot la închidere tab / navigare (ceilalți văd plecarea în realtime)
+  useEffect(() => {
+    if (!playerInfo?.playerSlot) return
+    const slot = playerInfo.playerSlot as PlayerSlot
+
+    const onPageHide = (e: PageTransitionEvent) => {
+      if (e.persisted) return
+      if (leftVoluntarilyRef.current) return
+      patchClearPlayerSlotKeepalive(roomCode, slot)
+    }
+
+    const onBeforeUnload = () => {
+      if (leftVoluntarilyRef.current) return
+      patchClearPlayerSlotKeepalive(roomCode, slot)
+    }
+
+    window.addEventListener("pagehide", onPageHide)
+    window.addEventListener("beforeunload", onBeforeUnload)
+    return () => {
+      window.removeEventListener("pagehide", onPageHide)
+      window.removeEventListener("beforeunload", onBeforeUnload)
+    }
+  }, [roomCode, playerInfo?.playerSlot])
+
+  // Navigare client (ex. fără buton Exit): demontare după >500ms = plecare reală (evită Strict Mode)
+  useEffect(() => {
+    if (!playerInfo?.playerSlot) return
+    const slot = playerInfo.playerSlot as PlayerSlot
+    const started = Date.now()
+    return () => {
+      if (Date.now() - started < 500) return
+      if (leftVoluntarilyRef.current) return
+      patchClearPlayerSlotKeepalive(roomCode, slot)
+    }
+  }, [roomCode, playerInfo?.playerSlot])
+
+  timeRemainingRef.current = timeRemaining
 
   useEffect(() => {
     supabase.from("game_rooms").select("*").eq("room_code", roomCode).single()
@@ -108,6 +261,15 @@ export default function GamePage({ params }: GamePageProps) {
       .on("postgres_changes",
         { event: "*", schema: "public", table: "game_rooms", filter: `room_code=eq.${roomCode}` },
         (payload) => {
+          if (payload.eventType === "DELETE") {
+            const oldRow = payload.old as GameRoom | undefined
+            setRoom(prev => {
+              if (oldRow?.game_status === "finished") return oldRow
+              if (prev?.game_status === "finished") return prev
+              return null
+            })
+            return
+          }
           if (payload.eventType !== "UPDATE" && payload.eventType !== "INSERT") return
           const r = payload.new as GameRoom
           setRoom(prev => {
@@ -162,6 +324,155 @@ export default function GamePage({ params }: GamePageProps) {
     return () => clearInterval(iv)
   }, [room?.round_end_time, room?.game_status])
 
+  // Plecare jucător: 2→1 (gazdă sau invitat) → ecran finished / ≥3 jucători → banderolă 3s
+  useEffect(() => {
+    if (!room) return
+    const prev = prevRoomSnapshotRef.current
+
+    const enteredWaitingFromGame =
+      room.game_status === "waiting" &&
+      !!prev &&
+      prev.game_status !== "waiting"
+
+    if (room.game_status === "waiting") {
+      disconnectHandledRef.current = false
+      leaveEventKeyRef.current = null
+      setDisconnectMessage(null)
+      setDisconnectHidePlayAgain(false)
+      // Nu reseta banderola la fiecare UPDATE în lobby — altfel mesajul „s-a întors” dispare instant
+      if (enteredWaitingFromGame) {
+        rejoinEventKeyRef.current = null
+        dismissTopTransientNotice()
+      }
+    }
+
+    if (prev) {
+      // Marcăm sloturile golite (id + nume pentru detectarea reintrării)
+      for (const s of [1, 2, 3, 4] as PlayerSlot[]) {
+        const before = slotData(s, prev)
+        const after = slotData(s, room)
+        if (before.id && !after.id) {
+          rejoinPendingBySlotRef.current.set(s, {
+            id: before.id,
+            name: before.name ?? "",
+          })
+        }
+      }
+      const returnedNames: string[] = []
+      for (const s of [1, 2, 3, 4] as PlayerSlot[]) {
+        const before = slotData(s, prev)
+        const after = slotData(s, room)
+        if (!before.id && after.id) {
+          const pending = rejoinPendingBySlotRef.current.get(s)
+          if (pending) {
+            const displayName = (after.name ?? "").trim() || pending.name.trim()
+            if (isSamePlayerRejoin(pending, after.id, after.name)) {
+              rejoinPendingBySlotRef.current.delete(s)
+              if (displayName) returnedNames.push(displayName)
+            } else if (after.name && normalizePlayerName(after.name) !== normalizePlayerName(pending.name)) {
+              // Alt jucător pe același slot (nume diferit)
+              rejoinPendingBySlotRef.current.delete(s)
+            }
+            // Dacă lipsește încă numele în `after`, așteptăm următorul UPDATE (păstrăm pending)
+          }
+        }
+      }
+      // Id setat înaintea numelui: al doilea UPDATE pe același id umple numele
+      for (const s of [1, 2, 3, 4] as PlayerSlot[]) {
+        const before = slotData(s, prev)
+        const after = slotData(s, room)
+        const pending = rejoinPendingBySlotRef.current.get(s)
+        if (!pending || !after.id || before.id !== after.id) continue
+        if (!normalizePlayerName(before.name) && normalizePlayerName(after.name)) {
+          if (isSamePlayerRejoin(pending, after.id, after.name)) {
+            rejoinPendingBySlotRef.current.delete(s)
+            returnedNames.push((after.name ?? "").trim())
+          }
+        }
+      }
+      if (returnedNames.length > 0) {
+        const eventKey = `return-${room.updated_at ?? ""}-${returnedNames.join(",")}`
+        if (rejoinEventKeyRef.current !== eventKey) {
+          rejoinEventKeyRef.current = eventKey
+          const viewerSlot = (playerInfoRef.current?.playerSlot ?? 1) as PlayerSlot
+          const viewerName = slotData(viewerSlot, room).name
+          const msg =
+            returnedNames.length === 1
+              ? returnedNames[0] === viewerName
+                ? "Te-ai întors în joc"
+                : `${returnedNames[0]} s-a întors în joc`
+              : `${returnedNames.join(" și ")} s-au întors în joc`
+          scheduleTopTransientNotice(msg, "returned")
+        }
+      }
+
+      const prevN = activeSlots(prev).length
+      const nextN = activeSlots(room).length
+      const midGame = room.game_status === "playing" || room.game_status === "round_end"
+      const left = whoLeftPlayerNames(prev, room)
+      const leftSlots = whoLeftSlots(prev, room)
+      const someoneLeft = prevN > nextN && left.length > 0 && midGame
+
+      if (someoneLeft) {
+        const eventKey = `${room.updated_at ?? ""}-${left.join(",")}-${prevN}->${nextN}`
+        const alreadyHandled = leaveEventKeyRef.current === eventKey
+        if (!alreadyHandled) {
+          leaveEventKeyRef.current = eventKey
+          const hostLeft = leftSlots.includes(1)
+
+          // Gazda a ieșit, erau ≥3 jucători → banderolă sus ~3s; timpul merge în continuare
+          if (hostLeft && prevN >= 3) {
+            scheduleDepartedNotice(
+              `${formatPlayerLeftPauseTitle(left)} — Jocul continuă.`
+            )
+            prevRoomSnapshotRef.current = room
+            return
+          }
+
+          // Gazda + un invitat (2 jucători) → ecran finished cu numele gazdei, doar Home
+          if (hostLeft && prevN === 2 && nextN === 1 && !disconnectHandledRef.current) {
+            disconnectHandledRef.current = true
+            setDisconnectMessage(formatDisconnectMessage(left))
+            setDisconnectHidePlayAgain(true)
+            setRoom(r => (r ? { ...r, game_status: "finished", round_end_time: null } : r))
+            void (async () => {
+              const { error } = await supabase
+                .from("game_rooms")
+                .update({ game_status: "finished", round_end_time: null })
+                .eq("room_code", roomCode)
+              if (!error) await deleteGameRoomRow(supabase, roomCode)
+            })()
+            prevRoomSnapshotRef.current = room
+            return
+          }
+
+          // ≥3 jucători înainte, încă ≥2 după plecare (non-gazdă) → banderolă; timpul merge
+          if (prevN >= 3 && nextN >= 2) {
+            scheduleDepartedNotice(formatPlayerLeftPauseTitle(left))
+            prevRoomSnapshotRef.current = room
+            return
+          }
+
+          // 2 jucători, invitatul pleacă → rămâne unul: încheiere directă (fără popup gazdă)
+          if (prevN >= 2 && nextN === 1 && !disconnectHandledRef.current) {
+            disconnectHandledRef.current = true
+            setDisconnectMessage(formatDisconnectMessage(left))
+            setRoom(r => (r ? { ...r, game_status: "finished", round_end_time: null } : r))
+            void (async () => {
+              const { error } = await supabase
+                .from("game_rooms")
+                .update({ game_status: "finished", round_end_time: null })
+                .eq("room_code", roomCode)
+              if (!error) await deleteGameRoomRow(supabase, roomCode)
+            })()
+          }
+        }
+      }
+    }
+
+    prevRoomSnapshotRef.current = room
+  }, [room, roomCode, supabase])
+
   // When timer hits 0, animate auto-reveal of remaining letters, then end the round
   useEffect(() => {
     if (timeRemaining !== 0 || !room || room.game_status !== "playing") return
@@ -206,6 +517,7 @@ export default function GamePage({ params }: GamePageProps) {
       consecutiveWrongRef.current = 0
       lockedUntilRef.current = 0
       timerEndCalledRef.current = false
+      setOptimisticRoundWin(false)
     }
   }, [room?.game_status, room?.current_word])
 
@@ -249,6 +561,20 @@ export default function GamePage({ params }: GamePageProps) {
     room?.player1_progress, room?.player2_progress, room?.player3_progress, room?.player4_progress,
     playerInfo,
   ])
+
+  // Enter = Next Round when everyone is ready (capture phase avoids double-fire with focused button)
+  useEffect(() => {
+    if (!room || room.game_status !== "round_end" || !allReady(room)) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Enter" || e.repeat) return
+      const t = e.target as HTMLElement | null
+      if (t?.closest("input:not([type=hidden]), textarea, [contenteditable=true]")) return
+      e.preventDefault()
+      void startNewRoundRef.current()
+    }
+    window.addEventListener("keydown", onKey, true)
+    return () => window.removeEventListener("keydown", onKey, true)
+  }, [room])
 
   // ── derived values ─────────────────────────────────────────────────────────
 
@@ -299,16 +625,28 @@ export default function GamePage({ params }: GamePageProps) {
       const pf = `player${mySlot}_progress`
       if (isWordComplete(next)) {
         hiddenInputRef.current?.blur()
+        flushSync(() => {
+          setOptimisticRoundWin(true)
+          setShowConfetti(true)
+        })
+        setTimeout(() => setShowConfetti(false), 3000)
         const sf = `player${mySlot}_score`
         const newScore = (slotData(mySlot, room).score ?? 0) + 1
         const totalRounds = room.total_rounds ?? TOTAL_ROUNDS
         const isOver = newScore >= WIN_SCORE || room.current_round >= totalRounds
-        await supabase.from("game_rooms").update({
+        const roundEndUpdate: Record<string, unknown> = {
           [pf]: next,
           [sf]: newScore,
           round_winner: slotData(mySlot, room).name!,
           game_status: isOver ? "finished" : "round_end",
-        }).eq("room_code", roomCode)
+          player1_ready: false,
+          player2_ready: false,
+        }
+        if (activeSlots(room).some(s => s >= 3)) {
+          roundEndUpdate.player3_ready = false
+          roundEndUpdate.player4_ready = false
+        }
+        await supabase.from("game_rooms").update(roundEndUpdate).eq("room_code", roomCode)
       } else {
         await supabase.from("game_rooms").update({ [pf]: next }).eq("room_code", roomCode)
       }
@@ -326,10 +664,19 @@ export default function GamePage({ params }: GamePageProps) {
   async function handleTimerEnd() {
     if (!room) return
     const totalRounds = room.total_rounds ?? TOTAL_ROUNDS
-    await supabase.from("game_rooms").update({
+    const timerEndUpdate: Record<string, unknown> = {
       round_winner: null,
       game_status: room.current_round >= totalRounds ? "finished" : "round_end",
-    }).eq("room_code", roomCode)
+      player1_ready: false,
+      player2_ready: false,
+    }
+    if (activeSlots(room).some(s => s >= 3)) {
+      timerEndUpdate.player3_ready = false
+      timerEndUpdate.player4_ready = false
+    }
+    const finished = room.current_round >= totalRounds
+    const { error: timerErr } = await supabase.from("game_rooms").update(timerEndUpdate).eq("room_code", roomCode)
+    if (!timerErr && finished) await deleteGameRoomRow(supabase, roomCode)
   }
 
   async function handleToggleReady() {
@@ -370,6 +717,8 @@ export default function GamePage({ params }: GamePageProps) {
     await supabase.from("game_rooms").update(update).eq("room_code", roomCode)
   }
 
+  startNewRoundRef.current = startNewRound
+
   async function handlePlayAgain() {
     startGameRef.current = false
     prevProgressRef.current = {}
@@ -393,7 +742,12 @@ export default function GamePage({ params }: GamePageProps) {
       reset.player4_progress = null
     }
 
-    await supabase.from("game_rooms").update(reset).eq("room_code", roomCode)
+    const { data, error } = await supabase.from("game_rooms").update(reset).eq("room_code", roomCode).select()
+    if (error || !data?.length) {
+      router.push("/")
+      return
+    }
+    setRoom(data[0] as GameRoom)
   }
 
   function handleCopyCode() {
@@ -402,14 +756,73 @@ export default function GamePage({ params }: GamePageProps) {
     setTimeout(() => setCopied(false), 2000)
   }
 
+  /** Clears this player's slot in Supabase so others detect disconnect; then home. */
+  async function handleExitRoom() {
+    leftVoluntarilyRef.current = true
+    if (room && playerInfo?.playerSlot) {
+      const slot = playerInfo.playerSlot as PlayerSlot
+      const payload = getClearSlotPayload(slot)
+      try {
+        await supabase.from("game_rooms").update(payload).eq("room_code", roomCode)
+      } catch (e) {
+        console.error("leave room:", e)
+        patchClearPlayerSlotKeepalive(roomCode, slot)
+      }
+    } else if (playerInfo?.playerSlot) {
+      patchClearPlayerSlotKeepalive(roomCode, playerInfo.playerSlot as PlayerSlot)
+    }
+    try {
+      const raw = localStorage.getItem("wordmatch_player")
+      if (raw) {
+        const p = JSON.parse(raw)
+        delete p.roomCode
+        delete p.playerSlot
+        localStorage.setItem("wordmatch_player", JSON.stringify(p))
+      }
+    } catch {
+      /* ignore */
+    }
+    router.push("/")
+  }
+
   // ── render helpers ─────────────────────────────────────────────────────────
+
+  function renderTopTransientNoticeBanner() {
+    if (!topTransientNotice) return null
+    const isReturn = topTransientNotice.kind === "returned"
+    return (
+      <div
+        className={cn(
+          "flex items-center gap-2 px-2 py-1.5 rounded-lg border text-xs sm:text-sm animate-in fade-in slide-in-from-top-1 duration-200",
+          isReturn
+            ? "bg-emerald-500/15 border-emerald-500/25"
+            : "bg-amber-500/15 border-amber-500/25"
+        )}
+      >
+        <Switch
+          checked
+          className="scale-[0.72] shrink-0"
+          onCheckedChange={(on) => { if (!on) dismissTopTransientNotice() }}
+          aria-label="Închide notificarea"
+        />
+        <span
+          className={cn(
+            "flex-1 font-medium leading-snug",
+            isReturn ? "text-emerald-950 dark:text-emerald-100" : "text-amber-950 dark:text-amber-100"
+          )}
+        >
+          {topTransientNotice.message}
+        </span>
+      </div>
+    )
+  }
 
   function renderPlayerTopBar() {
     if (!room) return null
     const active = activeSlots(room)
     return (
-      <div className="w-full">
-        <div className="flex flex-wrap gap-2 justify-center">
+      <div className="w-full overflow-x-auto scrollbar-none">
+        <div className="flex gap-2 w-max mx-auto px-1">
           {active.map(slot => {
             const d = slotData(slot, room)
             const isMe = slot === mySlot
@@ -449,10 +862,18 @@ export default function GamePage({ params }: GamePageProps) {
     const myProg = myDisplayProgress ?? slotData(mySlot, room).progress ?? ""
     const myReveal = revealProgress ?? ""
     const active = activeSlots(room)
+    const myColor = PLAYER_COLORS[mySlot - 1]
+
+    // Find winner slot for round_end reveal
+    const winnerSlot = room.round_winner
+      ? active.find(s => slotData(s, room).name === room.round_winner) ?? null
+      : null
+    const winnerProgress = winnerSlot ? (slotData(winnerSlot, room).progress ?? "") : ""
+    const winnerColor = winnerSlot ? PLAYER_COLORS[winnerSlot - 1] : null
 
     return (
       <div className="flex justify-center gap-2 sm:gap-3 flex-wrap">
-        {room.current_word.split("").map((_, i) => {
+        {room.current_word.split("").map((letter, i) => {
           const ch = myProg[i] ?? "_"
           const playerFilled = ch !== "_"
           const revealCh = myReveal[i] ?? "_"
@@ -460,6 +881,43 @@ export default function GamePage({ params }: GamePageProps) {
           const filled = playerFilled || autoFilled
           const isLast = i === lastPlacedIndex
           const isNewHit = newEnemyHits.has(i)
+
+          // Round-end: determine how to display this letter
+          if (isRoundEnd) {
+            if (playerFilled) {
+              // Current player guessed this letter → player's color
+              return (
+                <div
+                  key={i}
+                  className="relative flex items-center justify-center select-none w-12 h-[60px] sm:w-[72px] sm:h-[88px] rounded-xl border-2"
+                  style={{ borderColor: `${myColor}80`, background: `${myColor}18` }}
+                >
+                  <span className="text-xl sm:text-3xl font-black" style={{ color: myColor }}>{ch.toUpperCase()}</span>
+                </div>
+              )
+            }
+            if (winnerSlot && winnerSlot !== mySlot) {
+              // Opponent won — fill all remaining letters with winner's color
+              const winCh = winnerProgress[i] ?? letter
+              return (
+                <div
+                  key={i}
+                  className="relative flex items-center justify-center select-none w-12 h-[60px] sm:w-[72px] sm:h-[88px] rounded-xl border-2"
+                  style={{ borderColor: `${winnerColor}80`, background: `${winnerColor}18` }}
+                >
+                  <span className="text-xl sm:text-3xl font-black" style={{ color: winnerColor ?? undefined }}>
+                    {winCh.toUpperCase()}
+                  </span>
+                </div>
+              )
+            }
+            // Time expired — reveal word in red
+            return (
+              <div key={i} className="relative flex items-center justify-center select-none w-12 h-[60px] sm:w-[72px] sm:h-[88px] rounded-xl border-2 border-red-500 bg-red-500/10">
+                <span className="text-xl sm:text-3xl font-black text-red-500">{letter.toUpperCase()}</span>
+              </div>
+            )
+          }
 
           // Other players who have hit this position
           const enemyHits = active
@@ -469,20 +927,28 @@ export default function GamePage({ params }: GamePageProps) {
               return p && p[i] !== "_"
             })
 
+          const cellStyle: CSSProperties | undefined = playerFilled
+            ? {
+                borderColor: `${myColor}80`,
+                background: `${myColor}18`,
+                ...(isLast && !autoFilled
+                  ? { boxShadow: `0 0 0 2px ${myColor}, 0 0 0 4px hsl(var(--background))` }
+                  : {}),
+              }
+            : undefined
+
           return (
             <div
               key={i}
               className={cn(
                 "relative flex items-center justify-center overflow-hidden select-none transition-all duration-200",
                 "w-12 h-[60px] sm:w-[72px] sm:h-[88px] rounded-xl border-2",
-                playerFilled
-                  ? "border-emerald-500 bg-emerald-500/10"
-                  : autoFilled
-                    ? "border-red-500 bg-red-500/10"
-                    : "border-muted-foreground/20 bg-muted/30",
-                isLast && !autoFilled && "scale-110 ring-2 ring-emerald-500 ring-offset-2 z-10",
+                !playerFilled && !autoFilled && "border-muted-foreground/20 bg-muted/30",
+                autoFilled && "border-red-500 bg-red-500/10",
+                isLast && !autoFilled && playerFilled && "scale-110 z-10",
                 isNewHit && !filled && "animate-[hitPulse_0.5s_ease-out]"
               )}
+              style={cellStyle}
             >
               {/* Vertical colored stripes for enemy hits (behind letter) */}
               {!filled && enemyHits.map((slot, idx) => (
@@ -497,9 +963,13 @@ export default function GamePage({ params }: GamePageProps) {
                 />
               ))}
 
-              {/* My letter or placeholder */}
+              {/* My letter or placeholder — aceeași culoare ca la final de rundă */}
               {playerFilled
-                ? <span className="relative z-10 text-xl sm:text-3xl font-black text-emerald-600">{ch.toUpperCase()}</span>
+                ? (
+                  <span className="relative z-10 text-xl sm:text-3xl font-black" style={{ color: myColor }}>
+                    {ch.toUpperCase()}
+                  </span>
+                  )
                 : autoFilled
                   ? <span className="relative z-10 text-xl sm:text-3xl font-black text-red-500">{revealCh.toUpperCase()}</span>
                   : <span className="text-muted-foreground/20 text-base sm:text-xl select-none">_</span>
@@ -535,6 +1005,32 @@ export default function GamePage({ params }: GamePageProps) {
   // ── FINISHED ──────────────────────────────────────────────────────────────
 
   if (room.game_status === "finished") {
+    if (disconnectMessage) {
+      return (
+        <main className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-background to-secondary/30">
+          <Card className="w-full max-w-md">
+            <CardContent className="pt-8 pb-8 text-center space-y-6">
+              <div className="w-20 h-20 mx-auto rounded-full bg-destructive/10 flex items-center justify-center">
+                <AlertCircle className="w-10 h-10 text-destructive" />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-xl font-bold leading-snug">{disconnectMessage}</h2>
+                <p className="text-muted-foreground">Jocul s-a încheiat.</p>
+              </div>
+              <div className="flex gap-3 justify-center">
+                <Button variant="outline" onClick={() => void handleExitRoom()}>
+                  <ArrowLeft className="w-4 h-4 mr-2" />Home
+                </Button>
+                {!disconnectHidePlayAgain && (
+                  <Button onClick={() => void handlePlayAgain()}>Play Again</Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </main>
+      )
+    }
+
     const sorted = activeSlots(room)
       .map(s => ({ slot: s, name: slotData(s, room).name!, score: slotData(s, room).score }))
       .sort((a, b) => b.score - a.score)
@@ -545,7 +1041,7 @@ export default function GamePage({ params }: GamePageProps) {
 
     return (
       <main className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-background to-secondary/30">
-        {iWon && <Confetti recycle={false} numberOfPieces={300} />}
+        {iWon && <Confetti recycle={false} numberOfPieces={500} />}
         <Card className="w-full max-w-md">
           <CardContent className="pt-8 pb-8 text-center space-y-6">
             <div className={cn(
@@ -570,10 +1066,10 @@ export default function GamePage({ params }: GamePageProps) {
               ))}
             </div>
             <div className="flex gap-3 justify-center">
-              <Button variant="outline" onClick={() => router.push("/")}>
+              <Button variant="outline" onClick={() => void handleExitRoom()}>
                 <ArrowLeft className="w-4 h-4 mr-2" />Home
               </Button>
-              <Button onClick={handlePlayAgain}>Play Again</Button>
+              <Button onClick={() => void handlePlayAgain()}>Play Again</Button>
             </div>
           </CardContent>
         </Card>
@@ -586,7 +1082,13 @@ export default function GamePage({ params }: GamePageProps) {
   if (room.game_status === "waiting" && !isFull(room)) {
     const maxP = room.max_players ?? 2
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-background to-secondary/30">
+      <main className="min-h-screen flex flex-col bg-gradient-to-b from-background to-secondary/30">
+        {topTransientNotice && (
+          <div className="w-full shrink-0 px-4 pt-3 pb-2 border-b border-border/60 bg-background/95 backdrop-blur-sm z-20">
+            {renderTopTransientNoticeBanner()}
+          </div>
+        )}
+        <div className="flex-1 flex flex-col items-center justify-center p-4">
         <Card className="w-full max-w-sm">
           <CardContent className="pt-3 pb-4 text-center space-y-3">
             <div className="mx-auto flex items-center justify-center">
@@ -630,11 +1132,12 @@ export default function GamePage({ params }: GamePageProps) {
             <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
               <Spinner className="w-4 h-4" /> Waiting for players…
             </div>
-            <Button variant="ghost" onClick={() => router.push("/")}>
+            <Button variant="ghost" onClick={() => void handleExitRoom()}>
               <ArrowLeft className="w-4 h-4 mr-2" />Leave Room
             </Button>
           </CardContent>
         </Card>
+        </div>
       </main>
     )
   }
@@ -645,7 +1148,13 @@ export default function GamePage({ params }: GamePageProps) {
     const myReady = slotData(mySlot, room).ready
     const active = activeSlots(room)
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-background to-secondary/30">
+      <main className="min-h-screen flex flex-col bg-gradient-to-b from-background to-secondary/30">
+        {topTransientNotice && (
+          <div className="w-full shrink-0 px-4 pt-3 pb-2 border-b border-border/60 bg-background/95 backdrop-blur-sm z-20">
+            {renderTopTransientNoticeBanner()}
+          </div>
+        )}
+        <div className="flex-1 flex flex-col items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardContent className="pt-3 pb-4 space-y-3">
             <div className="text-center">
@@ -687,76 +1196,22 @@ export default function GamePage({ params }: GamePageProps) {
             >
               {myReady ? "Cancel Ready" : "I'm Ready!"}
             </Button>
+            <Button variant="ghost" className="w-full" onClick={() => void handleExitRoom()}>
+              <ArrowLeft className="w-4 h-4 mr-2" />Leave Room
+            </Button>
           </CardContent>
         </Card>
-      </main>
-    )
-  }
-
-  // ── ROUND END ─────────────────────────────────────────────────────────────
-
-  if (room.game_status === "round_end") {
-    const iWonRound = room.round_winner === myName
-    return (
-      <main className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-background to-secondary/30">
-        {showConfetti && iWonRound && <Confetti recycle={false} numberOfPieces={150} />}
-        <Card className="w-full max-w-md">
-          <CardContent className="pt-8 pb-8 text-center space-y-5">
-            {room.round_winner ? (
-              <>
-                <div className={cn(
-                  "w-16 h-16 mx-auto rounded-full flex items-center justify-center",
-                  iWonRound ? "bg-amber-500/20" : "bg-muted"
-                )}>
-                  <Trophy className={cn("w-8 h-8", iWonRound ? "text-amber-500" : "text-muted-foreground")} />
-                </div>
-                <div>
-                  <h2 className="text-xl font-bold">
-                    {iWonRound ? "You Win This Round!" : `${room.round_winner} Wins!`}
-                  </h2>
-                  <p className="text-muted-foreground mt-1 text-sm">
-                    The word was:{" "}
-                    <span className="font-bold text-foreground">{room.current_word?.toUpperCase()}</span>
-                  </p>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="w-16 h-16 mx-auto rounded-full bg-muted flex items-center justify-center">
-                  <Timer className="w-8 h-8 text-muted-foreground" />
-                </div>
-                <div>
-                  <h2 className="text-xl font-bold">{"Time's Up!"}</h2>
-                  <p className="text-muted-foreground mt-1 text-sm">
-                    The word was:{" "}
-                    <span className="font-bold text-foreground">{room.current_word?.toUpperCase()}</span>
-                  </p>
-                </div>
-              </>
-            )}
-            <div className="flex justify-center gap-5 flex-wrap py-1">
-              {activeSlots(room).map(slot => {
-                const d = slotData(slot, room)
-                return (
-                  <div key={slot} className="text-center">
-                    <div className="flex items-center gap-1 justify-center mb-0.5">
-                      <div className="w-2.5 h-2.5 rounded-full" style={{ background: PLAYER_COLORS[slot - 1] }} />
-                      <p className="text-xs text-muted-foreground truncate max-w-[72px]">{d.name}</p>
-                    </div>
-                    <p className="text-2xl font-bold">{d.score}</p>
-                  </div>
-                )
-              })}
-            </div>
-            <p className="text-sm text-muted-foreground">Round {room.current_round} of {room.total_rounds ?? TOTAL_ROUNDS}</p>
-            <Button className="w-full" size="lg" onClick={() => startNewRound()}>Next Round</Button>
-          </CardContent>
-        </Card>
+        </div>
       </main>
     )
   }
 
   // ── PLAYING ───────────────────────────────────────────────────────────────
+
+  const isRoundEnd = room.game_status === "round_end"
+  const iWonRound = room.round_winner === myName
+  const myReady = slotData(mySlot, room).ready
+  const everyoneReady = allReady(room)
 
   return (
     <main
@@ -766,11 +1221,15 @@ export default function GamePage({ params }: GamePageProps) {
       )}
       tabIndex={0}
     >
+      {showConfetti && (iWonRound || optimisticRoundWin) && (
+        <Confetti recycle={false} numberOfPieces={300} />
+      )}
+
       {/* Sticky top bar */}
       <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b px-4 pt-3 pb-3 space-y-3">
         {/* Row: Exit · Round+Category · Timer */}
         <div className="flex items-center justify-between">
-          <Button variant="ghost" size="sm" className="h-8 px-2" onClick={() => router.push("/")}>
+          <Button variant="ghost" size="sm" className="h-8 px-2" onClick={() => void handleExitRoom()}>
             <ArrowLeft className="w-4 h-4 mr-1" />Exit
           </Button>
           <div className="flex flex-col items-center gap-0.5">
@@ -791,77 +1250,169 @@ export default function GamePage({ params }: GamePageProps) {
 
         {/* Player top bar */}
         {renderPlayerTopBar()}
+
+        {renderTopTransientNoticeBanner()}
       </div>
 
-      {/* Main content — tap anywhere to re-focus keyboard on iOS */}
+      {/* Main content */}
       <div
-        className="flex-1 overflow-y-auto flex flex-col items-center justify-start px-4 pt-5 pb-6 max-w-2xl mx-auto w-full gap-5"
-        onClick={() => hiddenInputRef.current?.focus()}
+        className="flex-1 overflow-y-auto scrollbar-none flex flex-col items-center justify-start px-4 pt-5 pb-6 max-w-2xl mx-auto w-full gap-5"
+        onClick={() => {
+          if (!isRoundEnd) hiddenInputRef.current?.focus()
+        }}
       >
 
-        {/* Timer */}
-        <div className={cn(
-          "flex items-center justify-center gap-1.5 text-sm font-bold px-4 py-2 rounded-lg w-full",
-          timeRemaining <= 10 ? "bg-destructive/10 text-destructive animate-pulse" : "bg-muted"
-        )}>
-          <Timer className="w-3.5 h-3.5" />{timeRemaining}s
-        </div>
+        {isRoundEnd ? (
+          <>
+            {/* ── Definition (kept visible) ── */}
+            <Card className="w-full shadow-sm">
+              <CardContent className="py-[3px]">
+                <p className="text-base sm:text-lg text-center leading-relaxed text-balance">
+                  {room.current_definition}
+                </p>
+              </CardContent>
+            </Card>
 
-        {/* Definition */}
-        <Card className="w-full shadow-sm">
-          <CardContent className="pt-5 pb-5">
-            <p className="text-base sm:text-lg text-center leading-relaxed text-balance">
-              {room.current_definition}
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Word mask — hidden input placed here so browser auto-scroll targets this area */}
-        <div ref={wordMaskRef} className="relative w-full flex justify-center">
-          <input
-            ref={hiddenInputRef}
-            type="text"
-            inputMode="text"
-            autoComplete="off"
-            autoCorrect="off"
-            autoCapitalize="none"
-            spellCheck={false}
-            className="absolute opacity-0 w-px h-px top-1/2 left-1/2 pointer-events-none"
-            style={{ fontSize: 16 }}
-            onChange={(e) => {
-              const v = e.target.value
-              if (v) {
-                const ch = v[v.length - 1]
-                if (/\p{L}/u.test(ch)) {
-                  // Skip if keydown already handled this keystroke (desktop)
-                  if (!keyHandledRef.current) handleLetterInput(ch)
-                  keyHandledRef.current = false
-                }
-                e.target.value = ""
-              }
-            }}
-          />
-          {renderWordMask()}
-        </div>
-
-        {/* Legend */}
-        <div className="text-center space-y-2">
-          <p className="text-sm text-muted-foreground">Press letter keys on your keyboard to guess!</p>
-          {activeSlots(room).filter(s => s !== mySlot).length > 0 && (
-            <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground/55 flex-wrap">
-              {activeSlots(room).filter(s => s !== mySlot).map(s => (
-                <span key={s} className="flex items-center gap-1">
-                  <span
-                    className="inline-block w-[3px] h-3.5 rounded-full"
-                    style={{ background: PLAYER_COLORS[s - 1] }}
-                  />
-                  {slotData(s, room).name}
-                </span>
-              ))}
-              <span className="italic">= rival progress</span>
+            {/* ── Word mask with letters filled in winner's color ── */}
+            <div className="w-full flex justify-center">
+              {renderWordMask()}
             </div>
-          )}
-        </div>
+
+            {/* ── Result header ── */}
+            {room.round_winner ? (
+              <div className={cn(
+                "py-3 px-5 rounded-xl w-full text-center",
+                iWonRound ? "bg-amber-500/10 text-amber-700 dark:text-amber-400" : "bg-muted"
+              )}>
+                <div className="flex items-center justify-center gap-2 font-semibold">
+                  <Trophy className="w-4 h-4" />
+                  {iWonRound ? "You Win This Round!" : `${room.round_winner} Wins!`}
+                </div>
+              </div>
+            ) : (
+              <div className="py-3 px-5 rounded-xl w-full text-center bg-destructive/10 text-destructive">
+                <div className="flex items-center justify-center gap-2 font-semibold">
+                  <Timer className="w-4 h-4" />
+                  {"Time's Up!"}
+                </div>
+              </div>
+            )}
+
+            {/* ── Player ready cards ── */}
+            <div className="grid grid-cols-2 gap-2 w-full">
+              {activeSlots(room).map(slot => {
+                const d = slotData(slot, room)
+                const isReady = d.ready
+                return (
+                  <div
+                    key={slot}
+                    className={cn(
+                      "flex items-center justify-between px-3 py-2.5 rounded-lg border transition-colors",
+                      isReady ? "border-emerald-500 bg-emerald-500/10" : "border-border bg-muted/30"
+                    )}
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: PLAYER_COLORS[slot - 1] }} />
+                      <span className="text-sm font-medium truncate">{d.name}</span>
+                    </div>
+                    {isReady
+                      ? <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                      : <div className="w-4 h-4 rounded-full border-2 border-muted-foreground/30 shrink-0" />
+                    }
+                  </div>
+                )
+              })}
+            </div>
+
+
+            {/* ── I'm Ready button ── */}
+            <Button
+              className={cn("w-full", myReady && "bg-emerald-600 hover:bg-emerald-700 text-white")}
+              variant={myReady ? "default" : "outline"}
+              size="lg"
+              onClick={handleToggleReady}
+            >
+              {myReady ? <><Check className="w-4 h-4 mr-2" />Ready!</> : "I'm Ready"}
+            </Button>
+
+            {/* ── Next Round button — activates only when everyone is ready ── */}
+            <Button
+              className="w-full"
+              size="lg"
+              onClick={() => startNewRound()}
+              disabled={!everyoneReady}
+            >
+              {everyoneReady ? "Next Round →" : "Waiting for players..."}
+            </Button>
+          </>
+        ) : (
+          <>
+            {/* Timer */}
+            <div className={cn(
+              "flex items-center justify-center gap-1.5 text-sm font-bold px-4 py-2 rounded-lg w-full",
+              timeRemaining <= 10 ? "bg-destructive/10 text-destructive animate-pulse" : "bg-muted"
+            )}>
+              <Timer className="w-3.5 h-3.5" />
+              <span>{timeRemaining}s</span>
+            </div>
+
+            {/* Definition */}
+            <Card className="w-full shadow-sm">
+              <CardContent className="py-[3px]">
+                <p className="text-base sm:text-lg text-center leading-relaxed text-balance">
+                  {room.current_definition}
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Word mask — hidden input placed here so browser auto-scroll targets this area */}
+            <div ref={wordMaskRef} className="relative w-full flex justify-center">
+              <input
+                ref={hiddenInputRef}
+                type="text"
+                inputMode="text"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="none"
+                spellCheck={false}
+                className="absolute opacity-0 w-px h-px top-1/2 left-1/2 pointer-events-none"
+                style={{ fontSize: 16 }}
+                onChange={(e) => {
+                  const v = e.target.value
+                  if (v) {
+                    const ch = v[v.length - 1]
+                    if (/\p{L}/u.test(ch)) {
+                      // Skip if keydown already handled this keystroke (desktop)
+                      if (!keyHandledRef.current) handleLetterInput(ch)
+                      keyHandledRef.current = false
+                    }
+                    e.target.value = ""
+                  }
+                }}
+              />
+              {renderWordMask()}
+            </div>
+
+            {/* Legend */}
+            <div className="text-center space-y-2">
+              <p className="text-sm text-muted-foreground">Press letter keys on your keyboard to guess!</p>
+              {activeSlots(room).filter(s => s !== mySlot).length > 0 && (
+                <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground/55 flex-wrap">
+                  {activeSlots(room).filter(s => s !== mySlot).map(s => (
+                    <span key={s} className="flex items-center gap-1">
+                      <span
+                        className="inline-block w-[3px] h-3.5 rounded-full"
+                        style={{ background: PLAYER_COLORS[s - 1] }}
+                      />
+                      {slotData(s, room).name}
+                    </span>
+                  ))}
+                  <span className="italic">= rival progress</span>
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </div>
 
       <style jsx global>{`

@@ -1,17 +1,20 @@
 "use client"
 
 import { useState, useEffect, useCallback, useRef } from "react"
+import { flushSync } from "react-dom"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { fetchWordPairForCategory, tryPlaceLetter, isWordComplete } from "@/lib/words"
 import type { WordPair, CategoryKey, LanguageKey } from "@/lib/game-types"
-import { CATEGORIES, LANGUAGES } from "@/lib/game-types"
+import { CATEGORIES, LANGUAGES, PLAYER_COLORS } from "@/lib/game-types"
 import { ArrowLeft, RotateCcw, Trophy, Timer, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Confetti from "react-confetti"
 
 const ROUND_DURATION = 60
+/** Aceeași culoare ca jucătorul 1 în multiplayer */
+const PRACTICE_PLAYER_COLOR = PLAYER_COLORS[0]
 
 function readStoredField<T>(field: string, fallback: T): T {
   if (typeof window === "undefined") return fallback
@@ -51,6 +54,7 @@ export default function PracticePage() {
   // Consecutive-wrong-letter penalty: 2 wrong in a row → 2s input lockout
   const consecutiveWrongRef = useRef(0)
   const lockedUntilRef = useRef(0)
+  const handleNextRoundRef = useRef<() => void>(() => {})
   const router = useRouter()
 
   useEffect(() => {
@@ -135,10 +139,12 @@ export default function PracticePage() {
       setProgress(newProgress)
       if (isWordComplete(newProgress)) {
         hiddenInputRef.current?.blur()
+        flushSync(() => {
+          setShowConfetti(true)
+        })
         setScore((prev) => prev + 1)
         setGameStatus("won")
-        setShowConfetti(true)
-        setTimeout(() => setShowConfetti(false), 2500)
+        setTimeout(() => setShowConfetti(false), 5000)
       }
     } else {
       consecutiveWrongRef.current++
@@ -194,11 +200,27 @@ export default function PracticePage() {
     return () => window.removeEventListener("keydown", onKey)
   }, [gameStatus, currentWord, handleLetterInput])
 
+  // Enter = Next Round / See Results (single player — same as multiplayer UX)
+  useEffect(() => {
+    if (gameStatus !== "won" && gameStatus !== "timeout") return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Enter" || e.repeat) return
+      const t = e.target as HTMLElement | null
+      if (t?.closest("input:not([type=hidden]), textarea, [contenteditable=true]")) return
+      e.preventDefault()
+      handleNextRoundRef.current()
+    }
+    window.addEventListener("keydown", onKey, true)
+    return () => window.removeEventListener("keydown", onKey, true)
+  }, [gameStatus])
+
   function handleNextRound() {
     if (round >= totalRounds) { setGameStatus("finished"); return }
     setRound((prev) => prev + 1)
     loadNewWord()
   }
+
+  handleNextRoundRef.current = handleNextRound
 
   function handleRestart() {
     setScore(0)
@@ -247,7 +269,7 @@ export default function PracticePage() {
       )}
       tabIndex={0}
     >
-      {showConfetti && <Confetti recycle={false} numberOfPieces={150} />}
+      {showConfetti && <Confetti recycle={false} numberOfPieces={500} />}
 
       {/* Sticky top bar — mirrors game page */}
       <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b px-4 pt-3 pb-3">
@@ -338,22 +360,34 @@ export default function PracticePage() {
             const revealCh = revealProgress[i] ?? "_"
             const autoFilled = !playerFilled && revealCh !== "_"
             const isLast = i === lastPlacedIndex
+            const myColor = PRACTICE_PLAYER_COLOR
+            const cellStyle = playerFilled
+              ? {
+                  borderColor: `${myColor}80`,
+                  background: `${myColor}18`,
+                  ...(isLast && !autoFilled
+                    ? { boxShadow: `0 0 0 2px ${myColor}, 0 0 0 4px hsl(var(--background))` }
+                    : {}),
+                }
+              : undefined
             return (
               <div
                 key={i}
                 className={cn(
                   "relative flex items-center justify-center overflow-hidden select-none transition-all duration-200",
                   "w-12 h-[60px] sm:w-[72px] sm:h-[88px] rounded-xl border-2",
-                  playerFilled
-                    ? "border-emerald-500 bg-emerald-500/10"
-                    : autoFilled
-                      ? "border-red-500 bg-red-500/10"
-                      : "border-muted-foreground/20 bg-muted/30",
-                  isLast && "scale-110 ring-2 ring-emerald-500 ring-offset-2 z-10"
+                  !playerFilled && !autoFilled && "border-muted-foreground/20 bg-muted/30",
+                  autoFilled && "border-red-500 bg-red-500/10",
+                  isLast && !autoFilled && playerFilled && "scale-110 z-10"
                 )}
+                style={cellStyle}
               >
                 {playerFilled
-                  ? <span className="text-xl sm:text-3xl font-black text-emerald-600">{ch.toUpperCase()}</span>
+                  ? (
+                    <span className="text-xl sm:text-3xl font-black" style={{ color: myColor }}>
+                      {ch.toUpperCase()}
+                    </span>
+                    )
                   : autoFilled
                     ? <span className="text-xl sm:text-3xl font-black text-red-500">{revealCh.toUpperCase()}</span>
                     : <span className="text-muted-foreground/20 text-base sm:text-xl select-none">_</span>

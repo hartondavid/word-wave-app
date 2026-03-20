@@ -21,6 +21,33 @@ function generatePlayerId(): string {
   return `player_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
 }
 
+/**
+ * Alege primul slot liber pentru join: întâi 2→4 (invitați), apoi 1 (dacă gazda a plecat).
+ * Limitează la sloturile 1..maxPlayers.
+ */
+function pickJoinPlayerSlot(
+  room: {
+    player1_id?: string | null
+    player2_id?: string | null
+    player3_id?: string | null
+    player4_id?: string | null
+  },
+  maxPlayers: number
+): 1 | 2 | 3 | 4 | null {
+  const mx = Math.min(Math.max(maxPlayers, 2), 4)
+  const ids = [room.player1_id, room.player2_id, room.player3_id, room.player4_id]
+  const filled = ids.filter(Boolean).length
+  if (filled >= mx) return null
+  const order = ([2, 3, 4, 1] as const).filter(s => s <= mx)
+  for (const s of order) {
+    const id = ids[s - 1]
+    if (!id) return s
+  }
+  return null
+}
+
+const JOINABLE_GAME_STATUSES = new Set(["waiting", "playing", "round_end", "finished"])
+
 export default function HomePage() {
   const [playerName, setPlayerName] = useState("")
   const [roomCode, setRoomCode] = useState("")
@@ -139,9 +166,8 @@ export default function HomePage() {
         return
       }
 
-      // Check if game is already in progress
-      if (room.game_status !== "waiting") {
-        setError("Game already in progress.")
+      if (!JOINABLE_GAME_STATUSES.has(room.game_status)) {
+        setError("Nu te poți alătura camerei în acest moment.")
         setIsLoading(false)
         return
       }
@@ -149,21 +175,23 @@ export default function HomePage() {
       // When max_players column is missing (migration not run), fall back to 4
       // so the room isn't falsely reported as full.
       const mx = room.max_players ?? 4
-      const filled = [room.player1_id, room.player2_id, room.player3_id, room.player4_id].filter(Boolean).length
-      if (filled >= mx) {
-        setError("Room is full. Try another room.")
+      const playerSlot = pickJoinPlayerSlot(room, mx)
+      if (playerSlot === null) {
+        setError("Camera este plină. Încearcă alt cod.")
         setIsLoading(false)
         return
       }
 
-      let playerSlot: number
-      let updateFields: Record<string, unknown>
-      if (!room.player2_id) {
-        playerSlot = 2; updateFields = { player2_id: playerId, player2_name: playerName.trim() }
-      } else if (!room.player3_id) {
-        playerSlot = 3; updateFields = { player3_id: playerId, player3_name: playerName.trim() }
-      } else {
-        playerSlot = 4; updateFields = { player4_id: playerId, player4_name: playerName.trim() }
+      const updateFields: Record<string, unknown> = {
+        [`player${playerSlot}_id`]: playerId,
+        [`player${playerSlot}_name`]: playerName.trim(),
+        [`player${playerSlot}_score`]: 0,
+        [`player${playerSlot}_ready`]: false,
+      }
+
+      // Intrare în timpul rundei: progres aliniat cu cuvântul curent
+      if ((room.game_status === "playing" || room.game_status === "round_end") && room.current_word) {
+        updateFields[`player${playerSlot}_progress`] = "_".repeat(room.current_word.length)
       }
 
       const { error: updateError } = await supabase
