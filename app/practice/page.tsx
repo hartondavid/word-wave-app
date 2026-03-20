@@ -5,9 +5,12 @@ import { flushSync } from "react-dom"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { tryPlaceLetter, isWordComplete } from "@/lib/words"
-import { pickPracticeWord } from "@/app/practice/actions"
-import type { WordPair, CategoryKey, LanguageKey } from "@/lib/game-types"
+import {
+  startPracticeRound,
+  submitPracticeLetter,
+  finalizePracticeRound,
+} from "@/app/practice/actions"
+import type { CategoryKey, LanguageKey } from "@/lib/game-types"
 import { CATEGORIES, LANGUAGES, PLAYER_COLORS } from "@/lib/game-types"
 import { ArrowLeft, RotateCcw, Trophy, Timer, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -34,12 +37,23 @@ export default function PracticePage() {
   const [category] = useState<string>(() => readStoredField("category", "general"))
   const [language] = useState<string>(() => readStoredField("language", "en"))
   const [totalRounds] = useState<number>(() => readStoredField("max_rounds", 10))
-  const [currentWord, setCurrentWord] = useState<WordPair | null>(null)
+  /** Public round data only — answer lives in httpOnly cookie on server. */
+  const [roundMeta, setRoundMeta] = useState<{
+    definition: string
+    wordLength: number
+  } | null>(null)
+  /** Set only from `finalizePracticeRound` — word + def apar în Network la finalul rundei. */
+  const [roundAnswer, setRoundAnswer] = useState<{
+    word: string
+    definition: string
+  } | null>(null)
   const [progress, setProgress] = useState("")
   const [score, setScore] = useState(0)
   const [round, setRound] = useState(1)
   const [timeLeft, setTimeLeft] = useState(ROUND_DURATION)
-  const [gameStatus, setGameStatus] = useState<"loading" | "playing" | "revealing" | "won" | "timeout" | "finished">("loading")
+  const [gameStatus, setGameStatus] = useState<
+    "loading" | "playing" | "resolving" | "revealing" | "won" | "timeout" | "finished"
+  >("loading")
   const [isShaking, setIsShaking] = useState(false)
   const [lastPlacedIndex, setLastPlacedIndex] = useState<number | null>(null)
   const [showConfetti, setShowConfetti] = useState(false)
@@ -56,7 +70,13 @@ export default function PracticePage() {
   const consecutiveWrongRef = useRef(0)
   const lockedUntilRef = useRef(0)
   const handleNextRoundRef = useRef<() => void>(() => {})
+  const letterBusyRef = useRef(false)
+  const gameStatusRef = useRef(gameStatus)
   const router = useRouter()
+
+  useEffect(() => {
+    gameStatusRef.current = gameStatus
+  }, [gameStatus])
 
   useEffect(() => {
     const stored = localStorage.getItem("wordmatch_player")
@@ -70,14 +90,15 @@ export default function PracticePage() {
 
   const loadNewWord = useCallback(async () => {
     setGameStatus("loading")
-    const word = await pickPracticeWord(category, language)
-    setCurrentWord(word)
-    const initProgress = "_".repeat(word.word.length)
+    setRoundAnswer(null)
+    const meta = await startPracticeRound(category, language)
+    setRoundMeta(meta)
+    const initProgress = "_".repeat(meta.wordLength)
     progressRef.current = initProgress
     consecutiveWrongRef.current = 0
     lockedUntilRef.current = 0
     setProgress(initProgress)
-    setRevealProgress("_".repeat(word.word.length))
+    setRevealProgress("_".repeat(meta.wordLength))
     setLastPlacedIndex(null)
     setTimeLeft(ROUND_DURATION)
     setGameStatus("playing")
@@ -96,76 +117,120 @@ export default function PracticePage() {
     return () => clearInterval(timer)
   }, [gameStatus])
 
-  // When timer hits 0, animate auto-reveal of remaining letters (red), then show result
+  // Timer 0: un singur răspuns server (finalize) cu cuvânt + definiție + sloturi reveal
+  // (Nu includem `gameStatus` în deps — altfel cleanup anulează async-ul după `resolving`.)
   useEffect(() => {
-    if (timeLeft !== 0 || gameStatus !== "playing" || !currentWord) return
-    setGameStatus("revealing")
-    const cur = progressRef.current
-    const positions: number[] = []
-    for (let i = 0; i < currentWord.word.length; i++) {
-      if (cur[i] === "_") positions.push(i)
-    }
-    if (positions.length === 0) { setGameStatus("timeout"); return }
-    const base = "_".repeat(currentWord.word.length)
-    setRevealProgress(base)
-    positions.forEach((pos, idx) => {
+    if (timeLeft !== 0 || !roundMeta) return
+    if (gameStatusRef.current !== "playing") return
+    let cancelled = false
+    flushSync(() => setGameStatus("resolving"))
+    ;(async () => {
+      const cur = progressRef.current
+      const res = await finalizePracticeRound("timeout", cur)
+      if (cancelled) return
+      if (!res.ok) {
+        setGameStatus("timeout")
+        return
+      }
+      setRoundAnswer({ word: res.word, definition: res.definition })
+      const slots = res.revealSlots ?? []
+      if (slots.length === 0) {
+        setGameStatus("timeout")
+        return
+      }
+      setGameStatus("revealing")
+      const base = "_".repeat(roundMeta.wordLength)
+      setRevealProgress(base)
+      slots.forEach((slot, idx) => {
+        setTimeout(() => {
+          if (cancelled) return
+          setRevealProgress((prev) => {
+            const arr = prev.split("")
+            arr[slot.index] = slot.char
+            return arr.join("")
+          })
+        }, (idx + 1) * 150)
+      })
       setTimeout(() => {
-        setRevealProgress(prev => {
-          const arr = prev.split("")
-          arr[pos] = currentWord.word[pos]
-          return arr.join("")
-        })
-      }, (idx + 1) * 150)
-    })
-    setTimeout(() => setGameStatus("timeout"), positions.length * 150 + 500)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timeLeft, gameStatus])
-
-  const handleLetterInput = useCallback((letter: string) => {
-    if (gameStatus !== "playing" || !currentWord) return
-    // Lockout: after 2 consecutive wrong letters, ignore all input for 2 s
-    if (Date.now() < lockedUntilRef.current) return
-    const cur = progressRef.current
-    const newProgress = tryPlaceLetter(letter, cur, currentWord.word)
-    if (newProgress) {
-      consecutiveWrongRef.current = 0
-      // Cancel any pending/ongoing shake from a previous wrong letter
-      shouldShakeRef.current = false
-      if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current)
-      setIsShaking(false)
-      for (let i = 0; i < newProgress.length; i++) {
-        if (cur[i] === "_" && newProgress[i] !== "_") { setLastPlacedIndex(i); break }
-      }
-      progressRef.current = newProgress
-      setProgress(newProgress)
-      if (isWordComplete(newProgress)) {
-        hiddenInputRef.current?.blur()
-        flushSync(() => {
-          setShowConfetti(true)
-        })
-        setScore((prev) => prev + 1)
-        setGameStatus("won")
-        setTimeout(() => setShowConfetti(false), 5000)
-      }
-    } else {
-      consecutiveWrongRef.current++
-      if (consecutiveWrongRef.current >= 1) {
-        // First wrong letter: activate 3-second input lockout
-        lockedUntilRef.current = Date.now() + 3000
-        consecutiveWrongRef.current = 0
-      }
-      if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current)
-      shouldShakeRef.current = true
-      setIsShaking(false)
-      requestAnimationFrame(() =>
-        requestAnimationFrame(() => {
-          if (!shouldShakeRef.current) return
-          setIsShaking(true)
-          shakeTimeoutRef.current = setTimeout(() => setIsShaking(false), 300)
-        })
-      )
+        if (!cancelled) setGameStatus("timeout")
+      }, slots.length * 150 + 500)
+    })()
+    return () => {
+      cancelled = true
     }
-  }, [currentWord, gameStatus])
+  }, [timeLeft, roundMeta])
+
+  const handleLetterInput = useCallback(
+    async (letter: string) => {
+      if (gameStatus !== "playing" || !roundMeta) return
+      if (letterBusyRef.current) return
+      if (Date.now() < lockedUntilRef.current) return
+
+      letterBusyRef.current = true
+      try {
+        const cur = progressRef.current
+        const result = await submitPracticeLetter(letter, cur)
+
+        if (!result.ok) {
+          if (result.reason === "invalid_progress" || result.reason === "no_session") {
+            await loadNewWord()
+            return
+          }
+          consecutiveWrongRef.current++
+          if (consecutiveWrongRef.current >= 1) {
+            lockedUntilRef.current = Date.now() + 3000
+            consecutiveWrongRef.current = 0
+          }
+          if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current)
+          shouldShakeRef.current = true
+          setIsShaking(false)
+          requestAnimationFrame(() =>
+            requestAnimationFrame(() => {
+              if (!shouldShakeRef.current) return
+              setIsShaking(true)
+              shakeTimeoutRef.current = setTimeout(() => setIsShaking(false), 300)
+            })
+          )
+          return
+        }
+
+        let newProgress = cur
+        for (const p of result.placements) {
+          const arr = newProgress.split("")
+          arr[p.index] = p.char
+          newProgress = arr.join("")
+        }
+        consecutiveWrongRef.current = 0
+        shouldShakeRef.current = false
+        if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current)
+        setIsShaking(false)
+        if (result.placements.length > 0) {
+          setLastPlacedIndex(result.placements[result.placements.length - 1].index)
+        }
+        progressRef.current = newProgress
+        setProgress(newProgress)
+        if (result.complete) {
+          flushSync(() => setGameStatus("resolving"))
+          const fin = await finalizePracticeRound("won", newProgress)
+          if (!fin.ok) {
+            await loadNewWord()
+            return
+          }
+          setRoundAnswer({ word: fin.word, definition: fin.definition })
+          hiddenInputRef.current?.blur()
+          flushSync(() => {
+            setShowConfetti(true)
+          })
+          setScore((prev) => prev + 1)
+          setGameStatus("won")
+          setTimeout(() => setShowConfetti(false), 5000)
+        }
+      } finally {
+        letterBusyRef.current = false
+      }
+    },
+    [roundMeta, gameStatus, loadNewWord]
+  )
 
   // Auto-focus hidden input when round starts, blur when it ends
   useEffect(() => {
@@ -190,16 +255,16 @@ export default function PracticePage() {
   }, [])
 
   useEffect(() => {
-    if (gameStatus !== "playing" || !currentWord) return
+    if (gameStatus !== "playing" || !roundMeta) return
     const onKey = (e: KeyboardEvent) => {
       if (/^\p{L}$/u.test(e.key)) {
         keyHandledRef.current = true
-        handleLetterInput(e.key)
+        void handleLetterInput(e.key)
       }
     }
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
-  }, [gameStatus, currentWord, handleLetterInput])
+  }, [gameStatus, roundMeta, handleLetterInput])
 
   // Enter = Next Round / See Results (single player — same as multiplayer UX)
   useEffect(() => {
@@ -325,7 +390,7 @@ export default function PracticePage() {
               </div>
             ) : (
               <p className="text-base sm:text-lg text-center leading-relaxed text-balance">
-                {currentWord?.definition}
+                {roundMeta?.definition}
               </p>
             )}
           </CardContent>
@@ -348,8 +413,7 @@ export default function PracticePage() {
               if (v) {
                 const ch = v[v.length - 1]
                 if (/\p{L}/u.test(ch)) {
-                  // Skip if keydown already handled this keystroke (desktop)
-                  if (!keyHandledRef.current) handleLetterInput(ch)
+                  if (!keyHandledRef.current) void handleLetterInput(ch)
                   keyHandledRef.current = false
                 }
                 e.target.value = ""
@@ -416,12 +480,17 @@ export default function PracticePage() {
               {gameStatus === "won" ? (
                 <div className="flex items-center justify-center gap-2 font-semibold">
                   <Check className="w-5 h-5" />
-                  Correct! The word was: <span className="font-black">{currentWord?.word.toUpperCase()}</span>
+                  Correct! The word was:{" "}
+                  <span className="font-black">
+                    {(roundAnswer?.word ?? progress).toUpperCase()}
+                  </span>
                 </div>
               ) : (
                 <span className="font-semibold">
                   {"Time's up! The word was: "}
-                  <span className="font-black">{currentWord?.word.toUpperCase()}</span>
+                  <span className="font-black">
+                    {(roundAnswer?.word ?? revealProgress).toUpperCase()}
+                  </span>
                 </span>
               )}
             </div>

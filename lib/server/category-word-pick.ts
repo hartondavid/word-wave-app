@@ -26,7 +26,7 @@ function unwrapCategoryDefinitions(raw: unknown): (MultilingualEntry | WordPair)
 
 /**
  * Returnează null dacă intrarea nu are text pentru limba cerută.
- * Intrările doar { word, definition } sunt tratate ca română (dataset WordWave).
+ * Intrările plain { word, definition } sunt RO; le folosim pentru orice limbă selectată în UI.
  */
 function extractPair(entry: MultilingualEntry | WordPair, language: string): WordPair | null {
   if ("definitions" in entry && entry.definitions && Object.keys(entry.definitions).length > 0) {
@@ -37,9 +37,7 @@ function extractPair(entry: MultilingualEntry | WordPair, language: string): Wor
   }
   const plain = entry as WordPair
   if (!plain.word?.trim() || !plain.definition?.trim()) return null
-  // Fără câmp multilingual → conținut românesc; acceptăm doar ro (sau lipsă → ro)
-  if (language === "ro" || language === "") return plain
-  return null
+  return plain
 }
 
 function isAllowedCategory(category: string): category is Exclude<CategoryKey, "general"> {

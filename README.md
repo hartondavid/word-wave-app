@@ -24,6 +24,10 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
+### Practice mode (server)
+
+Practice keeps the answer in an **httpOnly** cookie (AES-GCM), not in the Server Action JSON. Set `PRACTICE_COOKIE_SECRET` in production (long random string); dev uses a built-in default.
+
 ## Learn More
 
 To learn more, take a look at the following resources:

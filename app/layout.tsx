@@ -6,10 +6,39 @@ import './globals.css'
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
+/** URL absolut pentru og:image / link-uri în meta (setează NEXT_PUBLIC_SITE_URL în producție). */
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
+
+const title = 'WordWave - Multiplayer Word Guessing Game'
+const description =
+  'Compete head-to-head in this fast-paced word guessing game! Race to type the correct word first.'
+
 export const metadata: Metadata = {
-  title: 'WordWave - Multiplayer Word Guessing Game',
-  description: 'Compete head-to-head in this fast-paced word guessing game! Race to type the correct word first.',
+  metadataBase: new URL(siteUrl),
+  title,
+  description,
   generator: 'v0.app',
+  openGraph: {
+    title,
+    description,
+    type: 'website',
+    siteName: 'WordWave',
+    locale: 'en_US',
+    images: [
+      {
+        url: '/social.png',
+        alt: 'WordWave',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title,
+    description,
+    images: ['/social.png'],
+  },
   icons: {
     icon: [
       {
