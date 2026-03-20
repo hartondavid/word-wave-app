@@ -2,7 +2,7 @@
 /**
  * add-translations.js
  *
- * Reads existing public/*.json files and adds missing language translations
+ * Reads existing data/categories/*.json files and adds missing language translations
  * using Google Translate (no API key needed).
  *
  * Usage:
@@ -11,7 +11,7 @@
  *   node add-translations.js             (all: ro, es, fr, de)
  *
  * After it finishes:
- *   git add public/*.json
+ *   git add data/categories/*.json
  *   git commit -m "feat: add translations"
  *   vercel --prod
  */
@@ -75,13 +75,14 @@ async function translate(text, targetLang) {
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 async function run() {
-  const publicDir = path.join(__dirname, 'public')
+  const categoriesDir = path.join(__dirname, 'data', 'categories')
+  if (!fs.existsSync(categoriesDir)) fs.mkdirSync(categoriesDir, { recursive: true })
   console.log(`\n🌍  Adding translations for: [${TARGET_LANGS.join(', ')}]  (Google Translate)\n`)
 
   let totalAdded = 0
 
   for (const category of CATEGORIES) {
-    const filePath = path.join(publicDir, `${category}.json`)
+    const filePath = path.join(categoriesDir, `${category}.json`)
     if (!fs.existsSync(filePath)) {
       console.log(`⚠️   ${category}.json not found — skipping`)
       continue
@@ -152,7 +153,7 @@ async function run() {
 
   console.log(`\n✅  Done! ${totalAdded} translations added.\n`)
   console.log('Next steps:')
-  console.log('  git add public/*.json')
+  console.log('  git add data/categories/*.json')
   console.log('  git commit -m "feat: add Romanian translations"')
   console.log('  vercel --prod\n')
 }

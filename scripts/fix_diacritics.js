@@ -2049,9 +2049,11 @@ rows.forEach(r => {
   categories[key].push({ word, definition });
 });
 
+const categoriesDir = path.join('data', 'categories');
+fs.mkdirSync(categoriesDir, { recursive: true });
 let totalFiles = 0;
 for (const [key, entries] of Object.entries(categories)) {
-  const outPath = path.join('public', `${key}.json`);
+  const outPath = path.join(categoriesDir, `${key}.json`);
   fs.writeFileSync(outPath, JSON.stringify(entries, null, 2), 'utf8');
   console.log(`Written ${outPath} (${entries.length} entries)`);
   totalFiles++;

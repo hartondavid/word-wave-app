@@ -12,7 +12,7 @@
  *   node generate-all-categories.js
  *
  * After it finishes:
- *   git add public/*.json
+ *   git add data/categories/*.json
  *   git commit -m "feat: add multilingual category definitions"
  *   vercel --prod
  */
@@ -122,8 +122,8 @@ const sleep = ms => new Promise(r => setTimeout(r, ms))
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 async function run() {
-  const publicDir = path.join(__dirname, 'public')
-  if (!fs.existsSync(publicDir)) fs.mkdirSync(publicDir)
+  const outDir = path.join(__dirname, 'data', 'categories')
+  if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true })
 
   let totalDefs = 0
 
@@ -161,15 +161,15 @@ async function run() {
       await sleep(400)
     }
 
-    const outPath = path.join(publicDir, `${category}.json`)
+    const outPath = path.join(outDir, `${category}.json`)
     fs.writeFileSync(outPath, JSON.stringify(defs, null, 2))
-    console.log(`    → saved ${defs.length} entries to public/${category}.json`)
+    console.log(`    → saved ${defs.length} entries to data/categories/${category}.json`)
     totalDefs += defs.length
   }
 
   console.log(`\n🎉  Done! ${totalDefs} total entries across ${Object.keys(CATEGORIES).length} categories.\n`)
   console.log('Next steps:')
-  console.log('  git add public/*.json')
+  console.log('  git add data/categories/*.json')
   console.log('  git commit -m "feat: add multilingual category definitions"')
   console.log('  vercel --prod\n')
 }

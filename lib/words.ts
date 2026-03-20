@@ -1,25 +1,9 @@
 import type { WordPair } from "./game-types"
-
-// Multilingual JSON entry format (new).
-// Old format { word, definition } is also supported for backward compat.
-interface MultilingualEntry {
-  word: string                         // English base word
-  words?: Record<string, string>       // translated words per language
-  definitions: Record<string, string>  // translated definitions per language
-}
+import { SPECIFIC_CATEGORIES } from "./game-types"
 
 // Normalize a string by removing diacritics, used for loose comparison
 export function removeDiacritics(str: string): string {
   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-}
-
-function extractPair(entry: MultilingualEntry | WordPair, language: string): WordPair {
-  if ("definitions" in entry && entry.definitions) {
-    const def  = entry.definitions[language] ?? entry.definitions["en"] ?? ""
-    const word = entry.words?.[language] ?? entry.words?.["en"] ?? entry.word
-    return { word, definition: def }
-  }
-  return entry as WordPair
 }
 
 // 50 fallback word pairs for offline/API failure
@@ -127,13 +111,15 @@ export async function fetchWordPair(): Promise<WordPair> {
       throw new Error("API response not ok")
     }
 
-    const data = await response.json()
-    
-    if (data.response_code !== 0 || !data.results || data.results.length === 0) {
+    const body: unknown = await response.json()
+    const envelope = body as { response_code?: number; results?: Array<{ correct_answer: string; question: string }> }
+    const { response_code, results } = envelope
+
+    if (response_code !== 0 || !results || results.length === 0) {
       throw new Error("No results from API")
     }
 
-    const trivia = data.results[0]
+    const trivia = results[0]
     const answer = decodeHTMLEntities(trivia.correct_answer).toLowerCase().trim()
     const question = decodeHTMLEntities(trivia.question)
 
@@ -201,36 +187,25 @@ export function isCorrectAnswer(input: string, answer: string): boolean {
   return input.toLowerCase().trim() === answer.toLowerCase().trim()
 }
 
-// Fetch a definition from a pre-generated static JSON file in /public/<category>.json.
-// Supports both old { word, definition } and new { word, definitions:{lang:def} } formats.
-// Falls back to Open Trivia API if the JSON file is missing or invalid.
+// Pereche random din categorie: serverul citește `data/categories/*.json` și expune doar
+// un singur cuvânt prin GET /api/words (nu mai există /public/<categorie>.json).
 export async function getDefinitionByCategory(category: string, language = "en"): Promise<WordPair> {
   try {
-    const origin = typeof window !== "undefined" ? window.location.origin : ""
-    const res = await fetch(`${origin}/${category}.json`, { cache: "no-store" })
-    if (!res.ok) throw new Error(`HTTP ${res.status} for ${category}.json`)
-    const defs: (MultilingualEntry | WordPair)[] = await res.json()
-    if (!Array.isArray(defs) || defs.length === 0) throw new Error(`${category}.json is empty`)
-    const entry = defs[Math.floor(Math.random() * defs.length)]
-    const pair = extractPair(entry, language)
-    if (!pair?.word || !pair?.definition) throw new Error("invalid pair in JSON")
-    return pair
+    const qs = new URLSearchParams({ category, language })
+    const res = await fetch(`/api/words?${qs}`, { cache: "no-store" })
+    if (!res.ok) throw new Error(`HTTP ${res.status} for /api/words`)
+    const pair = (await res.json()) as WordPair & { error?: string }
+    if (pair.error || !pair?.word || !pair?.definition) throw new Error("invalid API pair")
+    return { word: pair.word, definition: pair.definition }
   } catch (err) {
-    console.warn(`[WordWave] category JSON failed — falling back to Trivia API. Reason: ${err}`)
+    console.warn(`[WordWave] category API failed — falling back to Trivia API. Reason: ${err}`)
     return fetchWordPair()
   }
 }
 
-// All specific category keys (must stay in sync with CATEGORIES in game-types.ts)
-const SPECIFIC_CATEGORY_KEYS = [
-  'emotii','relatii','timp','succes','valori','caracter','minte','corp',
-  'munca','familie','prietenie','iubire','libertate','credinta','sanatate',
-  'educatie','natura','societate','filosofie','persoana',
-]
-
 // Pick a random definition from ALL categories combined.
 async function getDefinitionForGeneral(language = "en"): Promise<WordPair> {
-  const randomCategory = SPECIFIC_CATEGORY_KEYS[Math.floor(Math.random() * SPECIFIC_CATEGORY_KEYS.length)]
+  const randomCategory = SPECIFIC_CATEGORIES[Math.floor(Math.random() * SPECIFIC_CATEGORIES.length)]
   return getDefinitionByCategory(randomCategory, language)
 }
 
