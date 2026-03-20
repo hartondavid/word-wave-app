@@ -1,5 +1,4 @@
 import type { WordPair } from "./game-types"
-import { SPECIFIC_CATEGORIES } from "./game-types"
 
 // Normalize a string by removing diacritics, used for loose comparison
 export function removeDiacritics(str: string): string {
@@ -187,34 +186,3 @@ export function isCorrectAnswer(input: string, answer: string): boolean {
   return input.toLowerCase().trim() === answer.toLowerCase().trim()
 }
 
-// Pereche random din categorie: serverul citește `data/categories/*.json` și expune doar
-// un singur cuvânt prin GET /api/words (nu mai există /public/<categorie>.json).
-export async function getDefinitionByCategory(category: string, language = "en"): Promise<WordPair> {
-  try {
-    const qs = new URLSearchParams({ category, language })
-    const res = await fetch(`/api/words?${qs}`, { cache: "no-store" })
-    if (!res.ok) throw new Error(`HTTP ${res.status} for /api/words`)
-    const pair = (await res.json()) as WordPair & { error?: string }
-    if (pair.error || !pair?.word || !pair?.definition) throw new Error("invalid API pair")
-    return { word: pair.word, definition: pair.definition }
-  } catch (err) {
-    console.warn(`[WordWave] category API failed — falling back to Trivia API. Reason: ${err}`)
-    return fetchWordPair()
-  }
-}
-
-// Pick a random definition from ALL categories combined.
-async function getDefinitionForGeneral(language = "en"): Promise<WordPair> {
-  const randomCategory = SPECIFIC_CATEGORIES[Math.floor(Math.random() * SPECIFIC_CATEGORIES.length)]
-  return getDefinitionByCategory(randomCategory, language)
-}
-
-// Unified word fetcher:
-//   general  → random pick across all categories
-//   specific → uses that category's JSON (falls back to built-in pairs)
-//   null/undefined → Open Trivia API
-export async function fetchWordPairForCategory(category?: string | null, language = "en"): Promise<WordPair> {
-  if (!category) return fetchWordPair()
-  if (category === 'general') return getDefinitionForGeneral(language)
-  return getDefinitionByCategory(category, language)
-}

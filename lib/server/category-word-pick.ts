@@ -24,13 +24,22 @@ function unwrapCategoryDefinitions(raw: unknown): (MultilingualEntry | WordPair)
   throw new Error("expected array of word entries or wrapped array")
 }
 
-function extractPair(entry: MultilingualEntry | WordPair, language: string): WordPair {
+/**
+ * Returnează null dacă intrarea nu are text pentru limba cerută.
+ * Intrările doar { word, definition } sunt tratate ca română (dataset WordWave).
+ */
+function extractPair(entry: MultilingualEntry | WordPair, language: string): WordPair | null {
   if ("definitions" in entry && entry.definitions && Object.keys(entry.definitions).length > 0) {
     const def = entry.definitions[language] ?? entry.definitions["en"] ?? ""
     const word = entry.words?.[language] ?? entry.words?.["en"] ?? entry.word
+    if (!def.trim() || !word.trim()) return null
     return { word, definition: def }
   }
-  return entry as WordPair
+  const plain = entry as WordPair
+  if (!plain.word?.trim() || !plain.definition?.trim()) return null
+  // Fără câmp multilingual → conținut românesc; acceptăm doar ro (sau lipsă → ro)
+  if (language === "ro" || language === "") return plain
+  return null
 }
 
 function isAllowedCategory(category: string): category is Exclude<CategoryKey, "general"> {
@@ -59,8 +68,11 @@ export function pickRandomWordPairFromCategoryFile(
   const defs = unwrapCategoryDefinitions(raw)
   if (defs.length === 0) throw new Error("empty category")
 
-  const entry = defs[Math.floor(Math.random() * defs.length)]
-  const pair = extractPair(entry, language)
-  if (!pair.word || !pair.definition) throw new Error("invalid entry")
-  return pair
+  // Amestecăm și căutăm o intrare compatibilă cu limba (ex. EN cere câmpuri multilingual)
+  const shuffled = [...defs].sort(() => Math.random() - 0.5)
+  for (const entry of shuffled) {
+    const pair = extractPair(entry, language)
+    if (pair) return pair
+  }
+  throw new Error("no entry for language")
 }

@@ -5,7 +5,8 @@ import { flushSync } from "react-dom"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { fetchWordPairForCategory, tryPlaceLetter, isWordComplete } from "@/lib/words"
+import { tryPlaceLetter, isWordComplete } from "@/lib/words"
+import { pickPracticeWord } from "@/app/practice/actions"
 import type { WordPair, CategoryKey, LanguageKey } from "@/lib/game-types"
 import { CATEGORIES, LANGUAGES, PLAYER_COLORS } from "@/lib/game-types"
 import { ArrowLeft, RotateCcw, Trophy, Timer, Check } from "lucide-react"
@@ -69,7 +70,7 @@ export default function PracticePage() {
 
   const loadNewWord = useCallback(async () => {
     setGameStatus("loading")
-    const word = await fetchWordPairForCategory(category, language)
+    const word = await pickPracticeWord(category, language)
     setCurrentWord(word)
     const initProgress = "_".repeat(word.word.length)
     progressRef.current = initProgress

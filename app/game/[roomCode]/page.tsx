@@ -8,7 +8,8 @@ import { getClearSlotPayload, patchClearPlayerSlotKeepalive } from "@/lib/supaba
 import { deleteGameRoomRow } from "@/lib/supabase/delete-game-room"
 import type { GameRoom, PlayerSlot, CategoryKey, LanguageKey } from "@/lib/game-types"
 import { ROUND_DURATION, WIN_SCORE, TOTAL_ROUNDS, PLAYER_COLORS, CATEGORIES, LANGUAGES } from "@/lib/game-types"
-import { fetchWordPairForCategory, tryPlaceLetter, isWordComplete } from "@/lib/words"
+import { tryPlaceLetter, isWordComplete } from "@/lib/words"
+import { serverStartNewRound } from "@/app/game/actions"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner"
@@ -688,33 +689,10 @@ export default function GamePage({ params }: GamePageProps) {
 
   async function startNewRound() {
     if (!room) return
-    const word = await fetchWordPairForCategory(room.category, room.language ?? "en")
-    const init = "_".repeat(word.word.length)
-    const active = activeSlots(room)
-
-    // Build update payload dynamically — only include player3/4 columns when
-    // those slots are actually occupied (i.e. migration 005 has been applied).
-    const update: Record<string, unknown> = {
-      current_word: word.word,
-      current_definition: word.definition,
-      player1_progress: active.includes(1) ? init : null,
-      player2_progress: active.includes(2) ? init : null,
-      player1_ready: false,
-      player2_ready: false,
-      round_winner: null,
-      game_status: "playing",
-      current_round: (room.current_round ?? 0) + 1,
-      round_end_time: new Date(Date.now() + ROUND_DURATION * 1000).toISOString(),
+    const result = await serverStartNewRound(roomCode)
+    if (!result.ok) {
+      console.error("startNewRound:", result.error)
     }
-
-    if (active.includes(3) || active.includes(4)) {
-      update.player3_progress = active.includes(3) ? init : null
-      update.player4_progress = active.includes(4) ? init : null
-      update.player3_ready = false
-      update.player4_ready = false
-    }
-
-    await supabase.from("game_rooms").update(update).eq("room_code", roomCode)
   }
 
   startNewRoundRef.current = startNewRound
