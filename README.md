@@ -28,6 +28,10 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 Practice keeps the answer in an **httpOnly** cookie (AES-GCM), not in the Server Action JSON. Set `PRACTICE_COOKIE_SECRET` in production (long random string); dev uses a built-in default.
 
+### Link previews (Open Graph / WhatsApp)
+
+Set **`NEXT_PUBLIC_SITE_URL=https://your-domain.com`** on Vercel so `og:image` matches the link you share. The app also uses **`VERCEL_PROJECT_PRODUCTION_URL`** (system env on Vercel) before `VERCEL_URL`. After deploy, refresh cache with [Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/) if the image doesn’t update in WhatsApp.
+
 ## Learn More
 
 To learn more, take a look at the following resources:

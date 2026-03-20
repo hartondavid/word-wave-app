@@ -6,10 +6,20 @@ import './globals.css'
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
-/** URL absolut pentru og:image / link-uri în meta (setează NEXT_PUBLIC_SITE_URL în producție). */
+/**
+ * URL canonic pentru og:image / metadataBase.
+ * - Preferă NEXT_PUBLIC_SITE_URL (ex. https://wordwave.live) în Vercel → Environment Variables.
+ * - Apoi VERCEL_PROJECT_PRODUCTION_URL = domeniul de producție (custom domain), NU *.vercel.app.
+ *   WhatsApp / alte aplicații refuză adesea thumbnail dacă og:image e pe alt host decât linkul.
+ * - VERCEL_URL e doar ultimul fallback (preview *.vercel.app).
+ */
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ??
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : 'http://localhost:3000')
 
 const title = 'WordWave - Multiplayer Word Guessing Game'
 const description =
@@ -26,6 +36,7 @@ export const metadata: Metadata = {
     type: 'website',
     siteName: 'WordWave',
     locale: 'en_US',
+    url: '/',
     images: [
       {
         url: '/social.png',
