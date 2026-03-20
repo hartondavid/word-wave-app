@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
-import { Copy, Check, Timer, Trophy, ArrowLeft, Swords } from "lucide-react"
+import { Copy, Check, Timer, Trophy, ArrowLeft } from "lucide-react"
+import Image from "next/image"
 import Confetti from "react-confetti"
 
 interface PlayerInfo {
@@ -587,9 +588,9 @@ export default function GamePage({ params }: GamePageProps) {
     return (
       <main className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-background to-secondary/30">
         <Card className="w-full max-w-sm">
-          <CardContent className="pt-8 pb-8 text-center space-y-6">
-            <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
-              <Swords className="w-8 h-8 text-primary" />
+          <CardContent className="pt-3 pb-4 text-center space-y-3">
+            <div className="mx-auto flex items-center justify-center">
+              <Image src="/logo.png" alt="WordWave logo" width={200} height={200} className="rounded-2xl" priority />
             </div>
             <div>
               <h2 className="text-xl font-bold">Waiting for Players</h2>
@@ -646,10 +647,10 @@ export default function GamePage({ params }: GamePageProps) {
     return (
       <main className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-background to-secondary/30">
         <Card className="w-full max-w-md">
-          <CardContent className="pt-8 pb-8 space-y-6">
+          <CardContent className="pt-3 pb-4 space-y-3">
             <div className="text-center">
-              <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                <Swords className="w-8 h-8 text-primary" />
+              <div className="mx-auto flex items-center justify-center mb-1">
+                <Image src="/logo.png" alt="WordWave logo" width={200} height={200} className="rounded-2xl" priority />
               </div>
               <h2 className="text-xl font-bold">Ready to Duel?</h2>
               <p className="text-sm text-muted-foreground mt-1">All players must be ready to start</p>

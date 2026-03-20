@@ -223,7 +223,9 @@ export async function getDefinitionByCategory(category: string, language = "en")
 
 // All specific category keys (must stay in sync with CATEGORIES in game-types.ts)
 const SPECIFIC_CATEGORY_KEYS = [
-  'animals','food','objects','people','places','nature','vehicles','clothes','sports','body',
+  'emotii','relatii','timp','succes','valori','caracter','minte','corp',
+  'munca','familie','prietenie','iubire','libertate','credinta','sanatate',
+  'educatie','natura','societate','filosofie','persoana',
 ]
 
 // Pick a random definition from ALL categories combined.

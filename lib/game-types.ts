@@ -66,17 +66,27 @@ export const LANGUAGES = {
 export type LanguageKey = keyof typeof LANGUAGES
 
 export const CATEGORIES = {
-  general:  { label: 'General',  emoji: '🌐' },
-  animals:  { label: 'Animals',  emoji: '🐾' },
-  food:     { label: 'Food',     emoji: '🍕' },
-  objects:  { label: 'Objects',  emoji: '📦' },
-  people:   { label: 'People',   emoji: '👤' },
-  places:   { label: 'Places',   emoji: '🌍' },
-  nature:   { label: 'Nature',   emoji: '🌿' },
-  vehicles: { label: 'Vehicles', emoji: '🚗' },
-  clothes:  { label: 'Clothes',  emoji: '👕' },
-  sports:   { label: 'Sports',   emoji: '⚽' },
-  body:     { label: 'Body',     emoji: '🫀' },
+  general:    { label: 'Toate',       emoji: '🌐' },
+  emotii:     { label: 'Emoții',     emoji: '😊' },
+  relatii:    { label: 'Relații',    emoji: '🤝' },
+  timp:       { label: 'Timp',       emoji: '⏰' },
+  succes:     { label: 'Succes',     emoji: '🏆' },
+  valori:     { label: 'Valori',     emoji: '⚖️' },
+  caracter:   { label: 'Caracter',   emoji: '🎭' },
+  minte:      { label: 'Minte',      emoji: '🧠' },
+  corp:       { label: 'Corp',       emoji: '🫀' },
+  munca:      { label: 'Muncă',      emoji: '💼' },
+  familie:    { label: 'Familie',    emoji: '👨‍👩‍👧' },
+  prietenie:  { label: 'Prietenie',  emoji: '🤗' },
+  iubire:     { label: 'Iubire',     emoji: '❤️' },
+  libertate:  { label: 'Libertate',  emoji: '🕊️' },
+  credinta:   { label: 'Credință',   emoji: '🙏' },
+  sanatate:   { label: 'Sănătate',   emoji: '💊' },
+  educatie:   { label: 'Educație',   emoji: '📚' },
+  natura:     { label: 'Natură',     emoji: '🌿' },
+  societate:  { label: 'Societate',  emoji: '🏛️' },
+  filosofie:  { label: 'Filosofie',  emoji: '💭' },
+  persoana:   { label: 'Persoană',   emoji: '👤' },
 } as const
 
 export type CategoryKey = keyof typeof CATEGORIES

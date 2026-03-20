@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Zap, Trophy, Timer, Swords } from "lucide-react"
+import Image from "next/image"
 import { cn } from "@/lib/utils"
 
 function generateRoomCode(): string {
@@ -26,7 +27,7 @@ export default function HomePage() {
   const [maxPlayers, setMaxPlayers] = useState<2 | 3 | 4>(2)
   const [maxRoundsInput, setMaxRoundsInput] = useState<string>(String(TOTAL_ROUNDS))
   const [roundsError, setRoundsError] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState<CategoryKey>("animals")
+  const [selectedCategory, setSelectedCategory] = useState<CategoryKey>("general")
   const [selectedLanguage, setSelectedLanguage] = useState<LanguageKey>("en")
   const [activeTab, setActiveTab] = useState<"create" | "join">("create")
   const [isLoading, setIsLoading] = useState(false)
@@ -201,10 +202,10 @@ export default function HomePage() {
 
         {/* Logo */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary text-primary-foreground mb-4 shadow-lg">
-            <Swords className="w-8 h-8" />
+          <div className="inline-flex items-center justify-center mb-4">
+            <Image src="/logo.png" alt="WordWave logo" width={300} height={300} className="rounded-2xl" priority />
           </div>
-          <h1 className="text-4xl font-black tracking-tight">WordWave</h1>
+          
           <p className="text-muted-foreground">Race to guess the word first. Up to 4 players.</p>
         </div>
 
@@ -245,24 +246,17 @@ export default function HomePage() {
             {/* Category selector — hidden when joining */}
             {activeTab === "create" && (
               <div className="space-y-2">
-                <label className="text-sm font-medium">Category</label>
-                <div className="flex flex-wrap gap-1.5">
+                <label htmlFor="categorySelect" className="text-sm font-medium">Categorie</label>
+                <select
+                  id="categorySelect"
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value as CategoryKey)}
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                >
                   {(Object.entries(CATEGORIES) as [CategoryKey, { label: string; emoji: string }][]).map(([key, { label, emoji }]) => (
-                    <button
-                      key={key}
-                      type="button"
-                      onClick={() => setSelectedCategory(key)}
-                      className={cn(
-                        "px-2.5 py-1 rounded-lg text-xs font-medium border transition-all",
-                        selectedCategory === key
-                          ? "border-2 border-blue-500 text-foreground bg-transparent"
-                          : "border bg-muted/40 text-muted-foreground border-transparent hover:border-muted-foreground/30 hover:bg-muted/70"
-                      )}
-                    >
-                      {emoji} {label}
-                    </button>
+                    <option key={key} value={key}>{emoji} {label}</option>
                   ))}
-                </div>
+                </select>
               </div>
             )}
 

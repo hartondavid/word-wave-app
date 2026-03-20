@@ -10,7 +10,7 @@
   --card-foreground: oklch(0.15 0.02 240);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.15 0.02 240);
-  --primary: oklch(0.59 0.2 255);
+  --primary: #30327d;
   --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.96 0.01 240);
   --secondary-foreground: oklch(0.25 0.02 240);
@@ -77,6 +77,10 @@
 @theme inline {
   --font-sans: 'Geist', 'Geist Fallback';
   --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+
+  /* Custom blue (#30327d) replacing Tailwind's blue-500 */
+  --color-blue-500: #30327d;
+  --color-blue-600: #28297a;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
