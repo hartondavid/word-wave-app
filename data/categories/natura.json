@@ -1,202 +1,302 @@
 [
   {
     "word": "natură",
-    "definition": "Lumea vie din jurul nostru"
+    "definition": "Lumea vie din jurul nostru",
+    "word_en": "nature",
+    "definition_en": "The living world around us"
   },
   {
     "word": "universul",
-    "definition": "Tot ce există în spațiu"
+    "definition": "Tot ce există în spațiu",
+    "word_en": "universe",
+    "definition_en": "Everything that exists in space"
   },
   {
     "word": "pământul",
-    "definition": "Planetă pe care trăim"
+    "definition": "Planetă pe care trăim",
+    "word_en": "earth",
+    "definition_en": "The planet we live on"
   },
   {
     "word": "soarele",
-    "definition": "Steaua sistemului solar"
+    "definition": "Steaua sistemului solar",
+    "word_en": "sun",
+    "definition_en": "The star of the solar system"
   },
   {
     "word": "lună",
-    "definition": "Satelitul natural al Pământului"
+    "definition": "Satelitul natural al Pământului",
+    "word_en": "moon",
+    "definition_en": "Earth's natural satellite"
   },
   {
     "word": "stele",
-    "definition": "Corpuri cerești luminoase"
+    "definition": "Corpuri cerești luminoase",
+    "word_en": "stars",
+    "definition_en": "Luminous celestial bodies"
   },
   {
     "word": "cosmos",
-    "definition": "Universul în totalitatea să"
+    "definition": "Universul în totalitatea să",
+    "word_en": "cosmos",
+    "definition_en": "The universe as a whole"
   },
   {
     "word": "galaxia",
-    "definition": "Sistem vast de stele"
+    "definition": "Sistem vast de stele",
+    "word_en": "galaxy",
+    "definition_en": "A vast system of stars"
   },
   {
     "word": "spațiu",
-    "definition": "Vastitatea în afara Pământului"
+    "definition": "Vastitatea în afara Pământului",
+    "word_en": "space",
+    "definition_en": "The vastness beyond Earth"
   },
   {
     "word": "gravitație",
-    "definition": "Forță care atrage masele"
+    "definition": "Forță care atrage masele",
+    "word_en": "gravity",
+    "definition_en": "The force that pulls masses together"
   },
   {
     "word": "oceane",
-    "definition": "Întinderi vaste de apă sărată"
+    "definition": "Întinderi vaste de apă sărată",
+    "word_en": "oceans",
+    "definition_en": "Vast stretches of salt water"
   },
   {
     "word": "munții",
-    "definition": "Forme de relief înalte"
+    "definition": "Forme de relief înalte",
+    "word_en": "mountains",
+    "definition_en": "High landforms"
   },
   {
     "word": "pădure",
-    "definition": "Zonă cu multi copaci deși"
+    "definition": "Zonă cu multi copaci deși",
+    "word_en": "forest",
+    "definition_en": "An area with many dense trees"
   },
   {
     "word": "deșert",
-    "definition": "Zonă aridă cu nisip"
+    "definition": "Zonă aridă cu nisip",
+    "word_en": "desert",
+    "definition_en": "A dry sandy area"
   },
   {
     "word": "râuri",
-    "definition": "Cursuri de apă curgătoare"
+    "definition": "Cursuri de apă curgătoare",
+    "word_en": "rivers",
+    "definition_en": "Flowing bodies of water"
   },
   {
     "word": "lacuri",
-    "definition": "Întinderi de apă inconjurate de uscat"
+    "definition": "Întinderi de apă inconjurate de uscat",
+    "word_en": "lakes",
+    "definition_en": "Bodies of water surrounded by land"
   },
   {
     "word": "câmpii",
-    "definition": "Întinderi de teren plat"
+    "definition": "Întinderi de teren plat",
+    "word_en": "plains",
+    "definition_en": "Stretches of flat land"
   },
   {
     "word": "insulele",
-    "definition": "Bucăți de pământ în apă"
+    "definition": "Bucăți de pământ în apă",
+    "word_en": "islands",
+    "definition_en": "Pieces of land surrounded by water"
   },
   {
     "word": "vulcanul",
-    "definition": "Munte cu activitate magmatică"
+    "definition": "Munte cu activitate magmatică",
+    "word_en": "volcano",
+    "definition_en": "A mountain with magma activity"
   },
   {
     "word": "cutremur",
-    "definition": "Mișcare bruscă a scoarței"
+    "definition": "Mișcare bruscă a scoarței",
+    "word_en": "earthquake",
+    "definition_en": "A sudden movement of Earth's crust"
   },
   {
     "word": "tsunami",
-    "definition": "Val uriaș de apă oceanică"
+    "definition": "Val uriaș de apă oceanică",
+    "word_en": "tsunami",
+    "definition_en": "A huge ocean wave"
   },
   {
     "word": "furtună",
-    "definition": "Fenomen meteorologic violent"
+    "definition": "Fenomen meteorologic violent",
+    "word_en": "storm",
+    "definition_en": "A violent weather event"
   },
   {
     "word": "ploaia",
-    "definition": "Precipitație din nori"
+    "definition": "Precipitație din nori",
+    "word_en": "rain",
+    "definition_en": "Precipitation from clouds"
   },
   {
     "word": "zăpadă",
-    "definition": "Precipitație solidă albă"
+    "definition": "Precipitație solidă albă",
+    "word_en": "snow",
+    "definition_en": "White solid precipitation"
   },
   {
     "word": "vântul",
-    "definition": "Mișcarea maselor de aer"
+    "definition": "Mișcarea maselor de aer",
+    "word_en": "wind",
+    "definition_en": "The movement of air masses"
   },
   {
     "word": "ceață",
-    "definition": "Vapori condensati la sol"
+    "definition": "Vapori condensati la sol",
+    "word_en": "fog",
+    "definition_en": "Condensed vapor near the ground"
   },
   {
     "word": "curcubeu",
-    "definition": "Fenomen optic multicolor"
+    "definition": "Fenomen optic multicolor",
+    "word_en": "rainbow",
+    "definition_en": "A multicolored optical phenomenon"
   },
   {
     "word": "tunet",
-    "definition": "Zgomot din furtună electrică"
+    "definition": "Zgomot din furtună electrică",
+    "word_en": "thunder",
+    "definition_en": "Sound from an electrical storm"
   },
   {
     "word": "fulger",
-    "definition": "Descărcare electrică din furtună"
+    "definition": "Descărcare electrică din furtună",
+    "word_en": "lightning",
+    "definition_en": "Electrical discharge in a storm"
   },
   {
     "word": "anotimpuri",
-    "definition": "Cele patru perioade ale anului"
+    "definition": "Cele patru perioade ale anului",
+    "word_en": "seasons",
+    "definition_en": "The four periods of the year"
   },
   {
     "word": "varietate",
-    "definition": "Mulțimea formelor de viață"
+    "definition": "Mulțimea formelor de viață",
+    "word_en": "variety",
+    "definition_en": "The many forms of life"
   },
   {
     "word": "ecosistem",
-    "definition": "Sistem de viață într-un mediu"
+    "definition": "Sistem de viață într-un mediu",
+    "word_en": "ecosystem",
+    "definition_en": "A living system in an environment"
   },
   {
     "word": "evoluția",
-    "definition": "Schimbarea speciilor în timp"
+    "definition": "Schimbarea speciilor în timp",
+    "word_en": "evolution",
+    "definition_en": "Change of species over time"
   },
   {
     "word": "extincție",
-    "definition": "Dispariția unei specii"
+    "definition": "Dispariția unei specii",
+    "word_en": "extinction",
+    "definition_en": "The disappearance of a species"
   },
   {
     "word": "poluare",
-    "definition": "Contaminarea mediului natural"
+    "definition": "Contaminarea mediului natural",
+    "word_en": "pollution",
+    "definition_en": "Contamination of the natural environment"
   },
   {
     "word": "climatul",
-    "definition": "Condițiile meteo pe termen lung"
+    "definition": "Condițiile meteo pe termen lung",
+    "word_en": "climate",
+    "definition_en": "Long-term weather conditions"
   },
   {
     "word": "încălzire",
-    "definition": "Creșterea temperaturii globale"
+    "definition": "Creșterea temperaturii globale",
+    "word_en": "warming",
+    "definition_en": "Rise in global temperature"
   },
   {
     "word": "reciclare",
-    "definition": "Refolosirea materialelor uzate"
+    "definition": "Refolosirea materialelor uzate",
+    "word_en": "recycling",
+    "definition_en": "Reusing used materials"
   },
   {
     "word": "energia",
-    "definition": "Forță din natură de folosit"
+    "definition": "Forță din natură de folosit",
+    "word_en": "energy",
+    "definition_en": "Force from nature we can use"
   },
   {
     "word": "oxigenul",
-    "definition": "Gazul esențial respirației"
+    "definition": "Gazul esențial respirației",
+    "word_en": "oxygen",
+    "definition_en": "The gas essential for breathing"
   },
   {
     "word": "apă",
-    "definition": "Elementul vital al vieții"
+    "definition": "Elementul vital al vieții",
+    "word_en": "water",
+    "definition_en": "The element vital to life"
   },
   {
     "word": "focul",
-    "definition": "Element de căldură și lumină"
+    "definition": "Element de căldură și lumină",
+    "word_en": "fire",
+    "definition_en": "Heat and light element"
   },
   {
     "word": "solul",
-    "definition": "Elementul solid al naturii"
+    "definition": "Elementul solid al naturii",
+    "word_en": "soil",
+    "definition_en": "The solid element of nature"
   },
   {
     "word": "aerul",
-    "definition": "Elementul gazos al naturii"
+    "definition": "Elementul gazos al naturii",
+    "word_en": "air",
+    "definition_en": "The gaseous element of nature"
   },
   {
     "word": "plantă",
-    "definition": "Organism vegetal al naturii"
+    "definition": "Organism vegetal al naturii",
+    "word_en": "plant",
+    "definition_en": "A plant organism in nature"
   },
   {
     "word": "animal",
-    "definition": "Organism viu mobil"
+    "definition": "Organism viu mobil",
+    "word_en": "animal",
+    "definition_en": "A living, moving organism"
   },
   {
     "word": "bacterie",
-    "definition": "Organism viu microscopic"
+    "definition": "Organism viu microscopic",
+    "word_en": "bacteria",
+    "definition_en": "A microscopic living organism"
   },
   {
     "word": "virusul",
-    "definition": "Entitate infecțioasă microscopică"
+    "definition": "Entitate infecțioasă microscopică",
+    "word_en": "virus",
+    "definition_en": "A microscopic infectious agent"
   },
   {
     "word": "ciupercă",
-    "definition": "Organism fără clorofilă"
+    "definition": "Organism fără clorofilă",
+    "word_en": "fungus",
+    "definition_en": "An organism without chlorophyll"
   },
   {
     "word": "viață",
-    "definition": "Proprietatea de a există și trai"
+    "definition": "Proprietatea de a există și trai",
+    "word_en": "life",
+    "definition_en": "The property of existing and living"
   }
 ]

@@ -1,202 +1,302 @@
 [
   {
     "word": "existență",
-    "definition": "Faptul de a există în lume"
+    "definition": "Faptul de a există în lume",
+    "word_en": "existence",
+    "definition_en": "Being in the world"
   },
   {
     "word": "esență",
-    "definition": "Natură fundamentală a unui lucru"
+    "definition": "Natură fundamentală a unui lucru",
+    "word_en": "essence",
+    "definition_en": "Fundamental nature of a thing"
   },
   {
     "word": "adevărul",
-    "definition": "Corespondență cu realitatea"
+    "definition": "Corespondență cu realitatea",
+    "word_en": "truth",
+    "definition_en": "Correspondence to Reality"
   },
   {
     "word": "binele",
-    "definition": "Tot ce e pozitiv și benefic"
+    "definition": "Tot ce e pozitiv și benefic",
+    "word_en": "good",
+    "definition_en": "All that is positive and beneficial"
   },
   {
     "word": "frumosul",
-    "definition": "Ceea ce produce plăcere estetică"
+    "definition": "Ceea ce produce plăcere estetică",
+    "word_en": "the beautiful",
+    "definition_en": "What produces aesthetic pleasure"
   },
   {
     "word": "răul",
-    "definition": "Tot ce produce suferință"
+    "definition": "Tot ce produce suferință",
+    "word_en": "evil",
+    "definition_en": "Everything that causes suffering"
   },
   {
     "word": "dreptatea",
-    "definition": "Respectarea a ceea ce e corect"
+    "definition": "Respectarea a ceea ce e corect",
+    "word_en": "dreptatea",
+    "definition_en": "Compliance with what's right"
   },
   {
     "word": "libertatea",
-    "definition": "Condiția de a nu fi constrâns"
+    "definition": "Condiția de a nu fi constrâns",
+    "word_en": "libertatea",
+    "definition_en": "The condition of not being coerced"
   },
   {
     "word": "moartea",
-    "definition": "Incetarea existenței fizice"
+    "definition": "Incetarea existenței fizice",
+    "word_en": "death",
+    "definition_en": "Cessation of physical existence"
   },
   {
     "word": "fericire",
-    "definition": "Starea supremă de bine"
+    "definition": "Starea supremă de bine",
+    "word_en": "the happiness",
+    "definition_en": "Ultimate Well-Being"
   },
   {
     "word": "sensul",
-    "definition": "Motivul existenței noastre"
+    "definition": "Motivul existenței noastre",
+    "word_en": "the sense",
+    "definition_en": "The reason for our existence"
   },
   {
     "word": "scopul",
-    "definition": "Țintă finală a vieții"
+    "definition": "Țintă finală a vieții",
+    "word_en": "view",
+    "definition_en": "Final target of life"
   },
   {
     "word": "valorile",
-    "definition": "Principii după care trăim"
+    "definition": "Principii după care trăim",
+    "word_en": "values",
+    "definition_en": "Principles we live by"
   },
   {
     "word": "etică",
-    "definition": "Studiul binelui și răului"
+    "definition": "Studiul binelui și răului",
+    "word_en": "conduct",
+    "definition_en": "The study of good and evil"
   },
   {
     "word": "morală",
-    "definition": "Normele de conduită bună"
+    "definition": "Normele de conduită bună",
+    "word_en": "moral",
+    "definition_en": "Business rules"
   },
   {
     "word": "conștiință",
-    "definition": "Cunoașterea propriilor acte"
+    "definition": "Cunoașterea propriilor acte",
+    "word_en": "conscience",
+    "definition_en": "Knowing your own acts"
   },
   {
     "word": "sufletul",
-    "definition": "Esență imaterială a omului"
+    "definition": "Esență imaterială a omului",
+    "word_en": "soul",
+    "definition_en": "Immaterial essence of man"
   },
   {
     "word": "trupul",
-    "definition": "Componentă fizică a omului"
+    "definition": "Componentă fizică a omului",
+    "word_en": "şoricel.",
+    "definition_en": "Physical component of man"
   },
   {
     "word": "mintea",
-    "definition": "Centrul gândirii și conștiinței"
+    "definition": "Centrul gândirii și conștiinței",
+    "word_en": "mind",
+    "definition_en": "Center of Thought and Consciousness"
   },
   {
     "word": "realitatea",
-    "definition": "Tot ce există independent de noi"
+    "definition": "Tot ce există independent de noi",
+    "word_en": "reality.",
+    "definition_en": "Everything that exists independently of us"
   },
   {
     "word": "aparență",
-    "definition": "Cum par lucrurile la suprafață"
+    "definition": "Cum par lucrurile la suprafață",
+    "word_en": "appearance",
+    "definition_en": "How things look on the surface"
   },
   {
     "word": "iluzie",
-    "definition": "Percepție falsă a realității"
+    "definition": "Percepție falsă a realității",
+    "word_en": "illusion.",
+    "definition_en": "False perception of reality"
   },
   {
     "word": "minciună",
-    "definition": "Ce nu corespunde cu realitatea"
+    "definition": "Ce nu corespunde cu realitatea",
+    "word_en": "lie",
+    "definition_en": "What does not correspond to reality"
   },
   {
     "word": "cunoaștere",
-    "definition": "Dobândirea de informații despre lume"
+    "definition": "Dobândirea de informații despre lume",
+    "word_en": "knowledge",
+    "definition_en": "Acquiring information about the world"
   },
   {
     "word": "ignoranță",
-    "definition": "Lipsă cunoașterii și înțelegerii"
+    "definition": "Lipsă cunoașterii și înțelegerii",
+    "word_en": "<g id=\"1\">ignorance. </g>",
+    "definition_en": "Lack of knowledge and understanding"
   },
   {
     "word": "înțeleaptă",
-    "definition": "Cunoaștere profundă și aplicată"
+    "definition": "Cunoaștere profundă și aplicată",
+    "word_en": "wise",
+    "definition_en": "Deep and applied knowledge"
   },
   {
     "word": "filozoful",
-    "definition": "Cel care căuta înțelepciunea"
+    "definition": "Cel care căuta înțelepciunea",
+    "word_en": "philosopher",
+    "definition_en": "The Seeker of Wisdom"
   },
   {
     "word": "Socrate",
-    "definition": "Filosoful grec al dialogului"
+    "definition": "Filosoful grec al dialogului",
+    "word_en": "socrates",
+    "definition_en": "The Greek Philosopher of Dialogue"
   },
   {
     "word": "Platon",
-    "definition": "Filosoful lumii ideale"
+    "definition": "Filosoful lumii ideale",
+    "word_en": "platon",
+    "definition_en": "The philosopher of the ideal world"
   },
   {
     "word": "Aristotel",
-    "definition": "Filosoful logicii și științei"
+    "definition": "Filosoful logicii și științei",
+    "word_en": "aristotel",
+    "definition_en": "Philosopher of Logic and Science"
   },
   {
     "word": "Nietzsche",
-    "definition": "Filosoful supraomului și puterii"
+    "definition": "Filosoful supraomului și puterii",
+    "word_en": "nietzsche",
+    "definition_en": "The philosopher of the superman and power"
   },
   {
     "word": "Descartes",
-    "definition": "Filosoful cogito ergo sum"
+    "definition": "Filosoful cogito ergo sum",
+    "word_en": "descartes.",
+    "definition_en": "The philosopher cogito ergo sum"
   },
   {
     "word": "Kant",
-    "definition": "Filosoful imperativului categoric"
+    "definition": "Filosoful imperativului categoric",
+    "word_en": "kant.",
+    "definition_en": "Philosopher of Categorical Imperative"
   },
   {
     "word": "dialectică",
-    "definition": "Metodă argumentării prin opuși"
+    "definition": "Metodă argumentării prin opuși",
+    "word_en": "dialectic",
+    "definition_en": "Opposite Argumentation Method"
   },
   {
     "word": "relativism",
-    "definition": "Ideea că adevărul e subiectiv"
+    "definition": "Ideea că adevărul e subiectiv",
+    "word_en": "relativist",
+    "definition_en": "The idea that truth is subjective"
   },
   {
     "word": "absolut",
-    "definition": "Ce există fără condiție"
+    "definition": "Ce există fără condiție",
+    "word_en": "absolute",
+    "definition_en": "What exists without condition"
   },
   {
     "word": "relativ",
-    "definition": "Ce există în raport cu altceva"
+    "definition": "Ce există în raport cu altceva",
+    "word_en": "relatively",
+    "definition_en": "What is relative to something else"
   },
   {
     "word": "paradoxul",
-    "definition": "Enunț ce se contrazice singur"
+    "definition": "Enunț ce se contrazice singur",
+    "word_en": "paradox",
+    "definition_en": "Self-contradictory statement"
   },
   {
     "word": "analogia",
-    "definition": "Comparația între două lucruri"
+    "definition": "Comparația între două lucruri",
+    "word_en": "analogy",
+    "definition_en": "Comparison of two things"
   },
   {
     "word": "inducția",
-    "definition": "Raționament la general din particular"
+    "definition": "Raționament la general din particular",
+    "word_en": "induction",
+    "definition_en": "General reasoning from particular"
   },
   {
     "word": "deducția",
-    "definition": "Raționament de la general la particular"
+    "definition": "Raționament de la general la particular",
+    "word_en": "deduction",
+    "definition_en": "General to particular reasoning"
   },
   {
     "word": "empirism",
-    "definition": "Cunoaștere prin simțuri și experientă"
+    "definition": "Cunoaștere prin simțuri și experientă",
+    "word_en": "empiricism",
+    "definition_en": "Knowledge through senses and experience"
   },
   {
     "word": "logică",
-    "definition": "Cunoaștere prin rațiune pură"
+    "definition": "Cunoaștere prin rațiune pură",
+    "word_en": "logic",
+    "definition_en": "Knowledge through pure reason"
   },
   {
     "word": "idealism",
-    "definition": "Realitate construită de minte"
+    "definition": "Realitate construită de minte",
+    "word_en": "idealistic",
+    "definition_en": "Mind-built reality"
   },
   {
     "word": "material",
-    "definition": "Realitate pur fizică și materială"
+    "definition": "Realitate pur fizică și materială",
+    "word_en": "material,",
+    "definition_en": "Purely physical and material reality"
   },
   {
     "word": "nihilism",
-    "definition": "Negarea oricărui sens și valori"
+    "definition": "Negarea oricărui sens și valori",
+    "word_en": "nihilism",
+    "definition_en": "Denial of any meaning and values"
   },
   {
     "word": "stoicism",
-    "definition": "Filozofia acceptarii cu calm"
+    "definition": "Filozofia acceptarii cu calm",
+    "word_en": "stoicism",
+    "definition_en": "Philosophy of calm acceptance"
   },
   {
     "word": "epicurism",
-    "definition": "Filozofia plăcerii moderate"
+    "definition": "Filozofia plăcerii moderate",
+    "word_en": "epicurean",
+    "definition_en": "The philosophy of moderate pleasure"
   },
   {
     "word": "umanism",
-    "definition": "Filozofia centrată pe om"
+    "definition": "Filozofia centrată pe om",
+    "word_en": "humanism",
+    "definition_en": "Human-centered philosophy"
   },
   {
     "word": "absurdul",
-    "definition": "Lipsă de sens aparență a vieții"
+    "definition": "Lipsă de sens aparență a vieții",
+    "word_en": "the absurd",
+    "definition_en": "Meaningless appearance of life"
   }
 ]

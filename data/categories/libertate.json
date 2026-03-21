@@ -1,202 +1,302 @@
 [
   {
     "word": "libertate",
-    "definition": "Starea de a nu fi constrâns"
+    "definition": "Starea de a nu fi constrâns",
+    "word_en": "freedom",
+    "definition_en": "The state of not being constrained"
   },
   {
     "word": "alegere",
-    "definition": "Selectarea dintr-un set de optiuni"
+    "definition": "Selectarea dintr-un set de optiuni",
+    "word_en": "choice",
+    "definition_en": "Selection from a set of options"
   },
   {
     "word": "decizie",
-    "definition": "Hotărârea luată de tine însuți"
+    "definition": "Hotărârea luată de tine însuți",
+    "word_en": "decision",
+    "definition_en": "Decision made by yourself"
   },
   {
     "word": "autonomie",
-    "definition": "Capacitatea de a te guverna singur"
+    "definition": "Capacitatea de a te guverna singur",
+    "word_en": "autonomy",
+    "definition_en": "Ability to govern yourself"
   },
   {
     "word": "autonomie",
-    "definition": "Capacitatea de a te guverna singur"
+    "definition": "Capacitatea de a te guverna singur",
+    "word_en": "autonomy",
+    "definition_en": "Ability to govern yourself"
   },
   {
     "word": "asumare",
-    "definition": "Obligația de a da socoteală"
+    "definition": "Obligația de a da socoteală",
+    "word_en": "• take ownership",
+    "definition_en": "Accountability"
   },
   {
     "word": "limitare",
-    "definition": "Reducerea libertății cuiva"
+    "definition": "Reducerea libertății cuiva",
+    "word_en": "limit seating",
+    "definition_en": "Reducing someone's freedom"
   },
   {
     "word": "regulă",
-    "definition": "Normă care limitează comportamentul"
+    "definition": "Normă care limitează comportamentul",
+    "word_en": "rule",
+    "definition_en": "Norm limiting behavior"
   },
   {
     "word": "legea",
-    "definition": "Normă impusă de stat"
+    "definition": "Normă impusă de stat",
+    "word_en": "provided",
+    "definition_en": "State-imposed rule"
   },
   {
     "word": "dreptul",
-    "definition": "Ceva la care esti indreptatit"
+    "definition": "Ceva la care esti indreptatit",
+    "word_en": "the right",
+    "definition_en": "Something you're entitled to"
   },
   {
     "word": "datoria",
-    "definition": "Ce esti obligat să faci"
+    "definition": "Ce esti obligat să faci",
+    "word_en": "debt",
+    "definition_en": "What you're required to do"
   },
   {
     "word": "conștiință",
-    "definition": "Ghidul interior al libertății"
+    "definition": "Ghidul interior al libertății",
+    "word_en": "conscience",
+    "definition_en": "The Inner Guide to Freedom"
   },
   {
     "word": "voință",
-    "definition": "Puterea de a decide singur"
+    "definition": "Puterea de a decide singur",
+    "word_en": "will",
+    "definition_en": "The power to decide for yourself"
   },
   {
     "word": "destin",
-    "definition": "Curs predeterminat al vieții"
+    "definition": "Curs predeterminat al vieții",
+    "word_en": "expanded.",
+    "definition_en": "Predetermined course of life"
   },
   {
     "word": "soartă",
-    "definition": "Ce ti-e dat să trăiești"
+    "definition": "Ce ti-e dat să trăiești",
+    "word_en": "fate",
+    "definition_en": "What is given to you to live"
   },
   {
     "word": "șansă",
-    "definition": "Oportunitate neașteptată"
+    "definition": "Oportunitate neașteptată",
+    "word_en": "chance",
+    "definition_en": "Unexpected Opportunity"
   },
   {
     "word": "control",
-    "definition": "Puterea de a influență ceva"
+    "definition": "Puterea de a influență ceva",
+    "word_en": "follow up",
+    "definition_en": "The power to influence something"
   },
   {
     "word": "putere",
-    "definition": "Capacitatea de a acționa"
+    "definition": "Capacitatea de a acționa",
+    "word_en": "power",
+    "definition_en": "Capacity to act"
   },
   {
     "word": "influență",
-    "definition": "Efectul acțiunilor tale asupra altora"
+    "definition": "Efectul acțiunilor tale asupra altora",
+    "word_en": "bias",
+    "definition_en": "The effect of your actions on others"
   },
   {
     "word": "expresie",
-    "definition": "A-ti manifesta gândurile liber"
+    "definition": "A-ti manifesta gândurile liber",
+    "word_en": "expression",
+    "definition_en": "Manifesting your thoughts freely"
   },
   {
     "word": "invenție",
-    "definition": "A crea fără limitări impuse"
+    "definition": "A crea fără limitări impuse",
+    "word_en": "invention",
+    "definition_en": "Create with no limitations imposed"
   },
   {
     "word": "mișcare",
-    "definition": "A te deplasa liber fără restricții"
+    "definition": "A te deplasa liber fără restricții",
+    "word_en": "movement",
+    "definition_en": "Move freely without restrictions"
   },
   {
     "word": "calator",
-    "definition": "Cel care se deplasează liber"
+    "definition": "Cel care se deplasează liber",
+    "word_en": "traveller",
+    "definition_en": "The one who moves freely"
   },
   {
     "word": "aventură",
-    "definition": "Experientă incitantă fără limite"
+    "definition": "Experientă incitantă fără limite",
+    "word_en": "adventure",
+    "definition_en": "Exciting experience without limits"
   },
   {
     "word": "risc",
-    "definition": "Posibilitate de eșec în libertate"
+    "definition": "Posibilitate de eșec în libertate",
+    "word_en": "risk",
+    "definition_en": "Possibility of failure in freedom"
   },
   {
     "word": "curaj",
-    "definition": "Forță de a-ti folosi libertatea"
+    "definition": "Forță de a-ti folosi libertatea",
+    "word_en": "spunk",
+    "definition_en": "Force to use your freedom"
   },
   {
     "word": "frică",
-    "definition": "Ce te împiedică să fii liber"
+    "definition": "Ce te împiedică să fii liber",
+    "word_en": "fear,horror",
+    "definition_en": "What keeps you from being free"
   },
   {
     "word": "conformism",
-    "definition": "Supunere la normele grupului"
+    "definition": "Supunere la normele grupului",
+    "word_en": "conformism",
+    "definition_en": "Subjection to group rules"
   },
   {
     "word": "rebel",
-    "definition": "Cel care refuza constrângerile"
+    "definition": "Cel care refuza constrângerile",
+    "word_en": "rebel",
+    "definition_en": "The one who refuses the constraints"
   },
   {
     "word": "revoluție",
-    "definition": "Schimbarea violență a unui sistem"
+    "definition": "Schimbarea violență a unui sistem",
+    "word_en": "revolution",
+    "definition_en": "Changing the violence of a system"
   },
   {
     "word": "democrația",
-    "definition": "Sistem politic bazat pe libertate"
+    "definition": "Sistem politic bazat pe libertate",
+    "word_en": "democracy",
+    "definition_en": "Freedom-based political system"
   },
   {
     "word": "drepturi",
-    "definition": "Ce ai dreptul să faci sau să primești"
+    "definition": "Ce ai dreptul să faci sau să primești",
+    "word_en": "rights",
+    "definition_en": "What you have a right to do or receive"
   },
   {
     "word": "cenzură",
-    "definition": "Limitarea exprimării libere"
+    "definition": "Limitarea exprimării libere",
+    "word_en": "censorship",
+    "definition_en": "Limitation of free expression"
   },
   {
     "word": "propagandă",
-    "definition": "Manipularea gândurilor prin mesaje"
+    "definition": "Manipularea gândurilor prin mesaje",
+    "word_en": "propaganda",
+    "definition_en": "Manipulating thoughts through messages"
   },
   {
     "word": "adevărul",
-    "definition": "Condiția esențială a libertății"
+    "definition": "Condiția esențială a libertății",
+    "word_en": "truth",
+    "definition_en": "The essential condition of freedom"
   },
   {
     "word": "minciună",
-    "definition": "Ce subminează libertatea autentică"
+    "definition": "Ce subminează libertatea autentică",
+    "word_en": "lie",
+    "definition_en": "What undermines authentic freedom"
   },
   {
     "word": "manipulare",
-    "definition": "Influentarea ascunsă a altora"
+    "definition": "Influentarea ascunsă a altora",
+    "word_en": "handling",
+    "definition_en": "Covert influence of others"
   },
   {
     "word": "puterea",
-    "definition": "Forță ce poate da sau lua libertate"
+    "definition": "Forță ce poate da sau lua libertate",
+    "word_en": "the vehicular capacity",
+    "definition_en": "Force that can give or take away freedom"
   },
   {
     "word": "rezistentă",
-    "definition": "Opunerea la constrângere"
+    "definition": "Opunerea la constrângere",
+    "word_en": "hardy",
+    "definition_en": "Resisting coercion"
   },
   {
     "word": "acceptanță",
-    "definition": "A accepta limitele necesare"
+    "definition": "A accepta limitele necesare",
+    "word_en": "acceptance",
+    "definition_en": "Accepting the required limits"
   },
   {
     "word": "limite",
-    "definition": "Graniță sănătoasă a libertății"
+    "definition": "Graniță sănătoasă a libertății",
+    "word_en": "limits",
+    "definition_en": "Healthy boundary of freedom"
   },
   {
     "word": "disciplină",
-    "definition": "Structură care susține libertatea"
+    "definition": "Structură care susține libertatea",
+    "word_en": "subject",
+    "definition_en": "Structure that supports freedom"
   },
   {
     "word": "haos",
-    "definition": "Absență oricărei ordini"
+    "definition": "Absență oricărei ordini",
+    "word_en": "chaos",
+    "definition_en": "Absence of any order"
   },
   {
     "word": "ordine",
-    "definition": "Structură necesară libertății"
+    "definition": "Structură necesară libertății",
+    "word_en": "orders",
+    "definition_en": "Structure required for freedom"
   },
   {
     "word": "echilibru",
-    "definition": "Balanță între libertate și ordine"
+    "definition": "Balanță între libertate și ordine",
+    "word_en": "digestive",
+    "definition_en": "Balance between freedom and order"
   },
   {
     "word": "autonomia",
-    "definition": "Autoguvernarea individului"
+    "definition": "Autoguvernarea individului",
+    "word_en": "autonomy",
+    "definition_en": "Self-government of the individual"
   },
   {
     "word": "emancipare",
-    "definition": "Eliberarea de sub o dominație"
+    "definition": "Eliberarea de sub o dominație",
+    "word_en": "<g id=\"1\">emancipation</g>",
+    "definition_en": "Liberation from domination"
   },
   {
     "word": "eliberare",
-    "definition": "Actul de a deveni liber"
+    "definition": "Actul de a deveni liber",
+    "word_en": "liberation",
+    "definition_en": "The act of becoming free"
   },
   {
     "word": "prizonier",
-    "definition": "Cel lipsit de libertate"
+    "definition": "Cel lipsit de libertate",
+    "word_en": "the prisoner",
+    "definition_en": "The one deprived of freedom"
   },
   {
     "word": "alegător",
-    "definition": "Cel care își exercita libertatea"
+    "definition": "Cel care își exercita libertatea",
+    "word_en": "voter",
+    "definition_en": "The one who exercised his freedom"
   }
 ]

@@ -1,202 +1,302 @@
 [
   {
     "word": "reușită",
-    "definition": "Atingerea unui obiectiv propus"
+    "definition": "Atingerea unui obiectiv propus",
+    "word_en": "success",
+    "definition_en": "Achieving a chosen goal"
   },
   {
     "word": "eșec",
-    "definition": "Nereușită într-o acțiune"
+    "definition": "Nereușită într-o acțiune",
+    "word_en": "failure",
+    "definition_en": "Not succeeding in an action"
   },
   {
     "word": "ambiție",
-    "definition": "Dorință puternică de a reuși"
+    "definition": "Dorință puternică de a reuși",
+    "word_en": "ambition",
+    "definition_en": "A strong desire to succeed"
   },
   {
     "word": "motivație",
-    "definition": "Forță ce te împinge să faci"
+    "definition": "Forță ce te împinge să faci",
+    "word_en": "motivation",
+    "definition_en": "The drive that pushes you to act"
   },
   {
     "word": "disciplină",
-    "definition": "Controlul propriilor acțiuni"
+    "definition": "Controlul propriilor acțiuni",
+    "word_en": "discipline",
+    "definition_en": "Control of your own actions"
   },
   {
     "word": "tenacitate",
-    "definition": "A continua fără a te opri"
+    "definition": "A continua fără a te opri",
+    "word_en": "tenacity",
+    "definition_en": "Continuing without stopping"
   },
   {
     "word": "talent",
-    "definition": "Aptitudine naturală deosebită"
+    "definition": "Aptitudine naturală deosebită",
+    "word_en": "talent",
+    "definition_en": "An outstanding natural aptitude"
   },
   {
     "word": "muncă",
-    "definition": "Efort depus pentru a obține"
+    "definition": "Efort depus pentru a obține",
+    "word_en": "work",
+    "definition_en": "Effort put in to achieve something"
   },
   {
     "word": "viziune",
-    "definition": "Imagine clară a viitorului dorit"
+    "definition": "Imagine clară a viitorului dorit",
+    "word_en": "vision",
+    "definition_en": "A clear picture of the future you want"
   },
   {
     "word": "scop",
-    "definition": "Țintă pe care vrei s-o atingi"
+    "definition": "Țintă pe care vrei s-o atingi",
+    "word_en": "goal",
+    "definition_en": "A target you want to reach"
   },
   {
     "word": "plan",
-    "definition": "Strategie gândită dinainte"
+    "definition": "Strategie gândită dinainte",
+    "word_en": "plan",
+    "definition_en": "A strategy thought out in advance"
   },
   {
     "word": "acțiune",
-    "definition": "Mișcarea concretă spre scop"
+    "definition": "Mișcarea concretă spre scop",
+    "word_en": "action",
+    "definition_en": "Concrete movement toward a goal"
   },
   {
     "word": "risc",
-    "definition": "Posibilitate de a pierde ceva"
+    "definition": "Posibilitate de a pierde ceva",
+    "word_en": "risk",
+    "definition_en": "The chance of losing something"
   },
   {
     "word": "curaj",
-    "definition": "Forță de a acționa cu frică"
+    "definition": "Forță de a acționa cu frică",
+    "word_en": "courage",
+    "definition_en": "Strength to act despite fear"
   },
   {
     "word": "inițiativă",
-    "definition": "A începe ceva din proprie voință"
+    "definition": "A începe ceva din proprie voință",
+    "word_en": "initiative",
+    "definition_en": "Starting something on your own"
   },
   {
     "word": "invenție",
-    "definition": "Crearea a ceva complet nou"
+    "definition": "Crearea a ceva complet nou",
+    "word_en": "invention",
+    "definition_en": "Creating something entirely new"
   },
   {
     "word": "inovație",
-    "definition": "Îmbunătățirea a ceva existent"
+    "definition": "Îmbunătățirea a ceva existent",
+    "word_en": "innovation",
+    "definition_en": "Improving something that already exists"
   },
   {
     "word": "adaptare",
-    "definition": "A te ajusta la situații noi"
+    "definition": "A te ajusta la situații noi",
+    "word_en": "adaptation",
+    "definition_en": "Adjusting to new situations"
   },
   {
     "word": "flexibil",
-    "definition": "Capabil să se adapteze ușor"
+    "definition": "Capabil să se adapteze ușor",
+    "word_en": "flexible",
+    "definition_en": "Able to adapt easily"
   },
   {
     "word": "focus",
-    "definition": "Concentrare pe un singur lucru"
+    "definition": "Concentrare pe un singur lucru",
+    "word_en": "focus",
+    "definition_en": "Concentration on one thing"
   },
   {
     "word": "claritate",
-    "definition": "Înțelegere clară și precisă"
+    "definition": "Înțelegere clară și precisă",
+    "word_en": "clarity",
+    "definition_en": "Clear, precise understanding"
   },
   {
     "word": "strategie",
-    "definition": "Plan amplu pentru a reuși"
+    "definition": "Plan amplu pentru a reuși",
+    "word_en": "strategy",
+    "definition_en": "A broad plan to succeed"
   },
   {
     "word": "execuție",
-    "definition": "Punerea în practică a planului"
+    "definition": "Punerea în practică a planului",
+    "word_en": "execution",
+    "definition_en": "Putting the plan into practice"
   },
   {
     "word": "rezultat",
-    "definition": "Ce obții la finalul acțiunii"
+    "definition": "Ce obții la finalul acțiunii",
+    "word_en": "result",
+    "definition_en": "What you get at the end of an action"
   },
   {
     "word": "excelență",
-    "definition": "Calitate la cel mai înalt nivel"
+    "definition": "Calitate la cel mai înalt nivel",
+    "word_en": "excellence",
+    "definition_en": "Quality at the highest level"
   },
   {
     "word": "lider",
-    "definition": "Cel care ghidează echipa"
+    "definition": "Cel care ghidează echipa",
+    "word_en": "leader",
+    "definition_en": "The person who guides the team"
   },
   {
     "word": "influență",
-    "definition": "Puterea de a afecta pe alții"
+    "definition": "Puterea de a afecta pe alții",
+    "word_en": "influence",
+    "definition_en": "The power to affect others"
   },
   {
     "word": "reputație",
-    "definition": "Părerea altora despre tine"
+    "definition": "Părerea altora despre tine",
+    "word_en": "reputation",
+    "definition_en": "Others' opinion of you"
   },
   {
     "word": "apreciere",
-    "definition": "A fi recunoscut de ceilalți"
+    "definition": "A fi recunoscut de ceilalți",
+    "word_en": "recognition",
+    "definition_en": "Being acknowledged by others"
   },
   {
     "word": "premiu",
-    "definition": "Recompensă pentru o reușită"
+    "definition": "Recompensă pentru o reușită",
+    "word_en": "award",
+    "definition_en": "A reward for an achievement"
   },
   {
     "word": "avere",
-    "definition": "Totalitatea bunurilor cuiva"
+    "definition": "Totalitatea bunurilor cuiva",
+    "word_en": "fortune",
+    "definition_en": "The totality of someone's assets"
   },
   {
     "word": "bogăție",
-    "definition": "Abundență de resurse materiale"
+    "definition": "Abundență de resurse materiale",
+    "word_en": "wealth",
+    "definition_en": "Abundance of material resources"
   },
   {
     "word": "sărăcie",
-    "definition": "Lipsă resurselor necesare"
+    "definition": "Lipsă resurselor necesare",
+    "word_en": "poverty",
+    "definition_en": "Lack of needed resources"
   },
   {
     "word": "șansă",
-    "definition": "Moment favorabil de acțiune"
+    "definition": "Moment favorabil de acțiune",
+    "word_en": "opportunity",
+    "definition_en": "A favorable moment to act"
   },
   {
     "word": "noroc",
-    "definition": "Hazard favorabil neașteptat"
+    "definition": "Hazard favorabil neașteptat",
+    "word_en": "luck",
+    "definition_en": "Unexpected favorable chance"
   },
   {
     "word": "pregătire",
-    "definition": "Acțiunea de a te pregăti"
+    "definition": "Acțiunea de a te pregăti",
+    "word_en": "preparation",
+    "definition_en": "The act of getting ready"
   },
   {
     "word": "exercițiu",
-    "definition": "Repetit pentru a învăța"
+    "definition": "Repetit pentru a învăța",
+    "word_en": "practice",
+    "definition_en": "Repetition to learn"
   },
   {
     "word": "mentorat",
-    "definition": "Îndrumarea de către un mentor"
+    "definition": "Îndrumarea de către un mentor",
+    "word_en": "mentorship",
+    "definition_en": "Guidance from a mentor"
   },
   {
     "word": "feedback",
-    "definition": "Informații despre rezultatele tale"
+    "definition": "Informații despre rezultatele tale",
+    "word_en": "feedback",
+    "definition_en": "Information about your results"
   },
   {
     "word": "învățare",
-    "definition": "Dobândirea de cunoștințe noi"
+    "definition": "Dobândirea de cunoștințe noi",
+    "word_en": "learning",
+    "definition_en": "Gaining new knowledge"
   },
   {
     "word": "greșeală",
-    "definition": "O acțiune eronată făcută"
+    "definition": "O acțiune eronată făcută",
+    "word_en": "mistake",
+    "definition_en": "A wrong action taken"
   },
   {
     "word": "lecția",
-    "definition": "Ce înveți dintr-o experientă"
+    "definition": "Ce înveți dintr-o experientă",
+    "word_en": "lesson",
+    "definition_en": "What you learn from an experience"
   },
   {
     "word": "obstacol",
-    "definition": "Ce te împiedică să avansezi"
+    "definition": "Ce te împiedică să avansezi",
+    "word_en": "obstacle",
+    "definition_en": "What blocks you from moving forward"
   },
   {
     "word": "depășire",
-    "definition": "A trece peste o barieră"
+    "definition": "A trece peste o barieră",
+    "word_en": "overcoming",
+    "definition_en": "Getting past a barrier"
   },
   {
     "word": "progres",
-    "definition": "Înaintare treptată spre mai bine"
+    "definition": "Înaintare treptată spre mai bine",
+    "word_en": "progress",
+    "definition_en": "Gradual movement toward better"
   },
   {
     "word": "impact",
-    "definition": "Efectul produs de o acțiune"
+    "definition": "Efectul produs de o acțiune",
+    "word_en": "impact",
+    "definition_en": "The effect produced by an action"
   },
   {
     "word": "moștenire",
-    "definition": "Ce lasi în urma ta altora"
+    "definition": "Ce lasi în urma ta altora",
+    "word_en": "legacy",
+    "definition_en": "What you leave behind for others"
   },
   {
     "word": "împlinire",
-    "definition": "Sentiment de realizare deplină"
+    "definition": "Sentiment de realizare deplină",
+    "word_en": "fulfillment",
+    "definition_en": "A feeling of full achievement"
   },
   {
     "word": "măreție",
-    "definition": "Importantă și grandoare deosebită"
+    "definition": "Importantă și grandoare deosebită",
+    "word_en": "greatness",
+    "definition_en": "Special importance and grandeur"
   },
   {
     "word": "excelență",
-    "definition": "Calitate la cel mai înalt nivel"
+    "definition": "Calitate la cel mai înalt nivel",
+    "word_en": "excellence",
+    "definition_en": "Quality at the highest level"
   }
 ]

@@ -1,202 +1,302 @@
 [
   {
     "word": "mamă",
-    "definition": "Femeia care a născut copilul"
+    "definition": "Femeia care a născut copilul",
+    "word_en": "mother",
+    "definition_en": "Woman who gave birth to the child"
   },
   {
     "word": "tată",
-    "definition": "Bărbatul părinte al copilului"
+    "definition": "Bărbatul părinte al copilului",
+    "word_en": "father",
+    "definition_en": "The child's male parent"
   },
   {
     "word": "copil",
-    "definition": "Ființă umană mică și tânără"
+    "definition": "Ființă umană mică și tânără",
+    "word_en": "child",
+    "definition_en": "Small and young human being"
   },
   {
     "word": "frate",
-    "definition": "Băiat născut din aceiași părinți"
+    "definition": "Băiat născut din aceiași părinți",
+    "word_en": "brother",
+    "definition_en": "Boy born of the same parents"
   },
   {
     "word": "soră",
-    "definition": "Față născută din aceiași părinți"
+    "definition": "Față născută din aceiași părinți",
+    "word_en": "sister",
+    "definition_en": "Face born to the same parents"
   },
   {
     "word": "bunic",
-    "definition": "Tatăl părintelui tău"
+    "definition": "Tatăl părintelui tău",
+    "word_en": "grandsire",
+    "definition_en": "Your parent's father"
   },
   {
     "word": "bunică",
-    "definition": "Mamă părintelui tău"
+    "definition": "Mamă părintelui tău",
+    "word_en": "granddam",
+    "definition_en": "Your parent's mother"
   },
   {
     "word": "unchi",
-    "definition": "Fratele părintelui tău"
+    "definition": "Fratele părintelui tău",
+    "word_en": "uncle",
+    "definition_en": "Your parent's brother"
   },
   {
     "word": "mătușă",
-    "definition": "Soră părintelui tău"
+    "definition": "Soră părintelui tău",
+    "word_en": "aunt",
+    "definition_en": "Your parent's sister"
   },
   {
     "word": "ver",
-    "definition": "Copilul unchiului sau mătăsii"
+    "definition": "Copilul unchiului sau mătăsii",
+    "word_en": "ver.",
+    "definition_en": "Uncle's child or silk"
   },
   {
     "word": "nepot",
-    "definition": "Copilul fratelui sau surorii"
+    "definition": "Copilul fratelui sau surorii",
+    "word_en": "grandchild",
+    "definition_en": "Brother's or Sister's Child"
   },
   {
     "word": "căsătorie",
-    "definition": "Uniunea legala a doi oameni"
+    "definition": "Uniunea legala a doi oameni",
+    "word_en": "marriage.",
+    "definition_en": "The legal union of two people"
   },
   {
     "word": "soț",
-    "definition": "Bărbatul într-o căsătorie"
+    "definition": "Bărbatul într-o căsătorie",
+    "word_en": "husband.",
+    "definition_en": "Man in a Marriage"
   },
   {
     "word": "soție",
-    "definition": "Femeia într-o căsătorie"
+    "definition": "Femeia într-o căsătorie",
+    "word_en": "wife",
+    "definition_en": "Woman in a Marriage"
   },
   {
     "word": "divorț",
-    "definition": "Desfacerea unei căsătorii"
+    "definition": "Desfacerea unei căsătorii",
+    "word_en": "divorce",
+    "definition_en": "Dissolution of a marriage"
   },
   {
     "word": "adopție",
-    "definition": "A primi un copil străin că al tău"
+    "definition": "A primi un copil străin că al tău",
+    "word_en": "pay",
+    "definition_en": "Welcoming a foreign child like yours"
   },
   {
     "word": "naștere",
-    "definition": "Venirea pe lume a unui copil"
+    "definition": "Venirea pe lume a unui copil",
+    "word_en": "confinement",
+    "definition_en": "The birth of a child"
   },
   {
     "word": "botez",
-    "definition": "Primul ritual creștin al copilului"
+    "definition": "Primul ritual creștin al copilului",
+    "word_en": "baptism",
+    "definition_en": "The child's first Christian rite"
   },
   {
     "word": "nuntă",
-    "definition": "Ceremonia căsătoriei"
+    "definition": "Ceremonia căsătoriei",
+    "word_en": "the wedding",
+    "definition_en": "Marriage ceremony"
   },
   {
     "word": "înhumare",
-    "definition": "Ceremonia înhumării unui mort"
+    "definition": "Ceremonia înhumării unui mort",
+    "word_en": "burial",
+    "definition_en": "Ceremony for the burial of a dead person"
   },
   {
     "word": "moștenire",
-    "definition": "Ce lasi copiilor după tine"
+    "definition": "Ce lasi copiilor după tine",
+    "word_en": "inheritance,",
+    "definition_en": "What you leave behind for your children"
   },
   {
     "word": "tradiție",
-    "definition": "Obicei transmis din generație"
+    "definition": "Obicei transmis din generație",
+    "word_en": "tradition.",
+    "definition_en": "Habit passed down from generation"
   },
   {
     "word": "acasă",
-    "definition": "Locul familiar și sigur"
+    "definition": "Locul familiar și sigur",
+    "word_en": "at home",
+    "definition_en": "Familiar and safe place"
   },
   {
     "word": "casă",
-    "definition": "Clădirea în care trăiește familia"
+    "definition": "Clădirea în care trăiește familia",
+    "word_en": "house",
+    "definition_en": "The building where the family lives"
   },
   {
     "word": "masă",
-    "definition": "Momentul mâncării împreună"
+    "definition": "Momentul mâncării împreună",
+    "word_en": "mass",
+    "definition_en": "Time to eat together"
   },
   {
     "word": "sărbătoare",
-    "definition": "Zi specială celebrată în familie"
+    "definition": "Zi specială celebrată în familie",
+    "word_en": "feast",
+    "definition_en": "Special Family Day"
   },
   {
     "word": "Crăciun",
-    "definition": "Sărbătoarea nașterii lui Hristos"
+    "definition": "Sărbătoarea nașterii lui Hristos",
+    "word_en": "christmas",
+    "definition_en": "Celebration of Christ's birth"
   },
   {
     "word": "Paște",
-    "definition": "Sărbătoarea invierii lui Hristos"
+    "definition": "Sărbătoarea invierii lui Hristos",
+    "word_en": "easter",
+    "definition_en": "Feast of Christ's Resurrection"
   },
   {
     "word": "ziua",
-    "definition": "Aniversarea nașterii cuiva"
+    "definition": "Aniversarea nașterii cuiva",
+    "word_en": "day",
+    "definition_en": "Anniversary of someone's birth"
   },
   {
     "word": "sacrificiu",
-    "definition": "Renunțarea pentru binele familiei"
+    "definition": "Renunțarea pentru binele familiei",
+    "word_en": "sacrifice",
+    "definition_en": "Giving up for the good of the family"
   },
   {
     "word": "grijă",
-    "definition": "Atenția acordată membrilor familiei"
+    "definition": "Atenția acordată membrilor familiei",
+    "word_en": "care.",
+    "definition_en": "Attention to family members"
   },
   {
     "word": "protecție",
-    "definition": "Apărarea familiei de pericole"
+    "definition": "Apărarea familiei de pericole",
+    "word_en": "level",
+    "definition_en": "Defending the family from hazards"
   },
   {
     "word": "educație",
-    "definition": "Formarea copilului de către părinți"
+    "definition": "Formarea copilului de către părinți",
+    "word_en": "education",
+    "definition_en": "Formation of the child by the parents"
   },
   {
     "word": "exemplul",
-    "definition": "Modelul oferit de părinți"
+    "definition": "Modelul oferit de părinți",
+    "word_en": "example",
+    "definition_en": "Parenting model"
   },
   {
     "word": "transfer",
-    "definition": "Trecerea valorilor la urmași"
+    "definition": "Trecerea valorilor la urmași",
+    "word_en": "relocation",
+    "definition_en": "Passing on values to survivors"
   },
   {
     "word": "generație",
-    "definition": "Totalitatea celor din aceeași epocă"
+    "definition": "Totalitatea celor din aceeași epocă",
+    "word_en": "generation",
+    "definition_en": "Totality of those in the same era"
   },
   {
     "word": "rădăcini",
-    "definition": "Originile și istoria familiei"
+    "definition": "Originile și istoria familiei",
+    "word_en": "- roots",
+    "definition_en": "Origins and family history"
   },
   {
     "word": "identitate",
-    "definition": "Cine esti prin familie"
+    "definition": "Cine esti prin familie",
+    "word_en": "identiality",
+    "definition_en": "Who you are through family"
   },
   {
     "word": "apartenență",
-    "definition": "Sentimentul de a face parte"
+    "definition": "Sentimentul de a face parte",
+    "word_en": "membership",
+    "definition_en": "Feeling part of"
   },
   {
     "word": "securitate",
-    "definition": "Sentimentul de siguranță în familie"
+    "definition": "Sentimentul de siguranță în familie",
+    "word_en": "administration",
+    "definition_en": "Feeling safe in the family"
   },
   {
     "word": "conflict",
-    "definition": "Ceartă între membrii familiei"
+    "definition": "Ceartă între membrii familiei",
+    "word_en": "conflict",
+    "definition_en": "Arguing between family members"
   },
   {
     "word": "împăcare",
-    "definition": "Reîmpăcarea după un conflict"
+    "definition": "Reîmpăcarea după un conflict",
+    "word_en": "reconciliation",
+    "definition_en": "Reconciliation after a conflict"
   },
   {
     "word": "dialog",
-    "definition": "Schimbul deschis în familie"
+    "definition": "Schimbul deschis în familie",
+    "word_en": "dyalog",
+    "definition_en": "Open Family Exchange"
   },
   {
     "word": "limită",
-    "definition": "Graniță sănătoasă în relații"
+    "definition": "Graniță sănătoasă în relații",
+    "word_en": "boundary",
+    "definition_en": "Healthy boundary in relationships"
   },
   {
     "word": "suport",
-    "definition": "Ajutor reciproc între membrii"
+    "definition": "Ajutor reciproc între membrii",
+    "word_en": "bracket",
+    "definition_en": "Mutual help between members"
   },
   {
     "word": "iubire",
-    "definition": "Sentimentul ce leagă familia"
+    "definition": "Sentimentul ce leagă familia",
+    "word_en": "the love",
+    "definition_en": "The feeling that binds the family"
   },
   {
     "word": "loialitate",
-    "definition": "Fidelitatea față de familie"
+    "definition": "Fidelitatea față de familie",
+    "word_en": "loyalty",
+    "definition_en": "Fidelity to the family"
   },
   {
     "word": "rușine",
-    "definition": "Sentiment după acțiuni nepotrivite"
+    "definition": "Sentiment după acțiuni nepotrivite",
+    "word_en": "shame",
+    "definition_en": "Feeling after inappropriate actions"
   },
   {
     "word": "mândrie",
-    "definition": "Satisfacție la reușitele familiei"
+    "definition": "Satisfacție la reușitele familiei",
+    "word_en": "pride",
+    "definition_en": "Satisfaction with family successes"
   },
   {
     "word": "orfan",
-    "definition": "Copil fără părinți în viață"
+    "definition": "Copil fără părinți în viață",
+    "word_en": "orphan",
+    "definition_en": "Child without living parents"
   }
 ]

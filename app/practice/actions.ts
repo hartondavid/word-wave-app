@@ -8,19 +8,16 @@ import {
   unsealPracticeRound,
   isValidProgressAgainstWord,
 } from "@/lib/server/practice-session"
-import { tryPlaceLetter, isWordComplete } from "@/lib/words"
+import { isWordComplete } from "@/lib/words"
 
 export type PracticeRoundPublic = {
   definition: string
   wordLength: number
+  /** Sent to client for instant local validation (practice only; cookie still authoritative for finalize). */
+  word: string
 }
 
 export type PracticePlacement = { index: number; char: string }
-
-/** Mid-round: only new cells for this guess — no full word / definition. */
-export type PracticeLetterResult =
-  | { ok: true; placements: PracticePlacement[]; complete: boolean }
-  | { ok: false; reason: "no_session" | "invalid_progress" | "bad_letter" }
 
 export type PracticeRevealSlot = { index: number; char: string }
 
@@ -44,6 +41,23 @@ function practiceCookieOptions() {
   }
 }
 
+/**
+ * Dacă există sesiune Practice validă (cookie), întoarce definiția + lungimea fără a genera cuvânt nou.
+ * Folosit la refresh ca întrebarea să rămână aceeași.
+ */
+export async function tryResumePracticeSession(): Promise<PracticeRoundPublic | null> {
+  const store = await cookies()
+  const raw = store.get(COOKIE_NAME)?.value
+  if (!raw) return null
+  const secret = unsealPracticeRound(raw)
+  if (!secret) return null
+  return {
+    definition: secret.definition,
+    wordLength: secret.word.length,
+    word: secret.word,
+  }
+}
+
 /** Start round: stores answer in httpOnly cookie; response has no `word`. */
 export async function startPracticeRound(
   category: string,
@@ -56,36 +70,7 @@ export async function startPracticeRound(
   return {
     definition: pair.definition,
     wordLength: pair.word.length,
-  }
-}
-
-export async function submitPracticeLetter(
-  letter: string,
-  currentProgress: string
-): Promise<PracticeLetterResult> {
-  const store = await cookies()
-  const raw = store.get(COOKIE_NAME)?.value
-  if (!raw) return { ok: false, reason: "no_session" }
-  const secret = unsealPracticeRound(raw)
-  if (!secret) return { ok: false, reason: "no_session" }
-  const { word } = secret
-  if (!isValidProgressAgainstWord(currentProgress, word)) {
-    return { ok: false, reason: "invalid_progress" }
-  }
-  const next = tryPlaceLetter(letter, currentProgress, word)
-  if (!next) return { ok: false, reason: "bad_letter" }
-
-  const placements: PracticePlacement[] = []
-  for (let i = 0; i < next.length; i++) {
-    if (currentProgress[i] === "_" && next[i] !== "_") {
-      placements.push({ index: i, char: next[i] })
-    }
-  }
-
-  return {
-    ok: true,
-    placements,
-    complete: isWordComplete(next),
+    word: pair.word,
   }
 }
 

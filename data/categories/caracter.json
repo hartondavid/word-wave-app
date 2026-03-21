@@ -1,202 +1,302 @@
 [
   {
     "word": "voință",
-    "definition": "Forță de a rezista tentatiei"
+    "definition": "Forță de a rezista tentatiei",
+    "word_en": "will",
+    "definition_en": "Strength to resist temptation"
   },
   {
     "word": "hotărâre",
-    "definition": "Decizie fermă de a acționa"
+    "definition": "Decizie fermă de a acționa",
+    "word_en": "decision",
+    "definition_en": "Firm determination to act"
   },
   {
     "word": "rezoluția",
-    "definition": "Determinare în față obstacolelor"
+    "definition": "Determinare în față obstacolelor",
+    "word_en": "resolution",
+    "definition_en": "Determination in the face of obstacles"
   },
   {
     "word": "încredere",
-    "definition": "Certitudine în forțele proprii"
+    "definition": "Certitudine în forțele proprii",
+    "word_en": "endpoint",
+    "definition_en": "Self-confidence"
   },
   {
     "word": "curaj",
-    "definition": "Forță de a acționa cu frică"
+    "definition": "Forță de a acționa cu frică",
+    "word_en": "spunk",
+    "definition_en": "Strength to act with fear"
   },
   {
     "word": "onestitate",
-    "definition": "A fi sincer în orice moment"
+    "definition": "A fi sincer în orice moment",
+    "word_en": "honesty",
+    "definition_en": "Being honest at all times"
   },
   {
     "word": "modestie",
-    "definition": "Lipsă mândriei exagerate"
+    "definition": "Lipsă mândriei exagerate",
+    "word_en": "modesty",
+    "definition_en": "Lack of exaggerated pride"
   },
   {
     "word": "seriozul",
-    "definition": "Abordare responsabilă a vieții"
+    "definition": "Abordare responsabilă a vieții",
+    "word_en": "seriousness",
+    "definition_en": "Responsible approach to life"
   },
   {
     "word": "umor",
-    "definition": "Capacitatea de a râde de viață"
+    "definition": "Capacitatea de a râde de viață",
+    "word_en": "humor",
+    "definition_en": "The ability to laugh at life"
   },
   {
     "word": "optimism",
-    "definition": "A vedea întotdeauna partea bună"
+    "definition": "A vedea întotdeauna partea bună",
+    "word_en": "the optimism",
+    "definition_en": "Always seeing the bright side"
   },
   {
     "word": "pesimism",
-    "definition": "A vedea întotdeauna partea rea"
+    "definition": "A vedea întotdeauna partea rea",
+    "word_en": "pessimism",
+    "definition_en": "Always seeing the bad side"
   },
   {
     "word": "realism",
-    "definition": "A vedea lucrurile așa cum sunt"
+    "definition": "A vedea lucrurile așa cum sunt",
+    "word_en": "realism",
+    "definition_en": "Seeing things as they are"
   },
   {
     "word": "invenție",
-    "definition": "Capacitatea de a genera idei noi"
+    "definition": "Capacitatea de a genera idei noi",
+    "word_en": "invention",
+    "definition_en": "Ability to generate new ideas"
   },
   {
     "word": "deștept",
-    "definition": "Capacitatea de a înțelege"
+    "definition": "Capacitatea de a înțelege",
+    "word_en": "smart",
+    "definition_en": "Ability to understand"
   },
   {
     "word": "intuiție",
-    "definition": "Înțelegere directă fără gândire"
+    "definition": "Înțelegere directă fără gândire",
+    "word_en": "gut feeling?",
+    "definition_en": "Direct understanding without thinking"
   },
   {
     "word": "empatie",
-    "definition": "Capacitatea de a simți că alții"
+    "definition": "Capacitatea de a simți că alții",
+    "word_en": "empathy",
+    "definition_en": "The ability to feel that others"
   },
   {
     "word": "sensibil",
-    "definition": "Ușor afectat de ce se întâmpla"
+    "definition": "Ușor afectat de ce se întâmpla",
+    "word_en": "sensitive",
+    "definition_en": "Slightly affected by what was happening"
   },
   {
     "word": "rezistentă",
-    "definition": "Puterea de a face față greutăților"
+    "definition": "Puterea de a face față greutăților",
+    "word_en": "hardy",
+    "definition_en": "The power to cope with hardships"
   },
   {
     "word": "tenacitate",
-    "definition": "Persistentă în față dificultăților"
+    "definition": "Persistentă în față dificultăților",
+    "word_en": "- tenacity",
+    "definition_en": "Persistent in the face of difficulties"
   },
   {
     "word": "flexibil",
-    "definition": "Capabil să se adapteze ușor"
+    "definition": "Capabil să se adapteze ușor",
+    "word_en": "flexible",
+    "definition_en": "Able to adapt easily"
   },
   {
     "word": "rigid",
-    "definition": "Incapabil să se adapteze"
+    "definition": "Incapabil să se adapteze",
+    "word_en": "stiff",
+    "definition_en": "Unable to adapt"
   },
   {
     "word": "deschis",
-    "definition": "Receptiv la idei noi"
+    "definition": "Receptiv la idei noi",
+    "word_en": "o",
+    "definition_en": "Responsive to new ideas"
   },
   {
     "word": "închis",
-    "definition": "Refractar la idei noi"
+    "definition": "Refractar la idei noi",
+    "word_en": "off",
+    "definition_en": "Refractory to new ideas"
   },
   {
     "word": "sincer",
-    "definition": "Care spune mereu adevărul"
+    "definition": "Care spune mereu adevărul",
+    "word_en": "candid",
+    "definition_en": "Always telling the truth"
   },
   {
     "word": "diplomat",
-    "definition": "Care vorbește cu tact și grijă"
+    "definition": "Care vorbește cu tact și grijă",
+    "word_en": "diplomat",
+    "definition_en": "Who speaks with tact and care"
   },
   {
     "word": "ferm",
-    "definition": "Care își expune punctul de vedere"
+    "definition": "Care își expune punctul de vedere",
+    "word_en": "firm.",
+    "definition_en": "Exposing his/her point of view"
   },
   {
     "word": "pasiv",
-    "definition": "Care nu acționează din proprie voință"
+    "definition": "Care nu acționează din proprie voință",
+    "word_en": "shareholder's equity and liabilities",
+    "definition_en": "Not acting of their own free will"
   },
   {
     "word": "activ",
-    "definition": "Care acționează cu energie"
+    "definition": "Care acționează cu energie",
+    "word_en": "active",
+    "definition_en": "Energy-acting"
   },
   {
     "word": "impulsiv",
-    "definition": "Care acționează fără a gândi"
+    "definition": "Care acționează fără a gândi",
+    "word_en": "impulsive",
+    "definition_en": "Acting without thinking"
   },
   {
     "word": "calculat",
-    "definition": "Care gândește înainte de a acționa"
+    "definition": "Care gândește înainte de a acționa",
+    "word_en": "calculated",
+    "definition_en": "Thinking before acting"
   },
   {
     "word": "generos",
-    "definition": "Care dăruiește cu plăcere"
+    "definition": "Care dăruiește cu plăcere",
+    "word_en": "generously",
+    "definition_en": "Happy to give"
   },
   {
     "word": "avar",
-    "definition": "Care nu vrea să împărtășească"
+    "definition": "Care nu vrea să împărtășească",
+    "word_en": "miserly",
+    "definition_en": "Who doesn't want to share"
   },
   {
     "word": "curajos",
-    "definition": "Care face față pericolului"
+    "definition": "Care face față pericolului",
+    "word_en": "courageous",
+    "definition_en": "Facing the danger"
   },
   {
     "word": "lasel",
-    "definition": "Care evita pericolul din frică"
+    "definition": "Care evita pericolul din frică",
+    "word_en": "lasel",
+    "definition_en": "Avoiding danger out of fear"
   },
   {
     "word": "lider",
-    "definition": "Cel care îi ghidează pe ceilalți"
+    "definition": "Cel care îi ghidează pe ceilalți",
+    "word_en": "leader",
+    "definition_en": "The one who guides others"
   },
   {
     "word": "introvert",
-    "definition": "Orientat spre lumea interioară"
+    "definition": "Orientat spre lumea interioară",
+    "word_en": "introverted",
+    "definition_en": "Inner world oriented"
   },
   {
     "word": "extravert",
-    "definition": "Orientat spre lumea exterioară"
+    "definition": "Orientat spre lumea exterioară",
+    "word_en": "extraverted",
+    "definition_en": "Outward-looking"
   },
   {
     "word": "ambiguu",
-    "definition": "Neclar și greu de definit"
+    "definition": "Neclar și greu de definit",
+    "word_en": "ambiguous",
+    "definition_en": "Unclear and difficult to define"
   },
   {
     "word": "constant",
-    "definition": "Care nu se schimba în timp"
+    "definition": "Care nu se schimba în timp",
+    "word_en": "constans",
+    "definition_en": "Non-changing over time"
   },
   {
     "word": "inconstant",
-    "definition": "Care se schimba mereu"
+    "definition": "Care se schimba mereu",
+    "word_en": "inconstant",
+    "definition_en": "Always changing"
   },
   {
     "word": "loial",
-    "definition": "Fidel în relații și principii"
+    "definition": "Fidel în relații și principii",
+    "word_en": "loyal",
+    "definition_en": "Faithful in relationships and principles"
   },
   {
     "word": "trufaș",
-    "definition": "Mândru și arogant față de alții"
+    "definition": "Mândru și arogant față de alții",
+    "word_en": "arrogant",
+    "definition_en": "Proud and arrogant towards others"
   },
   {
     "word": "blând",
-    "definition": "Calm și neagresiv în comportament"
+    "definition": "Calm și neagresiv în comportament",
+    "word_en": "mild",
+    "definition_en": "Calm and non-aggressive in behavior"
   },
   {
     "word": "aspru",
-    "definition": "Dur și neindulgent cu ceilalți"
+    "definition": "Dur și neindulgent cu ceilalți",
+    "word_en": "unkind",
+    "definition_en": "Rough and non-indulgent with others"
   },
   {
     "word": "răbdător",
-    "definition": "Care așteaptă fără să se enerveze"
+    "definition": "Care așteaptă fără să se enerveze",
+    "word_en": "patient",
+    "definition_en": "Waiting without getting angry"
   },
   {
     "word": "nerăbdător",
-    "definition": "Care nu poate aștepta deloc"
+    "definition": "Care nu poate aștepta deloc",
+    "word_en": "impatient",
+    "definition_en": "That can't wait at all"
   },
   {
     "word": "justițiar",
-    "definition": "Care apăra întotdeauna dreptatea"
+    "definition": "Care apăra întotdeauna dreptatea",
+    "word_en": "crime fighter",
+    "definition_en": "Always defending justice"
   },
   {
     "word": "rebel",
-    "definition": "Care se opune regulilor existente"
+    "definition": "Care se opune regulilor existente",
+    "word_en": "rebel",
+    "definition_en": "Opposing existing rules"
   },
   {
     "word": "conformist",
-    "definition": "Care urmează regulile societății"
+    "definition": "Care urmează regulile societății",
+    "word_en": "conformist",
+    "definition_en": "Following company rules"
   },
   {
     "word": "original",
-    "definition": "Care are ceva unic și propriu"
+    "definition": "Care are ceva unic și propriu",
+    "word_en": "original",
+    "definition_en": "Which has something unique and its own"
   }
 ]

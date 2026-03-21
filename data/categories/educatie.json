@@ -1,202 +1,302 @@
 [
   {
     "word": "școală",
-    "definition": "Instituție de învățământ"
+    "definition": "Instituție de învățământ",
+    "word_en": "school",
+    "definition_en": "Educational institution"
   },
   {
     "word": "profesor",
-    "definition": "Cel care transmite cunoașterea"
+    "definition": "Cel care transmite cunoașterea",
+    "word_en": "teacher",
+    "definition_en": "The one who transmits the knowledge"
   },
   {
     "word": "elev",
-    "definition": "Cel care învăța la școală"
+    "definition": "Cel care învăța la școală",
+    "word_en": "student",
+    "definition_en": "School learner"
   },
   {
     "word": "student",
-    "definition": "Cel care învăța la universitate"
+    "definition": "Cel care învăța la universitate",
+    "word_en": "student",
+    "definition_en": "University learner"
   },
   {
     "word": "facultate",
-    "definition": "Instituție de învățământ superior"
+    "definition": "Instituție de învățământ superior",
+    "word_en": "faculty",
+    "definition_en": "higher education institution"
   },
   {
     "word": "diplomă",
-    "definition": "Document oficial de absolvire"
+    "definition": "Document oficial de absolvire",
+    "word_en": "diploma|",
+    "definition_en": "Official Graduation Document"
   },
   {
     "word": "examen",
-    "definition": "Test al cunoștințelor acumulate"
+    "definition": "Test al cunoștințelor acumulate",
+    "word_en": "examination",
+    "definition_en": "Knowledge Gain Test"
   },
   {
     "word": "notă",
-    "definition": "Evaluarea numerică a cunoștințelor"
+    "definition": "Evaluarea numerică a cunoștințelor",
+    "word_en": "note",
+    "definition_en": "Numerical assessment of knowledge"
   },
   {
     "word": "carte",
-    "definition": "Sursă principală de cunoaștere"
+    "definition": "Sursă principală de cunoaștere",
+    "word_en": "book",
+    "definition_en": "Primary source of knowledge"
   },
   {
     "word": "bibliotecă",
-    "definition": "Loc cu multe cărți adunate"
+    "definition": "Loc cu multe cărți adunate",
+    "word_en": "library",
+    "definition_en": "A place with many books gathered"
   },
   {
     "word": "cititul",
-    "definition": "Decodificarea textului scris"
+    "definition": "Decodificarea textului scris",
+    "word_en": "reading",
+    "definition_en": "Decoding of written text"
   },
   {
     "word": "scrisul",
-    "definition": "Exprimarea gândurilor în text"
+    "definition": "Exprimarea gândurilor în text",
+    "word_en": "writing",
+    "definition_en": "Expressing thoughts in the text"
   },
   {
     "word": "matematică",
-    "definition": "Știință numerelor și formelor"
+    "definition": "Știință numerelor și formelor",
+    "word_en": "mathematics",
+    "definition_en": "Science of numbers and shapes"
   },
   {
     "word": "literatură",
-    "definition": "Studiul operelor literare"
+    "definition": "Studiul operelor literare",
+    "word_en": "literature",
+    "definition_en": "The study of literary works"
   },
   {
     "word": "istoria",
-    "definition": "Studiul trecutului omenirii"
+    "definition": "Studiul trecutului omenirii",
+    "word_en": "history",
+    "definition_en": "Studying the past of mankind"
   },
   {
     "word": "știință",
-    "definition": "Cunoaștere sistematică a lumii"
+    "definition": "Cunoaștere sistematică a lumii",
+    "word_en": "scientific knowledge",
+    "definition_en": "Systematic knowledge of the world"
   },
   {
     "word": "filozofia",
-    "definition": "Studiul întrebărilor fundamentale"
+    "definition": "Studiul întrebărilor fundamentale",
+    "word_en": "our philosophy",
+    "definition_en": "The study of fundamental questions"
   },
   {
     "word": "artele",
-    "definition": "Expresia creativă a omului"
+    "definition": "Expresia creativă a omului",
+    "word_en": "arts",
+    "definition_en": "The creative expression of man"
   },
   {
     "word": "muzică",
-    "definition": "Artă sunetelor organizate"
+    "definition": "Artă sunetelor organizate",
+    "word_en": "background",
+    "definition_en": "The Art of Organized Sound"
   },
   {
     "word": "sportul",
-    "definition": "Activitate fizică organizată"
+    "definition": "Activitate fizică organizată",
+    "word_en": "sports",
+    "definition_en": "Organized physical activity"
   },
   {
     "word": "învățare",
-    "definition": "Procesul de dobândire a cunoștințelor"
+    "definition": "Procesul de dobândire a cunoștințelor",
+    "word_en": "learn",
+    "definition_en": "Knowledge Acquisition Process"
   },
   {
     "word": "memorare",
-    "definition": "Reținerea informației în minte"
+    "definition": "Reținerea informației în minte",
+    "word_en": "memorization",
+    "definition_en": "Holding information in mind"
   },
   {
     "word": "înțelegere",
-    "definition": "Comprehensiunea profundă a ideilor"
+    "definition": "Comprehensiunea profundă a ideilor",
+    "word_en": "insight",
+    "definition_en": "Deep understanding of ideas"
   },
   {
     "word": "aplicare",
-    "definition": "Folosirea cunoștințelor în practică"
+    "definition": "Folosirea cunoștințelor în practică",
+    "word_en": "application",
+    "definition_en": "Using knowledge in practice"
   },
   {
     "word": "gândire",
-    "definition": "Procesul de formare a ideilor"
+    "definition": "Procesul de formare a ideilor",
+    "word_en": "thought.",
+    "definition_en": "Idea Formation Process"
   },
   {
     "word": "critică",
-    "definition": "Evaluarea argumentelor cu discernământ"
+    "definition": "Evaluarea argumentelor cu discernământ",
+    "word_en": "as critique",
+    "definition_en": "Discretionary evaluation of arguments"
   },
   {
     "word": "invenție",
-    "definition": "Generarea de idei și soluții noi"
+    "definition": "Generarea de idei și soluții noi",
+    "word_en": "invention",
+    "definition_en": "Generating new ideas and solutions"
   },
   {
     "word": "interes",
-    "definition": "Motivația de a afla și descoperi"
+    "definition": "Motivația de a afla și descoperi",
+    "word_en": "interest",
+    "definition_en": "Motivation to find out and discover"
   },
   {
     "word": "motivație",
-    "definition": "Forță interioară de a învăța"
+    "definition": "Forță interioară de a învăța",
+    "word_en": "motivatie",
+    "definition_en": "Inner strength to learn"
   },
   {
     "word": "disciplină",
-    "definition": "Controlul necesar învățării"
+    "definition": "Controlul necesar învățării",
+    "word_en": "subject",
+    "definition_en": "The control necessary for learning"
   },
   {
     "word": "constantă",
-    "definition": "A studia regulat și constant"
+    "definition": "A studia regulat și constant",
+    "word_en": "constant",
+    "definition_en": "Studying regularly and constantly"
   },
   {
     "word": "autodidact",
-    "definition": "Cel care se educa singur"
+    "definition": "Cel care se educa singur",
+    "word_en": "self taught",
+    "definition_en": "The one who educates himself"
   },
   {
     "word": "mentor",
-    "definition": "Ghid în procesul de învățare"
+    "definition": "Ghid în procesul de învățare",
+    "word_en": "mentor",
+    "definition_en": "Guide to learning"
   },
   {
     "word": "feedback",
-    "definition": "Informații despre progresul tău"
+    "definition": "Informații despre progresul tău",
+    "word_en": "feedback",
+    "definition_en": "Information about your progress"
   },
   {
     "word": "evaluarea",
-    "definition": "Aprecierea cunoștințelor dobândite"
+    "definition": "Aprecierea cunoștințelor dobândite",
+    "word_en": "assessment",
+    "definition_en": "Appreciation of acquired knowledge"
   },
   {
     "word": "eșecul",
-    "definition": "Lecția cea mai valoroasă"
+    "definition": "Lecția cea mai valoroasă",
+    "word_en": "failure",
+    "definition_en": "The most valuable lesson"
   },
   {
     "word": "practică",
-    "definition": "Aplicarea concretă a cunoștințelor"
+    "definition": "Aplicarea concretă a cunoștințelor",
+    "word_en": "cation",
+    "definition_en": "Practical application of knowledge"
   },
   {
     "word": "experientă",
-    "definition": "Cunoaștere dobândită prin trăire"
+    "definition": "Cunoaștere dobândită prin trăire",
+    "word_en": "experience",
+    "definition_en": "Knowledge gained through living"
   },
   {
     "word": "talent",
-    "definition": "Aptitudine naturală într-un domeniu"
+    "definition": "Aptitudine naturală într-un domeniu",
+    "word_en": "talent",
+    "definition_en": "Natural aptitude in a field"
   },
   {
     "word": "abilitate",
-    "definition": "Competentă dobândită prin practică"
+    "definition": "Competentă dobândită prin practică",
+    "word_en": "ability",
+    "definition_en": "Competence acquired through practice"
   },
   {
     "word": "expertiză",
-    "definition": "Cunoaștere profundă specializată"
+    "definition": "Cunoaștere profundă specializată",
+    "word_en": "expertise",
+    "definition_en": "Specialized deep knowledge"
   },
   {
     "word": "învățământ",
-    "definition": "Sistemul de educație al tarii"
+    "definition": "Sistemul de educație al tarii",
+    "word_en": "education",
+    "definition_en": "The country's education system"
   },
   {
     "word": "curriculum",
-    "definition": "Planul de studiu al școlii"
+    "definition": "Planul de studiu al școlii",
+    "word_en": "curriculum",
+    "definition_en": "School Study Plan"
   },
   {
     "word": "pedagogie",
-    "definition": "Știință educației și predării"
+    "definition": "Știință educației și predării",
+    "word_en": "pedagogy",
+    "definition_en": "Science Education and Teaching"
   },
   {
     "word": "metodele",
-    "definition": "Tehnicile folosite în predare"
+    "definition": "Tehnicile folosite în predare",
+    "word_en": "methods",
+    "definition_en": "Techniques used in teaching"
   },
   {
     "word": "inovația",
-    "definition": "Introducerea noului în educație"
+    "definition": "Introducerea noului în educație",
+    "word_en": "innovation",
+    "definition_en": "Introducing the new in education"
   },
   {
     "word": "digitală",
-    "definition": "Educație prin mijloace online"
+    "definition": "Educație prin mijloace online",
+    "word_en": "digital",
+    "definition_en": "Online education"
   },
   {
     "word": "alfabetism",
-    "definition": "Capacitatea de a citi și scrie"
+    "definition": "Capacitatea de a citi și scrie",
+    "word_en": "literacy",
+    "definition_en": "Ability to read and write"
   },
   {
     "word": "cultură",
-    "definition": "Ansamblul cunoștințelor și valorilor"
+    "definition": "Ansamblul cunoștințelor și valorilor",
+    "word_en": "crop",
+    "definition_en": "All knowledge and values"
   },
   {
     "word": "înțeaptă",
-    "definition": "Cunoaștere profundă și aplicată"
+    "definition": "Cunoaștere profundă și aplicată",
+    "word_en": "wise",
+    "definition_en": "Deep and applied knowledge"
   }
 ]

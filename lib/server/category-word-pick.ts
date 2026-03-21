@@ -11,33 +11,60 @@ interface MultilingualEntry {
   definitions?: Record<string, string>
 }
 
-function unwrapCategoryDefinitions(raw: unknown): (MultilingualEntry | WordPair)[] {
+/** Opțional: word_en / definition_en lângă word / definition (RO). */
+interface BilingualFlat extends WordPair {
+  word_en?: string
+  definition_en?: string
+}
+
+function unwrapCategoryDefinitions(raw: unknown): (MultilingualEntry | WordPair | BilingualFlat)[] {
   if (Array.isArray(raw)) return raw
   if (raw && typeof raw === "object") {
     const o = raw as Record<string, unknown>
     const keys = ["data", "entries", "items", "results", "content", "words"] as const
     for (const k of keys) {
       const v = o[k]
-      if (Array.isArray(v) && v.length > 0) return v as (MultilingualEntry | WordPair)[]
+      if (Array.isArray(v) && v.length > 0) return v as (MultilingualEntry | WordPair | BilingualFlat)[]
     }
   }
   throw new Error("expected array of word entries or wrapped array")
 }
 
 /**
- * Returnează null dacă intrarea nu are text pentru limba cerută.
- * Intrările plain { word, definition } sunt RO; le folosim pentru orice limbă selectată în UI.
+ * Returnează perechea pentru limba cerută.
+ * - `definitions` / `words` (obiecte per limbă)
+ * - sau `word`+`definition` (RO) cu opțional `word_en` / `definition_en`
+ * - pentru `en` fără traducere: fallback la RO ca să nu rupă jocul
  */
-function extractPair(entry: MultilingualEntry | WordPair, language: string): WordPair | null {
+function extractPair(
+  entry: MultilingualEntry | WordPair | BilingualFlat,
+  language: string
+): WordPair | null {
+  const lang = (language || "ro").trim().toLowerCase()
+
   if ("definitions" in entry && entry.definitions && Object.keys(entry.definitions).length > 0) {
-    const def = entry.definitions[language] ?? entry.definitions["en"] ?? ""
-    const word = entry.words?.[language] ?? entry.words?.["en"] ?? entry.word
+    const e = entry as MultilingualEntry
+    const def =
+      e.definitions[lang] ?? e.definitions["en"] ?? e.definitions["ro"] ?? ""
+    const word =
+      e.words?.[lang] ?? e.words?.["en"] ?? e.words?.["ro"] ?? e.word ?? ""
     if (!def.trim() || !word.trim()) return null
-    return { word, definition: def }
+    return { word: word.trim(), definition: def.trim() }
   }
-  const plain = entry as WordPair
-  if (!plain.word?.trim() || !plain.definition?.trim()) return null
-  return plain
+
+  const flat = entry as BilingualFlat
+  if (!flat.word?.trim() || !flat.definition?.trim()) return null
+
+  if (lang === "en") {
+    const w = flat.word_en?.trim()
+    const d = flat.definition_en?.trim()
+    if (w && d) {
+      return { word: w.toLowerCase(), definition: d }
+    }
+    return { word: flat.word.trim(), definition: flat.definition.trim() }
+  }
+
+  return { word: flat.word.trim(), definition: flat.definition.trim() }
 }
 
 function isAllowedCategory(category: string): category is Exclude<CategoryKey, "general"> {
@@ -66,7 +93,6 @@ export function pickRandomWordPairFromCategoryFile(
   const defs = unwrapCategoryDefinitions(raw)
   if (defs.length === 0) throw new Error("empty category")
 
-  // Amestecăm și căutăm o intrare compatibilă cu limba (ex. EN cere câmpuri multilingual)
   const shuffled = [...defs].sort(() => Math.random() - 0.5)
   for (const entry of shuffled) {
     const pair = extractPair(entry, language)

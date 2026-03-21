@@ -274,15 +274,15 @@ export default function HomePage() {
             {/* Category selector — hidden when joining */}
             {activeTab === "create" && (
               <div className="space-y-2">
-                <label htmlFor="categorySelect" className="text-sm font-medium">Categorie</label>
+                <label htmlFor="categorySelect" className="text-sm font-medium">Category</label>
                 <select
                   id="categorySelect"
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value as CategoryKey)}
                   className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 >
-                  {(Object.entries(CATEGORIES) as [CategoryKey, { label: string; emoji: string }][]).map(([key, { label, emoji }]) => (
-                    <option key={key} value={key}>{emoji} {label}</option>
+                  {(Object.entries(CATEGORIES) as [CategoryKey, { category: string; emoji: string }][]).map(([key, { category, emoji }]) => (
+                    <option key={key} value={key}>{emoji} {category}</option>
                   ))}
                 </select>
               </div>

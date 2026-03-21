@@ -1,202 +1,302 @@
 [
   {
     "word": "sănătate",
-    "definition": "Starea de bine a corpului"
+    "definition": "Starea de bine a corpului",
+    "word_en": "health",
+    "definition_en": "Well-being of the body"
   },
   {
     "word": "boală",
-    "definition": "Disfuncție a corpului sau minții"
+    "definition": "Disfuncție a corpului sau minții",
+    "word_en": "disease,",
+    "definition_en": "Dysfunction of body or mind"
   },
   {
     "word": "durere",
-    "definition": "Senzație neplăcută în corp"
+    "definition": "Senzație neplăcută în corp",
+    "word_en": "pain",
+    "definition_en": "Unpleasant feeling in the body"
   },
   {
     "word": "oboseală",
-    "definition": "Nevoia de odihnă după efort"
+    "definition": "Nevoia de odihnă după efort",
+    "word_en": "common:",
+    "definition_en": "The need for rest after effort"
   },
   {
     "word": "odihnă",
-    "definition": "Recuperarea după efort depus"
+    "definition": "Recuperarea după efort depus",
+    "word_en": "rest",
+    "definition_en": "Recovery after effort"
   },
   {
     "word": "somnul",
-    "definition": "Odihnă zilnică necesară corpului"
+    "definition": "Odihnă zilnică necesară corpului",
+    "word_en": "sleep",
+    "definition_en": "Daily rest required by the body"
   },
   {
     "word": "foamea",
-    "definition": "Nevoia fiziologică de a mânca"
+    "definition": "Nevoia fiziologică de a mânca",
+    "word_en": "hunger",
+    "definition_en": "Physiological need to eat"
   },
   {
     "word": "setea",
-    "definition": "Nevoia fiziologică de a bea"
+    "definition": "Nevoia fiziologică de a bea",
+    "word_en": "thirst",
+    "definition_en": "Physiological need to drink"
   },
   {
     "word": "mișcarea",
-    "definition": "Activitatea fizică a corpului"
+    "definition": "Activitatea fizică a corpului",
+    "word_en": "the movement of the",
+    "definition_en": "Physical activity of the body"
   },
   {
     "word": "sportul",
-    "definition": "Activitate fizică organizată"
+    "definition": "Activitate fizică organizată",
+    "word_en": "sports",
+    "definition_en": "Organized physical activity"
   },
   {
     "word": "nutriție",
-    "definition": "Totalitatea alimentelor consumate"
+    "definition": "Totalitatea alimentelor consumate",
+    "word_en": "nutritional",
+    "definition_en": "Total food consumed"
   },
   {
     "word": "dietă",
-    "definition": "Regim alimentar specific"
+    "definition": "Regim alimentar specific",
+    "word_en": "diet",
+    "definition_en": "Specific diet"
   },
   {
     "word": "vitamine",
-    "definition": "Substanțe nutritive esențiale"
+    "definition": "Substanțe nutritive esențiale",
+    "word_en": "vitamins,",
+    "definition_en": "Essential nutrients"
   },
   {
     "word": "energia",
-    "definition": "Forță disponibilă pentru activitate"
+    "definition": "Forță disponibilă pentru activitate",
+    "word_en": "energy",
+    "definition_en": "Force available for activity"
   },
   {
     "word": "forță",
-    "definition": "Puterea fizică a corpului"
+    "definition": "Puterea fizică a corpului",
+    "word_en": "force",
+    "definition_en": "Physical strength of the body"
   },
   {
     "word": "rezistentă",
-    "definition": "Capacitatea de a susține efort"
+    "definition": "Capacitatea de a susține efort",
+    "word_en": "hardy",
+    "definition_en": "Ability to sustain effort"
   },
   {
     "word": "flexibil",
-    "definition": "Capabil de mișcări ample"
+    "definition": "Capabil de mișcări ample",
+    "word_en": "flexible",
+    "definition_en": "Capable of wide movements"
   },
   {
     "word": "echilibru",
-    "definition": "Stabilitate și coordonare"
+    "definition": "Stabilitate și coordonare",
+    "word_en": "digestive",
+    "definition_en": "Stability and coordination"
   },
   {
     "word": "respirație",
-    "definition": "Procesul de a inspira și expira"
+    "definition": "Procesul de a inspira și expira",
+    "word_en": "breathe",
+    "definition_en": "The process of inhaling and exhaling"
   },
   {
     "word": "inimă",
-    "definition": "Organul central al circulației"
+    "definition": "Organul central al circulației",
+    "word_en": "heart",
+    "definition_en": "Central Circulation Body"
   },
   {
     "word": "creierul",
-    "definition": "Organul gândirii și controlului"
+    "definition": "Organul gândirii și controlului",
+    "word_en": "the brain",
+    "definition_en": "The organ of thought and control"
   },
   {
     "word": "sângele",
-    "definition": "Lichidul vital din corp"
+    "definition": "Lichidul vital din corp",
+    "word_en": "blood",
+    "definition_en": "Vital body fluid"
   },
   {
     "word": "imunitate",
-    "definition": "Capacitatea de a luptă cu boală"
+    "definition": "Capacitatea de a luptă cu boală",
+    "word_en": "immunity",
+    "definition_en": "Ability to fight disease"
   },
   {
     "word": "vindecare",
-    "definition": "Procesul de refacere după boală"
+    "definition": "Procesul de refacere după boală",
+    "word_en": "the healing",
+    "definition_en": "Recovery process after illness"
   },
   {
     "word": "medicină",
-    "definition": "Știință de a trata bolile"
+    "definition": "Știință de a trata bolile",
+    "word_en": "medicine",
+    "definition_en": "The Science of Treating Disease"
   },
   {
     "word": "tratament",
-    "definition": "Metodă de combatere a unei boli"
+    "definition": "Metodă de combatere a unei boli",
+    "word_en": "1 prior line of therapy",
+    "definition_en": "Method of fighting a disease"
   },
   {
     "word": "chirurgie",
-    "definition": "Tratament prin intervenție fizică"
+    "definition": "Tratament prin intervenție fizică",
+    "word_en": "chirurgie",
+    "definition_en": "Physical intervention treatment"
   },
   {
     "word": "psihologie",
-    "definition": "Știință care studiază mintea"
+    "definition": "Știință care studiază mintea",
+    "word_en": "psychology",
+    "definition_en": "Science that studies the mind"
   },
   {
     "word": "stresul",
-    "definition": "Tensiune mentală și fizică"
+    "definition": "Tensiune mentală și fizică",
+    "word_en": "stress",
+    "definition_en": "Mental and physical tension"
   },
   {
     "word": "relaxare",
-    "definition": "Reducerea tensiunii din corp"
+    "definition": "Reducerea tensiunii din corp",
+    "word_en": "relaxation",
+    "definition_en": "Reduction of tension in the body"
   },
   {
     "word": "meditație",
-    "definition": "Practică de liniștire a minții"
+    "definition": "Practică de liniștire a minții",
+    "word_en": "meditation",
+    "definition_en": "Mindfulness practice"
   },
   {
     "word": "yoga",
-    "definition": "Practică de unire corp-minte"
+    "definition": "Practică de unire corp-minte",
+    "word_en": "the yoga",
+    "definition_en": "Body-mind union practice"
   },
   {
     "word": "masaj",
-    "definition": "Tehnică de relaxare a mușchilor"
+    "definition": "Tehnică de relaxare a mușchilor",
+    "word_en": "masaj",
+    "definition_en": "Muscle relaxation technique"
   },
   {
     "word": "postură",
-    "definition": "Poziția corpului în spațiu"
+    "definition": "Poziția corpului în spațiu",
+    "word_en": "pose",
+    "definition_en": "Position of the body in space"
   },
   {
     "word": "respirul",
-    "definition": "Actul de a respira conștient"
+    "definition": "Actul de a respira conștient",
+    "word_en": "breathing",
+    "definition_en": "The act of breathing consciously"
   },
   {
     "word": "hidratare",
-    "definition": "Aportul suficient de apă"
+    "definition": "Aportul suficient de apă",
+    "word_en": "hydrate",
+    "definition_en": "Sufficient water intake"
   },
   {
     "word": "igienă",
-    "definition": "Curățenia care protejează sănătatea"
+    "definition": "Curățenia care protejează sănătatea",
+    "word_en": "hygiene",
+    "definition_en": "Cleanliness that protects health"
   },
   {
     "word": "natură",
-    "definition": "Mediul natural benefic corpului"
+    "definition": "Mediul natural benefic corpului",
+    "word_en": "nature",
+    "definition_en": "Natural environment beneficial to the body"
   },
   {
     "word": "aerul",
-    "definition": "Gazul respirat de organism"
+    "definition": "Gazul respirat de organism",
+    "word_en": "no air",
+    "definition_en": "The gas breathed by the body"
   },
   {
     "word": "soarele",
-    "definition": "Sursă de lumină și vitamină D"
+    "definition": "Sursă de lumină și vitamină D",
+    "word_en": "but the sun...",
+    "definition_en": "Light source and vitamin D"
   },
   {
     "word": "somnul",
-    "definition": "Ciclul de odihnă nocturn"
+    "definition": "Ciclul de odihnă nocturn",
+    "word_en": "sleep",
+    "definition_en": "Night rest cycle"
   },
   {
     "word": "veghere",
-    "definition": "Starea de a fi treaz și activ"
+    "definition": "Starea de a fi treaz și activ",
+    "word_en": "vigilance",
+    "definition_en": "Being awake and active"
   },
   {
     "word": "bătrânețe",
-    "definition": "Etapă finală a vieții corpului"
+    "definition": "Etapă finală a vieții corpului",
+    "word_en": "old age",
+    "definition_en": "Final stage of body life"
   },
   {
     "word": "nașterea",
-    "definition": "Începutul existenței fizice"
+    "definition": "Începutul existenței fizice",
+    "word_en": "birth",
+    "definition_en": "Beginning of physical existence"
   },
   {
     "word": "moartea",
-    "definition": "Incetarea funcțiilor vitale"
+    "definition": "Incetarea funcțiilor vitale",
+    "word_en": "death",
+    "definition_en": "Termination of vital functions"
   },
   {
     "word": "vitalitate",
-    "definition": "Energie și vigoare a corpului"
+    "definition": "Energie și vigoare a corpului",
+    "word_en": "vigour",
+    "definition_en": "Energy and vigor of the body"
   },
   {
     "word": "tinerețe",
-    "definition": "Etapă de maximă vitalitate"
+    "definition": "Etapă de maximă vitalitate",
+    "word_en": "the youth",
+    "definition_en": "Stage of maximum vitality"
   },
   {
     "word": "maturitate",
-    "definition": "Vârstă deplină și stabilă"
+    "definition": "Vârstă deplină și stabilă",
+    "word_en": "maturity",
+    "definition_en": "Full and stable age"
   },
   {
     "word": "creșterea",
-    "definition": "Dezvoltarea fizică a corpului"
+    "definition": "Dezvoltarea fizică a corpului",
+    "word_en": "parental",
+    "definition_en": "Physical development of the body"
   },
   {
     "word": "genetic",
-    "definition": "Legat de moștenirea biologică"
+    "definition": "Legat de moștenirea biologică",
+    "word_en": "species of interferon.",
+    "definition_en": "Related to biological inheritance"
   }
 ]

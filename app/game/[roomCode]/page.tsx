@@ -108,6 +108,15 @@ function isSamePlayerRejoin(
   return pn.length > 0 && an.length > 0 && pn === an
 }
 
+/** Șterge sesiunea client (joc multiplayer) din localStorage. */
+function clearWordmatchPlayerSession() {
+  try {
+    localStorage.removeItem("wordmatch_player")
+  } catch {
+    /* ignore */
+  }
+}
+
 // ── component ─────────────────────────────────────────────────────────────────
 
 export default function GamePage({ params }: GamePageProps) {
@@ -117,6 +126,9 @@ export default function GamePage({ params }: GamePageProps) {
   const [timeRemaining, setTimeRemaining] = useState(ROUND_DURATION)
   const [isLoading, setIsLoading] = useState(true)
   const [isShaking, setIsShaking] = useState(false)
+  /** Scurt flash roșu deschis pe fundal la literă greșită */
+  const [wrongKeyFlash, setWrongKeyFlash] = useState(false)
+  const wrongFlashTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [copied, setCopied] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
   /** True until room reflects round_end — confetti shows immediately on local win */
@@ -222,11 +234,13 @@ export default function GamePage({ params }: GamePageProps) {
       if (e.persisted) return
       if (leftVoluntarilyRef.current) return
       patchClearPlayerSlotKeepalive(roomCode, slot)
+      clearWordmatchPlayerSession()
     }
 
     const onBeforeUnload = () => {
       if (leftVoluntarilyRef.current) return
       patchClearPlayerSlotKeepalive(roomCode, slot)
+      clearWordmatchPlayerSession()
     }
 
     window.addEventListener("pagehide", onPageHide)
@@ -246,6 +260,7 @@ export default function GamePage({ params }: GamePageProps) {
       if (Date.now() - started < 500) return
       if (leftVoluntarilyRef.current) return
       patchClearPlayerSlotKeepalive(roomCode, slot)
+      clearWordmatchPlayerSession()
     }
   }, [roomCode, playerInfo?.playerSlot])
 
@@ -293,7 +308,7 @@ export default function GamePage({ params }: GamePageProps) {
           })
           if (r.game_status === "round_end" && r.round_winner) {
             setShowConfetti(true)
-            setTimeout(() => setShowConfetti(false), 3000)
+            setTimeout(() => setShowConfetti(false), 2500)
           }
           if (r.game_status === "playing") setLastPlacedIndex(null)
         })
@@ -526,7 +541,7 @@ export default function GamePage({ params }: GamePageProps) {
   // blur when round ends (hides mobile keyboard)
   useEffect(() => {
     if (room?.game_status === "playing") {
-      setTimeout(() => hiddenInputRef.current?.focus(), 150)
+      queueMicrotask(() => hiddenInputRef.current?.focus())
     } else {
       hiddenInputRef.current?.blur()
     }
@@ -595,7 +610,7 @@ export default function GamePage({ params }: GamePageProps) {
       requestAnimationFrame(() => {
         if (!shouldShakeRef.current) return
         setIsShaking(true)
-        shakeTimeoutRef.current = setTimeout(() => setIsShaking(false), 300)
+        shakeTimeoutRef.current = setTimeout(() => setIsShaking(false), 220)
       })
     )
   }
@@ -606,9 +621,18 @@ export default function GamePage({ params }: GamePageProps) {
     setIsShaking(false)
   }
 
+  const triggerWrongKeyFlash = useCallback(() => {
+    if (wrongFlashTimeoutRef.current) clearTimeout(wrongFlashTimeoutRef.current)
+    setWrongKeyFlash(true)
+    wrongFlashTimeoutRef.current = setTimeout(() => {
+      setWrongKeyFlash(false)
+      wrongFlashTimeoutRef.current = null
+    }, 140)
+  }, [])
+
   const handleLetterInput = useCallback(async (letter: string) => {
     if (!room || !playerInfo || room.game_status !== "playing" || !room.current_word) return
-    // Lockout: after 2 consecutive wrong letters, ignore all input for 2 s
+    // Lockout: after a wrong letter, ignore input for a few seconds
     if (Date.now() < lockedUntilRef.current) return
     // Use localProgressRef to avoid stale state on rapid key presses
     const cur = localProgressRef.current ?? slotData(mySlot, room).progress
@@ -652,15 +676,15 @@ export default function GamePage({ params }: GamePageProps) {
         await supabase.from("game_rooms").update({ [pf]: next }).eq("room_code", roomCode)
       }
     } else {
+      triggerWrongKeyFlash()
       consecutiveWrongRef.current++
       if (consecutiveWrongRef.current >= 1) {
-        // First wrong letter: activate 3-second input lockout
         lockedUntilRef.current = Date.now() + 3000
         consecutiveWrongRef.current = 0
       }
       triggerShake()
     }
-  }, [room, mySlot, roomCode, supabase, playerInfo])
+  }, [room, mySlot, roomCode, supabase, playerInfo, triggerWrongKeyFlash])
 
   async function handleTimerEnd() {
     if (!room) return
@@ -722,6 +746,7 @@ export default function GamePage({ params }: GamePageProps) {
 
     const { data, error } = await supabase.from("game_rooms").update(reset).eq("room_code", roomCode).select()
     if (error || !data?.length) {
+      clearWordmatchPlayerSession()
       router.push("/")
       return
     }
@@ -749,17 +774,7 @@ export default function GamePage({ params }: GamePageProps) {
     } else if (playerInfo?.playerSlot) {
       patchClearPlayerSlotKeepalive(roomCode, playerInfo.playerSlot as PlayerSlot)
     }
-    try {
-      const raw = localStorage.getItem("wordmatch_player")
-      if (raw) {
-        const p = JSON.parse(raw)
-        delete p.roomCode
-        delete p.playerSlot
-        localStorage.setItem("wordmatch_player", JSON.stringify(p))
-      }
-    } catch {
-      /* ignore */
-    }
+    clearWordmatchPlayerSession()
     router.push("/")
   }
 
@@ -973,7 +988,13 @@ export default function GamePage({ params }: GamePageProps) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-background">
         <p className="text-muted-foreground">Room not found</p>
-        <Button variant="outline" onClick={() => router.push("/")}>
+        <Button
+          variant="outline"
+          onClick={() => {
+            clearWordmatchPlayerSession()
+            router.push("/")
+          }}
+        >
           <ArrowLeft className="w-4 h-4 mr-2" />Back Home
         </Button>
       </div>
@@ -1191,14 +1212,35 @@ export default function GamePage({ params }: GamePageProps) {
   const myReady = slotData(mySlot, room).ready
   const everyoneReady = allReady(room)
 
+  /** Ca la practice: înălțime card definiție + timp după lungimea textului */
+  const definitionText = room.current_definition ?? ""
+  const definitionExtraBreaks = (definitionText.match(/\n/g) || []).length
+  const approxDefinitionLines = Math.max(
+    1,
+    Math.ceil(definitionText.length / 36) + definitionExtraBreaks
+  )
+  const defCardVerticalPad =
+    approxDefinitionLines <= 2
+      ? "pt-1 pb-1.5"
+      : approxDefinitionLines <= 4
+        ? "pt-1.5 pb-2"
+        : "pt-2 pb-2.5"
+
   return (
     <main
       className={cn(
-        "h-dvh flex flex-col overflow-hidden bg-gradient-to-b from-background to-secondary/30 outline-none",
+        "relative h-dvh flex flex-col overflow-hidden bg-gradient-to-b from-background to-secondary/30 outline-none",
         isShaking && "animate-[shake_0.3s_ease-in-out]"
       )}
       tabIndex={0}
     >
+      <div
+        aria-hidden
+        className={cn(
+          "pointer-events-none absolute inset-0 z-[100] bg-red-400/16 dark:bg-red-950/28 transition-opacity duration-[90ms] ease-out",
+          wrongKeyFlash ? "opacity-100" : "opacity-0"
+        )}
+      />
       {showConfetti && (iWonRound || optimisticRoundWin) && (
         <Confetti recycle={false} numberOfPieces={300} />
       )}
@@ -1216,7 +1258,7 @@ export default function GamePage({ params }: GamePageProps) {
             </span>
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground/60">
               {room.category && CATEGORIES[room.category as CategoryKey] && (
-                <span>{CATEGORIES[room.category as CategoryKey].emoji} {CATEGORIES[room.category as CategoryKey].label}</span>
+                <span>{CATEGORIES[room.category as CategoryKey].emoji} {CATEGORIES[room.category as CategoryKey].category}</span>
               )}
               {room.language && LANGUAGES[room.language as LanguageKey] && (
                 <span>· {LANGUAGES[room.language as LanguageKey].flag}</span>
@@ -1234,7 +1276,7 @@ export default function GamePage({ params }: GamePageProps) {
 
       {/* Main content */}
       <div
-        className="flex-1 overflow-y-auto scrollbar-none flex flex-col items-center justify-start px-4 pt-5 pb-6 max-w-2xl mx-auto w-full gap-5"
+        className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-none flex flex-col items-center justify-start px-4 pt-5 pb-6 max-w-2xl mx-auto w-full gap-5"
         onClick={() => {
           if (!isRoundEnd) hiddenInputRef.current?.focus()
         }}
@@ -1325,19 +1367,30 @@ export default function GamePage({ params }: GamePageProps) {
           </>
         ) : (
           <>
-            {/* Timer */}
-            <div className={cn(
-              "flex items-center justify-center gap-1.5 text-sm font-bold px-4 py-2 rounded-lg w-full",
-              timeRemaining <= 10 ? "bg-destructive/10 text-destructive animate-pulse" : "bg-muted"
-            )}>
-              <Timer className="w-3.5 h-3.5" />
-              <span>{timeRemaining}s</span>
-            </div>
-
-            {/* Definition */}
-            <Card className="w-full shadow-sm">
-              <CardContent className="py-[3px]">
-                <p className="text-base sm:text-lg text-center leading-relaxed text-balance">
+            {/* Definiție + timp în același card (ca practice); la urgență bordura clipește */}
+            <Card
+              className={cn(
+                "w-full shadow-sm border-2 transition-[border-color] duration-200",
+                timeRemaining <= 10
+                  ? "border-[#fecaca] animate-[practiceUrgentBorder_0.75s_ease-in-out_infinite]"
+                  : "border-border"
+              )}
+            >
+              <CardContent className={cn("px-4", defCardVerticalPad)}>
+                <p
+                  className={cn(
+                    "text-center text-lg sm:text-xl font-bold tabular-nums leading-none mb-1.5",
+                    timeRemaining <= 10 ? "text-red-400" : "text-muted-foreground"
+                  )}
+                >
+                  {timeRemaining}s
+                </p>
+                <p
+                  className={cn(
+                    "text-base sm:text-lg text-center text-balance",
+                    approxDefinitionLines > 4 ? "leading-tight" : "leading-snug"
+                  )}
+                >
                   {room.current_definition}
                 </p>
               </CardContent>
@@ -1403,6 +1456,10 @@ export default function GamePage({ params }: GamePageProps) {
           0%   { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.5); }
           60%  { box-shadow: 0 0 0 8px rgba(99, 102, 241, 0); }
           100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        }
+        @keyframes practiceUrgentBorder {
+          0%, 100% { border-color: #fecaca; }
+          50% { border-color: #f87171; }
         }
       `}</style>
     </main>

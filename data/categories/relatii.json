@@ -1,202 +1,302 @@
 [
   {
     "word": "prietenie",
-    "definition": "Legătură sinceră între persoane"
+    "definition": "Legătură sinceră între persoane",
+    "word_en": "friendship",
+    "definition_en": "A sincere bond between people"
   },
   {
     "word": "dragoste",
-    "definition": "Sentiment profund romantic"
+    "definition": "Sentiment profund romantic",
+    "word_en": "love",
+    "definition_en": "A deep romantic feeling"
   },
   {
     "word": "familie",
-    "definition": "Grup unit prin sânge"
+    "definition": "Grup unit prin sânge",
+    "word_en": "family",
+    "definition_en": "A group united by blood"
   },
   {
     "word": "căsătorie",
-    "definition": "Uniunea oficială a doi oameni"
+    "definition": "Uniunea oficială a doi oameni",
+    "word_en": "marriage",
+    "definition_en": "The official union of two people"
   },
   {
     "word": "divorț",
-    "definition": "Desfacerea căsătoriei"
+    "definition": "Desfacerea căsătoriei",
+    "word_en": "divorce",
+    "definition_en": "The ending of a marriage"
   },
   {
     "word": "trădare",
-    "definition": "A încalcă încrederea cuiva"
+    "definition": "A încalcă încrederea cuiva",
+    "word_en": "betrayal",
+    "definition_en": "Breaking someone's trust"
   },
   {
     "word": "loialitate",
-    "definition": "Fidelitate față de cineva"
+    "definition": "Fidelitate față de cineva",
+    "word_en": "loyalty",
+    "definition_en": "Fidelity toward someone"
   },
   {
     "word": "respect",
-    "definition": "Considerație față de altul"
+    "definition": "Considerație față de altul",
+    "word_en": "respect",
+    "definition_en": "Consideration for another person"
   },
   {
     "word": "dialog",
-    "definition": "Schimbul de mesaje între oameni"
+    "definition": "Schimbul de mesaje între oameni",
+    "word_en": "dialogue",
+    "definition_en": "Exchange of messages between people"
   },
   {
     "word": "conflict",
-    "definition": "Ciocnire între interese opuse"
+    "definition": "Ciocnire între interese opuse",
+    "word_en": "conflict",
+    "definition_en": "A clash between opposing interests"
   },
   {
     "word": "iertare",
-    "definition": "A renunța la resentiment"
+    "definition": "A renunța la resentiment",
+    "word_en": "forgiveness",
+    "definition_en": "Letting go of resentment"
   },
   {
     "word": "încredere",
-    "definition": "A crede în cineva sincer"
+    "definition": "A crede în cineva sincer",
+    "word_en": "trust",
+    "definition_en": "Believing in someone sincerely"
   },
   {
     "word": "onestitate",
-    "definition": "A spune mereu adevărul"
+    "definition": "A spune mereu adevărul",
+    "word_en": "honesty",
+    "definition_en": "Always telling the truth"
   },
   {
     "word": "suport",
-    "definition": "Ajutor oferit cuiva drag"
+    "definition": "Ajutor oferit cuiva drag",
+    "word_en": "support",
+    "definition_en": "Help offered to someone dear"
   },
   {
     "word": "gelozie",
-    "definition": "Frică de a pierde partenerul"
+    "definition": "Frică de a pierde partenerul",
+    "word_en": "jealousy",
+    "definition_en": "Fear of losing your partner"
   },
   {
     "word": "separare",
-    "definition": "A te despărți de cineva"
+    "definition": "A te despărți de cineva",
+    "word_en": "separation",
+    "definition_en": "Parting from someone"
   },
   {
     "word": "legătură",
-    "definition": "Conexiune între două persoane"
+    "definition": "Conexiune între două persoane",
+    "word_en": "bond",
+    "definition_en": "A connection between two people"
   },
   {
     "word": "întâlnire",
-    "definition": "Primul contact dintre persoane"
+    "definition": "Primul contact dintre persoane",
+    "word_en": "meeting",
+    "definition_en": "First contact between people"
   },
   {
     "word": "ruptură",
-    "definition": "Sfârșitul unei relații"
+    "definition": "Sfârșitul unei relații",
+    "word_en": "breakup",
+    "definition_en": "The end of a relationship"
   },
   {
     "word": "împăcare",
-    "definition": "Revenirea la bună înțelegere"
+    "definition": "Revenirea la bună înțelegere",
+    "word_en": "reconciliation",
+    "definition_en": "Returning to good understanding"
   },
   {
     "word": "admirație",
-    "definition": "Apreciere sinceră a celuilalt"
+    "definition": "Apreciere sinceră a celuilalt",
+    "word_en": "admiration",
+    "definition_en": "Sincere appreciation of the other person"
   },
   {
     "word": "atracție",
-    "definition": "Forță care îi apropie pe oameni"
+    "definition": "Forță care îi apropie pe oameni",
+    "word_en": "attraction",
+    "definition_en": "A force that draws people together"
   },
   {
     "word": "potrivire",
-    "definition": "Compatibilitate naturală între doi"
+    "definition": "Compatibilitate naturală între doi",
+    "word_en": "compatibility",
+    "definition_en": "Natural fit between two people"
   },
   {
     "word": "devotament",
-    "definition": "Dedicare totală față de cineva"
+    "definition": "Dedicare totală față de cineva",
+    "word_en": "devotion",
+    "definition_en": "Total dedication to someone"
   },
   {
     "word": "partener",
-    "definition": "Cel alaturi de care acționezi"
+    "definition": "Cel alaturi de care acționezi",
+    "word_en": "partner",
+    "definition_en": "The person you act alongside"
   },
   {
     "word": "coleg",
-    "definition": "Persoană cu care muncești"
+    "definition": "Persoană cu care muncești",
+    "word_en": "coworker",
+    "definition_en": "Someone you work with"
   },
   {
     "word": "vecin",
-    "definition": "Cel care locuiește aproape"
+    "definition": "Cel care locuiește aproape",
+    "word_en": "neighbor",
+    "definition_en": "Someone who lives nearby"
   },
   {
     "word": "mentor",
-    "definition": "Ghid și îndrumător al altuia"
+    "definition": "Ghid și îndrumător al altuia",
+    "word_en": "mentor",
+    "definition_en": "A guide for someone else"
   },
   {
     "word": "rival",
-    "definition": "Cel care concureaza cu tine"
+    "definition": "Cel care concureaza cu tine",
+    "word_en": "rival",
+    "definition_en": "Someone who competes with you"
   },
   {
     "word": "dusman",
-    "definition": "Cel care îți vrea răul"
+    "definition": "Cel care îți vrea răul",
+    "word_en": "enemy",
+    "definition_en": "Someone who wishes you harm"
   },
   {
     "word": "alianță",
-    "definition": "Înțelegere între două părți"
+    "definition": "Înțelegere între două părți",
+    "word_en": "alliance",
+    "definition_en": "An agreement between two parties"
   },
   {
     "word": "cooperare",
-    "definition": "A lucra împreună spre un scop"
+    "definition": "A lucra împreună spre un scop",
+    "word_en": "cooperation",
+    "definition_en": "Working together toward a goal"
   },
   {
     "word": "acord",
-    "definition": "Înțelegere între două persoane"
+    "definition": "Înțelegere între două persoane",
+    "word_en": "agreement",
+    "definition_en": "Understanding between two people"
   },
   {
     "word": "empatie",
-    "definition": "A simți ce simte celălalt"
+    "definition": "A simți ce simte celălalt",
+    "word_en": "empathy",
+    "definition_en": "Feeling what the other person feels"
   },
   {
     "word": "apropiere",
-    "definition": "Reducerea distanței emoționale"
+    "definition": "Reducerea distanței emoționale",
+    "word_en": "closeness",
+    "definition_en": "Reducing emotional distance"
   },
   {
     "word": "distanță",
-    "definition": "Separare emoțională sau fizică"
+    "definition": "Separare emoțională sau fizică",
+    "word_en": "distance",
+    "definition_en": "Emotional or physical separation"
   },
   {
     "word": "sacrificiu",
-    "definition": "A renunța la ceva pentru altul"
+    "definition": "A renunța la ceva pentru altul",
+    "word_en": "sacrifice",
+    "definition_en": "Giving something up for someone else"
   },
   {
     "word": "grijă",
-    "definition": "Atenție acordată cuiva drag"
+    "definition": "Atenție acordată cuiva drag",
+    "word_en": "care",
+    "definition_en": "Attention given to someone dear"
   },
   {
     "word": "protecție",
-    "definition": "A apăra pe cineva de rău"
+    "definition": "A apăra pe cineva de rău",
+    "word_en": "protection",
+    "definition_en": "Defending someone from harm"
   },
   {
     "word": "siguranță",
-    "definition": "Sentiment de a fi protejat"
+    "definition": "Sentiment de a fi protejat",
+    "word_en": "safety",
+    "definition_en": "Feeling protected"
   },
   {
     "word": "tacit",
-    "definition": "Înțelegere fără vorbe între doi"
+    "definition": "Înțelegere fără vorbe între doi",
+    "word_en": "tacit",
+    "definition_en": "Understanding without words between two people"
   },
   {
     "word": "intimitate",
-    "definition": "Apropiere profundă cu cineva"
+    "definition": "Apropiere profundă cu cineva",
+    "word_en": "intimacy",
+    "definition_en": "Deep closeness with someone"
   },
   {
     "word": "promisiune",
-    "definition": "Angajament față de cineva"
+    "definition": "Angajament față de cineva",
+    "word_en": "promise",
+    "definition_en": "A commitment to someone"
   },
   {
     "word": "minciună",
-    "definition": "A spune ceva neadevărat"
+    "definition": "A spune ceva neadevărat",
+    "word_en": "lie",
+    "definition_en": "Saying something untrue"
   },
   {
     "word": "deschis",
-    "definition": "A fi sincer și transparent"
+    "definition": "A fi sincer și transparent",
+    "word_en": "openness",
+    "definition_en": "Being sincere and transparent"
   },
   {
     "word": "umor",
-    "definition": "Capacitatea de a face glume"
+    "definition": "Capacitatea de a face glume",
+    "word_en": "humor",
+    "definition_en": "The ability to make jokes"
   },
   {
     "word": "amiciție",
-    "definition": "Prietenie veche și solidă"
+    "definition": "Prietenie veche și solidă",
+    "word_en": "camaraderie",
+    "definition_en": "Old, solid friendship"
   },
   {
     "word": "acceptare",
-    "definition": "A primi pe cineva așa cum e"
+    "definition": "A primi pe cineva așa cum e",
+    "word_en": "acceptance",
+    "definition_en": "Taking someone as they are"
   },
   {
     "word": "toleranță",
-    "definition": "A respecta diferențele altora"
+    "definition": "A respecta diferențele altora",
+    "word_en": "tolerance",
+    "definition_en": "Respecting others' differences"
   },
   {
     "word": "unitate",
-    "definition": "Sprijin mutual între oameni"
+    "definition": "Sprijin mutual între oameni",
+    "word_en": "unity",
+    "definition_en": "Mutual support among people"
   }
 ]

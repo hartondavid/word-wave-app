@@ -1,202 +1,302 @@
 [
   {
     "word": "Dumnezeu",
-    "definition": "Ființă supremă a universului"
+    "definition": "Ființă supremă a universului",
+    "word_en": "god",
+    "definition_en": "Supreme being of the universe"
   },
   {
     "word": "rugăciune",
-    "definition": "Vorbă adresată lui Dumnezeu"
+    "definition": "Vorbă adresată lui Dumnezeu",
+    "word_en": "prayer",
+    "definition_en": "Speech to God"
   },
   {
     "word": "credință",
-    "definition": "Convingere fără dovadă rațională"
+    "definition": "Convingere fără dovadă rațională",
+    "word_en": "faith",
+    "definition_en": "Conviction without rational proof"
   },
   {
     "word": "religie",
-    "definition": "Sistem de credințe despre divinitate"
+    "definition": "Sistem de credințe despre divinitate",
+    "word_en": "religion",
+    "definition_en": "Belief system of divinity"
   },
   {
     "word": "biserică",
-    "definition": "Lăcașul de cult creștin"
+    "definition": "Lăcașul de cult creștin",
+    "word_en": "church",
+    "definition_en": "The Christian place of worship"
   },
   {
     "word": "Biblia",
-    "definition": "Cartea sfântă a creștinilor"
+    "definition": "Cartea sfântă a creștinilor",
+    "word_en": "bible",
+    "definition_en": "The Holy Book of Christians"
   },
   {
     "word": "Coranul",
-    "definition": "Cartea sfântă a islamului"
+    "definition": "Cartea sfântă a islamului",
+    "word_en": "qur 'an",
+    "definition_en": "The Holy Book of Islam"
   },
   {
     "word": "sufletul",
-    "definition": "Esență spirituală a omului"
+    "definition": "Esență spirituală a omului",
+    "word_en": "soul",
+    "definition_en": "Spiritual essence of man"
   },
   {
     "word": "spiritul",
-    "definition": "Forță imaterială din om"
+    "definition": "Forță imaterială din om",
+    "word_en": "the",
+    "definition_en": "Immaterial force in man"
   },
   {
     "word": "mintea",
-    "definition": "Centrul gândirii și conștiinței"
+    "definition": "Centrul gândirii și conștiinței",
+    "word_en": "mind",
+    "definition_en": "Center of Thought and Consciousness"
   },
   {
     "word": "conștiință",
-    "definition": "Vocea interioară a binelui"
+    "definition": "Vocea interioară a binelui",
+    "word_en": "conscience",
+    "definition_en": "The inner voice of good"
   },
   {
     "word": "păcatul",
-    "definition": "Încălcarea normelor divine"
+    "definition": "Încălcarea normelor divine",
+    "word_en": "sin happened.",
+    "definition_en": "Violation of divine norms"
   },
   {
     "word": "iertarea",
-    "definition": "Absolvirea de păcate"
+    "definition": "Absolvirea de păcate",
+    "word_en": "awakened",
+    "definition_en": "The absolution of sins"
   },
   {
     "word": "mântuire",
-    "definition": "Salvarea sufletului în creștinism"
+    "definition": "Salvarea sufletului în creștinism",
+    "word_en": "salvation",
+    "definition_en": "Saving the Soul in Christianity"
   },
   {
     "word": "paradisul",
-    "definition": "Locul fericirii veșnice"
+    "definition": "Locul fericirii veșnice",
+    "word_en": "paradise",
+    "definition_en": "The place of eternal happiness"
   },
   {
     "word": "iadul",
-    "definition": "Locul pedepsei veșnice"
+    "definition": "Locul pedepsei veșnice",
+    "word_en": "hell",
+    "definition_en": "Place of eternal punishment"
   },
   {
     "word": "purgatoriu",
-    "definition": "Loc de purificare a sufletului"
+    "definition": "Loc de purificare a sufletului",
+    "word_en": "purgatory",
+    "definition_en": "Place of purification of the soul"
   },
   {
     "word": "îngerul",
-    "definition": "Ființă divină bună și protectoare"
+    "definition": "Ființă divină bună și protectoare",
+    "word_en": "angel",
+    "definition_en": "Good and protective divine being"
   },
   {
     "word": "diavolul",
-    "definition": "Forță răului în religie"
+    "definition": "Forță răului în religie",
+    "word_en": "the devil can",
+    "definition_en": "The force of evil in religion"
   },
   {
     "word": "miracol",
-    "definition": "Eveniment inexplicabil divin"
+    "definition": "Eveniment inexplicabil divin",
+    "word_en": "miracle",
+    "definition_en": "Divine unexplained event"
   },
   {
     "word": "profet",
-    "definition": "Cel care transmite mesajul divin"
+    "definition": "Cel care transmite mesajul divin",
+    "word_en": "prophet",
+    "definition_en": "The one who conveys the divine message"
   },
   {
     "word": "apostol",
-    "definition": "Urmaș direct al lui Iisus"
+    "definition": "Urmaș direct al lui Iisus",
+    "word_en": "apostol",
+    "definition_en": "Direct follower of Jesus"
   },
   {
     "word": "Iisus",
-    "definition": "Fiul lui Dumnezeu în creștinism"
+    "definition": "Fiul lui Dumnezeu în creștinism",
+    "word_en": "jesus",
+    "definition_en": "The Son of God in Christianity"
   },
   {
     "word": "liturghie",
-    "definition": "Slujbă religioasă ortodoxă"
+    "definition": "Slujbă religioasă ortodoxă",
+    "word_en": "liturgical",
+    "definition_en": "Orthodox religious service"
   },
   {
     "word": "postul",
-    "definition": "Abstinență că practică spirituală"
+    "definition": "Abstinență că practică spirituală",
+    "word_en": "item",
+    "definition_en": "Abstinence as a spiritual practice"
   },
   {
     "word": "confesiune",
-    "definition": "Mărturisirea păcatelor"
+    "definition": "Mărturisirea păcatelor",
+    "word_en": "confession",
+    "definition_en": "Confession of sins"
   },
   {
     "word": "ispită",
-    "definition": "Atracția spre păcat"
+    "definition": "Atracția spre păcat",
+    "word_en": "temptation",
+    "definition_en": "Attraction to sin"
   },
   {
     "word": "virtutea",
-    "definition": "Calitate morală și spirituală"
+    "definition": "Calitate morală și spirituală",
+    "word_en": "virtue",
+    "definition_en": "Moral and spiritual quality"
   },
   {
     "word": "smerenie",
-    "definition": "Umilință și modestie spirituală"
+    "definition": "Umilință și modestie spirituală",
+    "word_en": "humility",
+    "definition_en": "Spiritual humility and modesty"
   },
   {
     "word": "milostenie",
-    "definition": "Darul dat celor săraci"
+    "definition": "Darul dat celor săraci",
+    "word_en": "alms",
+    "definition_en": "Gift to the poor"
   },
   {
     "word": "monah",
-    "definition": "Persoană cu viață călugărească"
+    "definition": "Persoană cu viață călugărească",
+    "word_en": "monk",
+    "definition_en": "A person of religious life"
   },
   {
     "word": "mânăstire",
-    "definition": "Așezământ al vieții monahale"
+    "definition": "Așezământ al vieții monahale",
+    "word_en": "monastery",
+    "definition_en": "Establishment of monastic life"
   },
   {
     "word": "pustnic",
-    "definition": "Cel care trăiește singur rugandu-se"
+    "definition": "Cel care trăiește singur rugandu-se",
+    "word_en": "hermit",
+    "definition_en": "The one who lives alone praying"
   },
   {
     "word": "meditație",
-    "definition": "Practică contemplativă spirituală"
+    "definition": "Practică contemplativă spirituală",
+    "word_en": "meditation",
+    "definition_en": "Spiritual contemplative practice"
   },
   {
     "word": "iluminare",
-    "definition": "Trezire spirituală profundă"
+    "definition": "Trezire spirituală profundă",
+    "word_en": "illumination",
+    "definition_en": "Deep spiritual awakening"
   },
   {
     "word": "karma",
-    "definition": "Principiul cauzei și efectului"
+    "definition": "Principiul cauzei și efectului",
+    "word_en": "karma",
+    "definition_en": "Principle of cause and effect"
   },
   {
     "word": "nirvana",
-    "definition": "Stare de pace supremă budistă"
+    "definition": "Stare de pace supremă budistă",
+    "word_en": "nirvana",
+    "definition_en": "Buddhist supreme peace"
   },
   {
     "word": "suferință",
-    "definition": "Încercare cu valoare spirituală"
+    "definition": "Încercare cu valoare spirituală",
+    "word_en": "distress",
+    "definition_en": "Trial with spiritual value"
   },
   {
     "word": "sacrificiu",
-    "definition": "Ofrandă-trecătoare către divin"
+    "definition": "Ofrandă-trecătoare către divin",
+    "word_en": "sacrifice",
+    "definition_en": "Passing-offering to the divine"
   },
   {
     "word": "mulțumire",
-    "definition": "Mulțumire adresată lui Dumnezeu"
+    "definition": "Mulțumire adresată lui Dumnezeu",
+    "word_en": "thank",
+    "definition_en": "Thanksgiving to God"
   },
   {
     "word": "credincios",
-    "definition": "Cel care are credință"
+    "definition": "Cel care are credință",
+    "word_en": "faithful",
+    "definition_en": "He who has faith"
   },
   {
     "word": "ateu",
-    "definition": "Cel care nu crede în Dumnezeu"
+    "definition": "Cel care nu crede în Dumnezeu",
+    "word_en": "atheist",
+    "definition_en": "He who does not believe in God"
   },
   {
     "word": "agnostic",
-    "definition": "Cel care nu știe dacă Dumnezeu există"
+    "definition": "Cel care nu știe dacă Dumnezeu există",
+    "word_en": "agnostic",
+    "definition_en": "The one who doesn't know if God exists"
   },
   {
     "word": "ritual",
-    "definition": "Practică religioasă repetată"
+    "definition": "Practică religioasă repetată",
+    "word_en": "ritual",
+    "definition_en": "Repeated religious practice"
   },
   {
     "word": "simbol",
-    "definition": "Semn cu semnificație spirituală"
+    "definition": "Semn cu semnificație spirituală",
+    "word_en": "symbol",
+    "definition_en": "Spiritually significant sign"
   },
   {
     "word": "cruce",
-    "definition": "Simbolul central al creștinismului"
+    "definition": "Simbolul central al creștinismului",
+    "word_en": "crosshairs",
+    "definition_en": "The central symbol of Christianity"
   },
   {
     "word": "lumină",
-    "definition": "Metaforă a prezenței divine"
+    "definition": "Metaforă a prezenței divine",
+    "word_en": "visible light.",
+    "definition_en": "Divine Presence Metaphor"
   },
   {
     "word": "întuneric",
-    "definition": "Metaforă a absenței lui Dumnezeu"
+    "definition": "Metaforă a absenței lui Dumnezeu",
+    "word_en": "the darkness",
+    "definition_en": "A metaphor for the absence of God"
   },
   {
     "word": "speranță",
-    "definition": "Încrederea în binele divin"
+    "definition": "Încrederea în binele divin",
+    "word_en": "hope",
+    "definition_en": "Trust in the divine good"
   },
   {
     "word": "providență",
-    "definition": "Grijă divină pentru oameni"
+    "definition": "Grijă divină pentru oameni",
+    "word_en": "providence",
+    "definition_en": "Divine care for humans"
   }
 ]

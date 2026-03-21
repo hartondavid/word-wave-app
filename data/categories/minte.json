@@ -1,202 +1,302 @@
 [
   {
     "word": "gândire",
-    "definition": "Procesul de formare a ideilor"
+    "definition": "Procesul de formare a ideilor",
+    "word_en": "thinking",
+    "definition_en": "The process of forming ideas"
   },
   {
     "word": "rațiune",
-    "definition": "Capacitatea de a judeca logic"
+    "definition": "Capacitatea de a judeca logic",
+    "word_en": "reason",
+    "definition_en": "The ability to think and judge logically"
   },
   {
     "word": "intuiție",
-    "definition": "Cunoaștere directă fără calcul"
+    "definition": "Cunoaștere directă fără calcul",
+    "word_en": "intuition",
+    "definition_en": "Knowing something without step-by-step reasoning"
   },
   {
     "word": "imaginație",
-    "definition": "Capacitatea de a crea mental"
+    "definition": "Capacitatea de a crea mental",
+    "word_en": "imagination",
+    "definition_en": "The ability to create things in your mind"
   },
   {
     "word": "memoria",
-    "definition": "Stocarea informațiilor în creier"
+    "definition": "Stocarea informațiilor în creier",
+    "word_en": "memory",
+    "definition_en": "Storing and recalling information in the brain"
   },
   {
     "word": "uitare",
-    "definition": "Pierderea informației din memorie"
+    "definition": "Pierderea informației din memorie",
+    "word_en": "forgetting",
+    "definition_en": "Losing information from memory"
   },
   {
     "word": "atenția",
-    "definition": "Focusul minții pe un obiect"
+    "definition": "Focusul minții pe un obiect",
+    "word_en": "attention",
+    "definition_en": "Mental focus on one thing"
   },
   {
     "word": "focusare",
-    "definition": "Menținerea atenției pe ceva"
+    "definition": "Menținerea atenției pe ceva",
+    "word_en": "focus",
+    "definition_en": "Keeping your attention on something"
   },
   {
     "word": "distracție",
-    "definition": "Deviere a atenției de la scop"
+    "definition": "Deviere a atenției de la scop",
+    "word_en": "distraction",
+    "definition_en": "Attention drifting away from your goal"
   },
   {
     "word": "logică",
-    "definition": "Raționament corect și coerent"
+    "definition": "Raționament corect și coerent",
+    "word_en": "logic",
+    "definition_en": "Correct, coherent reasoning"
   },
   {
     "word": "critică",
-    "definition": "Evaluarea cu discernământ"
+    "definition": "Evaluarea cu discernământ",
+    "word_en": "criticism",
+    "definition_en": "Judging something with discernment"
   },
   {
     "word": "analiză",
-    "definition": "Descompunerea unui întreg în părți"
+    "definition": "Descompunerea unui întreg în părți",
+    "word_en": "analysis",
+    "definition_en": "Breaking a whole into parts to study it"
   },
   {
     "word": "sinteză",
-    "definition": "Unificarea părților într-un întreg"
+    "definition": "Unificarea părților într-un întreg",
+    "word_en": "synthesis",
+    "definition_en": "Uniting parts into one whole"
   },
   {
     "word": "judecată",
-    "definition": "Evaluarea și luarea deciziei"
+    "definition": "Evaluarea și luarea deciziei",
+    "word_en": "judgment",
+    "definition_en": "Assessing a situation and deciding"
   },
   {
     "word": "decizie",
-    "definition": "Alegerea dintre mai multe optiuni"
+    "definition": "Alegerea dintre mai multe optiuni",
+    "word_en": "decision",
+    "definition_en": "Choosing among several options"
   },
   {
     "word": "dilemă",
-    "definition": "Situație cu două soluții egale"
+    "definition": "Situație cu două soluții egale",
+    "word_en": "dilemma",
+    "definition_en": "A hard choice between two similar options"
   },
   {
     "word": "paradox",
-    "definition": "Afirmație ce se contrazice"
+    "definition": "Afirmație ce se contrazice",
+    "word_en": "paradox",
+    "definition_en": "A statement that seems to contradict itself"
   },
   {
     "word": "metaforă",
-    "definition": "Comparația implicită între lucruri"
+    "definition": "Comparația implicită între lucruri",
+    "word_en": "metaphor",
+    "definition_en": "An implied comparison between things"
   },
   {
     "word": "concept",
-    "definition": "Idee abstractă și generală"
+    "definition": "Idee abstractă și generală",
+    "word_en": "concept",
+    "definition_en": "A general abstract idea"
   },
   {
     "word": "abstracție",
-    "definition": "Gândire detașată de concret"
+    "definition": "Gândire detașată de concret",
+    "word_en": "abstraction",
+    "definition_en": "Thinking apart from concrete things"
   },
   {
     "word": "concret",
-    "definition": "Legat direct de realitate"
+    "definition": "Legat direct de realitate",
+    "word_en": "concrete",
+    "definition_en": "Directly tied to real, tangible reality"
   },
   {
     "word": "teoria",
-    "definition": "Explicație sistematică a unui fenomen"
+    "definition": "Explicație sistematică a unui fenomen",
+    "word_en": "theory",
+    "definition_en": "A systematic explanation of a phenomenon"
   },
   {
     "word": "practică",
-    "definition": "Aplicarea teoriei în realitate"
+    "definition": "Aplicarea teoriei în realitate",
+    "word_en": "practice",
+    "definition_en": "Applying theory in real life"
   },
   {
     "word": "experientă",
-    "definition": "Cunoaștere dobândită prin trăirea"
+    "definition": "Cunoaștere dobândită prin trăirea",
+    "word_en": "experience",
+    "definition_en": "Knowledge gained by living through events"
   },
   {
     "word": "educație",
-    "definition": "Procesul de formare a minții"
+    "definition": "Procesul de formare a minții",
+    "word_en": "education",
+    "definition_en": "The process of shaping the mind"
   },
   {
     "word": "învățare",
-    "definition": "Dobândirea de cunoștințe noi"
+    "definition": "Dobândirea de cunoștințe noi",
+    "word_en": "learning",
+    "definition_en": "Gaining new knowledge"
   },
   {
     "word": "cunoaștere",
-    "definition": "Totalitatea informațiilor acumulate"
+    "definition": "Totalitatea informațiilor acumulate",
+    "word_en": "knowledge",
+    "definition_en": "All the information you have gathered"
   },
   {
     "word": "ignoranță",
-    "definition": "Lipsă cunoașterii și informației"
+    "definition": "Lipsă cunoașterii și informației",
+    "word_en": "ignorance",
+    "definition_en": "Lack of knowledge or information"
   },
   {
     "word": "preconcept",
-    "definition": "Judecată formată fără temei"
+    "definition": "Judecată formată fără temei",
+    "word_en": "prejudice",
+    "definition_en": "A judgment formed without good grounds"
   },
   {
     "word": "stereotip",
-    "definition": "Imagine fixă și simplificată"
+    "definition": "Imagine fixă și simplificată",
+    "word_en": "stereotype",
+    "definition_en": "A fixed, oversimplified picture of a group"
   },
   {
     "word": "credință",
-    "definition": "Convingere fără dovadă rațională"
+    "definition": "Convingere fără dovadă rațională",
+    "word_en": "faith",
+    "definition_en": "Belief not based only on rational proof"
   },
   {
     "word": "siguranță",
-    "definition": "Convingere deplină că ceva e adevărat"
+    "definition": "Convingere deplină că ceva e adevărat",
+    "word_en": "certainty",
+    "definition_en": "Full conviction that something is true"
   },
   {
     "word": "îndoială",
-    "definition": "Lipsă certitudinii despre ceva"
+    "definition": "Lipsă certitudinii despre ceva",
+    "word_en": "doubt",
+    "definition_en": "Lack of certainty about something"
   },
   {
     "word": "interes",
-    "definition": "Dorință de a descoperi ceva nou"
+    "definition": "Dorință de a descoperi ceva nou",
+    "word_en": "interest",
+    "definition_en": "Wanting to discover something new"
   },
   {
     "word": "explorare",
-    "definition": "Căutarea necunoscutului"
+    "definition": "Căutarea necunoscutului",
+    "word_en": "exploration",
+    "definition_en": "Searching into the unknown"
   },
   {
     "word": "găsire",
-    "definition": "Aflarea unui lucru nou"
+    "definition": "Aflarea unui lucru nou",
+    "word_en": "discovery",
+    "definition_en": "Finding out something new"
   },
   {
     "word": "invenție",
-    "definition": "Crearea unui lucru complet nou"
+    "definition": "Crearea unui lucru complet nou",
+    "word_en": "invention",
+    "definition_en": "Creating something entirely new"
   },
   {
     "word": "inovație",
-    "definition": "Îmbunătățirea a ceva existent"
+    "definition": "Îmbunătățirea a ceva existent",
+    "word_en": "innovation",
+    "definition_en": "Improving something that already exists"
   },
   {
     "word": "unghi",
-    "definition": "Mod de vedere asupra unui lucru"
+    "definition": "Mod de vedere asupra unui lucru",
+    "word_en": "angle",
+    "definition_en": "A way of looking at something"
   },
   {
     "word": "viziunea",
-    "definition": "Imagine clară a unui viitor dorit"
+    "definition": "Imagine clară a unui viitor dorit",
+    "word_en": "vision",
+    "definition_en": "A clear picture of a future you want"
   },
   {
     "word": "conștiință",
-    "definition": "Starea de a fi conștient"
+    "definition": "Starea de a fi conștient",
+    "word_en": "consciousness",
+    "definition_en": "Being aware of yourself and the world"
   },
   {
     "word": "abisul",
-    "definition": "Adâncul ascuns al minții"
+    "definition": "Adâncul ascuns al minții",
+    "word_en": "abyss",
+    "definition_en": "The hidden depths of the mind"
   },
   {
     "word": "visul",
-    "definition": "Imagini mentale în timpul somnului"
+    "definition": "Imagini mentale în timpul somnului",
+    "word_en": "dream",
+    "definition_en": "Mental images while you sleep"
   },
   {
     "word": "aspirația",
-    "definition": "Dorință puternică de a deveni"
+    "definition": "Dorință puternică de a deveni",
+    "word_en": "aspiration",
+    "definition_en": "A strong wish to become or achieve"
   },
   {
     "word": "idealism",
-    "definition": "Credință în perfectibilitatea lumii"
+    "definition": "Credință în perfectibilitatea lumii",
+    "word_en": "idealism",
+    "definition_en": "Belief that the world or people can become ideal"
   },
   {
     "word": "pragmatism",
-    "definition": "Accent pe ce funcționează"
+    "definition": "Accent pe ce funcționează",
+    "word_en": "pragmatism",
+    "definition_en": "Focus on what works in practice"
   },
   {
     "word": "scepticism",
-    "definition": "Îndoială față de orice afirmație"
+    "definition": "Îndoială față de orice afirmație",
+    "word_en": "skepticism",
+    "definition_en": "Doubting claims until there is proof"
   },
   {
     "word": "dogmatism",
-    "definition": "Acceptare oarbă a unor idei"
+    "definition": "Acceptare oarbă a unor idei",
+    "word_en": "dogmatism",
+    "definition_en": "Accepting ideas blindly without questioning"
   },
   {
     "word": "reflecția",
-    "definition": "Gândul adânc asupra unui subiect"
+    "definition": "Gândul adânc asupra unui subiect",
+    "word_en": "reflection",
+    "definition_en": "Deep thought about a subject"
   },
   {
     "word": "meditație",
-    "definition": "Practică de liniștire a minții"
+    "definition": "Practică de liniștire a minții",
+    "word_en": "meditation",
+    "definition_en": "A practice of calming the mind"
   }
 ]

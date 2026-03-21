@@ -1,202 +1,302 @@
 [
   {
     "word": "autenticul",
-    "definition": "A fi tu însuți în orice moment"
+    "definition": "A fi tu însuți în orice moment",
+    "word_en": "authenticity",
+    "definition_en": "Being yourself in every moment"
   },
   {
     "word": "onestitate",
-    "definition": "Coerență între vorbe și fapte"
+    "definition": "Coerență între vorbe și fapte",
+    "word_en": "honesty",
+    "definition_en": "Consistency between words and deeds"
   },
   {
     "word": "curajul",
-    "definition": "Acțiunea în ciuda fricii"
+    "definition": "Acțiunea în ciuda fricii",
+    "word_en": "courage",
+    "definition_en": "Acting despite fear"
   },
   {
     "word": "dăruire",
-    "definition": "Dăruirea fără a aștepta nimic"
+    "definition": "Dăruirea fără a aștepta nimic",
+    "word_en": "selflessness",
+    "definition_en": "Giving without expecting anything in return"
   },
   {
     "word": "mulțumire",
-    "definition": "Aprecierea binelui primit"
+    "definition": "Aprecierea binelui primit",
+    "word_en": "gratitude",
+    "definition_en": "Appreciation for the good you receive"
   },
   {
     "word": "bunătatea",
-    "definition": "Dispoziția naturală de a face bine"
+    "definition": "Dispoziția naturală de a face bine",
+    "word_en": "kindness",
+    "definition_en": "A natural disposition to do good"
   },
   {
     "word": "compasion",
-    "definition": "Sensibilitate la suferință altora"
+    "definition": "Sensibilitate la suferință altora",
+    "word_en": "compassion",
+    "definition_en": "Sensitivity to others' suffering"
   },
   {
     "word": "empatie",
-    "definition": "Capacitatea de a simți că alții"
+    "definition": "Capacitatea de a simți că alții",
+    "word_en": "empathy",
+    "definition_en": "The ability to feel what others feel"
   },
   {
     "word": "respect",
-    "definition": "Considerație față de fiecare"
+    "definition": "Considerație față de fiecare",
+    "word_en": "respect",
+    "definition_en": "Consideration for everyone"
   },
   {
     "word": "demnitate",
-    "definition": "Stimă de sine și a altora"
+    "definition": "Stimă de sine și a altora",
+    "word_en": "dignity",
+    "definition_en": "Self-respect and respect for others"
   },
   {
     "word": "onoarea",
-    "definition": "Respectul câștigat prin fapte"
+    "definition": "Respectul câștigat prin fapte",
+    "word_en": "honor",
+    "definition_en": "Respect earned through your deeds"
   },
   {
     "word": "credință",
-    "definition": "Încredere nestrămutată în ceva"
+    "definition": "Încredere nestrămutată în ceva",
+    "word_en": "faith",
+    "definition_en": "Unshakable trust in something"
   },
   {
     "word": "loialitate",
-    "definition": "Fidelitate față de valori"
+    "definition": "Fidelitate față de valori",
+    "word_en": "loyalty",
+    "definition_en": "Fidelity to your values"
   },
   {
     "word": "dreptatea",
-    "definition": "A da fiecăruia ce i se cuvine"
+    "definition": "A da fiecăruia ce i se cuvine",
+    "word_en": "justice",
+    "definition_en": "Giving each person what they are due"
   },
   {
     "word": "egalitate",
-    "definition": "Tratament identic pentru toți"
+    "definition": "Tratament identic pentru toți",
+    "word_en": "equality",
+    "definition_en": "The same treatment for all"
   },
   {
     "word": "libertatea",
-    "definition": "A trai după propria conștiință"
+    "definition": "A trai după propria conștiință",
+    "word_en": "freedom",
+    "definition_en": "Living according to your own conscience"
   },
   {
     "word": "asumare",
-    "definition": "A-ti asuma consecințele faptelor"
+    "definition": "A-ti asuma consecințele faptelor",
+    "word_en": "accountability",
+    "definition_en": "Owning the consequences of your actions"
   },
   {
     "word": "moderație",
-    "definition": "A evita orice exces"
+    "definition": "A evita orice exces",
+    "word_en": "moderation",
+    "definition_en": "Avoiding every excess"
   },
   {
     "word": "simplitate",
-    "definition": "A trai cu ceea ce este esențial"
+    "definition": "A trai cu ceea ce este esențial",
+    "word_en": "simplicity",
+    "definition_en": "Living with what is essential"
   },
   {
     "word": "prezență",
-    "definition": "A fi complet în momentul actual"
+    "definition": "A fi complet în momentul actual",
+    "word_en": "presence",
+    "definition_en": "Being fully in the present moment"
   },
   {
     "word": "echilibru",
-    "definition": "Balanță între toate aspectele vieții"
+    "definition": "Balanță între toate aspectele vieții",
+    "word_en": "balance",
+    "definition_en": "Balance among all aspects of life"
   },
   {
     "word": "sănătate",
-    "definition": "Bunăstarea corpului și minții"
+    "definition": "Bunăstarea corpului și minții",
+    "word_en": "health",
+    "definition_en": "Well-being of body and mind"
   },
   {
     "word": "iubirea",
-    "definition": "Sentimentul care da sens vieții"
+    "definition": "Sentimentul care da sens vieții",
+    "word_en": "love",
+    "definition_en": "The feeling that gives life meaning"
   },
   {
     "word": "familia",
-    "definition": "Fundamentul vieții personale"
+    "definition": "Fundamentul vieții personale",
+    "word_en": "family",
+    "definition_en": "The foundation of personal life"
   },
   {
     "word": "prietenia",
-    "definition": "Legătură sinceră cu ceilalți"
+    "definition": "Legătură sinceră cu ceilalți",
+    "word_en": "friendship",
+    "definition_en": "A sincere bond with others"
   },
   {
     "word": "muncă",
-    "definition": "Efortul care da sens existenței"
+    "definition": "Efortul care da sens existenței",
+    "word_en": "work",
+    "definition_en": "Effort that gives existence meaning"
   },
   {
     "word": "invenție",
-    "definition": "Expresia unică a ființei tale"
+    "definition": "Expresia unică a ființei tale",
+    "word_en": "individuality",
+    "definition_en": "The unique expression of who you are"
   },
   {
     "word": "învățare",
-    "definition": "Creșterea continua prin cunoaștere"
+    "definition": "Creșterea continua prin cunoaștere",
+    "word_en": "learning",
+    "definition_en": "Continuous growth through knowledge"
   },
   {
     "word": "interes",
-    "definition": "Motorul descoperirilor personale"
+    "definition": "Motorul descoperirilor personale",
+    "word_en": "interest",
+    "definition_en": "The engine of personal discovery"
   },
   {
     "word": "umorul",
-    "definition": "Ușurință de a trai cu bucurie"
+    "definition": "Ușurință de a trai cu bucurie",
+    "word_en": "humor",
+    "definition_en": "A light way of living with joy"
   },
   {
     "word": "natură",
-    "definition": "Conexiunea cu lumea vie"
+    "definition": "Conexiunea cu lumea vie",
+    "word_en": "nature",
+    "definition_en": "Connection with the living world"
   },
   {
     "word": "frumusețea",
-    "definition": "Aprecierea esteticului în viață"
+    "definition": "Aprecierea esteticului în viață",
+    "word_en": "beauty",
+    "definition_en": "Appreciation of aesthetics in life"
   },
   {
     "word": "spiritual",
-    "definition": "Dimensiunea transcendență a vieții"
+    "definition": "Dimensiunea transcendență a vieții",
+    "word_en": "spiritual",
+    "definition_en": "The transcendent dimension of life"
   },
   {
     "word": "vocația",
-    "definition": "Muncă care da sens profund"
+    "definition": "Muncă care da sens profund",
+    "word_en": "vocation",
+    "definition_en": "Work that gives deep meaning"
   },
   {
     "word": "pasiunea",
-    "definition": "Iubirea intensă pentru o activitate"
+    "definition": "Iubirea intensă pentru o activitate",
+    "word_en": "passion",
+    "definition_en": "Intense love for an activity"
   },
   {
     "word": "disciplină",
-    "definition": "Structură care permite libertatea"
+    "definition": "Structură care permite libertatea",
+    "word_en": "discipline",
+    "definition_en": "Structure that enables freedom"
   },
   {
     "word": "tenacitate",
-    "definition": "Continuarea în ciuda dificultăților"
+    "definition": "Continuarea în ciuda dificultăților",
+    "word_en": "perseverance",
+    "definition_en": "Continuing despite difficulties"
   },
   {
     "word": "răbdarea",
-    "definition": "A aștepta cu serenitate"
+    "definition": "A aștepta cu serenitate",
+    "word_en": "patience",
+    "definition_en": "Waiting calmly"
   },
   {
     "word": "speranță",
-    "definition": "Credință că totul va fi bine"
+    "definition": "Credință că totul va fi bine",
+    "word_en": "hope",
+    "definition_en": "Trust that all will be well"
   },
   {
     "word": "optimismul",
-    "definition": "A vedea posibilul în orice"
+    "definition": "A vedea posibilul în orice",
+    "word_en": "optimism",
+    "definition_en": "Seeing what is possible in everything"
   },
   {
     "word": "acceptanță",
-    "definition": "A primi ce nu poți schimba"
+    "definition": "A primi ce nu poți schimba",
+    "word_en": "acceptance",
+    "definition_en": "Embracing what you cannot change"
   },
   {
     "word": "schimbarea",
-    "definition": "A crește și evolua continuu"
+    "definition": "A crește și evolua continuu",
+    "word_en": "change",
+    "definition_en": "Growing and evolving continually"
   },
   {
     "word": "cunoaștere",
-    "definition": "A dobândi înțelepciune de viață"
+    "definition": "A dobândi înțelepciune de viață",
+    "word_en": "knowledge",
+    "definition_en": "Gaining life wisdom"
   },
   {
     "word": "aportul",
-    "definition": "Ce aduci tu de valoare lumii"
+    "definition": "Ce aduci tu de valoare lumii",
+    "word_en": "contribution",
+    "definition_en": "What you bring of value to the world"
   },
   {
     "word": "moștenire",
-    "definition": "Ce lasi în urma ta pe lume"
+    "definition": "Ce lasi în urma ta pe lume",
+    "word_en": "legacy",
+    "definition_en": "What you leave behind in the world"
   },
   {
     "word": "împlinire",
-    "definition": "Sentimentul de a fi trăit bine"
+    "definition": "Sentimentul de a fi trăit bine",
+    "word_en": "fulfillment",
+    "definition_en": "The feeling of having lived well"
   },
   {
     "word": "sensul",
-    "definition": "Motivul pentru care existăm"
+    "definition": "Motivul pentru care existăm",
+    "word_en": "meaning",
+    "definition_en": "The reason we exist"
   },
   {
     "word": "identitate",
-    "definition": "Cine esti cu adevărat"
+    "definition": "Cine esti cu adevărat",
+    "word_en": "identity",
+    "definition_en": "Who you really are"
   },
   {
     "word": "recunoștință",
-    "definition": "Mulțumire profundă pentru viață"
+    "definition": "Mulțumire profundă pentru viață",
+    "word_en": "thankfulness",
+    "definition_en": "Deep gratitude for life"
   },
   {
     "word": "viață",
-    "definition": "Cel mai prețios dar primit"
+    "definition": "Cel mai prețios dar primit",
+    "word_en": "life",
+    "definition_en": "The most precious gift"
   }
 ]

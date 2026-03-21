@@ -1,24 +1,36 @@
 "use client"
 
 import { useState, useEffect, useCallback, useRef } from "react"
-import { flushSync } from "react-dom"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
   startPracticeRound,
-  submitPracticeLetter,
   finalizePracticeRound,
+  tryResumePracticeSession,
 } from "@/app/practice/actions"
+import { tryPlaceLetter, isWordComplete } from "@/lib/words"
 import type { CategoryKey, LanguageKey } from "@/lib/game-types"
-import { CATEGORIES, LANGUAGES, PLAYER_COLORS } from "@/lib/game-types"
-import { ArrowLeft, RotateCcw, Trophy, Timer, Check } from "lucide-react"
+import { CATEGORIES, LANGUAGES } from "@/lib/game-types"
+import { ArrowLeft, RotateCcw, Trophy } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Confetti from "react-confetti"
 
 const ROUND_DURATION = 60
-/** Aceeași culoare ca jucătorul 1 în multiplayer */
-const PRACTICE_PLAYER_COLOR = PLAYER_COLORS[0]
+/** Culoare litere ghicite — Practice (single player) */
+const PRACTICE_PLAYER_COLOR = "#22C55E"
+
+const PRACTICE_SESSION_KEY = "wordmatch_practice_session_v1"
+
+type PracticeSessionSnapshot = {
+  progress: string
+  timeLeft: number
+  round: number
+  score: number
+  wordLength: number
+  category: string
+  language: string
+}
 
 function readStoredField<T>(field: string, fallback: T): T {
   if (typeof window === "undefined") return fallback
@@ -37,16 +49,12 @@ export default function PracticePage() {
   const [category] = useState<string>(() => readStoredField("category", "general"))
   const [language] = useState<string>(() => readStoredField("language", "en"))
   const [totalRounds] = useState<number>(() => readStoredField("max_rounds", 10))
-  /** Public round data only — answer lives in httpOnly cookie on server. */
+  /** Definition + length for UI; `answerWordRef` holds the word for instant local typing (server cookie still used on finalize). */
   const [roundMeta, setRoundMeta] = useState<{
     definition: string
     wordLength: number
   } | null>(null)
-  /** Set only from `finalizePracticeRound` — word + def apar în Network la finalul rundei. */
-  const [roundAnswer, setRoundAnswer] = useState<{
-    word: string
-    definition: string
-  } | null>(null)
+  const answerWordRef = useRef("")
   const [progress, setProgress] = useState("")
   const [score, setScore] = useState(0)
   const [round, setRound] = useState(1)
@@ -55,7 +63,9 @@ export default function PracticePage() {
     "loading" | "playing" | "resolving" | "revealing" | "won" | "timeout" | "finished"
   >("loading")
   const [isShaking, setIsShaking] = useState(false)
-  const [lastPlacedIndex, setLastPlacedIndex] = useState<number | null>(null)
+  /** Scurt flash roșu deschis pe fundal la literă greșită */
+  const [wrongKeyFlash, setWrongKeyFlash] = useState(false)
+  const wrongFlashTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [showConfetti, setShowConfetti] = useState(false)
   // Letters auto-revealed when time expires (shown in red)
   const [revealProgress, setRevealProgress] = useState("")
@@ -66,17 +76,32 @@ export default function PracticePage() {
   const shouldShakeRef = useRef(false)
   // Prevents double-firing: keydown sets this true so onChange skips the same key
   const keyHandledRef = useRef(false)
-  // Consecutive-wrong-letter penalty: 2 wrong in a row → 2s input lockout
+  const handleNextRoundRef = useRef<() => void>(() => {})
+  /** După prima literă greșită: lockout input (ms) */
+  const WRONG_LETTER_LOCK_MS = 3000
   const consecutiveWrongRef = useRef(0)
   const lockedUntilRef = useRef(0)
-  const handleNextRoundRef = useRef<() => void>(() => {})
-  const letterBusyRef = useRef(false)
   const gameStatusRef = useRef(gameStatus)
   const router = useRouter()
 
   useEffect(() => {
     gameStatusRef.current = gameStatus
   }, [gameStatus])
+
+  useEffect(() => {
+    return () => {
+      if (wrongFlashTimeoutRef.current) clearTimeout(wrongFlashTimeoutRef.current)
+    }
+  }, [])
+
+  const triggerWrongKeyFlash = useCallback(() => {
+    if (wrongFlashTimeoutRef.current) clearTimeout(wrongFlashTimeoutRef.current)
+    setWrongKeyFlash(true)
+    wrongFlashTimeoutRef.current = setTimeout(() => {
+      setWrongKeyFlash(false)
+      wrongFlashTimeoutRef.current = null
+    }, 140)
+  }, [])
 
   useEffect(() => {
     const stored = localStorage.getItem("wordmatch_player")
@@ -89,22 +114,98 @@ export default function PracticePage() {
   }, [router])
 
   const loadNewWord = useCallback(async () => {
+    try {
+      sessionStorage.removeItem(PRACTICE_SESSION_KEY)
+    } catch {
+      /* ignore */
+    }
     setGameStatus("loading")
-    setRoundAnswer(null)
+    answerWordRef.current = ""
     const meta = await startPracticeRound(category, language)
-    setRoundMeta(meta)
+    answerWordRef.current = meta.word
+    setRoundMeta({ definition: meta.definition, wordLength: meta.wordLength })
     const initProgress = "_".repeat(meta.wordLength)
     progressRef.current = initProgress
     consecutiveWrongRef.current = 0
     lockedUntilRef.current = 0
     setProgress(initProgress)
     setRevealProgress("_".repeat(meta.wordLength))
-    setLastPlacedIndex(null)
     setTimeLeft(ROUND_DURATION)
     setGameStatus("playing")
   }, [category, language])
 
-  useEffect(() => { loadNewWord() }, [loadNewWord])
+  // La încărcare: reia aceeași rundă dacă cookie + sessionStorage coincid (refresh păstrează întrebarea).
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      const resume = await tryResumePracticeSession()
+      if (cancelled) return
+      let stored: PracticeSessionSnapshot | null = null
+      try {
+        const raw = sessionStorage.getItem(PRACTICE_SESSION_KEY)
+        if (raw) stored = JSON.parse(raw) as PracticeSessionSnapshot
+      } catch {
+        stored = null
+      }
+      if (
+        resume &&
+        stored &&
+        stored.wordLength === resume.wordLength &&
+        stored.category === category &&
+        stored.language === language &&
+        typeof stored.progress === "string" &&
+        stored.progress.length === resume.wordLength
+      ) {
+        answerWordRef.current = resume.word
+        setRoundMeta({ definition: resume.definition, wordLength: resume.wordLength })
+        progressRef.current = stored.progress
+        setProgress(stored.progress)
+        setRevealProgress("_".repeat(resume.wordLength))
+        setTimeLeft(
+          typeof stored.timeLeft === "number"
+            ? Math.max(0, Math.min(ROUND_DURATION, stored.timeLeft))
+            : ROUND_DURATION
+        )
+        setRound(typeof stored.round === "number" ? stored.round : 1)
+        setScore(typeof stored.score === "number" ? stored.score : 0)
+        setGameStatus("playing")
+        return
+      }
+      await loadNewWord()
+    })()
+    return () => {
+      cancelled = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- bootstrap o singură dată la mount
+  }, [])
+
+  useEffect(() => {
+    if (gameStatus !== "playing" || !roundMeta) return
+    try {
+      const snap: PracticeSessionSnapshot = {
+        progress: progressRef.current,
+        timeLeft,
+        round,
+        score,
+        wordLength: roundMeta.wordLength,
+        category,
+        language,
+      }
+      sessionStorage.setItem(PRACTICE_SESSION_KEY, JSON.stringify(snap))
+    } catch {
+      /* ignore */
+    }
+  }, [gameStatus, roundMeta, progress, timeLeft, round, score, category, language])
+
+  useEffect(() => {
+    if (gameStatus === "won" || gameStatus === "timeout" || gameStatus === "finished") {
+      try {
+        sessionStorage.removeItem(PRACTICE_SESSION_KEY)
+      } catch {
+        /* ignore */
+      }
+    }
+  }, [gameStatus])
 
   useEffect(() => {
     if (gameStatus !== "playing") return
@@ -123,7 +224,7 @@ export default function PracticePage() {
     if (timeLeft !== 0 || !roundMeta) return
     if (gameStatusRef.current !== "playing") return
     let cancelled = false
-    flushSync(() => setGameStatus("resolving"))
+    setGameStatus("resolving")
     ;(async () => {
       const cur = progressRef.current
       const res = await finalizePracticeRound("timeout", cur)
@@ -132,7 +233,6 @@ export default function PracticePage() {
         setGameStatus("timeout")
         return
       }
-      setRoundAnswer({ word: res.word, definition: res.definition })
       const slots = res.revealSlots ?? []
       if (slots.length === 0) {
         setGameStatus("timeout")
@@ -163,79 +263,62 @@ export default function PracticePage() {
   const handleLetterInput = useCallback(
     async (letter: string) => {
       if (gameStatus !== "playing" || !roundMeta) return
-      if (letterBusyRef.current) return
       if (Date.now() < lockedUntilRef.current) return
 
-      letterBusyRef.current = true
-      try {
-        const cur = progressRef.current
-        const result = await submitPracticeLetter(letter, cur)
+      const word = answerWordRef.current
+      if (!word || word.length !== roundMeta.wordLength) return
 
-        if (!result.ok) {
-          if (result.reason === "invalid_progress" || result.reason === "no_session") {
-            await loadNewWord()
-            return
-          }
-          consecutiveWrongRef.current++
-          if (consecutiveWrongRef.current >= 1) {
-            lockedUntilRef.current = Date.now() + 3000
-            consecutiveWrongRef.current = 0
-          }
-          if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current)
-          shouldShakeRef.current = true
-          setIsShaking(false)
-          requestAnimationFrame(() =>
-            requestAnimationFrame(() => {
-              if (!shouldShakeRef.current) return
-              setIsShaking(true)
-              shakeTimeoutRef.current = setTimeout(() => setIsShaking(false), 300)
-            })
-          )
+      const cur = progressRef.current
+      const next = tryPlaceLetter(letter, cur, word)
+
+      if (!next) {
+        triggerWrongKeyFlash()
+        consecutiveWrongRef.current++
+        if (consecutiveWrongRef.current >= 1) {
+          lockedUntilRef.current = Date.now() + WRONG_LETTER_LOCK_MS
+          consecutiveWrongRef.current = 0
+        }
+        if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current)
+        shouldShakeRef.current = true
+        setIsShaking(false)
+        requestAnimationFrame(() =>
+          requestAnimationFrame(() => {
+            if (!shouldShakeRef.current) return
+            setIsShaking(true)
+            shakeTimeoutRef.current = setTimeout(() => setIsShaking(false), 220)
+          })
+        )
+        return
+      }
+
+      consecutiveWrongRef.current = 0
+      shouldShakeRef.current = false
+      if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current)
+      setIsShaking(false)
+      progressRef.current = next
+      setProgress(next)
+
+      if (isWordComplete(next)) {
+        setGameStatus("resolving")
+        const fin = await finalizePracticeRound("won", next)
+        if (!fin.ok) {
+          await loadNewWord()
           return
         }
-
-        let newProgress = cur
-        for (const p of result.placements) {
-          const arr = newProgress.split("")
-          arr[p.index] = p.char
-          newProgress = arr.join("")
-        }
-        consecutiveWrongRef.current = 0
-        shouldShakeRef.current = false
-        if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current)
-        setIsShaking(false)
-        if (result.placements.length > 0) {
-          setLastPlacedIndex(result.placements[result.placements.length - 1].index)
-        }
-        progressRef.current = newProgress
-        setProgress(newProgress)
-        if (result.complete) {
-          flushSync(() => setGameStatus("resolving"))
-          const fin = await finalizePracticeRound("won", newProgress)
-          if (!fin.ok) {
-            await loadNewWord()
-            return
-          }
-          setRoundAnswer({ word: fin.word, definition: fin.definition })
-          hiddenInputRef.current?.blur()
-          flushSync(() => {
-            setShowConfetti(true)
-          })
-          setScore((prev) => prev + 1)
-          setGameStatus("won")
-          setTimeout(() => setShowConfetti(false), 5000)
-        }
-      } finally {
-        letterBusyRef.current = false
+        hiddenInputRef.current?.blur()
+        setShowConfetti(true)
+        setScore((prev) => prev + 1)
+        setGameStatus("won")
+        setTimeout(() => setShowConfetti(false), 2500)
       }
     },
-    [roundMeta, gameStatus, loadNewWord]
+    [roundMeta, gameStatus, loadNewWord, triggerWrongKeyFlash]
   )
 
   // Auto-focus hidden input when round starts, blur when it ends
   useEffect(() => {
     if (gameStatus === "playing") {
-      setTimeout(() => hiddenInputRef.current?.focus(), 150)
+      queueMicrotask(() => hiddenInputRef.current?.focus())
     } else {
       hiddenInputRef.current?.blur()
     }
@@ -327,14 +410,34 @@ export default function PracticePage() {
 
   // ── PLAYING ─────────────────────────────────────────────────────────────────
 
+  const definitionText = roundMeta?.definition ?? ""
+  const definitionExtraBreaks = (definitionText.match(/\n/g) || []).length
+  const approxDefinitionLines = Math.max(
+    1,
+    Math.ceil(definitionText.length / 36) + definitionExtraBreaks
+  )
+  const defCardVerticalPad =
+    approxDefinitionLines <= 2
+      ? "pt-1 pb-1.5"
+      : approxDefinitionLines <= 4
+        ? "pt-1.5 pb-2"
+        : "pt-2 pb-2.5"
+
   return (
     <main
       className={cn(
-        "h-dvh flex flex-col overflow-hidden bg-gradient-to-b from-background to-secondary/30 outline-none",
+        "relative h-dvh flex flex-col overflow-hidden bg-gradient-to-b from-background to-secondary/30 outline-none",
         isShaking && "animate-[shake_0.3s_ease-in-out]"
       )}
       tabIndex={0}
     >
+      <div
+        aria-hidden
+        className={cn(
+          "pointer-events-none absolute inset-0 z-[100] bg-red-400/16 dark:bg-red-950/28 transition-opacity duration-[90ms] ease-out",
+          wrongKeyFlash ? "opacity-100" : "opacity-0"
+        )}
+      />
       {showConfetti && <Confetti recycle={false} numberOfPieces={500} />}
 
       {/* Sticky top bar — mirrors game page */}
@@ -350,7 +453,7 @@ export default function PracticePage() {
             </span>
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground/60">
               {category && CATEGORIES[category as CategoryKey] && (
-                <span suppressHydrationWarning>{CATEGORIES[category as CategoryKey].emoji} {CATEGORIES[category as CategoryKey].label}</span>
+                <span suppressHydrationWarning>{CATEGORIES[category as CategoryKey].emoji} {CATEGORIES[category as CategoryKey].category}</span>
               )}
               {language && LANGUAGES[language as LanguageKey] && (
                 <span suppressHydrationWarning>· {LANGUAGES[language as LanguageKey].flag}</span>
@@ -369,29 +472,45 @@ export default function PracticePage() {
 
       {/* Main content — tap anywhere to re-focus keyboard on iOS */}
       <div
-        className="flex-1 overflow-y-auto flex flex-col items-center justify-start px-4 pt-5 pb-6 max-w-2xl mx-auto w-full gap-5"
+        className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-none flex flex-col items-center justify-start px-4 pt-5 pb-6 max-w-2xl mx-auto w-full gap-5"
         onClick={() => { if (gameStatus === "playing") hiddenInputRef.current?.focus() }}
       >
 
-        {/* Timer */}
-        <div className={cn(
-          "flex items-center justify-center gap-1.5 text-sm font-bold px-4 py-2 rounded-lg w-full",
-          timeLeft <= 10 ? "bg-destructive/10 text-destructive animate-pulse" : "bg-muted"
-        )}>
-          <Timer className="w-3.5 h-3.5" />{timeLeft}s
-        </div>
-
-        {/* Definition */}
-        <Card className="w-full shadow-sm">
-          <CardContent className="pt-5 pb-5">
+        {/* Definiție + timp în același card; la urgență bordura cardului clipește roșu */}
+        <Card
+          className={cn(
+            "w-full shadow-sm border-2 transition-[border-color] duration-200",
+            gameStatus === "playing" && timeLeft <= 10
+              ? "border-[#fecaca] animate-[practiceUrgentBorder_0.75s_ease-in-out_infinite]"
+              : "border-border"
+          )}
+        >
+          <CardContent className={cn("px-4", defCardVerticalPad)}>
             {gameStatus === "loading" ? (
-              <div className="h-20 flex items-center justify-center">
+              <div className="h-16 flex items-center justify-center">
                 <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
               </div>
             ) : (
-              <p className="text-base sm:text-lg text-center leading-relaxed text-balance">
-                {roundMeta?.definition}
-              </p>
+              <>
+                {gameStatus === "playing" && (
+                  <p
+                    className={cn(
+                      "text-center text-lg sm:text-xl font-bold tabular-nums leading-none mb-1.5",
+                      timeLeft <= 10 ? "text-red-400" : "text-muted-foreground"
+                    )}
+                  >
+                    {timeLeft}s
+                  </p>
+                )}
+                <p
+                  className={cn(
+                    "text-base sm:text-lg text-center text-balance",
+                    approxDefinitionLines > 4 ? "leading-tight" : "leading-snug"
+                  )}
+                >
+                  {roundMeta?.definition}
+                </p>
+              </>
             )}
           </CardContent>
         </Card>
@@ -424,38 +543,33 @@ export default function PracticePage() {
             const playerFilled = ch !== "_"
             const revealCh = revealProgress[i] ?? "_"
             const autoFilled = !playerFilled && revealCh !== "_"
-            const isLast = i === lastPlacedIndex
             const myColor = PRACTICE_PLAYER_COLOR
             const cellStyle = playerFilled
               ? {
                   borderColor: `${myColor}80`,
                   background: `${myColor}18`,
-                  ...(isLast && !autoFilled
-                    ? { boxShadow: `0 0 0 2px ${myColor}, 0 0 0 4px hsl(var(--background))` }
-                    : {}),
                 }
               : undefined
             return (
               <div
                 key={i}
                 className={cn(
-                  "relative flex items-center justify-center overflow-hidden select-none transition-all duration-200",
-                  "w-12 h-[60px] sm:w-[72px] sm:h-[88px] rounded-xl border-2",
+                  "relative flex items-center justify-center overflow-hidden select-none transition-colors duration-150",
+                  "w-12 h-12 sm:w-16 sm:h-16 rounded-xl border-2",
                   !playerFilled && !autoFilled && "border-muted-foreground/20 bg-muted/30",
-                  autoFilled && "border-red-500 bg-red-500/10",
-                  isLast && !autoFilled && playerFilled && "scale-110 z-10"
+                  autoFilled && "border-red-500 bg-red-500/10"
                 )}
                 style={cellStyle}
               >
                 {playerFilled
                   ? (
-                    <span className="text-xl sm:text-3xl font-black" style={{ color: myColor }}>
+                    <span className="text-xl sm:text-2xl font-black" style={{ color: myColor }}>
                       {ch.toUpperCase()}
                     </span>
                     )
                   : autoFilled
-                    ? <span className="text-xl sm:text-3xl font-black text-red-500">{revealCh.toUpperCase()}</span>
-                    : <span className="text-muted-foreground/20 text-base sm:text-xl select-none">_</span>
+                    ? <span className="text-xl sm:text-2xl font-black text-red-500">{revealCh.toUpperCase()}</span>
+                    : <span className="text-muted-foreground/20 text-sm sm:text-base select-none">_</span>
                 }
               </div>
             )
@@ -478,20 +592,9 @@ export default function PracticePage() {
                 : "bg-destructive/10 text-destructive"
             )}>
               {gameStatus === "won" ? (
-                <div className="flex items-center justify-center gap-2 font-semibold">
-                  <Check className="w-5 h-5" />
-                  Correct! The word was:{" "}
-                  <span className="font-black">
-                    {(roundAnswer?.word ?? progress).toUpperCase()}
-                  </span>
-                </div>
+                <p className="font-semibold text-lg text-center">You won this round!</p>
               ) : (
-                <span className="font-semibold">
-                  {"Time's up! The word was: "}
-                  <span className="font-black">
-                    {(roundAnswer?.word ?? revealProgress).toUpperCase()}
-                  </span>
-                </span>
+                <p className="font-semibold text-lg text-center">Time&apos;s up!</p>
               )}
             </div>
             <Button onClick={handleNextRound} className="w-full h-12" size="lg">
@@ -506,6 +609,11 @@ export default function PracticePage() {
           0%, 100% { transform: translateX(0); }
           20%, 60% { transform: translateX(-4px); }
           40%, 80% { transform: translateX(4px); }
+        }
+        /* Roșu deschis care clipește (sub 10s) */
+        @keyframes practiceUrgentBorder {
+          0%, 100% { border-color: #fecaca; }
+          50% { border-color: #f87171; }
         }
       `}</style>
     </main>

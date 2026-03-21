@@ -1,202 +1,302 @@
 [
   {
     "word": "democrația",
-    "definition": "Sistem politic al poporului"
+    "definition": "Sistem politic al poporului",
+    "word_en": "democracy",
+    "definition_en": "A political system of the people"
   },
   {
     "word": "dictatură",
-    "definition": "Conducere autoritară absolută"
+    "definition": "Conducere autoritară absolută",
+    "word_en": "dictatorship",
+    "definition_en": "Absolute authoritarian rule"
   },
   {
     "word": "statul",
-    "definition": "Organizația politică a unui popor"
+    "definition": "Organizația politică a unui popor",
+    "word_en": "state",
+    "definition_en": "The political organization of a people"
   },
   {
     "word": "legea",
-    "definition": "Normă obligatorie impusă de stat"
+    "definition": "Normă obligatorie impusă de stat",
+    "word_en": "law",
+    "definition_en": "A binding rule imposed by the state"
   },
   {
     "word": "dreptate",
-    "definition": "Respectarea normelor corecte"
+    "definition": "Respectarea normelor corecte",
+    "word_en": "justice",
+    "definition_en": "Upholding what is right"
   },
   {
     "word": "justiție",
-    "definition": "Sistemul de aplicare al legii"
+    "definition": "Sistemul de aplicare al legii",
+    "word_en": "judiciary",
+    "definition_en": "The system that applies the law"
   },
   {
     "word": "politică",
-    "definition": "Artă guvernării unui popor"
+    "definition": "Artă guvernării unui popor",
+    "word_en": "politics",
+    "definition_en": "The art of governing a people"
   },
   {
     "word": "economia",
-    "definition": "Sistemul producției și schimbului"
+    "definition": "Sistemul producției și schimbului",
+    "word_en": "economy",
+    "definition_en": "The system of production and exchange"
   },
   {
     "word": "capitalism",
-    "definition": "Sistem economic bazat pe profit"
+    "definition": "Sistem economic bazat pe profit",
+    "word_en": "capitalism",
+    "definition_en": "An economic system based on profit"
   },
   {
     "word": "socialism",
-    "definition": "Sistem bazat pe egalitate"
+    "definition": "Sistem bazat pe egalitate",
+    "word_en": "socialism",
+    "definition_en": "A system based on equality"
   },
   {
     "word": "clasă",
-    "definition": "Grup social cu caracteristici comune"
+    "definition": "Grup social cu caracteristici comune",
+    "word_en": "class",
+    "definition_en": "A social group with shared traits"
   },
   {
     "word": "putere",
-    "definition": "Capacitatea de a influență alții"
+    "definition": "Capacitatea de a influență alții",
+    "word_en": "power",
+    "definition_en": "The ability to influence others"
   },
   {
     "word": "corupția",
-    "definition": "Abuzul de putere pentru câștig"
+    "definition": "Abuzul de putere pentru câștig",
+    "word_en": "corruption",
+    "definition_en": "Abuse of power for gain"
   },
   {
     "word": "onestitate",
-    "definition": "Calitate opusă corupției"
+    "definition": "Calitate opusă corupției",
+    "word_en": "honesty",
+    "definition_en": "The opposite of corruption"
   },
   {
     "word": "deschidere",
-    "definition": "Vizibilitate totală și onestă"
+    "definition": "Vizibilitate totală și onestă",
+    "word_en": "transparency",
+    "definition_en": "Full, honest visibility"
   },
   {
     "word": "votul",
-    "definition": "Exprimarea democratica a optiunii"
+    "definition": "Exprimarea democratica a optiunii",
+    "word_en": "vote",
+    "definition_en": "The democratic expression of a choice"
   },
   {
     "word": "alegeri",
-    "definition": "Procesul democratic de selecție"
+    "definition": "Procesul democratic de selecție",
+    "word_en": "elections",
+    "definition_en": "The democratic selection process"
   },
   {
     "word": "partid",
-    "definition": "Organizație politică cu ideologie"
+    "definition": "Organizație politică cu ideologie",
+    "word_en": "party",
+    "definition_en": "A political organization with an ideology"
   },
   {
     "word": "revoluție",
-    "definition": "Schimbarea radicală a sistemului"
+    "definition": "Schimbarea radicală a sistemului",
+    "word_en": "revolution",
+    "definition_en": "Radical change of the system"
   },
   {
     "word": "reformă",
-    "definition": "Schimbarea parțială a sistemului"
+    "definition": "Schimbarea parțială a sistemului",
+    "word_en": "reform",
+    "definition_en": "Partial change of the system"
   },
   {
     "word": "protest",
-    "definition": "Manifestarea opoziției publice"
+    "definition": "Manifestarea opoziției publice",
+    "word_en": "protest",
+    "definition_en": "Public expression of opposition"
   },
   {
     "word": "media",
-    "definition": "Mijloacele de comunicare în masă"
+    "definition": "Mijloacele de comunicare în masă",
+    "word_en": "media",
+    "definition_en": "Mass communication channels"
   },
   {
     "word": "presa",
-    "definition": "Instituții jurnalistice de informare"
+    "definition": "Instituții jurnalistice de informare",
+    "word_en": "press",
+    "definition_en": "Journalistic institutions that inform"
   },
   {
     "word": "cenzură",
-    "definition": "Limitarea libertății de exprimare"
+    "definition": "Limitarea libertății de exprimare",
+    "word_en": "censorship",
+    "definition_en": "Limiting freedom of expression"
   },
   {
     "word": "propagandă",
-    "definition": "Manipularea informației în masă"
+    "definition": "Manipularea informației în masă",
+    "word_en": "propaganda",
+    "definition_en": "Mass manipulation of information"
   },
   {
     "word": "manipulare",
-    "definition": "Influentarea ascunsă a publicului"
+    "definition": "Influentarea ascunsă a publicului",
+    "word_en": "manipulation",
+    "definition_en": "Covert influence on the public"
   },
   {
     "word": "comunitate",
-    "definition": "Grup de oameni cu interese comune"
+    "definition": "Grup de oameni cu interese comune",
+    "word_en": "community",
+    "definition_en": "A group with shared interests"
   },
   {
     "word": "unitate",
-    "definition": "Sprijin mutual în societate"
+    "definition": "Sprijin mutual în societate",
+    "word_en": "solidarity",
+    "definition_en": "Mutual support in society"
   },
   {
     "word": "toleranță",
-    "definition": "Acceptarea diferențelor în societate"
+    "definition": "Acceptarea diferențelor în societate",
+    "word_en": "tolerance",
+    "definition_en": "Accepting differences in society"
   },
   {
     "word": "nedreptate",
-    "definition": "Tratament inegal bazat pe diferentă"
+    "definition": "Tratament inegal bazat pe diferentă",
+    "word_en": "injustice",
+    "definition_en": "Unequal treatment based on difference"
   },
   {
     "word": "rasismul",
-    "definition": "Discriminare bazată pe rasă"
+    "definition": "Discriminare bazată pe rasă",
+    "word_en": "racism",
+    "definition_en": "Discrimination based on race"
   },
   {
     "word": "egalitate",
-    "definition": "Tratament identic pentru toți"
+    "definition": "Tratament identic pentru toți",
+    "word_en": "equality",
+    "definition_en": "The same treatment for everyone"
   },
   {
     "word": "echitate",
-    "definition": "Tratament proporțional și drept"
+    "definition": "Tratament proporțional și drept",
+    "word_en": "equity",
+    "definition_en": "Fair, proportional treatment"
   },
   {
     "word": "incluziune",
-    "definition": "Acceptarea tuturor în societate"
+    "definition": "Acceptarea tuturor în societate",
+    "word_en": "inclusion",
+    "definition_en": "Welcoming everyone in society"
   },
   {
     "word": "excludere",
-    "definition": "Excluderea grupurilor vulnerabile"
+    "definition": "Excluderea grupurilor vulnerabile",
+    "word_en": "exclusion",
+    "definition_en": "Leaving out vulnerable groups"
   },
   {
     "word": "sărăcie",
-    "definition": "Lipsă resurselor necesare traiului"
+    "definition": "Lipsă resurselor necesare traiului",
+    "word_en": "poverty",
+    "definition_en": "Lack of resources needed to live"
   },
   {
     "word": "bogăție",
-    "definition": "Abundență de resurse materiale"
+    "definition": "Abundență de resurse materiale",
+    "word_en": "wealth",
+    "definition_en": "Abundance of material resources"
   },
   {
     "word": "decalaj",
-    "definition": "Diferentă mare între bogați și săraci"
+    "definition": "Diferentă mare între bogați și săraci",
+    "word_en": "gap",
+    "definition_en": "A large divide between rich and poor"
   },
   {
     "word": "imigrare",
-    "definition": "Venirea într-o alta tara de locuit"
+    "definition": "Venirea într-o alta tara de locuit",
+    "word_en": "immigration",
+    "definition_en": "Coming to another country to live"
   },
   {
     "word": "identitate",
-    "definition": "Cine esti tu că individ și grup"
+    "definition": "Cine esti tu că individ și grup",
+    "word_en": "identity",
+    "definition_en": "Who you are as an individual and group"
   },
   {
     "word": "cultură",
-    "definition": "Ansamblul valorilor unui popor"
+    "definition": "Ansamblul valorilor unui popor",
+    "word_en": "culture",
+    "definition_en": "The values of a people as a whole"
   },
   {
     "word": "tradiție",
-    "definition": "Obicei transmis din generație"
+    "definition": "Obicei transmis din generație",
+    "word_en": "tradition",
+    "definition_en": "A custom passed down generations"
   },
   {
     "word": "modernism",
-    "definition": "Valorile și stilul epocii actuale"
+    "definition": "Valorile și stilul epocii actuale",
+    "word_en": "modernity",
+    "definition_en": "The values and style of the present era"
   },
   {
     "word": "mondial",
-    "definition": "Interdependență tarilor lumii"
+    "definition": "Interdependență tarilor lumii",
+    "word_en": "globalization",
+    "definition_en": "Interdependence among countries"
   },
   {
     "word": "progres",
-    "definition": "Avansul societății spre mai bine"
+    "definition": "Avansul societății spre mai bine",
+    "word_en": "progress",
+    "definition_en": "Society moving toward something better"
   },
   {
     "word": "regres",
-    "definition": "Întoarcerea spre forme mai slabe"
+    "definition": "Întoarcerea spre forme mai slabe",
+    "word_en": "regression",
+    "definition_en": "Sliding back to weaker forms"
   },
   {
     "word": "pacea",
-    "definition": "Absență conflictului între oameni"
+    "definition": "Absență conflictului între oameni",
+    "word_en": "peace",
+    "definition_en": "Absence of conflict among people"
   },
   {
     "word": "razboiul",
-    "definition": "Conflictul armat între popoare"
+    "definition": "Conflictul armat între popoare",
+    "word_en": "war",
+    "definition_en": "Armed conflict between peoples"
   },
   {
     "word": "drepturi",
-    "definition": "Ce au dreptul să primească toți"
+    "definition": "Ce au dreptul să primească toți",
+    "word_en": "rights",
+    "definition_en": "What everyone is entitled to receive"
   },
   {
     "word": "datorii",
-    "definition": "Ce sunt datori să facă toți"
+    "definition": "Ce sunt datori să facă toți",
+    "word_en": "duties",
+    "definition_en": "What everyone is obliged to do"
   }
 ]
