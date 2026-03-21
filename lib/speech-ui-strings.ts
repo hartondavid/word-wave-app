@@ -14,6 +14,8 @@ export type SpeechUiStrings = {
   micTitlePractice: string
   micTitleMultiplayer: string
   micAria: string
+  /** Când microfonul ascultă — același buton oprește recunoașterea. */
+  micTapToStop: string
   multiplayerEliminatedLine: string
   multiplayerWaitRound: string
   multiplayerHintPlaying: string
@@ -39,6 +41,7 @@ export function speechUiStrings(lang: SpeechUiLang): SpeechUiStrings {
       micTitleMultiplayer:
         "Rostește răspunsul întreg (nu o literă). O încercare greșită îți oprește tura până la sfârșitul runde.",
       micAria: "Rostește cuvântul întreg",
+      micTapToStop: "Ascult… Apasă din nou pentru a opri microfonul.",
       multiplayerEliminatedLine:
         "Cuvântul rostit nu s-a potrivit — nu mai poți juca până se termină runda.",
       multiplayerWaitRound: "Așteaptă să se termine runda.",
@@ -63,6 +66,7 @@ export function speechUiStrings(lang: SpeechUiLang): SpeechUiStrings {
     micTitleMultiplayer:
       "Say the whole answer (not one letter). A wrong try ends your turn until the round ends.",
     micAria: "Say the whole word",
+    micTapToStop: "Listening… Tap again to stop the microphone.",
     multiplayerEliminatedLine:
       "Spoken word didn't match — you can't play until this round ends.",
     multiplayerWaitRound: "Wait for this round to finish.",

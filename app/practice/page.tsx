@@ -400,6 +400,17 @@ export default function PracticePage() {
 
   handleLetterInputRef.current = handleLetterInput
 
+  const stopSpeechListening = useCallback(() => {
+    try {
+      speechRecognitionRef.current?.abort()
+    } catch {
+      /* ignore */
+    }
+    speechListeningRef.current = false
+    setSpeechListeningUi(false)
+    speechRecognitionRef.current = null
+  }, [])
+
   const startSpeechLetter = useCallback(() => {
     if (gameStatus !== "playing" || !roundMeta) return
     if (roundConcludedRef.current) return
@@ -660,7 +671,7 @@ export default function PracticePage() {
               defCardVerticalPad,
               gameStatus === "playing" &&
                 isBrowserSpeechRecognitionSupported() &&
-                "pr-14 pb-11"
+                "px-14 pb-11"
             )}
           >
             {gameStatus === "loading" ? (
@@ -669,36 +680,45 @@ export default function PracticePage() {
               </div>
             ) : (
               <>
-                {gameStatus === "playing" && (
+                <div className="flex flex-col items-center justify-center w-full text-center gap-1.5">
+                  {gameStatus === "playing" && (
+                    <p
+                      className={cn(
+                        "text-lg sm:text-xl font-bold tabular-nums leading-none w-full",
+                        timeLeft <= 10 ? "text-red-400" : "text-muted-foreground"
+                      )}
+                    >
+                      {timeLeft}s
+                    </p>
+                  )}
                   <p
                     className={cn(
-                      "text-center text-lg sm:text-xl font-bold tabular-nums leading-none mb-1.5",
-                      timeLeft <= 10 ? "text-red-400" : "text-muted-foreground"
+                      "text-base sm:text-lg text-balance w-full max-w-prose mx-auto",
+                      approxDefinitionLines > 4 ? "leading-tight" : "leading-snug"
                     )}
                   >
-                    {timeLeft}s
+                    {roundMeta?.definition}
                   </p>
-                )}
-                <p
-                  className={cn(
-                    "text-base sm:text-lg text-center text-balance",
-                    approxDefinitionLines > 4 ? "leading-tight" : "leading-snug"
-                  )}
-                >
-                  {roundMeta?.definition}
-                </p>
+                </div>
                 {gameStatus === "playing" && isBrowserSpeechRecognitionSupported() && (
                     <Button
                       type="button"
                       variant="secondary"
                       size="icon"
                       className="absolute bottom-2 right-2 h-10 w-10 rounded-full shadow-md z-10"
-                      disabled={speechListeningUi}
-                      title={practiceSpeechUi.micTitlePractice}
-                      aria-label={practiceSpeechUi.micAria}
+                      title={
+                        speechListeningUi
+                          ? practiceSpeechUi.micTapToStop
+                          : practiceSpeechUi.micTitlePractice
+                      }
+                      aria-label={
+                        speechListeningUi ? practiceSpeechUi.micTapToStop : practiceSpeechUi.micAria
+                      }
+                      aria-pressed={speechListeningUi}
                       onClick={(e) => {
                         e.stopPropagation()
-                        startSpeechLetter()
+                        if (speechListeningRef.current) stopSpeechListening()
+                        else startSpeechLetter()
                       }}
                     >
                       <Mic className={cn("h-4 w-4", speechListeningUi && "animate-pulse text-red-500")} />

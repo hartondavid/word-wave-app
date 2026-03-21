@@ -909,6 +909,17 @@ export default function GamePage({ params }: GamePageProps) {
 
   handleLetterInputRef.current = handleLetterInput
 
+  const stopSpeechListening = useCallback(() => {
+    try {
+      speechRecognitionRef.current?.abort()
+    } catch {
+      /* ignore */
+    }
+    speechListeningRef.current = false
+    setSpeechListeningUi(false)
+    speechRecognitionRef.current = null
+  }, [])
+
   const startSpeechLetter = useCallback(() => {
     if (!room || room.game_status !== "playing" || !room.current_word) return
     if (eliminatedFromRoundRef.current) return
@@ -1682,37 +1693,49 @@ export default function GamePage({ params }: GamePageProps) {
                 className={cn(
                   "px-4",
                   defCardVerticalPad,
-                  !roundEliminated && !allPlayersSpeechWrongReveal && "pr-14 pb-11"
+                  isBrowserSpeechRecognitionSupported() &&
+                    !roundEliminated &&
+                    !allPlayersSpeechWrongReveal &&
+                    "px-14 pb-11"
                 )}
               >
-                <p
-                  className={cn(
-                    "text-center text-lg sm:text-xl font-bold tabular-nums leading-none mb-1.5",
-                    timeRemaining <= 10 ? "text-red-400" : "text-muted-foreground"
-                  )}
-                >
-                  {timeRemaining}s
-                </p>
-                <p
-                  className={cn(
-                    "text-base sm:text-lg text-center text-balance",
-                    approxDefinitionLines > 4 ? "leading-tight" : "leading-snug"
-                  )}
-                >
-                  {room.current_definition}
-                </p>
+                <div className="flex flex-col items-center justify-center w-full text-center gap-1.5">
+                  <p
+                    className={cn(
+                      "text-lg sm:text-xl font-bold tabular-nums leading-none w-full",
+                      timeRemaining <= 10 ? "text-red-400" : "text-muted-foreground"
+                    )}
+                  >
+                    {timeRemaining}s
+                  </p>
+                  <p
+                    className={cn(
+                      "text-base sm:text-lg text-balance w-full max-w-prose mx-auto",
+                      approxDefinitionLines > 4 ? "leading-tight" : "leading-snug"
+                    )}
+                  >
+                    {room.current_definition}
+                  </p>
+                </div>
                 {isBrowserSpeechRecognitionSupported() && !roundEliminated && !allPlayersSpeechWrongReveal && (
                   <Button
                     type="button"
                     variant="secondary"
                     size="icon"
                     className="absolute bottom-2 right-2 h-10 w-10 rounded-full shadow-md z-10"
-                    disabled={speechListeningUi}
-                    title={multiplayerSpeechUi.micTitleMultiplayer}
-                    aria-label={multiplayerSpeechUi.micAria}
+                    title={
+                      speechListeningUi
+                        ? multiplayerSpeechUi.micTapToStop
+                        : multiplayerSpeechUi.micTitleMultiplayer
+                    }
+                    aria-label={
+                      speechListeningUi ? multiplayerSpeechUi.micTapToStop : multiplayerSpeechUi.micAria
+                    }
+                    aria-pressed={speechListeningUi}
                     onClick={(e) => {
                       e.stopPropagation()
-                      startSpeechLetter()
+                      if (speechListeningRef.current) stopSpeechListening()
+                      else startSpeechLetter()
                     }}
                   >
                     <Mic className={cn("h-4 w-4", speechListeningUi && "animate-pulse text-red-500")} />
