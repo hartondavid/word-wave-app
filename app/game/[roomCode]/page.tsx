@@ -1,20 +1,39 @@
 "use client"
 
-import { useEffect, useState, useCallback, useRef, use, type CSSProperties } from "react"
+import { useEffect, useState, useCallback, useRef, useMemo, use, type CSSProperties } from "react"
 import { flushSync } from "react-dom"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { getClearSlotPayload, patchClearPlayerSlotKeepalive } from "@/lib/supabase/clear-player-slot-keepalive"
 import { deleteGameRoomRow } from "@/lib/supabase/delete-game-room"
 import type { GameRoom, PlayerSlot, CategoryKey, LanguageKey } from "@/lib/game-types"
-import { ROUND_DURATION, WIN_SCORE, TOTAL_ROUNDS, PLAYER_COLORS, CATEGORIES, LANGUAGES } from "@/lib/game-types"
+import {
+  ROUND_DURATION,
+  WIN_SCORE,
+  TOTAL_ROUNDS,
+  PLAYER_COLORS,
+  CATEGORIES,
+  LANGUAGES,
+  languageForMultiplayerRoom,
+  allActivePlayersSpeechEliminated,
+} from "@/lib/game-types"
 import { tryPlaceLetter, isWordComplete } from "@/lib/words"
-import { serverStartNewRound } from "@/app/game/actions"
+import { speechUiLang, speechUiStrings } from "@/lib/speech-ui-strings"
+import {
+  isBrowserSpeechRecognitionSupported,
+  newSpeechRecognitionForLang,
+  type SpeechRecognitionInstance,
+} from "@/lib/speech-letter"
+import {
+  applySpeechRecognitionResultToProgress,
+  speechLocaleForMultiplayerMic,
+} from "@/lib/speech-word-match"
+import { serverStartNewRound, syncGameRoomLanguage } from "@/app/game/actions"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
-import { Copy, Check, Timer, Trophy, ArrowLeft, AlertCircle } from "lucide-react"
+import { Copy, Check, Timer, Trophy, ArrowLeft, AlertCircle, Mic } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
 import Confetti from "react-confetti"
 
@@ -23,6 +42,9 @@ interface PlayerInfo {
   name: string
   roomCode: string
   playerSlot: PlayerSlot
+  /** Set by host on create — used to patch DB if language/category didn’t persist. */
+  language?: LanguageKey
+  category?: CategoryKey
 }
 
 interface GamePageProps {
@@ -164,9 +186,15 @@ export default function GamePage({ params }: GamePageProps) {
   const lockedUntilRef = useRef(0)
   // Prevents handleTimerEnd from being called multiple times per round
   const timerEndCalledRef = useRef(false)
+  /** Toți jucătorii au greșit la microfon — animație + end round (un singur lanț per client). */
+  const speechAllFailedEndInProgressRef = useRef(false)
+  const [allPlayersSpeechWrongReveal, setAllPlayersSpeechWrongReveal] = useState(false)
   const startNewRoundRef = useRef<() => Promise<void>>(async () => {})
   const prevRoomSnapshotRef = useRef<GameRoom | null>(null)
   const disconnectHandledRef = useRef(false)
+  /** După sync reușit limba/categorie gazdă → DB (lobby). */
+  const hostRoomPrefsSyncedRef = useRef(false)
+  const hostLobbySyncInFlightRef = useRef(false)
   const leaveEventKeyRef = useRef<string | null>(null)
   const rejoinEventKeyRef = useRef<string | null>(null)
   /** Slot golit → ultimul jucător plecat (id+nume); reintrare = același nume sau același id */
@@ -180,6 +208,20 @@ export default function GamePage({ params }: GamePageProps) {
   /** Ultimul playerInfo fără a extinde deps la useEffect-ul de plecare/reintrare */
   const playerInfoRef = useRef<PlayerInfo | null>(null)
   playerInfoRef.current = playerInfo
+
+  /** După o încercare vocală invalidă (cuvântul nu s-a potrivit): blocare tastatură + voce până la round_end. */
+  const eliminatedFromRoundRef = useRef(false)
+  const speechRecognitionRef = useRef<SpeechRecognitionInstance | null>(null)
+  const speechListeningRef = useRef(false)
+  const [speechListeningUi, setSpeechListeningUi] = useState(false)
+  const [roundEliminated, setRoundEliminated] = useState(false)
+  const handleLetterInputRef = useRef<((letter: string) => void | Promise<void>) | null>(null)
+
+  /** Texte microfon / instrucțiuni — potrivirea e în lib/speech-word-match + lib/words. */
+  const multiplayerSpeechUi = useMemo(
+    () => speechUiStrings(speechUiLang(room?.language)),
+    [room?.language]
+  )
 
   function dismissTopTransientNotice() {
     if (topNoticeTimeoutRef.current) {
@@ -212,6 +254,8 @@ export default function GamePage({ params }: GamePageProps) {
   useEffect(() => {
     rejoinPendingBySlotRef.current.clear()
     rejoinEventKeyRef.current = null
+    hostRoomPrefsSyncedRef.current = false
+    hostLobbySyncInFlightRef.current = false
   }, [roomCode])
 
   // ── effects ────────────────────────────────────────────────────────────────
@@ -270,6 +314,58 @@ export default function GamePage({ params }: GamePageProps) {
       .then(({ data }) => { if (data) setRoom(data); setIsLoading(false) })
   }, [roomCode, supabase])
 
+  // Gazdă: dacă în DB lipsește limba/categoria sau diferă de ce a ales la creare, reparăm înainte de start.
+  useEffect(() => {
+    if (!room || !playerInfo || playerInfo.playerSlot !== 1) return
+    if (room.game_status !== "waiting") return
+    if (hostRoomPrefsSyncedRef.current) return
+    if (hostLobbySyncInFlightRef.current) return
+
+    const wantLang = playerInfo.language
+      ? languageForMultiplayerRoom(playerInfo.language)
+      : undefined
+    const wantCat = playerInfo.category
+    if (!wantLang && !wantCat) return
+
+    const roomLang = languageForMultiplayerRoom(room.language)
+    const roomCat = (room.category ?? "").toString().trim()
+    const langOk = !wantLang || roomLang === wantLang
+    const catOk = !wantCat || roomCat === wantCat
+    if (langOk && catOk) {
+      hostRoomPrefsSyncedRef.current = true
+      return
+    }
+
+    const langMismatch = !!(wantLang && roomLang !== wantLang)
+    const catMismatch = !!(wantCat && roomCat !== wantCat)
+
+    hostLobbySyncInFlightRef.current = true
+    void (async () => {
+      try {
+        if (langMismatch && wantLang) {
+          const lr = await syncGameRoomLanguage(roomCode, wantLang)
+          if (!lr.ok) {
+            console.warn("syncGameRoomLanguage (lobby):", lr.error)
+            return
+          }
+        }
+        if (catMismatch && wantCat) {
+          const { error: catErr } = await supabase
+            .from("game_rooms")
+            .update({ category: wantCat })
+            .eq("room_code", roomCode)
+          if (catErr) {
+            console.warn("Host category sync:", catErr.message)
+            return
+          }
+        }
+        hostRoomPrefsSyncedRef.current = true
+      } finally {
+        hostLobbySyncInFlightRef.current = false
+      }
+    })()
+  }, [room, playerInfo, roomCode, supabase])
+
   useEffect(() => {
     const ch = supabase
       .channel(`room-${roomCode}`)
@@ -315,11 +411,12 @@ export default function GamePage({ params }: GamePageProps) {
     return () => { supabase.removeChannel(ch) }
   }, [roomCode, supabase])
 
-  // Watch for all players ready → start game
+  // Watch for all players ready → start game (doar gazda pornește runda + trimite limba din localStorage)
   useEffect(() => {
     if (!room || !playerInfo) return
     if (room.game_status !== "waiting") return
     if (!isFull(room) || !allReady(room) || startGameRef.current) return
+    if (playerInfo.playerSlot !== 1) return
     startGameRef.current = true
     startNewRound()
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -519,9 +616,92 @@ export default function GamePage({ params }: GamePageProps) {
       })
     }
 
-    setTimeout(() => handleTimerEnd(), animDuration)
+    setTimeout(() => void handleTimerEnd(), animDuration)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeRemaining])
+
+  const endRoundNoWinner = useCallback(
+    async (reason: "timeout" | "all_speech_wrong") => {
+      const r = room
+      if (!r) return
+      const totalRounds = r.total_rounds ?? TOTAL_ROUNDS
+      const update: Record<string, unknown> = {
+        round_winner: null,
+        round_end_reason: reason,
+        game_status: r.current_round >= totalRounds ? "finished" : "round_end",
+        player1_ready: false,
+        player2_ready: false,
+      }
+      if (activeSlots(r).some(s => s >= 3)) {
+        update.player3_ready = false
+        update.player4_ready = false
+      }
+      const finished = r.current_round >= totalRounds
+      let { error } = await supabase.from("game_rooms").update(update).eq("room_code", roomCode)
+      if (error) {
+        const msg = (error.message ?? "").toLowerCase()
+        if (msg.includes("round_end_reason")) {
+          const { round_end_reason: _drop, ...rest } = update
+          const retry = await supabase.from("game_rooms").update(rest).eq("room_code", roomCode)
+          error = retry.error
+        }
+      }
+      if (!error && finished) await deleteGameRoomRow(supabase, roomCode)
+    },
+    [room, roomCode, supabase]
+  )
+
+  async function handleTimerEnd() {
+    await endRoundNoWinner("timeout")
+  }
+
+  // Toți jucătorii activi eliminați la microfon → dezvăluire ca la Practice, apoi round_end.
+  useEffect(() => {
+    if (!room || room.game_status !== "playing") return
+    if (!allActivePlayersSpeechEliminated(room)) return
+    if (timerEndCalledRef.current) return
+    if (speechAllFailedEndInProgressRef.current) return
+    speechAllFailedEndInProgressRef.current = true
+    timerEndCalledRef.current = true
+    setAllPlayersSpeechWrongReveal(true)
+
+    const slot = (playerInfo?.playerSlot ?? 1) as PlayerSlot
+    const cur = localProgressRef.current ?? slotData(slot, room).progress ?? ""
+    const word = room.current_word ?? ""
+    const positions: number[] = []
+    for (let i = 0; i < word.length; i++) {
+      if (cur[i] === "_") positions.push(i)
+    }
+
+    const animDuration = Math.max(positions.length * 150 + 500, 500)
+    lockedUntilRef.current = Date.now() + animDuration
+
+    if (positions.length > 0) {
+      setRevealProgress("_".repeat(word.length))
+      positions.forEach((pos, idx) => {
+        setTimeout(() => {
+          setRevealProgress((prev) => {
+            if (!prev) return prev
+            const arr = prev.split("")
+            arr[pos] = word[pos]
+            return arr.join("")
+          })
+        }, (idx + 1) * 150)
+      })
+    }
+
+    const t = setTimeout(() => void endRoundNoWinner("all_speech_wrong"), animDuration)
+    return () => clearTimeout(t)
+  }, [
+    room?.game_status,
+    room?.player1_speech_eliminated,
+    room?.player2_speech_eliminated,
+    room?.player3_speech_eliminated,
+    room?.player4_speech_eliminated,
+    room?.current_word,
+    playerInfo?.playerSlot,
+    endRoundNoWinner,
+  ])
 
   // Reset local progress, optimistic display and penalty counters at round start
   useEffect(() => {
@@ -532,9 +712,40 @@ export default function GamePage({ params }: GamePageProps) {
       consecutiveWrongRef.current = 0
       lockedUntilRef.current = 0
       timerEndCalledRef.current = false
+      speechAllFailedEndInProgressRef.current = false
+      setAllPlayersSpeechWrongReveal(false)
       setOptimisticRoundWin(false)
+      eliminatedFromRoundRef.current = false
+      setRoundEliminated(false)
     }
   }, [room?.game_status, room?.current_word])
+
+  useEffect(() => {
+    if (room?.game_status !== "playing") {
+      try {
+        speechRecognitionRef.current?.abort()
+      } catch {
+        /* ignore */
+      }
+      speechRecognitionRef.current = null
+      speechListeningRef.current = false
+      setSpeechListeningUi(false)
+    }
+  }, [room?.game_status])
+
+  useEffect(() => {
+    return () => {
+      try {
+        speechRecognitionRef.current?.abort()
+      } catch {
+        /* ignore */
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    if (roundEliminated) hiddenInputRef.current?.blur()
+  }, [roundEliminated])
 
   // Auto-focus hidden input when round starts (shows mobile keyboard),
   // blur when round ends (hides mobile keyboard)
@@ -577,9 +788,9 @@ export default function GamePage({ params }: GamePageProps) {
     playerInfo,
   ])
 
-  // Enter = Next Round when everyone is ready (capture phase avoids double-fire with focused button)
+  // Enter = Next Round when everyone is ready (orice jucător; limba vine din room / hint la startNewRound)
   useEffect(() => {
-    if (!room || room.game_status !== "round_end" || !allReady(room)) return
+    if (!room || !playerInfo || room.game_status !== "round_end" || !allReady(room)) return
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Enter" || e.repeat) return
       const t = e.target as HTMLElement | null
@@ -589,7 +800,7 @@ export default function GamePage({ params }: GamePageProps) {
     }
     window.addEventListener("keydown", onKey, true)
     return () => window.removeEventListener("keydown", onKey, true)
-  }, [room])
+  }, [room, playerInfo])
 
   // ── derived values ─────────────────────────────────────────────────────────
 
@@ -629,22 +840,18 @@ export default function GamePage({ params }: GamePageProps) {
     }, 140)
   }, [])
 
-  const handleLetterInput = useCallback(async (letter: string) => {
-    if (!room || !playerInfo || room.game_status !== "playing" || !room.current_word) return
-    // Lockout: after a wrong letter, ignore input for a few seconds
-    if (Date.now() < lockedUntilRef.current) return
-    // Use localProgressRef to avoid stale state on rapid key presses
-    const cur = localProgressRef.current ?? slotData(mySlot, room).progress
-    if (!cur) return
-    const next = tryPlaceLetter(letter, cur, room.current_word)
-    if (next) {
+  const commitProgressUpdate = useCallback(
+    async (next: string, curBefore: string) => {
+      if (!room || !playerInfo || !room.current_word) return
       consecutiveWrongRef.current = 0
       cancelShake()
       localProgressRef.current = next
-      // Update display immediately (optimistic) — don't wait for Supabase round-trip
       setMyDisplayProgress(next)
       for (let i = 0; i < next.length; i++) {
-        if (cur[i] === "_" && next[i] !== "_") { setLastPlacedIndex(i); break }
+        if (curBefore[i] === "_" && next[i] !== "_") {
+          setLastPlacedIndex(i)
+          break
+        }
       }
       const pf = `player${mySlot}_progress`
       if (isWordComplete(next)) {
@@ -674,6 +881,21 @@ export default function GamePage({ params }: GamePageProps) {
       } else {
         await supabase.from("game_rooms").update({ [pf]: next }).eq("room_code", roomCode)
       }
+    },
+    [room, mySlot, roomCode, supabase, playerInfo]
+  )
+
+  const handleLetterInput = useCallback(async (letter: string) => {
+    if (!room || !playerInfo || room.game_status !== "playing" || !room.current_word) return
+    if (eliminatedFromRoundRef.current) return
+    // Lockout: after a wrong letter, ignore input for a few seconds
+    if (Date.now() < lockedUntilRef.current) return
+    // Use localProgressRef to avoid stale state on rapid key presses
+    const cur = localProgressRef.current ?? slotData(mySlot, room).progress
+    if (!cur) return
+    const next = tryPlaceLetter(letter, cur, room.current_word)
+    if (next) {
+      await commitProgressUpdate(next, cur)
     } else {
       triggerWrongKeyFlash()
       consecutiveWrongRef.current++
@@ -683,25 +905,76 @@ export default function GamePage({ params }: GamePageProps) {
       }
       triggerShake()
     }
-  }, [room, mySlot, roomCode, supabase, playerInfo, triggerWrongKeyFlash])
+  }, [room, mySlot, roomCode, supabase, playerInfo, triggerWrongKeyFlash, commitProgressUpdate])
 
-  async function handleTimerEnd() {
-    if (!room) return
-    const totalRounds = room.total_rounds ?? TOTAL_ROUNDS
-    const timerEndUpdate: Record<string, unknown> = {
-      round_winner: null,
-      game_status: room.current_round >= totalRounds ? "finished" : "round_end",
-      player1_ready: false,
-      player2_ready: false,
+  handleLetterInputRef.current = handleLetterInput
+
+  const startSpeechLetter = useCallback(() => {
+    if (!room || room.game_status !== "playing" || !room.current_word) return
+    if (eliminatedFromRoundRef.current) return
+    if (!isBrowserSpeechRecognitionSupported()) return
+    if (speechListeningRef.current) return
+    try {
+      speechRecognitionRef.current?.abort()
+    } catch {
+      /* ignore */
     }
-    if (activeSlots(room).some(s => s >= 3)) {
-      timerEndUpdate.player3_ready = false
-      timerEndUpdate.player4_ready = false
+    const locale = speechLocaleForMultiplayerMic(room.language, playerInfo?.language)
+    const rec = newSpeechRecognitionForLang(locale)
+    if (!rec) return
+    speechRecognitionRef.current = rec
+    speechListeningRef.current = true
+    setSpeechListeningUi(true)
+
+    // Voce: același flux ca Practice — lib/speech-word-match.ts → lib/words.ts
+    rec.onresult = (event) => {
+      speechListeningRef.current = false
+      setSpeechListeningUi(false)
+      const cur = localProgressRef.current ?? slotData(mySlot, room).progress
+      const word = room.current_word
+      if (!cur || !word) return
+      const next = applySpeechRecognitionResultToProgress(event, cur, word)
+      if (!next || next === cur) {
+        eliminatedFromRoundRef.current = true
+        setRoundEliminated(true)
+        hiddenInputRef.current?.blur()
+        triggerWrongKeyFlash()
+        triggerShake()
+        const slot = (playerInfo?.playerSlot ?? 1) as PlayerSlot
+        const patch: Record<string, unknown> = { [`player${slot}_speech_eliminated`]: true }
+        void supabase
+          .from("game_rooms")
+          .update(patch)
+          .eq("room_code", roomCode)
+          .then(({ error }) => {
+            if (error?.message?.toLowerCase().includes("speech_eliminated")) {
+              console.warn("[game] Run scripts/009_add_speech_eliminated.sql to sync speech elimination")
+            }
+          })
+        return
+      }
+      void commitProgressUpdate(next, cur)
     }
-    const finished = room.current_round >= totalRounds
-    const { error: timerErr } = await supabase.from("game_rooms").update(timerEndUpdate).eq("room_code", roomCode)
-    if (!timerErr && finished) await deleteGameRoomRow(supabase, roomCode)
-  }
+
+    rec.onerror = (event) => {
+      speechListeningRef.current = false
+      setSpeechListeningUi(false)
+      if (event.error === "aborted" || event.error === "no-speech") return
+    }
+
+    rec.onend = () => {
+      speechListeningRef.current = false
+      setSpeechListeningUi(false)
+      speechRecognitionRef.current = null
+    }
+
+    try {
+      rec.start()
+    } catch {
+      speechListeningRef.current = false
+      setSpeechListeningUi(false)
+    }
+  }, [room, mySlot, roomCode, supabase, playerInfo, triggerWrongKeyFlash, triggerShake, commitProgressUpdate])
 
   async function handleToggleReady() {
     if (!room || !playerInfo) return
@@ -712,7 +985,13 @@ export default function GamePage({ params }: GamePageProps) {
 
   async function startNewRound() {
     if (!room) return
-    const result = await serverStartNewRound(roomCode)
+    const rowLang = room.language != null && String(room.language).trim() !== "" ? String(room.language).trim() : ""
+    const lsLang =
+      playerInfo?.language != null && String(playerInfo.language).trim() !== ""
+        ? String(playerInfo.language).trim()
+        : ""
+    const languageHint = rowLang !== "" ? rowLang : lsLang !== "" ? lsLang : undefined
+    const result = await serverStartNewRound(roomCode, languageHint)
     if (!result.ok) {
       console.error("startNewRound:", result.error)
     }
@@ -732,6 +1011,9 @@ export default function GamePage({ params }: GamePageProps) {
       current_round: 0, game_status: "waiting",
       current_word: null, current_definition: null,
       round_winner: null,
+      round_end_reason: null,
+      player1_speech_eliminated: false,
+      player2_speech_eliminated: false,
     }
 
     if (active.some(s => s >= 3)) {
@@ -741,9 +1023,29 @@ export default function GamePage({ params }: GamePageProps) {
       reset.player4_ready = false
       reset.player3_progress = null
       reset.player4_progress = null
+      reset.player3_speech_eliminated = false
+      reset.player4_speech_eliminated = false
     }
 
-    const { data, error } = await supabase.from("game_rooms").update(reset).eq("room_code", roomCode).select()
+    let payload: Record<string, unknown> = { ...reset }
+    let { data, error } = await supabase.from("game_rooms").update(payload).eq("room_code", roomCode).select()
+    if (error) {
+      const msg = (error.message ?? "").toLowerCase()
+      if (msg.includes("speech_eliminated") || msg.includes("round_end_reason")) {
+        const {
+          round_end_reason: _r,
+          player1_speech_eliminated: _a,
+          player2_speech_eliminated: _b,
+          player3_speech_eliminated: _c,
+          player4_speech_eliminated: _d,
+          ...rest
+        } = payload
+        payload = rest
+        const retry = await supabase.from("game_rooms").update(payload).eq("room_code", roomCode).select()
+        data = retry.data
+        error = retry.error
+      }
+    }
     if (error || !data?.length) {
       clearWordmatchPlayerSession()
       router.push("/")
@@ -1253,9 +1555,7 @@ export default function GamePage({ params }: GamePageProps) {
               {room.category && CATEGORIES[room.category as CategoryKey] && (
                 <span>{CATEGORIES[room.category as CategoryKey].emoji} {CATEGORIES[room.category as CategoryKey].category}</span>
               )}
-              {room.language && LANGUAGES[room.language as LanguageKey] && (
-                <span>· {LANGUAGES[room.language as LanguageKey].flag}</span>
-              )}
+              <span>· {LANGUAGES[languageForMultiplayerRoom(room.language)].flag}</span>
             </div>
           </div>
           <div className="w-16" />
@@ -1271,7 +1571,7 @@ export default function GamePage({ params }: GamePageProps) {
       <div
         className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-none flex flex-col items-center justify-start px-4 pt-5 pb-6 max-w-2xl mx-auto w-full gap-5"
         onClick={() => {
-          if (!isRoundEnd) hiddenInputRef.current?.focus()
+          if (!isRoundEnd && !roundEliminated && !allPlayersSpeechWrongReveal) hiddenInputRef.current?.focus()
         }}
       >
 
@@ -1299,14 +1599,23 @@ export default function GamePage({ params }: GamePageProps) {
               )}>
                 <div className="flex items-center justify-center gap-2 font-semibold">
                   <Trophy className="w-4 h-4" />
-                  {iWonRound ? "You Win This Round!" : `${room.round_winner} Wins!`}
+                  {iWonRound ? "You Win!" : `${room.round_winner} Wins!`}
                 </div>
               </div>
             ) : (
               <div className="py-3 px-5 rounded-xl w-full text-center bg-destructive/10 text-destructive">
-                <div className="flex items-center justify-center gap-2 font-semibold">
-                  <Timer className="w-4 h-4" />
-                  {"Time's Up!"}
+                <div
+                  className={cn(
+                    "flex items-center justify-center font-semibold",
+                    room.round_end_reason !== "all_speech_wrong" && "gap-2"
+                  )}
+                >
+                  {room.round_end_reason !== "all_speech_wrong" && (
+                    <Timer className="w-4 h-4 shrink-0" />
+                  )}
+                  {room.round_end_reason === "all_speech_wrong"
+                    ? multiplayerSpeechUi.multiplayerRoundEndAllSpeechWrong
+                    : multiplayerSpeechUi.multiplayerRoundEndTimeout}
                 </div>
               </div>
             )}
@@ -1348,7 +1657,7 @@ export default function GamePage({ params }: GamePageProps) {
               {myReady ? <><Check className="w-4 h-4 mr-2" />Ready!</> : "I'm Ready"}
             </Button>
 
-            {/* ── Next Round button — activates only when everyone is ready ── */}
+            {/* ── Next Round — orice jucător când toți sunt Ready (gazda rămâne singura care pornește prima rundă din waiting) ── */}
             <Button
               className="w-full"
               size="lg"
@@ -1363,13 +1672,19 @@ export default function GamePage({ params }: GamePageProps) {
             {/* Definiție + timp în același card (ca practice); la urgență bordura clipește */}
             <Card
               className={cn(
-                "w-full shadow-sm border-2 transition-[border-color] duration-200",
+                "relative w-full shadow-sm border-2 transition-[border-color] duration-200",
                 timeRemaining <= 10
                   ? "border-[#fecaca] animate-[practiceUrgentBorder_0.75s_ease-in-out_infinite]"
                   : "border-border"
               )}
             >
-              <CardContent className={cn("px-4", defCardVerticalPad)}>
+              <CardContent
+                className={cn(
+                  "px-4",
+                  defCardVerticalPad,
+                  !roundEliminated && !allPlayersSpeechWrongReveal && "pr-14 pb-11"
+                )}
+              >
                 <p
                   className={cn(
                     "text-center text-lg sm:text-xl font-bold tabular-nums leading-none mb-1.5",
@@ -1386,8 +1701,30 @@ export default function GamePage({ params }: GamePageProps) {
                 >
                   {room.current_definition}
                 </p>
+                {isBrowserSpeechRecognitionSupported() && !roundEliminated && !allPlayersSpeechWrongReveal && (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="icon"
+                    className="absolute bottom-2 right-2 h-10 w-10 rounded-full shadow-md z-10"
+                    disabled={speechListeningUi}
+                    title={multiplayerSpeechUi.micTitleMultiplayer}
+                    aria-label={multiplayerSpeechUi.micAria}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      startSpeechLetter()
+                    }}
+                  >
+                    <Mic className={cn("h-4 w-4", speechListeningUi && "animate-pulse text-red-500")} />
+                  </Button>
+                )}
               </CardContent>
             </Card>
+            {roundEliminated && !allPlayersSpeechWrongReveal && (
+              <p className="text-xs text-center text-destructive font-medium px-2">
+                {multiplayerSpeechUi.multiplayerEliminatedLine}
+              </p>
+            )}
 
             {/* Word mask — hidden input placed here so browser auto-scroll targets this area */}
             <div ref={wordMaskRef} className="relative w-full flex justify-center">
@@ -1419,7 +1756,22 @@ export default function GamePage({ params }: GamePageProps) {
 
             {/* Legend */}
             <div className="text-center space-y-2">
-              <p className="text-sm text-muted-foreground">Press letter keys on your keyboard to guess!</p>
+              <p
+                className={cn(
+                  "text-sm text-center px-2",
+                  allPlayersSpeechWrongReveal
+                    ? "text-destructive font-semibold"
+                    : "text-muted-foreground"
+                )}
+              >
+                {allPlayersSpeechWrongReveal
+                  ? multiplayerSpeechUi.multiplayerRoundEndAllSpeechWrong
+                  : roundEliminated
+                    ? multiplayerSpeechUi.multiplayerWaitRound
+                    : isBrowserSpeechRecognitionSupported()
+                      ? multiplayerSpeechUi.multiplayerHintPlaying
+                      : multiplayerSpeechUi.multiplayerHintNoMic}
+              </p>
               {activeSlots(room).filter(s => s !== mySlot).length > 0 && (
                 <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground/55 flex-wrap">
                   {activeSlots(room).filter(s => s !== mySlot).map(s => (

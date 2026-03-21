@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useCallback, useRef, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -10,9 +10,19 @@ import {
   tryResumePracticeSession,
 } from "@/app/practice/actions"
 import { tryPlaceLetter, isWordComplete } from "@/lib/words"
+import {
+  isBrowserSpeechRecognitionSupported,
+  newSpeechRecognitionForLang,
+  type SpeechRecognitionInstance,
+} from "@/lib/speech-letter"
+import {
+  applySpeechRecognitionResultToProgress,
+  speechLocaleForRoundLanguage,
+} from "@/lib/speech-word-match"
 import type { CategoryKey, LanguageKey } from "@/lib/game-types"
 import { CATEGORIES, LANGUAGES } from "@/lib/game-types"
-import { ArrowLeft, RotateCcw, Trophy } from "lucide-react"
+import { speechUiStrings } from "@/lib/speech-ui-strings"
+import { ArrowLeft, RotateCcw, Trophy, Mic } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Confetti from "react-confetti"
 
@@ -60,7 +70,14 @@ export default function PracticePage() {
   const [round, setRound] = useState(1)
   const [timeLeft, setTimeLeft] = useState(ROUND_DURATION)
   const [gameStatus, setGameStatus] = useState<
-    "loading" | "playing" | "resolving" | "revealing" | "won" | "timeout" | "finished"
+    | "loading"
+    | "playing"
+    | "resolving"
+    | "revealing"
+    | "won"
+    | "timeout"
+    | "lost"
+    | "finished"
   >("loading")
   const [isShaking, setIsShaking] = useState(false)
   /** Scurt flash roșu deschis pe fundal la literă greșită */
@@ -77,12 +94,21 @@ export default function PracticePage() {
   // Prevents double-firing: keydown sets this true so onChange skips the same key
   const keyHandledRef = useRef(false)
   const handleNextRoundRef = useRef<() => void>(() => {})
-  /** După prima literă greșită: lockout input (ms) */
+  /** Oprește dublarea finalizării (timp 0 + greșeală în același moment). */
+  const roundConcludedRef = useRef(false)
+  /** După literă greșită la tastatură: scurt lockout (microfonul nu folosește asta). */
   const WRONG_LETTER_LOCK_MS = 3000
   const consecutiveWrongRef = useRef(0)
   const lockedUntilRef = useRef(0)
+  const speechRecognitionRef = useRef<SpeechRecognitionInstance | null>(null)
+  const speechListeningRef = useRef(false)
+  const [speechListeningUi, setSpeechListeningUi] = useState(false)
+  const handleLetterInputRef = useRef<((letter: string) => void | Promise<void>) | null>(null)
   const gameStatusRef = useRef(gameStatus)
   const router = useRouter()
+
+  /** Practice: mesaje UI mereu în engleză (conținutul rundei rămâne după limba aleasă). */
+  const practiceSpeechUi = useMemo(() => speechUiStrings("en"), [])
 
   useEffect(() => {
     gameStatusRef.current = gameStatus
@@ -131,8 +157,32 @@ export default function PracticePage() {
     setProgress(initProgress)
     setRevealProgress("_".repeat(meta.wordLength))
     setTimeLeft(ROUND_DURATION)
+    roundConcludedRef.current = false
     setGameStatus("playing")
   }, [category, language])
+
+  useEffect(() => {
+    if (gameStatus !== "playing") {
+      try {
+        speechRecognitionRef.current?.abort()
+      } catch {
+        /* ignore */
+      }
+      speechRecognitionRef.current = null
+      speechListeningRef.current = false
+      setSpeechListeningUi(false)
+    }
+  }, [gameStatus])
+
+  useEffect(() => {
+    return () => {
+      try {
+        speechRecognitionRef.current?.abort()
+      } catch {
+        /* ignore */
+      }
+    }
+  }, [])
 
   // La încărcare: reia aceeași rundă dacă cookie + sessionStorage coincid (refresh păstrează întrebarea).
   useEffect(() => {
@@ -198,7 +248,7 @@ export default function PracticePage() {
   }, [gameStatus, roundMeta, progress, timeLeft, round, score, category, language])
 
   useEffect(() => {
-    if (gameStatus === "won" || gameStatus === "timeout" || gameStatus === "finished") {
+    if (gameStatus === "won" || gameStatus === "timeout" || gameStatus === "lost" || gameStatus === "finished") {
       try {
         sessionStorage.removeItem(PRACTICE_SESSION_KEY)
       } catch {
@@ -218,32 +268,32 @@ export default function PracticePage() {
     return () => clearInterval(timer)
   }, [gameStatus])
 
-  // Timer 0: un singur răspuns server (finalize) cu cuvânt + definiție + sloturi reveal
-  // (Nu includem `gameStatus` în deps — altfel cleanup anulează async-ul după `resolving`.)
-  useEffect(() => {
-    if (timeLeft !== 0 || !roundMeta) return
-    if (gameStatusRef.current !== "playing") return
-    let cancelled = false
-    setGameStatus("resolving")
-    ;(async () => {
+  /** Finalizare rundă pierdută (timp expirat sau răspuns greșit): reveal roșu ca la timeout. */
+  const runPracticeFailure = useCallback(
+    async (mode: "time" | "wrong", life: { cancelled: boolean }) => {
+      const rm = roundMeta
+      if (!rm) return
       const cur = progressRef.current
       const res = await finalizePracticeRound("timeout", cur)
-      if (cancelled) return
+      if (life.cancelled) return
+      const endStatus = mode === "time" ? ("timeout" as const) : ("lost" as const)
       if (!res.ok) {
-        setGameStatus("timeout")
+        const w = answerWordRef.current
+        if (w.length === rm.wordLength) setRevealProgress(w)
+        setGameStatus(endStatus)
         return
       }
       const slots = res.revealSlots ?? []
       if (slots.length === 0) {
-        setGameStatus("timeout")
+        setGameStatus(endStatus)
         return
       }
       setGameStatus("revealing")
-      const base = "_".repeat(roundMeta.wordLength)
+      const base = "_".repeat(rm.wordLength)
       setRevealProgress(base)
       slots.forEach((slot, idx) => {
         setTimeout(() => {
-          if (cancelled) return
+          if (life.cancelled) return
           setRevealProgress((prev) => {
             const arr = prev.split("")
             arr[slot.index] = slot.char
@@ -252,13 +302,45 @@ export default function PracticePage() {
         }, (idx + 1) * 150)
       })
       setTimeout(() => {
-        if (!cancelled) setGameStatus("timeout")
+        if (!life.cancelled) setGameStatus(endStatus)
       }, slots.length * 150 + 500)
-    })()
+    },
+    [roundMeta]
+  )
+
+  const beginPracticeRoundFailure = useCallback(
+    (mode: "time" | "wrong") => {
+      if (!roundMeta) return null
+      if (roundConcludedRef.current) return null
+      roundConcludedRef.current = true
+      hiddenInputRef.current?.blur()
+      try {
+        speechRecognitionRef.current?.abort()
+      } catch {
+        /* ignore */
+      }
+      speechRecognitionRef.current = null
+      speechListeningRef.current = false
+      setSpeechListeningUi(false)
+      const life = { cancelled: false }
+      setGameStatus("resolving")
+      void runPracticeFailure(mode, life)
+      return life
+    },
+    [roundMeta, runPracticeFailure]
+  )
+
+  // Timer 0: același flux ca la greșeală (oprește timpul + litere roșii).
+  // (Nu includem `gameStatus` în deps — altfel cleanup anulează async-ul după `resolving`.)
+  useEffect(() => {
+    if (timeLeft !== 0 || !roundMeta) return
+    if (gameStatusRef.current !== "playing") return
+    const life = beginPracticeRoundFailure("time")
+    if (!life) return
     return () => {
-      cancelled = true
+      life.cancelled = true
     }
-  }, [timeLeft, roundMeta])
+  }, [timeLeft, roundMeta, beginPracticeRoundFailure])
 
   const handleLetterInput = useCallback(
     async (letter: string) => {
@@ -299,6 +381,7 @@ export default function PracticePage() {
       setProgress(next)
 
       if (isWordComplete(next)) {
+        roundConcludedRef.current = true
         setGameStatus("resolving")
         const fin = await finalizePracticeRound("won", next)
         if (!fin.ok) {
@@ -314,6 +397,90 @@ export default function PracticePage() {
     },
     [roundMeta, gameStatus, loadNewWord, triggerWrongKeyFlash]
   )
+
+  handleLetterInputRef.current = handleLetterInput
+
+  const startSpeechLetter = useCallback(() => {
+    if (gameStatus !== "playing" || !roundMeta) return
+    if (roundConcludedRef.current) return
+    if (!isBrowserSpeechRecognitionSupported()) return
+    if (speechListeningRef.current) return
+    try {
+      speechRecognitionRef.current?.abort()
+    } catch {
+      /* ignore */
+    }
+    const locale = speechLocaleForRoundLanguage(language)
+    const rec = newSpeechRecognitionForLang(locale)
+    if (!rec) return
+    speechRecognitionRef.current = rec
+    speechListeningRef.current = true
+    setSpeechListeningUi(true)
+
+    rec.onresult = (event) => {
+      speechListeningRef.current = false
+      setSpeechListeningUi(false)
+      const word = answerWordRef.current
+      const cur = progressRef.current
+      if (!word || !cur) return
+      const next = applySpeechRecognitionResultToProgress(event, cur, word)
+      if (!next || next === cur) {
+        triggerWrongKeyFlash()
+        if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current)
+        shouldShakeRef.current = true
+        setIsShaking(false)
+        requestAnimationFrame(() =>
+          requestAnimationFrame(() => {
+            if (!shouldShakeRef.current) return
+            setIsShaking(true)
+            shakeTimeoutRef.current = setTimeout(() => setIsShaking(false), 220)
+          })
+        )
+        beginPracticeRoundFailure("wrong")
+        return
+      }
+      shouldShakeRef.current = false
+      if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current)
+      setIsShaking(false)
+      progressRef.current = next
+      setProgress(next)
+      if (isWordComplete(next)) {
+        void (async () => {
+          roundConcludedRef.current = true
+          setGameStatus("resolving")
+          const fin = await finalizePracticeRound("won", next)
+          if (!fin.ok) {
+            await loadNewWord()
+            return
+          }
+          hiddenInputRef.current?.blur()
+          setShowConfetti(true)
+          setScore((prev) => prev + 1)
+          setGameStatus("won")
+          setTimeout(() => setShowConfetti(false), 2500)
+        })()
+      }
+    }
+
+    rec.onerror = (event) => {
+      speechListeningRef.current = false
+      setSpeechListeningUi(false)
+      if (event.error === "aborted" || event.error === "no-speech") return
+    }
+
+    rec.onend = () => {
+      speechListeningRef.current = false
+      setSpeechListeningUi(false)
+      speechRecognitionRef.current = null
+    }
+
+    try {
+      rec.start()
+    } catch {
+      speechListeningRef.current = false
+      setSpeechListeningUi(false)
+    }
+  }, [gameStatus, roundMeta, language, triggerWrongKeyFlash, loadNewWord, beginPracticeRoundFailure])
 
   // Auto-focus hidden input when round starts, blur when it ends
   useEffect(() => {
@@ -351,7 +518,7 @@ export default function PracticePage() {
 
   // Enter = Next Round / See Results (single player — same as multiplayer UX)
   useEffect(() => {
-    if (gameStatus !== "won" && gameStatus !== "timeout") return
+    if (gameStatus !== "won" && gameStatus !== "timeout" && gameStatus !== "lost") return
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Enter" || e.repeat) return
       const t = e.target as HTMLElement | null
@@ -473,19 +640,29 @@ export default function PracticePage() {
       {/* Main content — tap anywhere to re-focus keyboard on iOS */}
       <div
         className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-none flex flex-col items-center justify-start px-4 pt-5 pb-6 max-w-2xl mx-auto w-full gap-5"
-        onClick={() => { if (gameStatus === "playing") hiddenInputRef.current?.focus() }}
+        onClick={() => {
+          if (gameStatus === "playing") hiddenInputRef.current?.focus()
+        }}
       >
 
         {/* Definiție + timp în același card; la urgență bordura cardului clipește roșu */}
         <Card
           className={cn(
-            "w-full shadow-sm border-2 transition-[border-color] duration-200",
+            "relative w-full shadow-sm border-2 transition-[border-color] duration-200",
             gameStatus === "playing" && timeLeft <= 10
               ? "border-[#fecaca] animate-[practiceUrgentBorder_0.75s_ease-in-out_infinite]"
               : "border-border"
           )}
         >
-          <CardContent className={cn("px-4", defCardVerticalPad)}>
+          <CardContent
+            className={cn(
+              "px-4",
+              defCardVerticalPad,
+              gameStatus === "playing" &&
+                isBrowserSpeechRecognitionSupported() &&
+                "pr-14 pb-11"
+            )}
+          >
             {gameStatus === "loading" ? (
               <div className="h-16 flex items-center justify-center">
                 <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
@@ -510,6 +687,23 @@ export default function PracticePage() {
                 >
                   {roundMeta?.definition}
                 </p>
+                {gameStatus === "playing" && isBrowserSpeechRecognitionSupported() && (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="icon"
+                      className="absolute bottom-2 right-2 h-10 w-10 rounded-full shadow-md z-10"
+                      disabled={speechListeningUi}
+                      title={practiceSpeechUi.micTitlePractice}
+                      aria-label={practiceSpeechUi.micAria}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        startSpeechLetter()
+                      }}
+                    >
+                      <Mic className={cn("h-4 w-4", speechListeningUi && "animate-pulse text-red-500")} />
+                    </Button>
+                  )}
               </>
             )}
           </CardContent>
@@ -579,11 +773,13 @@ export default function PracticePage() {
         {/* Instruction / Round result */}
         {gameStatus === "playing" && (
           <p className="text-sm text-muted-foreground text-center">
-            Press letter keys on your keyboard to guess!
+            {isBrowserSpeechRecognitionSupported()
+              ? practiceSpeechUi.practiceHintPlaying
+              : practiceSpeechUi.practiceHintNoMic}
           </p>
         )}
 
-        {(gameStatus === "won" || gameStatus === "timeout") && (
+        {(gameStatus === "won" || gameStatus === "timeout" || gameStatus === "lost") && (
           <div className="w-full space-y-4 text-center">
             <div className={cn(
               "py-4 px-6 rounded-xl",
@@ -592,13 +788,15 @@ export default function PracticePage() {
                 : "bg-destructive/10 text-destructive"
             )}>
               {gameStatus === "won" ? (
-                <p className="font-semibold text-lg text-center">You Won This Round!</p>
+                <p className="font-semibold text-lg text-center">{practiceSpeechUi.practiceWonRound}</p>
+              ) : gameStatus === "timeout" ? (
+                <p className="font-semibold text-lg text-center">{practiceSpeechUi.practiceTimeUp}</p>
               ) : (
-                <p className="font-semibold text-lg text-center">Time&apos;s Up!</p>
+                <p className="font-semibold text-lg text-center">{practiceSpeechUi.practiceWrongWord}</p>
               )}
             </div>
             <Button onClick={handleNextRound} className="w-full h-12" size="lg">
-              {round >= totalRounds ? "See Results" : "Next Round"}
+              {round >= totalRounds ? practiceSpeechUi.practiceSeeResults : practiceSpeechUi.practiceNextRound}
             </Button>
           </div>
         )}

@@ -30,7 +30,7 @@ export async function resolveWordPairForRound(
   category: string | null | undefined,
   language: string
 ): Promise<WordPair> {
-  const lang = language?.trim() || "ro"
+  const lang = language?.trim() || "en"
   const cat = category?.trim()
 
   if (!cat || cat === "general") {

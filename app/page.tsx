@@ -3,7 +3,16 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
-import { PLAYER_COLORS, CATEGORIES, LANGUAGES, TOTAL_ROUNDS, type CategoryKey, type LanguageKey } from "@/lib/game-types"
+import {
+  PLAYER_COLORS,
+  CATEGORIES,
+  LANGUAGES,
+  TOTAL_ROUNDS,
+  languageForMultiplayerRoom,
+  type CategoryKey,
+  type LanguageKey,
+} from "@/lib/game-types"
+import { syncGameRoomLanguage } from "@/app/game/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -132,6 +141,7 @@ export default function HomePage() {
     try {
       const newRoomCode = generateRoomCode()
       const playerId = generatePlayerId()
+      const roomLanguage = languageForMultiplayerRoom(selectedLanguage)
       const basePayload: Record<string, unknown> = {
         room_code: newRoomCode,
         player1_id: playerId,
@@ -147,7 +157,7 @@ export default function HomePage() {
       const optionalValues: Record<string, unknown> = {
         max_players: maxPlayers,
         category: selectedCategory,
-        language: selectedLanguage,
+        language: roomLanguage,
       }
 
       let payload = { ...basePayload, ...optionalValues }
@@ -155,8 +165,8 @@ export default function HomePage() {
 
       for (const col of OPTIONAL_COLUMNS) {
         if (!roomError) break
-        const msg = (roomError as { message?: string }).message ?? ""
-        if (msg.includes(col)) {
+        const msg = ((roomError as { message?: string }).message ?? "").toLowerCase()
+        if (msg.includes(col.toLowerCase())) {
           console.warn(`${col} column missing — run the relevant migration script`)
           const { [col]: _removed, ...rest } = payload
           payload = rest
@@ -173,11 +183,31 @@ export default function HomePage() {
         return
       }
 
+      // Asigură că limba/categoria ajung în DB (unele insert-uri fără coloane opționale lasă NULL).
+      const { error: patchErr } = await supabase
+        .from("game_rooms")
+        .update({
+          language: roomLanguage,
+          category: selectedCategory,
+          max_players: maxPlayers,
+        })
+        .eq("room_code", newRoomCode)
+      if (patchErr) {
+        console.warn("Room language/category patch:", patchErr.message)
+      }
+
+      const syncLang = await syncGameRoomLanguage(newRoomCode, selectedLanguage)
+      if (!syncLang.ok) {
+        console.warn("syncGameRoomLanguage:", syncLang.error)
+      }
+
       localStorage.setItem("wordmatch_player", JSON.stringify({
         id: playerId,
         name: playerName.trim(),
         roomCode: newRoomCode,
         playerSlot: 1,
+        language: roomLanguage,
+        category: selectedCategory,
       }))
       router.push(`/game/${newRoomCode}`)
     } catch (err) {
@@ -309,7 +339,7 @@ export default function HomePage() {
         <Card className="border-2">
           <CardHeader className="pb-4">
             <CardTitle>Play Now</CardTitle>
-            <CardDescription>Practice solo or duel with friends</CardDescription>
+            <CardDescription>Practice solo or multiplayer with friends</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Name input */}
@@ -358,21 +388,26 @@ export default function HomePage() {
               </div>
             )}
 
-            {/* Language selector — hidden when joining */}
+            {/* Language — vizibil doar la Create (Practice + cameră nouă folosesc aceeași selecție) */}
             {activeTab === "create" && (
               <div className="space-y-2">
-                <label className="text-sm font-medium">Definition Language</label>
-                <div className="flex flex-wrap gap-1.5">
+                <p className="text-sm font-medium">Definition &amp; word language</p>
+                <div
+                  className="flex flex-wrap gap-1.5"
+                  role="group"
+                  aria-label="Definition and word language"
+                >
                   {(Object.entries(LANGUAGES) as [LanguageKey, { label: string; flag: string }][]).map(([key, { label, flag }]) => (
                     <button
                       key={key}
                       type="button"
                       onClick={() => setSelectedLanguage(key)}
+                      aria-pressed={selectedLanguage === key}
                       className={cn(
                         "px-2.5 py-1 rounded-lg text-xs font-medium border transition-all",
                         selectedLanguage === key
                           ? "border-2 border-blue-500 text-foreground bg-transparent"
-                          : "border bg-muted/40 text-muted-foreground border-transparent hover:border-muted-foreground/30 hover:bg-muted/70"
+                          : "border bg-muted/40 text-muted-foreground border-transparent hover:border-muted-foreground/30 hover:bg-muted/70",
                       )}
                     >
                       {flag} {label}
@@ -427,13 +462,13 @@ export default function HomePage() {
 
             {/* Tabs */}
             <Tabs
-              defaultValue="create"
-              className="w-full"
+              value={activeTab}
               onValueChange={(v) => {
                 setActiveTab(v as "create" | "join")
                 setRoundsError("")
                 setNameFieldError("")
               }}
+              className="w-full"
             >
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="create">Create Room</TabsTrigger>

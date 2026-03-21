@@ -40,12 +40,12 @@ function extractPair(
   entry: MultilingualEntry | WordPair | BilingualFlat,
   language: string
 ): WordPair | null {
-  const lang = (language || "ro").trim().toLowerCase()
+  const lang = (language || "en").trim().toLowerCase()
 
-  if ("definitions" in entry && entry.definitions && Object.keys(entry.definitions).length > 0) {
+  const defs = "definitions" in entry ? entry.definitions : undefined
+  if (defs && Object.keys(defs).length > 0) {
     const e = entry as MultilingualEntry
-    const def =
-      e.definitions[lang] ?? e.definitions["en"] ?? e.definitions["ro"] ?? ""
+    const def = defs[lang] ?? defs["en"] ?? defs["ro"] ?? ""
     const word =
       e.words?.[lang] ?? e.words?.["en"] ?? e.words?.["ro"] ?? e.word ?? ""
     if (!def.trim() || !word.trim()) return null

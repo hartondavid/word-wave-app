@@ -38,7 +38,14 @@ export interface GameRoom {
   current_round: number
   total_rounds: number
   round_winner: string | null
+  /** Când nu e câștigător: timeout (timp) sau all_speech_wrong (toți au greșit la microfon). */
+  round_end_reason?: string | null
   round_end_time: string | null
+
+  player1_speech_eliminated?: boolean | null
+  player2_speech_eliminated?: boolean | null
+  player3_speech_eliminated?: boolean | null
+  player4_speech_eliminated?: boolean | null
   created_at: string
   updated_at: string
 }
@@ -64,6 +71,21 @@ export const LANGUAGES = {
 } as const
 
 export type LanguageKey = keyof typeof LANGUAGES
+
+/** Limbi suportate pentru runde multiplayer (cuvinte/definiții). */
+export type MultiplayerLanguageKey = "en" | "ro"
+
+/**
+ * Limba salvată în cameră pentru multiplayer: doar engleză sau română.
+ * Orice altă selecție (ex. ES/FR/DE) sau valoare necunoscută → engleză.
+ */
+export function languageForMultiplayerRoom(
+  selection: LanguageKey | string | null | undefined
+): MultiplayerLanguageKey {
+  const raw = (selection ?? "en").toString().trim().toLowerCase()
+  if (raw === "ro") return "ro"
+  return "en"
+}
 
 export const CATEGORIES = {
   general:    { category: 'All',         emoji: '🌐' },
@@ -93,3 +115,18 @@ export type CategoryKey = keyof typeof CATEGORIES
 
 // All specific category keys (excludes 'general')
 export const SPECIFIC_CATEGORIES = Object.keys(CATEGORIES).filter(k => k !== 'general') as Exclude<CategoryKey, 'general'>[]
+
+/** Toți jucătorii activi au fost eliminați la microfon (cuvânt greșit) în runda curentă. */
+export function allActivePlayersSpeechEliminated(room: GameRoom): boolean {
+  const slots: PlayerSlot[] = []
+  if (room.player1_id) slots.push(1)
+  if (room.player2_id) slots.push(2)
+  if (room.player3_id) slots.push(3)
+  if (room.player4_id) slots.push(4)
+  if (slots.length === 0) return false
+  for (const s of slots) {
+    const k = `player${s}_speech_eliminated`
+    if ((room as unknown as Record<string, unknown>)[k] !== true) return false
+  }
+  return true
+}
