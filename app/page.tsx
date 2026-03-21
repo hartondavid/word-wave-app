@@ -48,6 +48,41 @@ function pickJoinPlayerSlot(
 
 const JOINABLE_GAME_STATUSES = new Set(["waiting", "playing", "round_end", "finished"])
 
+const MSG_NAME_REQUIRED = "Please enter your name"
+const MSG_NAME_TAKEN =
+  "This name is already taken in the room."
+
+/** Rând minimal din `game_rooms` pentru verificarea numelui la join. */
+type RoomRowForNameCheck = {
+  player1_id?: string | null
+  player1_name?: string | null
+  player2_id?: string | null
+  player2_name?: string | null
+  player3_id?: string | null
+  player3_name?: string | null
+  player4_id?: string | null
+  player4_name?: string | null
+}
+
+/**
+ * True dacă un jucător activ (are id) folosește deja același nume.
+ * Comparare după trim, fără diferență majuscule/minuscule: "Alex" = "alex".
+ */
+function isDisplayNameTakenInRoom(room: RoomRowForNameCheck, candidate: string): boolean {
+  const t = candidate.trim().toLocaleLowerCase()
+  const pairs: [string | null | undefined, string | null | undefined][] = [
+    [room.player1_id, room.player1_name],
+    [room.player2_id, room.player2_name],
+    [room.player3_id, room.player3_name],
+    [room.player4_id, room.player4_name],
+  ]
+  for (const [id, name] of pairs) {
+    if (!id || name == null || name === "") continue
+    if (name.trim().toLocaleLowerCase() === t) return true
+  }
+  return false
+}
+
 export default function HomePage() {
   const [playerName, setPlayerName] = useState("")
   const [roomCode, setRoomCode] = useState("")
@@ -59,11 +94,16 @@ export default function HomePage() {
   const [activeTab, setActiveTab] = useState<"create" | "join">("create")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+  /** Mesaj de validare afișat sub câmpul Your Name. */
+  const [nameFieldError, setNameFieldError] = useState("")
   const router = useRouter()
   const supabase = createClient()
 
   async function handlePracticeSolo() {
-    if (!playerName.trim()) { setError("Please enter your name"); return }
+    if (!playerName.trim()) {
+      setNameFieldError(MSG_NAME_REQUIRED)
+      return
+    }
     const rounds = parseInt(maxRoundsInput, 10)
     localStorage.setItem("wordmatch_player", JSON.stringify({
       id: generatePlayerId(),
@@ -77,7 +117,10 @@ export default function HomePage() {
   }
 
   async function handleCreateRoom() {
-    if (!playerName.trim()) { setError("Please enter your name"); return }
+    if (!playerName.trim()) {
+      setNameFieldError(MSG_NAME_REQUIRED)
+      return
+    }
     const maxRounds = parseInt(maxRoundsInput, 10)
     if (!maxRoundsInput.trim() || isNaN(maxRounds) || maxRounds <= 0) {
       setRoundsError("Number of rounds must be at least 1")
@@ -85,6 +128,7 @@ export default function HomePage() {
     }
     setIsLoading(true)
     setError("")
+    setNameFieldError("")
     try {
       const newRoomCode = generateRoomCode()
       const playerId = generatePlayerId()
@@ -146,13 +190,17 @@ export default function HomePage() {
   }
 
   async function handleJoinRoom() {
-    if (!playerName.trim()) { setError("Please enter your name"); return }
+    if (!playerName.trim()) {
+      setNameFieldError(MSG_NAME_REQUIRED)
+      return
+    }
     if (!roomCode.trim() || roomCode.trim().length !== 4) {
       setError("Please enter a valid 4-character room code")
       return
     }
     setIsLoading(true)
     setError("")
+    setNameFieldError("")
     try {
       const upperCode = roomCode.trim().toUpperCase()
       const playerId = generatePlayerId()
@@ -168,6 +216,12 @@ export default function HomePage() {
 
       if (!JOINABLE_GAME_STATUSES.has(room.game_status)) {
         setError("Nu te poți alătura camerei în acest moment.")
+        setIsLoading(false)
+        return
+      }
+
+      if (isDisplayNameTakenInRoom(room as RoomRowForNameCheck, playerName)) {
+        setNameFieldError(MSG_NAME_TAKEN)
         setIsLoading(false)
         return
       }
@@ -260,15 +314,31 @@ export default function HomePage() {
           <CardContent className="space-y-4">
             {/* Name input */}
             <div className="space-y-2">
-              <label htmlFor="playerName" className="text-sm font-medium">Your Name</label>
+              <label
+                htmlFor="playerName"
+                className={cn("text-sm font-medium", nameFieldError && "text-destructive")}
+              >
+                Your Name
+              </label>
               <Input
                 id="playerName"
                 placeholder="Enter your nickname"
                 value={playerName}
-                onChange={(e) => { setPlayerName(e.target.value); setError("") }}
+                aria-invalid={!!nameFieldError}
+                aria-describedby={nameFieldError ? "playerName-error" : undefined}
+                onChange={(e) => {
+                  setPlayerName(e.target.value)
+                  setError("")
+                  setNameFieldError("")
+                }}
                 maxLength={15}
                 onKeyDown={(e) => e.key === "Enter" && handlePracticeSolo()}
               />
+              {nameFieldError ? (
+                <p id="playerName-error" className="text-xs text-destructive" role="alert">
+                  {nameFieldError}
+                </p>
+              ) : null}
             </div>
 
             {/* Category selector — hidden when joining */}
@@ -359,7 +429,11 @@ export default function HomePage() {
             <Tabs
               defaultValue="create"
               className="w-full"
-              onValueChange={(v) => { setActiveTab(v as "create" | "join"); setRoundsError("") }}
+              onValueChange={(v) => {
+                setActiveTab(v as "create" | "join")
+                setRoundsError("")
+                setNameFieldError("")
+              }}
             >
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="create">Create Room</TabsTrigger>

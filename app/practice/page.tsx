@@ -592,9 +592,9 @@ export default function PracticePage() {
                 : "bg-destructive/10 text-destructive"
             )}>
               {gameStatus === "won" ? (
-                <p className="font-semibold text-lg text-center">You won this round!</p>
+                <p className="font-semibold text-lg text-center">You Won This Round!</p>
               ) : (
-                <p className="font-semibold text-lg text-center">Time&apos;s up!</p>
+                <p className="font-semibold text-lg text-center">Time&apos;s Up!</p>
               )}
             </div>
             <Button onClick={handleNextRound} className="w-full h-12" size="lg">

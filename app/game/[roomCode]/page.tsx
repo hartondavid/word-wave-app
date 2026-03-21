@@ -16,7 +16,6 @@ import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
 import { Copy, Check, Timer, Trophy, ArrowLeft, AlertCircle } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
-import Image from "next/image"
 import Confetti from "react-confetti"
 
 interface PlayerInfo {
@@ -1090,9 +1089,6 @@ export default function GamePage({ params }: GamePageProps) {
         <div className="flex-1 flex flex-col items-center justify-center p-4">
         <Card className="w-full max-w-sm">
           <CardContent className="pt-3 pb-4 text-center space-y-3">
-            <div className="mx-auto flex items-center justify-center">
-              <Image src="/logo.png" alt="WordWave logo" width={200} height={200} className="rounded-2xl" priority />
-            </div>
             <div>
               <h2 className="text-xl font-bold">Waiting for Players</h2>
               <p className="text-sm text-muted-foreground mt-1">
@@ -1157,10 +1153,7 @@ export default function GamePage({ params }: GamePageProps) {
         <Card className="w-full max-w-md">
           <CardContent className="pt-3 pb-4 space-y-3">
             <div className="text-center">
-              <div className="mx-auto flex items-center justify-center mb-1">
-                <Image src="/logo.png" alt="WordWave logo" width={200} height={200} className="rounded-2xl" priority />
-              </div>
-              <h2 className="text-xl font-bold">Ready to Duel?</h2>
+              <h2 className="text-xl font-bold">Ready to Start?</h2>
               <p className="text-sm text-muted-foreground mt-1">All players must be ready to start</p>
             </div>
             <div className={cn(
