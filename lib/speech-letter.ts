@@ -29,9 +29,11 @@ export type SpeechRecognitionInstance = {
 }
 
 export type SpeechRecognitionResultEventLike = {
+  resultIndex?: number
   results: {
     length: number
     [index: number]: {
+      isFinal?: boolean
       length: number
       [index: number]: { transcript: string }
     }
@@ -70,11 +72,20 @@ export function newSpeechRecognitionForLang(lang: string): SpeechRecognitionInst
   if (!Ctor) return null
   const rec = new Ctor()
   rec.lang = lang
-  rec.interimResults = false
+  /** true = transcrieri înainte de pauza lungă de final de enunț (~5s în Chrome). */
+  rec.interimResults = true
   rec.continuous = false
   /** 3 = câteva alternative fără bug-uri raportate cu valori mari pe WebKit. */
   rec.maxAlternatives = 3
   return rec
+}
+
+/** Ultimul segment din eveniment e final (nu mai așteaptă tăcere pentru confirmare). */
+export function isLastSpeechResultFinal(event: SpeechRecognitionResultEventLike): boolean {
+  const n = event.results.length
+  if (n === 0) return false
+  const last = event.results[n - 1] as { isFinal?: boolean }
+  return last.isFinal === true
 }
 
 /** Colectează toate variantele de transcriere din eveniment (alternative + segmente concatenate). */

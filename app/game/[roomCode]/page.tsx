@@ -21,6 +21,7 @@ import { tryPlaceLetter, isWordComplete } from "@/lib/words"
 import { speechUiLang, speechUiStrings } from "@/lib/speech-ui-strings"
 import {
   isBrowserSpeechRecognitionSupported,
+  isLastSpeechResultFinal,
   newSpeechRecognitionForLang,
   type SpeechRecognitionInstance,
 } from "@/lib/speech-letter"
@@ -939,32 +940,44 @@ export default function GamePage({ params }: GamePageProps) {
 
     // Voce: același flux ca Practice — lib/speech-word-match.ts → lib/words.ts
     rec.onresult = (event) => {
-      speechListeningRef.current = false
-      setSpeechListeningUi(false)
       const cur = localProgressRef.current ?? slotData(mySlot, room).progress
       const word = room.current_word
       if (!cur || !word) return
       const next = applySpeechRecognitionResultToProgress(event, cur, word)
-      if (!next || next === cur) {
-        eliminatedFromRoundRef.current = true
-        setRoundEliminated(true)
-        hiddenInputRef.current?.blur()
-        triggerWrongKeyFlash()
-        triggerShake()
-        const slot = (playerInfo?.playerSlot ?? 1) as PlayerSlot
-        const patch: Record<string, unknown> = { [`player${slot}_speech_eliminated`]: true }
-        void supabase
-          .from("game_rooms")
-          .update(patch)
-          .eq("room_code", roomCode)
-          .then(({ error }) => {
-            if (error?.message?.toLowerCase().includes("speech_eliminated")) {
-              console.warn("[game] Run scripts/009_add_speech_eliminated.sql to sync speech elimination")
-            }
-          })
+      const ok = next != null && next !== cur
+
+      if (ok) {
+        speechListeningRef.current = false
+        setSpeechListeningUi(false)
+        try {
+          rec.abort()
+        } catch {
+          /* ignore */
+        }
+        void commitProgressUpdate(next, cur)
         return
       }
-      void commitProgressUpdate(next, cur)
+
+      if (!isLastSpeechResultFinal(event)) return
+
+      speechListeningRef.current = false
+      setSpeechListeningUi(false)
+      eliminatedFromRoundRef.current = true
+      setRoundEliminated(true)
+      hiddenInputRef.current?.blur()
+      triggerWrongKeyFlash()
+      triggerShake()
+      const slot = (playerInfo?.playerSlot ?? 1) as PlayerSlot
+      const patch: Record<string, unknown> = { [`player${slot}_speech_eliminated`]: true }
+      void supabase
+        .from("game_rooms")
+        .update(patch)
+        .eq("room_code", roomCode)
+        .then(({ error }) => {
+          if (error?.message?.toLowerCase().includes("speech_eliminated")) {
+            console.warn("[game] Run scripts/009_add_speech_eliminated.sql to sync speech elimination")
+          }
+        })
     }
 
     rec.onerror = (event) => {

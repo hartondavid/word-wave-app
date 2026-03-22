@@ -12,6 +12,7 @@ import {
 import { tryPlaceLetter, isWordComplete } from "@/lib/words"
 import {
   isBrowserSpeechRecognitionSupported,
+  isLastSpeechResultFinal,
   newSpeechRecognitionForLang,
   type SpeechRecognitionInstance,
 } from "@/lib/speech-letter"
@@ -429,48 +430,60 @@ export default function PracticePage() {
     setSpeechListeningUi(true)
 
     rec.onresult = (event) => {
-      speechListeningRef.current = false
-      setSpeechListeningUi(false)
       const word = answerWordRef.current
       const cur = progressRef.current
       if (!word || !cur) return
       const next = applySpeechRecognitionResultToProgress(event, cur, word)
-      if (!next || next === cur) {
-        triggerWrongKeyFlash()
+      const ok = next != null && next !== cur
+
+      if (ok) {
+        speechListeningRef.current = false
+        setSpeechListeningUi(false)
+        try {
+          rec.abort()
+        } catch {
+          /* ignore */
+        }
+        shouldShakeRef.current = false
         if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current)
-        shouldShakeRef.current = true
         setIsShaking(false)
-        requestAnimationFrame(() =>
-          requestAnimationFrame(() => {
-            if (!shouldShakeRef.current) return
-            setIsShaking(true)
-            shakeTimeoutRef.current = setTimeout(() => setIsShaking(false), 220)
-          })
-        )
-        beginPracticeRoundFailure("wrong")
+        progressRef.current = next
+        setProgress(next)
+        if (isWordComplete(next)) {
+          void (async () => {
+            roundConcludedRef.current = true
+            setGameStatus("resolving")
+            const fin = await finalizePracticeRound("won", next)
+            if (!fin.ok) {
+              await loadNewWord()
+              return
+            }
+            hiddenInputRef.current?.blur()
+            setShowConfetti(true)
+            setScore((prev) => prev + 1)
+            setGameStatus("won")
+            setTimeout(() => setShowConfetti(false), 2500)
+          })()
+        }
         return
       }
-      shouldShakeRef.current = false
+
+      if (!isLastSpeechResultFinal(event)) return
+
+      speechListeningRef.current = false
+      setSpeechListeningUi(false)
+      triggerWrongKeyFlash()
       if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current)
+      shouldShakeRef.current = true
       setIsShaking(false)
-      progressRef.current = next
-      setProgress(next)
-      if (isWordComplete(next)) {
-        void (async () => {
-          roundConcludedRef.current = true
-          setGameStatus("resolving")
-          const fin = await finalizePracticeRound("won", next)
-          if (!fin.ok) {
-            await loadNewWord()
-            return
-          }
-          hiddenInputRef.current?.blur()
-          setShowConfetti(true)
-          setScore((prev) => prev + 1)
-          setGameStatus("won")
-          setTimeout(() => setShowConfetti(false), 2500)
-        })()
-      }
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => {
+          if (!shouldShakeRef.current) return
+          setIsShaking(true)
+          shakeTimeoutRef.current = setTimeout(() => setIsShaking(false), 220)
+        })
+      )
+      beginPracticeRoundFailure("wrong")
     }
 
     rec.onerror = (event) => {

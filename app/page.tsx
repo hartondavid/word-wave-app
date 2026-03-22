@@ -448,7 +448,13 @@ export default function HomePage() {
             )}
 
             {/* Practice */}
-            <Button variant="outline" className="w-full" size="lg" onClick={handlePracticeSolo} disabled={isLoading}>
+            <Button
+              variant="default"
+              className="w-full bg-green-600 text-white hover:bg-green-700 focus-visible:ring-green-500/40 dark:bg-green-600 dark:hover:bg-green-700"
+              size="lg"
+              onClick={handlePracticeSolo}
+              disabled={isLoading}
+            >
               <Zap className="w-4 h-4 mr-2" />
               Practice Solo
             </Button>
