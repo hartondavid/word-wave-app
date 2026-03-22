@@ -101,6 +101,8 @@ function isDisplayNameTakenInRoom(room: RoomRowForNameCheck, candidate: string):
   return false
 }
 
+const LOGO_SIZE_PX = 300
+
 export default function HomePage() {
   const [playerName, setPlayerName] = useState("")
   const [roomCode, setRoomCode] = useState("")
@@ -327,7 +329,14 @@ export default function HomePage() {
         {/* Logo */}
         <div className="text-center space-y-2">
           <div className="inline-flex items-center justify-center mb-4">
-            <Image src="/logo.png" alt="WordWave logo" width={300} height={300} className="rounded-2xl" priority />
+            <Image
+              src="/logo.png"
+              alt="WordWave logo"
+              width={LOGO_SIZE_PX}
+              height={LOGO_SIZE_PX}
+              className={`home-logo-png-animate rounded-2xl w-[min(100%,${LOGO_SIZE_PX}px)] h-auto max-h-[${LOGO_SIZE_PX}px] object-contain`}
+              priority
+            />
           </div>
           
           <p className="text-muted-foreground">Race to guess the word first. Up to 4 players.</p>

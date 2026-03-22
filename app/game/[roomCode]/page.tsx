@@ -20,6 +20,8 @@ import {
 import { tryPlaceLetter, isWordComplete } from "@/lib/words"
 import { speechUiLang, speechUiStrings } from "@/lib/speech-ui-strings"
 import {
+  collectSpeechTranscripts,
+  firstLetterFromTranscript,
   isBrowserSpeechRecognitionSupported,
   isLastSpeechResultFinal,
   newSpeechRecognitionForLang,
@@ -32,6 +34,11 @@ import {
 import { serverStartNewRound, syncGameRoomLanguage } from "@/app/game/actions"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { LetterCellDelayBorder, WRONG_DELAY_RING_COLOR } from "@/components/letter-cell-delay-border"
+import {
+  LetterHistoryPanel,
+  LetterHistoryToggleButton,
+} from "@/components/letter-history-over-timer"
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
 import { Copy, Check, Timer, Trophy, ArrowLeft, AlertCircle, Mic } from "lucide-react"
@@ -130,6 +137,9 @@ function isSamePlayerRejoin(
   return pn.length > 0 && an.length > 0 && pn === an
 }
 
+/** Durată lockout tastatură după literă greșită (= durată inel animat). */
+const WRONG_LETTER_LOCK_MS = 2000
+
 /** Șterge sesiunea client (joc multiplayer) din localStorage. */
 function clearWordmatchPlayerSession() {
   try {
@@ -185,6 +195,10 @@ export default function GamePage({ params }: GamePageProps) {
   // Consecutive-wrong-letter penalty: 2 wrong in a row → 2s input lockout
   const consecutiveWrongRef = useRef(0)
   const lockedUntilRef = useRef(0)
+  const [wrongLetterDelayRing, setWrongLetterDelayRing] = useState(false)
+  const wrongLetterDelayRingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [typedLetterHistory, setTypedLetterHistory] = useState<string[]>([])
+  const [letterHistoryOpen, setLetterHistoryOpen] = useState(false)
   // Prevents handleTimerEnd from being called multiple times per round
   const timerEndCalledRef = useRef(false)
   /** Toți jucătorii au greșit la microfon — animație + end round (un singur lanț per client). */
@@ -712,6 +726,13 @@ export default function GamePage({ params }: GamePageProps) {
       setRevealProgress(null)
       consecutiveWrongRef.current = 0
       lockedUntilRef.current = 0
+      if (wrongLetterDelayRingTimeoutRef.current) {
+        clearTimeout(wrongLetterDelayRingTimeoutRef.current)
+        wrongLetterDelayRingTimeoutRef.current = null
+      }
+      setWrongLetterDelayRing(false)
+      setTypedLetterHistory([])
+      setLetterHistoryOpen(false)
       timerEndCalledRef.current = false
       speechAllFailedEndInProgressRef.current = false
       setAllPlayersSpeechWrongReveal(false)
@@ -741,6 +762,8 @@ export default function GamePage({ params }: GamePageProps) {
       } catch {
         /* ignore */
       }
+      if (wrongFlashTimeoutRef.current) clearTimeout(wrongFlashTimeoutRef.current)
+      if (wrongLetterDelayRingTimeoutRef.current) clearTimeout(wrongLetterDelayRingTimeoutRef.current)
     }
   }, [])
 
@@ -898,11 +921,18 @@ export default function GamePage({ params }: GamePageProps) {
     if (next) {
       await commitProgressUpdate(next, cur)
     } else {
+      setTypedLetterHistory((prev) => [...prev, letter])
       triggerWrongKeyFlash()
       consecutiveWrongRef.current++
       if (consecutiveWrongRef.current >= 1) {
-        lockedUntilRef.current = Date.now() + 3000
+        lockedUntilRef.current = Date.now() + WRONG_LETTER_LOCK_MS
         consecutiveWrongRef.current = 0
+        if (wrongLetterDelayRingTimeoutRef.current) clearTimeout(wrongLetterDelayRingTimeoutRef.current)
+        setWrongLetterDelayRing(true)
+        wrongLetterDelayRingTimeoutRef.current = setTimeout(() => {
+          setWrongLetterDelayRing(false)
+          wrongLetterDelayRingTimeoutRef.current = null
+        }, WRONG_LETTER_LOCK_MS)
       }
       triggerShake()
     }
@@ -962,8 +992,21 @@ export default function GamePage({ params }: GamePageProps) {
 
       speechListeningRef.current = false
       setSpeechListeningUi(false)
+      for (const t of collectSpeechTranscripts(event)) {
+        const ch = firstLetterFromTranscript(t)
+        if (!ch) continue
+        if (tryPlaceLetter(ch, cur, word) === null) {
+          setTypedLetterHistory((prev) => [...prev, ch])
+          break
+        }
+      }
       eliminatedFromRoundRef.current = true
       setRoundEliminated(true)
+      if (wrongLetterDelayRingTimeoutRef.current) {
+        clearTimeout(wrongLetterDelayRingTimeoutRef.current)
+        wrongLetterDelayRingTimeoutRef.current = null
+      }
+      setWrongLetterDelayRing(false)
       hiddenInputRef.current?.blur()
       triggerWrongKeyFlash()
       triggerShake()
@@ -1207,7 +1250,7 @@ export default function GamePage({ params }: GamePageProps) {
               return (
                 <div
                   key={i}
-                  className="relative flex items-center justify-center select-none w-12 h-[60px] sm:w-[72px] sm:h-[88px] rounded-xl border-2"
+                  className="relative flex items-center justify-center select-none w-12 h-12 sm:w-16 sm:h-16 rounded-xl border-2"
                   style={{ borderColor: `${myColor}80`, background: `${myColor}18` }}
                 >
                   <span className="text-xl sm:text-3xl font-black" style={{ color: myColor }}>{ch.toUpperCase()}</span>
@@ -1220,7 +1263,7 @@ export default function GamePage({ params }: GamePageProps) {
               return (
                 <div
                   key={i}
-                  className="relative flex items-center justify-center select-none w-12 h-[60px] sm:w-[72px] sm:h-[88px] rounded-xl border-2"
+                  className="relative flex items-center justify-center select-none w-12 h-12 sm:w-16 sm:h-16 rounded-xl border-2"
                   style={{ borderColor: `${winnerColor}80`, background: `${winnerColor}18` }}
                 >
                   <span className="text-xl sm:text-3xl font-black" style={{ color: winnerColor ?? undefined }}>
@@ -1231,7 +1274,7 @@ export default function GamePage({ params }: GamePageProps) {
             }
             // Time expired — reveal word in red
             return (
-              <div key={i} className="relative flex items-center justify-center select-none w-12 h-[60px] sm:w-[72px] sm:h-[88px] rounded-xl border-2 border-red-500 bg-red-500/10">
+              <div key={i} className="relative flex items-center justify-center select-none w-12 h-12 sm:w-16 sm:h-16 rounded-xl border-2 border-red-500 bg-red-500/10">
                 <span className="text-xl sm:text-3xl font-black text-red-500">{letter.toUpperCase()}</span>
               </div>
             )
@@ -1255,18 +1298,30 @@ export default function GamePage({ params }: GamePageProps) {
               }
             : undefined
 
+          const delayLockActive =
+            wrongLetterDelayRing &&
+            !roundEliminated &&
+            !allPlayersSpeechWrongReveal &&
+            room.game_status === "playing"
+          const cellIsEmptyFree = !playerFilled && !autoFilled
+          const delayRingThisCell = delayLockActive && cellIsEmptyFree
+
           return (
-            <div
+            <LetterCellDelayBorder
               key={i}
-              className={cn(
-                "relative flex items-center justify-center overflow-hidden select-none transition-all duration-200",
-                "w-12 h-[60px] sm:w-[72px] sm:h-[88px] rounded-xl border-2",
-                !playerFilled && !autoFilled && "border-muted-foreground/20 bg-muted/30",
-                autoFilled && "border-red-500 bg-red-500/10",
+              active={delayRingThisCell}
+              ringColor={WRONG_DELAY_RING_COLOR}
+              boxClassName={cn(
+                "w-12 h-12 sm:w-16 sm:h-16 transition-all duration-200",
                 isLast && !autoFilled && playerFilled && "scale-110 z-10",
                 isNewHit && !filled && "animate-[hitPulse_0.5s_ease-out]"
               )}
-              style={cellStyle}
+              innerClassName={cn(
+                "border-2 transition-all duration-200",
+                cellIsEmptyFree && "border-muted-foreground/20 bg-muted/30",
+                autoFilled && "border-red-500 bg-red-500/10"
+              )}
+              innerStyle={cellStyle}
             >
               {/* Vertical colored stripes for enemy hits (behind letter) */}
               {!filled && enemyHits.map((slot, idx) => (
@@ -1292,7 +1347,7 @@ export default function GamePage({ params }: GamePageProps) {
                   ? <span className="relative z-10 text-xl sm:text-3xl font-black text-red-500">{revealCh.toUpperCase()}</span>
                   : <span className="text-muted-foreground/20 text-base sm:text-xl select-none">_</span>
               }
-            </div>
+            </LetterCellDelayBorder>
           )
         })}
       </div>
@@ -1540,10 +1595,10 @@ export default function GamePage({ params }: GamePageProps) {
   )
   const defCardVerticalPad =
     approxDefinitionLines <= 2
-      ? "pt-1 pb-1.5"
+      ? "pt-0.5 pb-1"
       : approxDefinitionLines <= 4
-        ? "pt-1.5 pb-2"
-        : "pt-2 pb-2.5"
+        ? "pt-1 pb-1.5"
+        : "pt-1.5 pb-2"
 
   return (
     <main
@@ -1693,7 +1748,8 @@ export default function GamePage({ params }: GamePageProps) {
           </>
         ) : (
           <>
-            {/* Definiție + timp în același card (ca practice); la urgență bordura clipește */}
+            {/* Definiție + timp în card; panoul istoricului sub card, în afara chenarului */}
+            <div className="flex w-full flex-col gap-2">
             <Card
               className={cn(
                 "relative w-full shadow-sm border-2 transition-[border-color] duration-200",
@@ -1709,10 +1765,10 @@ export default function GamePage({ params }: GamePageProps) {
                   isBrowserSpeechRecognitionSupported() &&
                     !roundEliminated &&
                     !allPlayersSpeechWrongReveal &&
-                    "px-14 pb-11"
+                    "px-10 pb-9"
                 )}
               >
-                <div className="flex flex-col items-center justify-center w-full text-center gap-1.5">
+                <div className="flex flex-col items-center justify-center w-full text-center gap-1">
                   <p
                     className={cn(
                       "text-lg sm:text-xl font-bold tabular-nums leading-none w-full",
@@ -1730,32 +1786,47 @@ export default function GamePage({ params }: GamePageProps) {
                     {room.current_definition}
                   </p>
                 </div>
-                {isBrowserSpeechRecognitionSupported() && !roundEliminated && !allPlayersSpeechWrongReveal && (
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="icon"
-                    className="absolute bottom-2 right-2 h-10 w-10 rounded-full shadow-md z-10"
-                    title={
-                      speechListeningUi
-                        ? multiplayerSpeechUi.micTapToStop
-                        : multiplayerSpeechUi.micTitleMultiplayer
-                    }
-                    aria-label={
-                      speechListeningUi ? multiplayerSpeechUi.micTapToStop : multiplayerSpeechUi.micAria
-                    }
-                    aria-pressed={speechListeningUi}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      if (speechListeningRef.current) stopSpeechListening()
-                      else startSpeechLetter()
-                    }}
-                  >
-                    <Mic className={cn("h-4 w-4", speechListeningUi && "animate-pulse text-red-500")} />
-                  </Button>
-                )}
               </CardContent>
+              {!roundEliminated && !allPlayersSpeechWrongReveal && (
+                <LetterHistoryToggleButton
+                  letters={typedLetterHistory}
+                  open={letterHistoryOpen}
+                  onOpenChange={setLetterHistoryOpen}
+                />
+              )}
+              {isBrowserSpeechRecognitionSupported() && !roundEliminated && !allPlayersSpeechWrongReveal && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="icon-sm"
+                  className="absolute bottom-1 right-1 rounded-full shadow-md z-10"
+                  title={
+                    speechListeningUi
+                      ? multiplayerSpeechUi.micTapToStop
+                      : multiplayerSpeechUi.micTitleMultiplayer
+                  }
+                  aria-label={
+                    speechListeningUi ? multiplayerSpeechUi.micTapToStop : multiplayerSpeechUi.micAria
+                  }
+                  aria-pressed={speechListeningUi}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (speechListeningRef.current) stopSpeechListening()
+                    else startSpeechLetter()
+                  }}
+                >
+                  <Mic className={cn("h-3.5 w-3.5", speechListeningUi && "animate-pulse text-red-500")} />
+                </Button>
+              )}
             </Card>
+            {!roundEliminated && !allPlayersSpeechWrongReveal && (
+              <LetterHistoryPanel
+                letters={typedLetterHistory}
+                open={letterHistoryOpen}
+                onOpenChange={setLetterHistoryOpen}
+              />
+            )}
+            </div>
             {roundEliminated && !allPlayersSpeechWrongReveal && (
               <p className="text-xs text-center text-destructive font-medium px-2">
                 {multiplayerSpeechUi.multiplayerEliminatedLine}

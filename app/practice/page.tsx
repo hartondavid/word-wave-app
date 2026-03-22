@@ -11,6 +11,8 @@ import {
 } from "@/app/practice/actions"
 import { tryPlaceLetter, isWordComplete } from "@/lib/words"
 import {
+  collectSpeechTranscripts,
+  firstLetterFromTranscript,
   isBrowserSpeechRecognitionSupported,
   isLastSpeechResultFinal,
   newSpeechRecognitionForLang,
@@ -26,6 +28,11 @@ import { speechUiStrings } from "@/lib/speech-ui-strings"
 import { ArrowLeft, RotateCcw, Trophy, Mic } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Confetti from "react-confetti"
+import { LetterCellDelayBorder, WRONG_DELAY_RING_COLOR } from "@/components/letter-cell-delay-border"
+import {
+  LetterHistoryPanel,
+  LetterHistoryToggleButton,
+} from "@/components/letter-history-over-timer"
 
 const ROUND_DURATION = 60
 /** Culoare litere ghicite — Practice (single player) */
@@ -104,6 +111,11 @@ export default function PracticePage() {
   const speechRecognitionRef = useRef<SpeechRecognitionInstance | null>(null)
   const speechListeningRef = useRef(false)
   const [speechListeningUi, setSpeechListeningUi] = useState(false)
+  /** Inel roșu animat peste contur, doar pe casete goale în timpul lockout */
+  const [wrongLetterDelayRing, setWrongLetterDelayRing] = useState(false)
+  const wrongLetterDelayRingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [typedLetterHistory, setTypedLetterHistory] = useState<string[]>([])
+  const [letterHistoryOpen, setLetterHistoryOpen] = useState(false)
   const handleLetterInputRef = useRef<((letter: string) => void | Promise<void>) | null>(null)
   const gameStatusRef = useRef(gameStatus)
   const router = useRouter()
@@ -118,6 +130,7 @@ export default function PracticePage() {
   useEffect(() => {
     return () => {
       if (wrongFlashTimeoutRef.current) clearTimeout(wrongFlashTimeoutRef.current)
+      if (wrongLetterDelayRingTimeoutRef.current) clearTimeout(wrongLetterDelayRingTimeoutRef.current)
     }
   }, [])
 
@@ -155,6 +168,13 @@ export default function PracticePage() {
     progressRef.current = initProgress
     consecutiveWrongRef.current = 0
     lockedUntilRef.current = 0
+    if (wrongLetterDelayRingTimeoutRef.current) {
+      clearTimeout(wrongLetterDelayRingTimeoutRef.current)
+      wrongLetterDelayRingTimeoutRef.current = null
+    }
+    setWrongLetterDelayRing(false)
+    setTypedLetterHistory([])
+    setLetterHistoryOpen(false)
     setProgress(initProgress)
     setRevealProgress("_".repeat(meta.wordLength))
     setTimeLeft(ROUND_DURATION)
@@ -355,11 +375,18 @@ export default function PracticePage() {
       const next = tryPlaceLetter(letter, cur, word)
 
       if (!next) {
+        setTypedLetterHistory((prev) => [...prev, letter])
         triggerWrongKeyFlash()
         consecutiveWrongRef.current++
         if (consecutiveWrongRef.current >= 1) {
           lockedUntilRef.current = Date.now() + WRONG_LETTER_LOCK_MS
           consecutiveWrongRef.current = 0
+          if (wrongLetterDelayRingTimeoutRef.current) clearTimeout(wrongLetterDelayRingTimeoutRef.current)
+          setWrongLetterDelayRing(true)
+          wrongLetterDelayRingTimeoutRef.current = setTimeout(() => {
+            setWrongLetterDelayRing(false)
+            wrongLetterDelayRingTimeoutRef.current = null
+          }, WRONG_LETTER_LOCK_MS)
         }
         if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current)
         shouldShakeRef.current = true
@@ -472,6 +499,14 @@ export default function PracticePage() {
 
       speechListeningRef.current = false
       setSpeechListeningUi(false)
+      for (const t of collectSpeechTranscripts(event)) {
+        const ch = firstLetterFromTranscript(t)
+        if (!ch) continue
+        if (tryPlaceLetter(ch, cur, word) === null) {
+          setTypedLetterHistory((prev) => [...prev, ch])
+          break
+        }
+      }
       triggerWrongKeyFlash()
       if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current)
       shouldShakeRef.current = true
@@ -609,10 +644,10 @@ export default function PracticePage() {
   )
   const defCardVerticalPad =
     approxDefinitionLines <= 2
-      ? "pt-1 pb-1.5"
+      ? "pt-0.5 pb-1"
       : approxDefinitionLines <= 4
-        ? "pt-1.5 pb-2"
-        : "pt-2 pb-2.5"
+        ? "pt-1 pb-1.5"
+        : "pt-1.5 pb-2"
 
   return (
     <main
@@ -669,7 +704,8 @@ export default function PracticePage() {
         }}
       >
 
-        {/* Definiție + timp în același card; la urgență bordura cardului clipește roșu */}
+        {/* Definiție + timp în card; panoul istoricului e sub card, în afara chenarului */}
+        <div className="flex w-full flex-col gap-2">
         <Card
           className={cn(
             "relative w-full shadow-sm border-2 transition-[border-color] duration-200",
@@ -684,7 +720,7 @@ export default function PracticePage() {
               defCardVerticalPad,
               gameStatus === "playing" &&
                 isBrowserSpeechRecognitionSupported() &&
-                "px-14 pb-11"
+                "px-10 pb-9"
             )}
           >
             {gameStatus === "loading" ? (
@@ -692,55 +728,68 @@ export default function PracticePage() {
                 <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
               </div>
             ) : (
-              <>
-                <div className="flex flex-col items-center justify-center w-full text-center gap-1.5">
-                  {gameStatus === "playing" && (
-                    <p
-                      className={cn(
-                        "text-lg sm:text-xl font-bold tabular-nums leading-none w-full",
-                        timeLeft <= 10 ? "text-red-400" : "text-muted-foreground"
-                      )}
-                    >
-                      {timeLeft}s
-                    </p>
-                  )}
+              <div className="flex flex-col items-center justify-center w-full text-center gap-1">
+                {gameStatus === "playing" && (
                   <p
                     className={cn(
-                      "text-base sm:text-lg text-balance w-full max-w-prose mx-auto",
-                      approxDefinitionLines > 4 ? "leading-tight" : "leading-snug"
+                      "text-lg sm:text-xl font-bold tabular-nums leading-none w-full",
+                      timeLeft <= 10 ? "text-red-400" : "text-muted-foreground"
                     )}
                   >
-                    {roundMeta?.definition}
+                    {timeLeft}s
                   </p>
-                </div>
-                {gameStatus === "playing" && isBrowserSpeechRecognitionSupported() && (
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="icon"
-                      className="absolute bottom-2 right-2 h-10 w-10 rounded-full shadow-md z-10"
-                      title={
-                        speechListeningUi
-                          ? practiceSpeechUi.micTapToStop
-                          : practiceSpeechUi.micTitlePractice
-                      }
-                      aria-label={
-                        speechListeningUi ? practiceSpeechUi.micTapToStop : practiceSpeechUi.micAria
-                      }
-                      aria-pressed={speechListeningUi}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        if (speechListeningRef.current) stopSpeechListening()
-                        else startSpeechLetter()
-                      }}
-                    >
-                      <Mic className={cn("h-4 w-4", speechListeningUi && "animate-pulse text-red-500")} />
-                    </Button>
+                )}
+                <p
+                  className={cn(
+                    "text-base sm:text-lg text-balance w-full max-w-prose mx-auto",
+                    approxDefinitionLines > 4 ? "leading-tight" : "leading-snug"
                   )}
-              </>
+                >
+                  {roundMeta?.definition}
+                </p>
+              </div>
             )}
           </CardContent>
+          {gameStatus === "playing" && (
+            <LetterHistoryToggleButton
+              letters={typedLetterHistory}
+              open={letterHistoryOpen}
+              onOpenChange={setLetterHistoryOpen}
+            />
+          )}
+          {gameStatus === "playing" && isBrowserSpeechRecognitionSupported() && (
+            <Button
+              type="button"
+              variant="secondary"
+              size="icon-sm"
+              className="absolute bottom-1 right-1 rounded-full shadow-md z-10"
+              title={
+                speechListeningUi
+                  ? practiceSpeechUi.micTapToStop
+                  : practiceSpeechUi.micTitlePractice
+              }
+              aria-label={
+                speechListeningUi ? practiceSpeechUi.micTapToStop : practiceSpeechUi.micAria
+              }
+              aria-pressed={speechListeningUi}
+              onClick={(e) => {
+                e.stopPropagation()
+                if (speechListeningRef.current) stopSpeechListening()
+                else startSpeechLetter()
+              }}
+            >
+              <Mic className={cn("h-3.5 w-3.5", speechListeningUi && "animate-pulse text-red-500")} />
+            </Button>
+          )}
         </Card>
+        {gameStatus === "playing" && (
+          <LetterHistoryPanel
+            letters={typedLetterHistory}
+            open={letterHistoryOpen}
+            onOpenChange={setLetterHistoryOpen}
+          />
+        )}
+        </div>
 
         {/* Word mask — hidden input placed here so browser auto-scroll targets this area */}
         <div ref={wordMaskRef} className="relative flex justify-center gap-2 sm:gap-3 flex-wrap">
@@ -777,16 +826,21 @@ export default function PracticePage() {
                   background: `${myColor}18`,
                 }
               : undefined
+            const cellIsEmptyFree = !playerFilled && !autoFilled
+            const delayRingThisCell =
+              wrongLetterDelayRing && gameStatus === "playing" && cellIsEmptyFree
             return (
-              <div
+              <LetterCellDelayBorder
                 key={i}
-                className={cn(
-                  "relative flex items-center justify-center overflow-hidden select-none transition-colors duration-150",
-                  "w-12 h-12 sm:w-16 sm:h-16 rounded-xl border-2",
-                  !playerFilled && !autoFilled && "border-muted-foreground/20 bg-muted/30",
+                active={delayRingThisCell}
+                ringColor={WRONG_DELAY_RING_COLOR}
+                boxClassName="w-12 h-12 sm:w-16 sm:h-16 transition-colors duration-150"
+                innerClassName={cn(
+                  "border-2 transition-colors duration-150",
+                  cellIsEmptyFree && "border-muted-foreground/20 bg-muted/30",
                   autoFilled && "border-red-500 bg-red-500/10"
                 )}
-                style={cellStyle}
+                innerStyle={cellStyle}
               >
                 {playerFilled
                   ? (
@@ -798,7 +852,7 @@ export default function PracticePage() {
                     ? <span className="text-xl sm:text-2xl font-black text-red-500">{revealCh.toUpperCase()}</span>
                     : <span className="text-muted-foreground/20 text-sm sm:text-base select-none">_</span>
                 }
-              </div>
+              </LetterCellDelayBorder>
             )
           })}
         </div>

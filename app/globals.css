@@ -135,3 +135,24 @@
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
+
+/* Lockout literă greșită: inel roșu peste contur — doar banda exterioară (mască radială) */
+@keyframes letter-delay-border-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Doar rotația — masca în formă de inel e pe containerul cât caseta (în componentă). */
+.letter-delay-border-spin {
+  animation: letter-delay-border-spin 2s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .letter-delay-border-spin {
+    animation: none;
+  }
+}
