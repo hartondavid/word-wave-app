@@ -72,8 +72,7 @@ export function newSpeechRecognitionForLang(lang: string): SpeechRecognitionInst
   if (!Ctor) return null
   const rec = new Ctor()
   rec.lang = lang
-  /** true = transcrieri înainte de pauza lungă de final de enunț (~5s în Chrome). */
-  rec.interimResults = true
+  rec.interimResults = false
   rec.continuous = false
   /** 3 = câteva alternative fără bug-uri raportate cu valori mari pe WebKit. */
   rec.maxAlternatives = 3

@@ -58,8 +58,17 @@ function pickJoinPlayerSlot(
 const JOINABLE_GAME_STATUSES = new Set(["waiting", "playing", "round_end", "finished"])
 
 const MSG_NAME_REQUIRED = "Please enter your name"
+const MSG_NAME_TOO_SHORT = "Name must be at least 2 characters"
 const MSG_NAME_TAKEN =
   "This name is already taken in the room."
+const MIN_NAME_LENGTH = 2
+
+function validatePlayerName(raw: string): string {
+  const t = raw.trim()
+  if (!t) return MSG_NAME_REQUIRED
+  if (t.length < MIN_NAME_LENGTH) return MSG_NAME_TOO_SHORT
+  return ""
+}
 
 /** Rând minimal din `game_rooms` pentru verificarea numelui la join. */
 type RoomRowForNameCheck = {
@@ -109,8 +118,9 @@ export default function HomePage() {
   const supabase = createClient()
 
   async function handlePracticeSolo() {
-    if (!playerName.trim()) {
-      setNameFieldError(MSG_NAME_REQUIRED)
+    const nameErr = validatePlayerName(playerName)
+    if (nameErr) {
+      setNameFieldError(nameErr)
       return
     }
     const rounds = parseInt(maxRoundsInput, 10)
@@ -126,8 +136,9 @@ export default function HomePage() {
   }
 
   async function handleCreateRoom() {
-    if (!playerName.trim()) {
-      setNameFieldError(MSG_NAME_REQUIRED)
+    const nameErr = validatePlayerName(playerName)
+    if (nameErr) {
+      setNameFieldError(nameErr)
       return
     }
     const maxRounds = parseInt(maxRoundsInput, 10)
@@ -220,8 +231,9 @@ export default function HomePage() {
   }
 
   async function handleJoinRoom() {
-    if (!playerName.trim()) {
-      setNameFieldError(MSG_NAME_REQUIRED)
+    const nameErr = validatePlayerName(playerName)
+    if (nameErr) {
+      setNameFieldError(nameErr)
       return
     }
     if (!roomCode.trim() || roomCode.trim().length !== 4) {
@@ -365,7 +377,7 @@ export default function HomePage() {
                 onKeyDown={(e) => e.key === "Enter" && handlePracticeSolo()}
               />
               {nameFieldError ? (
-                <p id="playerName-error" className="text-xs text-destructive" role="alert">
+                <p id="playerName-error" className="text-xs text-destructive font-medium" role="alert">
                   {nameFieldError}
                 </p>
               ) : null}
@@ -519,6 +531,22 @@ export default function HomePage() {
                 <Button className="w-full" size="lg" onClick={handleCreateRoom} disabled={isLoading}>
                   {isLoading ? "Creating..." : `Create ${maxPlayers} Players Room`}
                 </Button>
+                <div
+                  className="space-y-1 min-h-[1.25rem]"
+                  aria-live="polite"
+                  aria-label="Create room validation"
+                >
+                  {nameFieldError ? (
+                    <p className="text-xs text-destructive text-center font-medium" role="alert">
+                      {nameFieldError}
+                    </p>
+                  ) : null}
+                  {roundsError ? (
+                    <p className="text-xs text-destructive text-center font-medium" role="alert">
+                      {roundsError}
+                    </p>
+                  ) : null}
+                </div>
               </TabsContent>
 
               {/* JOIN */}

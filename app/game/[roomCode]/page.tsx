@@ -1792,16 +1792,9 @@ export default function GamePage({ params }: GamePageProps) {
 
             {/* Legend */}
             <div className="text-center space-y-2">
-              <p
-                className={cn(
-                  "text-sm text-center px-2",
-                  allPlayersSpeechWrongReveal
-                    ? "text-destructive font-semibold"
-                    : "text-muted-foreground"
-                )}
-              >
+              <p className="text-sm text-center px-2 text-muted-foreground">
                 {allPlayersSpeechWrongReveal
-                  ? multiplayerSpeechUi.multiplayerRoundEndAllSpeechWrong
+                  ? multiplayerSpeechUi.multiplayerWaitRound
                   : roundEliminated
                     ? multiplayerSpeechUi.multiplayerWaitRound
                     : isBrowserSpeechRecognitionSupported()
