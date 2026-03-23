@@ -17,8 +17,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Zap, Trophy, Timer, Swords } from "lucide-react"
+import Link from "next/link"
 import Image from "next/image"
+import { Zap, Trophy, Timer, Swords, Heart } from "lucide-react"
+import { SiteNavbar, REVOLUT_DONATION_URL } from "@/components/site-navbar"
 import { cn } from "@/lib/utils"
 
 function generateRoomCode(): string {
@@ -70,6 +72,28 @@ function validatePlayerName(raw: string): string {
   return ""
 }
 
+function HowToPlayCard({ className }: { className?: string }) {
+  return (
+    <Card className={cn(className)}>
+      <CardContent className="space-y-2 pt-4 pb-4 text-sm text-muted-foreground">
+        <p className="mb-2 text-sm font-semibold text-foreground">How to Play</p>
+        <p>
+          <span className="font-semibold text-foreground">1.</span> All players see the same word definition
+        </p>
+        <p>
+          <span className="font-semibold text-foreground">2.</span> Press letter keys to fill in the word
+        </p>
+        <p>
+          <span className="font-semibold text-foreground">3.</span> Colored lines show enemy progress
+        </p>
+        <p>
+          <span className="font-semibold text-foreground">4.</span> First to complete the word wins the round!
+        </p>
+      </CardContent>
+    </Card>
+  )
+}
+
 /** Rând minimal din `game_rooms` pentru verificarea numelui la join. */
 type RoomRowForNameCheck = {
   player1_id?: string | null
@@ -100,8 +124,6 @@ function isDisplayNameTakenInRoom(room: RoomRowForNameCheck, candidate: string):
   }
   return false
 }
-
-const LOGO_SIZE_PX = 300
 
 export default function HomePage() {
   const [playerName, setPlayerName] = useState("")
@@ -323,41 +345,88 @@ export default function HomePage() {
   }
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-background to-secondary/30">
-      <div className="w-full max-w-md space-y-6">
-
-        {/* Logo */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center mb-4">
-            <Image
-              src="/logo.png"
-              alt="WordWave logo"
-              width={LOGO_SIZE_PX}
-              height={LOGO_SIZE_PX}
-              className={`home-logo-png-animate rounded-2xl w-[min(100%,${LOGO_SIZE_PX}px)] h-auto max-h-[${LOGO_SIZE_PX}px] object-contain`}
-              priority
-            />
+    <>
+      <div className="hidden md:block">
+        <SiteNavbar />
+      </div>
+      <main className="flex min-h-dvh flex-col items-center justify-center bg-gradient-to-b from-background to-secondary/30 px-4 py-8 md:min-h-[calc(100dvh-6rem)] md:items-stretch md:justify-start md:py-10">
+      <div className="mx-auto grid w-full max-w-md grid-cols-1 gap-6 md:max-w-6xl md:grid-cols-12 md:gap-x-12 md:gap-y-8">
+        {/* Stânga (desktop): hero + stats + how to play */}
+        <div className="flex flex-col gap-6 md:col-span-5">
+          {/* Telefon: logo + Support în fluxul paginii (navbar-ul e ascuns sub md, ≥768px) */}
+          <div className="flex items-center justify-between gap-3 md:hidden">
+            <Link
+              href="/"
+              className="home-logo-png-animate shrink-0 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              aria-label="WordWave home"
+            >
+              <Image
+                src="/logo.png"
+                alt=""
+                width={256}
+                height={256}
+                className="h-[4.5rem] w-auto max-h-[4.5rem] object-contain rounded-2xl sm:h-20 sm:max-h-20"
+                priority
+              />
+            </Link>
+            {REVOLUT_DONATION_URL ? (
+              <Button variant="secondary" size="sm" className="shrink-0 gap-1.5 font-medium" asChild>
+                <a
+                  href={REVOLUT_DONATION_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Support the project — donate via Revolut (opens in a new tab)"
+                >
+                  <Heart className="h-4 w-4" aria-hidden />
+                  Support
+                </a>
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                className="shrink-0 gap-1.5 font-medium"
+                disabled
+                title="Set REVOLUT_REV_TAG or NEXT_PUBLIC_REVOLUT_DONATION_URL"
+              >
+                <Heart className="h-4 w-4" aria-hidden />
+                Support
+              </Button>
+            )}
           </div>
-          
-          <p className="text-muted-foreground">Race to guess the word first. Up to 4 players.</p>
+
+          <div className="space-y-3 text-center md:text-left">
+            <h1 className="text-balance text-2xl font-bold tracking-tight text-foreground sm:text-3xl md:text-4xl">
+              Race to guess the word first
+            </h1>
+            <p className="mx-auto max-w-prose text-base text-muted-foreground md:mx-0 md:text-lg">
+              Same definition for everyone. Up to 4 players — fastest fingers win the round.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3 text-center md:gap-4">
+            {[
+              { icon: <Swords className="mx-auto mb-1 h-5 w-5 text-primary" />, label: "2–4 Players" },
+              { icon: <Timer className="mx-auto mb-1 h-5 w-5 text-primary" />, label: "60s Rounds" },
+              { icon: <Trophy className="mx-auto mb-1 h-5 w-5 text-primary" />, label: "1–? Rounds" },
+            ].map(({ icon, label }) => (
+              <div
+                key={label}
+                className="rounded-xl border bg-card p-3 md:p-4 md:shadow-sm"
+              >
+                {icon}
+                <p className="text-xs text-muted-foreground md:text-sm">{label}</p>
+              </div>
+            ))}
+          </div>
+
+          <HowToPlayCard className="hidden border-2 md:block" />
         </div>
 
-        {/* Stats row */}
-        <div className="grid grid-cols-3 gap-3 text-center">
-          {[
-            { icon: <Swords className="w-5 h-5 mx-auto mb-1 text-primary" />, label: "2–4 Players" },
-            { icon: <Timer className="w-5 h-5 mx-auto mb-1 text-primary" />, label: "60s Rounds" },
-            { icon: <Trophy className="w-5 h-5 mx-auto mb-1 text-primary" />, label: "1–? Rounds" },
-          ].map(({ icon, label }) => (
-            <div key={label} className="p-3 rounded-xl bg-card border">
-              {icon}
-              <p className="text-xs text-muted-foreground">{label}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Main card */}
-        <Card className="border-2">
+        {/* Dreapta (desktop): formular joc */}
+        <div className="flex flex-col gap-6 md:col-span-7">
+        <Card className="border-2 md:shadow-md">
           <CardHeader className="pb-4">
             <CardTitle>Play Now</CardTitle>
             <CardDescription>Practice solo or multiplayer with friends</CardDescription>
@@ -584,17 +653,10 @@ export default function HomePage() {
           </CardContent>
         </Card>
 
-        {/* How to play */}
-        <Card>
-          <CardContent className="pt-4 pb-4 space-y-2 text-sm text-muted-foreground">
-            <p className="font-semibold text-foreground text-sm mb-2">How to Play</p>
-            <p><span className="font-semibold text-foreground">1.</span> All players see the same word definition</p>
-            <p><span className="font-semibold text-foreground">2.</span> Press letter keys to fill in the word</p>
-            <p><span className="font-semibold text-foreground">3.</span> Colored lines show enemy progress</p>
-            <p><span className="font-semibold text-foreground">4.</span> First to complete the word wins the round!</p>
-          </CardContent>
-        </Card>
+        <HowToPlayCard className="border md:shadow-sm md:hidden" />
+        </div>
       </div>
     </main>
+    </>
   )
 }

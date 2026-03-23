@@ -28,15 +28,20 @@ import { speechUiStrings } from "@/lib/speech-ui-strings"
 import { ArrowLeft, RotateCcw, Trophy, Mic } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Confetti from "react-confetti"
-import { LetterCellDelayBorder, WRONG_DELAY_RING_COLOR } from "@/components/letter-cell-delay-border"
+import { LetterCellDelayBorder } from "@/components/letter-cell-delay-border"
 import {
   LetterHistoryPanel,
   LetterHistoryToggleButton,
 } from "@/components/letter-history-over-timer"
+import { CorrectLetterChar, useCorrectLetterFx } from "@/components/correct-letter-fx"
 
 const ROUND_DURATION = 60
 /** Culoare litere ghicite — Practice (single player) */
 const PRACTICE_PLAYER_COLOR = "#22C55E"
+/** Accent verde deschis pentru inelul animat la lockout (greșeală) */
+const PRACTICE_DELAY_RING_HIGHLIGHT = "#86efac"
+/** Praf + pop la litere dezvăluite automat (timeout / eșec rundă) */
+const PRACTICE_AUTO_REVEAL_FX_COLOR = "#dc2626"
 
 const PRACTICE_SESSION_KEY = "wordmatch_practice_session_v1"
 
@@ -116,6 +121,14 @@ export default function PracticePage() {
   const wrongLetterDelayRingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [typedLetterHistory, setTypedLetterHistory] = useState<string[]>([])
   const [letterHistoryOpen, setLetterHistoryOpen] = useState(false)
+  const restoreTypingFocus = useCallback(() => {
+    hiddenInputRef.current?.focus()
+  }, [])
+  const {
+    cellBursts: correctLetterBursts,
+    triggerAt: triggerCorrectLetterFxAt,
+    reset: resetCorrectLetterFx,
+  } = useCorrectLetterFx()
   const handleLetterInputRef = useRef<((letter: string) => void | Promise<void>) | null>(null)
   const gameStatusRef = useRef(gameStatus)
   const router = useRouter()
@@ -140,7 +153,7 @@ export default function PracticePage() {
     wrongFlashTimeoutRef.current = setTimeout(() => {
       setWrongKeyFlash(false)
       wrongFlashTimeoutRef.current = null
-    }, 140)
+    }, 220)
   }, [])
 
   useEffect(() => {
@@ -160,6 +173,7 @@ export default function PracticePage() {
       /* ignore */
     }
     setGameStatus("loading")
+    resetCorrectLetterFx()
     answerWordRef.current = ""
     const meta = await startPracticeRound(category, language)
     answerWordRef.current = meta.word
@@ -180,7 +194,7 @@ export default function PracticePage() {
     setTimeLeft(ROUND_DURATION)
     roundConcludedRef.current = false
     setGameStatus("playing")
-  }, [category, language])
+  }, [category, language, resetCorrectLetterFx])
 
   useEffect(() => {
     if (gameStatus !== "playing") {
@@ -300,7 +314,12 @@ export default function PracticePage() {
       const endStatus = mode === "time" ? ("timeout" as const) : ("lost" as const)
       if (!res.ok) {
         const w = answerWordRef.current
-        if (w.length === rm.wordLength) setRevealProgress(w)
+        if (w.length === rm.wordLength) {
+          for (let i = 0; i < w.length; i++) {
+            if (cur[i] === "_" && w[i] !== "_") triggerCorrectLetterFxAt(i)
+          }
+          setRevealProgress(w)
+        }
         setGameStatus(endStatus)
         return
       }
@@ -315,6 +334,7 @@ export default function PracticePage() {
       slots.forEach((slot, idx) => {
         setTimeout(() => {
           if (life.cancelled) return
+          triggerCorrectLetterFxAt(slot.index)
           setRevealProgress((prev) => {
             const arr = prev.split("")
             arr[slot.index] = slot.char
@@ -326,7 +346,7 @@ export default function PracticePage() {
         if (!life.cancelled) setGameStatus(endStatus)
       }, slots.length * 150 + 500)
     },
-    [roundMeta]
+    [roundMeta, triggerCorrectLetterFxAt]
   )
 
   const beginPracticeRoundFailure = useCallback(
@@ -375,7 +395,11 @@ export default function PracticePage() {
       const next = tryPlaceLetter(letter, cur, word)
 
       if (!next) {
-        setTypedLetterHistory((prev) => [...prev, letter])
+        setTypedLetterHistory((prev) => {
+          const appended = [...prev, letter]
+          if (prev.length === 0) queueMicrotask(() => setLetterHistoryOpen(true))
+          return appended
+        })
         triggerWrongKeyFlash()
         consecutiveWrongRef.current++
         if (consecutiveWrongRef.current >= 1) {
@@ -405,6 +429,12 @@ export default function PracticePage() {
       shouldShakeRef.current = false
       if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current)
       setIsShaking(false)
+      for (let i = 0; i < next.length; i++) {
+        if (cur[i] === "_" && next[i] !== "_") {
+          triggerCorrectLetterFxAt(i)
+          break
+        }
+      }
       progressRef.current = next
       setProgress(next)
 
@@ -423,7 +453,7 @@ export default function PracticePage() {
         setTimeout(() => setShowConfetti(false), 2500)
       }
     },
-    [roundMeta, gameStatus, loadNewWord, triggerWrongKeyFlash]
+    [roundMeta, gameStatus, loadNewWord, triggerWrongKeyFlash, triggerCorrectLetterFxAt]
   )
 
   handleLetterInputRef.current = handleLetterInput
@@ -474,6 +504,12 @@ export default function PracticePage() {
         shouldShakeRef.current = false
         if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current)
         setIsShaking(false)
+        for (let i = 0; i < next.length; i++) {
+          if (cur[i] === "_" && next[i] !== "_") {
+            triggerCorrectLetterFxAt(i)
+            break
+          }
+        }
         progressRef.current = next
         setProgress(next)
         if (isWordComplete(next)) {
@@ -503,7 +539,11 @@ export default function PracticePage() {
         const ch = firstLetterFromTranscript(t)
         if (!ch) continue
         if (tryPlaceLetter(ch, cur, word) === null) {
-          setTypedLetterHistory((prev) => [...prev, ch])
+          setTypedLetterHistory((prev) => {
+            const appended = [...prev, ch]
+            if (prev.length === 0) queueMicrotask(() => setLetterHistoryOpen(true))
+            return appended
+          })
           break
         }
       }
@@ -539,7 +579,15 @@ export default function PracticePage() {
       speechListeningRef.current = false
       setSpeechListeningUi(false)
     }
-  }, [gameStatus, roundMeta, language, triggerWrongKeyFlash, loadNewWord, beginPracticeRoundFailure])
+  }, [
+    gameStatus,
+    roundMeta,
+    language,
+    triggerWrongKeyFlash,
+    loadNewWord,
+    beginPracticeRoundFailure,
+    triggerCorrectLetterFxAt,
+  ])
 
   // Auto-focus hidden input when round starts, blur when it ends
   useEffect(() => {
@@ -709,18 +757,18 @@ export default function PracticePage() {
         <Card
           className={cn(
             "relative w-full shadow-sm border-2 transition-[border-color] duration-200",
-            gameStatus === "playing" && timeLeft <= 10
-              ? "border-[#fecaca] animate-[practiceUrgentBorder_0.75s_ease-in-out_infinite]"
-              : "border-border"
+            wrongKeyFlash
+              ? "border-red-500 dark:border-red-400"
+              : gameStatus === "playing" && timeLeft <= 10
+                ? "border-[#fecaca] animate-[practiceUrgentBorder_0.75s_ease-in-out_infinite]"
+                : "border-border"
           )}
         >
           <CardContent
             className={cn(
               "px-4",
               defCardVerticalPad,
-              gameStatus === "playing" &&
-                isBrowserSpeechRecognitionSupported() &&
-                "px-10 pb-9"
+              gameStatus === "playing" && "px-10 pb-9"
             )}
           >
             {gameStatus === "loading" ? (
@@ -762,7 +810,7 @@ export default function PracticePage() {
               type="button"
               variant="secondary"
               size="icon-sm"
-              className="absolute bottom-1 right-1 rounded-full shadow-md z-10"
+              className="absolute bottom-1 right-1 z-10 size-6 min-h-6 min-w-6 rounded-full p-0 shadow-md"
               title={
                 speechListeningUi
                   ? practiceSpeechUi.micTapToStop
@@ -778,7 +826,7 @@ export default function PracticePage() {
                 else startSpeechLetter()
               }}
             >
-              <Mic className={cn("h-3.5 w-3.5", speechListeningUi && "animate-pulse text-red-500")} />
+              <Mic className={cn("h-3 w-3", speechListeningUi && "animate-pulse text-red-500")} />
             </Button>
           )}
         </Card>
@@ -787,6 +835,7 @@ export default function PracticePage() {
             letters={typedLetterHistory}
             open={letterHistoryOpen}
             onOpenChange={setLetterHistoryOpen}
+            restoreTypingFocus={restoreTypingFocus}
           />
         )}
         </div>
@@ -833,7 +882,8 @@ export default function PracticePage() {
               <LetterCellDelayBorder
                 key={i}
                 active={delayRingThisCell}
-                ringColor={WRONG_DELAY_RING_COLOR}
+                ringColor={PRACTICE_PLAYER_COLOR}
+                ringHighlightColor={PRACTICE_DELAY_RING_HIGHLIGHT}
                 boxClassName="w-12 h-12 sm:w-16 sm:h-16 transition-colors duration-150"
                 innerClassName={cn(
                   "border-2 transition-colors duration-150",
@@ -844,12 +894,24 @@ export default function PracticePage() {
               >
                 {playerFilled
                   ? (
-                    <span className="text-xl sm:text-2xl font-black" style={{ color: myColor }}>
-                      {ch.toUpperCase()}
-                    </span>
+                    <CorrectLetterChar
+                      ch={ch}
+                      color={myColor}
+                      cellIndex={i}
+                      burstId={correctLetterBursts.get(i)}
+                      className="text-xl sm:text-2xl"
+                    />
                     )
                   : autoFilled
-                    ? <span className="text-xl sm:text-2xl font-black text-red-500">{revealCh.toUpperCase()}</span>
+                    ? (
+                    <CorrectLetterChar
+                      ch={revealCh}
+                      color={PRACTICE_AUTO_REVEAL_FX_COLOR}
+                      cellIndex={i}
+                      burstId={correctLetterBursts.get(i)}
+                      className="text-xl sm:text-2xl"
+                    />
+                      )
                     : <span className="text-muted-foreground/20 text-sm sm:text-base select-none">_</span>
                 }
               </LetterCellDelayBorder>
@@ -869,17 +931,17 @@ export default function PracticePage() {
         {(gameStatus === "won" || gameStatus === "timeout" || gameStatus === "lost") && (
           <div className="w-full space-y-4 text-center">
             <div className={cn(
-              "py-4 px-6 rounded-xl",
+              "flex h-12 w-full items-center justify-center rounded-xl px-6",
               gameStatus === "won"
                 ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
                 : "bg-destructive/10 text-destructive"
             )}>
               {gameStatus === "won" ? (
-                <p className="font-semibold text-lg text-center">{practiceSpeechUi.practiceWonRound}</p>
+                <p className="text-center text-base font-semibold leading-tight">{practiceSpeechUi.practiceWonRound}</p>
               ) : gameStatus === "timeout" ? (
-                <p className="font-semibold text-lg text-center">{practiceSpeechUi.practiceTimeUp}</p>
+                <p className="text-center text-base font-semibold leading-tight">{practiceSpeechUi.practiceTimeUp}</p>
               ) : (
-                <p className="font-semibold text-lg text-center">{practiceSpeechUi.practiceWrongWord}</p>
+                <p className="text-center text-base font-semibold leading-tight">{practiceSpeechUi.practiceWrongWord}</p>
               )}
             </div>
             <Button onClick={handleNextRound} className="w-full h-12" size="lg">

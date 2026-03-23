@@ -156,3 +156,81 @@
     animation: none;
   }
 }
+
+/* Logo home: mișcare ușoară + umbră (clasă folosită în app/page.tsx) */
+@keyframes home-logo-float {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 10px 28px rgba(48, 50, 125, 0.14));
+  }
+  50% {
+    transform: translateY(-8px) scale(1.03);
+    filter: drop-shadow(0 16px 36px rgba(48, 50, 125, 0.22));
+  }
+}
+
+.home-logo-png-animate {
+  animation: home-logo-float 4.5s ease-in-out infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-logo-png-animate {
+    animation: none;
+    will-change: auto;
+    filter: drop-shadow(0 10px 24px rgba(48, 50, 125, 0.12));
+  }
+}
+
+/* Literă corectă: intrare + praf verde */
+@keyframes word-correct-pop {
+  0% {
+    transform: scale(0.25);
+    opacity: 0;
+    filter: blur(5px);
+  }
+  45% {
+    transform: scale(1.18);
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+@keyframes word-correct-dust-out {
+  0% {
+    transform: translate(-50%, -50%) scale(1.15);
+    opacity: 0.92;
+  }
+  100% {
+    transform: translate(calc(-50% + var(--dust-dx)), calc(-50% + var(--dust-dy))) scale(0.15);
+    opacity: 0;
+  }
+}
+
+.animate-word-correct-pop {
+  animation: word-correct-pop 0.55s cubic-bezier(0.34, 1.4, 0.64, 1) forwards;
+}
+
+.word-correct-dust-bit {
+  width: 5px;
+  height: 5px;
+  left: 50%;
+  top: 50%;
+  animation: word-correct-dust-out 0.52s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-word-correct-pop {
+    animation: none;
+  }
+  .word-correct-dust-bit {
+    animation: none;
+    opacity: 0;
+  }
+}

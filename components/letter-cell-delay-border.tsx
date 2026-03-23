@@ -14,6 +14,8 @@ const DELAY_RING_MASK = `url("data:image/svg+xml;charset=utf-8,${encodeURICompon
 export type LetterCellDelayBorderProps = {
   active: boolean
   ringColor: string
+  /** Culoare intermediară în gradientul conic (implicit roșu deschis). */
+  ringHighlightColor?: string
   boxClassName: string
   innerClassName: string
   innerStyle?: CSSProperties
@@ -27,6 +29,7 @@ export type LetterCellDelayBorderProps = {
 export function LetterCellDelayBorder({
   active,
   ringColor,
+  ringHighlightColor = "#fca5a5",
   boxClassName,
   innerClassName,
   innerStyle,
@@ -36,7 +39,7 @@ export function LetterCellDelayBorder({
     <div className={cn("relative shrink-0 rounded-xl", active && "overflow-hidden", boxClassName)}>
       <div
         className={cn(
-          "relative z-[1] flex h-full w-full min-h-0 items-center justify-center overflow-hidden select-none rounded-xl",
+          "relative z-[1] flex h-full w-full min-h-0 items-center justify-center overflow-visible select-none rounded-xl",
           innerClassName
         )}
         style={innerStyle}
@@ -61,7 +64,7 @@ export function LetterCellDelayBorder({
           <span
             className="letter-delay-border-spin absolute left-1/2 top-1/2 h-[260%] w-[260%] min-h-0 min-w-0 -translate-x-1/2 -translate-y-1/2"
             style={{
-              background: `conic-gradient(from 0deg, transparent 0deg 292deg, ${ringColor} 305deg, #fca5a5 320deg, ${ringColor} 335deg, transparent 360deg)`,
+              background: `conic-gradient(from 0deg, transparent 0deg 292deg, ${ringColor} 305deg, ${ringHighlightColor} 320deg, ${ringColor} 335deg, transparent 360deg)`,
             }}
           />
         </span>

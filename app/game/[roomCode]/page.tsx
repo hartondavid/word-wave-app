@@ -34,7 +34,8 @@ import {
 import { serverStartNewRound, syncGameRoomLanguage } from "@/app/game/actions"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { LetterCellDelayBorder, WRONG_DELAY_RING_COLOR } from "@/components/letter-cell-delay-border"
+import { LetterCellDelayBorder } from "@/components/letter-cell-delay-border"
+import { CorrectLetterChar, useCorrectLetterFx } from "@/components/correct-letter-fx"
 import {
   LetterHistoryPanel,
   LetterHistoryToggleButton,
@@ -140,6 +141,9 @@ function isSamePlayerRejoin(
 /** Durată lockout tastatură după literă greșită (= durată inel animat). */
 const WRONG_LETTER_LOCK_MS = 2000
 
+/** Praf + pop la litere completate automat (timeout / all speech wrong). */
+const AUTO_REVEAL_FX_COLOR = "#dc2626"
+
 /** Șterge sesiunea client (joc multiplayer) din localStorage. */
 function clearWordmatchPlayerSession() {
   try {
@@ -147,6 +151,18 @@ function clearWordmatchPlayerSession() {
   } catch {
     /* ignore */
   }
+}
+
+/** Amestecă #RRGGBB cu alb pentru highlight-ul gradientului inelului (mască lockout). */
+function mixPlayerColorWithWhite(hex: string, whiteFraction: number): string {
+  const n = hex.replace("#", "").slice(0, 6)
+  if (n.length !== 6) return "#e5e7eb"
+  const r = parseInt(n.slice(0, 2), 16)
+  const g = parseInt(n.slice(2, 4), 16)
+  const b = parseInt(n.slice(4, 6), 16)
+  const t = Math.min(1, Math.max(0, whiteFraction))
+  const blend = (c: number) => Math.round(c + (255 - c) * t)
+  return `rgb(${blend(r)},${blend(g)},${blend(b)})`
 }
 
 // ── component ─────────────────────────────────────────────────────────────────
@@ -199,6 +215,14 @@ export default function GamePage({ params }: GamePageProps) {
   const wrongLetterDelayRingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [typedLetterHistory, setTypedLetterHistory] = useState<string[]>([])
   const [letterHistoryOpen, setLetterHistoryOpen] = useState(false)
+  const restoreTypingFocus = useCallback(() => {
+    hiddenInputRef.current?.focus()
+  }, [])
+  const {
+    cellBursts: correctLetterBursts,
+    triggerAt: triggerCorrectLetterFxAt,
+    reset: resetCorrectLetterFx,
+  } = useCorrectLetterFx()
   // Prevents handleTimerEnd from being called multiple times per round
   const timerEndCalledRef = useRef(false)
   /** Toți jucătorii au greșit la microfon — animație + end round (un singur lanț per client). */
@@ -621,6 +645,7 @@ export default function GamePage({ params }: GamePageProps) {
       setRevealProgress("_".repeat(word.length))
       positions.forEach((pos, idx) => {
         setTimeout(() => {
+          triggerCorrectLetterFxAt(pos)
           setRevealProgress(prev => {
             if (!prev) return prev
             const arr = prev.split("")
@@ -632,8 +657,7 @@ export default function GamePage({ params }: GamePageProps) {
     }
 
     setTimeout(() => void handleTimerEnd(), animDuration)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timeRemaining])
+  }, [timeRemaining, triggerCorrectLetterFxAt])
 
   const endRoundNoWinner = useCallback(
     async (reason: "timeout" | "all_speech_wrong") => {
@@ -695,6 +719,7 @@ export default function GamePage({ params }: GamePageProps) {
       setRevealProgress("_".repeat(word.length))
       positions.forEach((pos, idx) => {
         setTimeout(() => {
+          triggerCorrectLetterFxAt(pos)
           setRevealProgress((prev) => {
             if (!prev) return prev
             const arr = prev.split("")
@@ -716,6 +741,7 @@ export default function GamePage({ params }: GamePageProps) {
     room?.current_word,
     playerInfo?.playerSlot,
     endRoundNoWinner,
+    triggerCorrectLetterFxAt,
   ])
 
   // Reset local progress, optimistic display and penalty counters at round start
@@ -733,6 +759,7 @@ export default function GamePage({ params }: GamePageProps) {
       setWrongLetterDelayRing(false)
       setTypedLetterHistory([])
       setLetterHistoryOpen(false)
+      resetCorrectLetterFx()
       timerEndCalledRef.current = false
       speechAllFailedEndInProgressRef.current = false
       setAllPlayersSpeechWrongReveal(false)
@@ -740,7 +767,7 @@ export default function GamePage({ params }: GamePageProps) {
       eliminatedFromRoundRef.current = false
       setRoundEliminated(false)
     }
-  }, [room?.game_status, room?.current_word])
+  }, [room?.game_status, room?.current_word, resetCorrectLetterFx])
 
   useEffect(() => {
     if (room?.game_status !== "playing") {
@@ -861,7 +888,7 @@ export default function GamePage({ params }: GamePageProps) {
     wrongFlashTimeoutRef.current = setTimeout(() => {
       setWrongKeyFlash(false)
       wrongFlashTimeoutRef.current = null
-    }, 140)
+    }, 220)
   }, [])
 
   const commitProgressUpdate = useCallback(
@@ -874,6 +901,7 @@ export default function GamePage({ params }: GamePageProps) {
       for (let i = 0; i < next.length; i++) {
         if (curBefore[i] === "_" && next[i] !== "_") {
           setLastPlacedIndex(i)
+          triggerCorrectLetterFxAt(i)
           break
         }
       }
@@ -921,7 +949,11 @@ export default function GamePage({ params }: GamePageProps) {
     if (next) {
       await commitProgressUpdate(next, cur)
     } else {
-      setTypedLetterHistory((prev) => [...prev, letter])
+      setTypedLetterHistory((prev) => {
+        const appended = [...prev, letter]
+        if (prev.length === 0) queueMicrotask(() => setLetterHistoryOpen(true))
+        return appended
+      })
       triggerWrongKeyFlash()
       consecutiveWrongRef.current++
       if (consecutiveWrongRef.current >= 1) {
@@ -996,7 +1028,11 @@ export default function GamePage({ params }: GamePageProps) {
         const ch = firstLetterFromTranscript(t)
         if (!ch) continue
         if (tryPlaceLetter(ch, cur, word) === null) {
-          setTypedLetterHistory((prev) => [...prev, ch])
+          setTypedLetterHistory((prev) => {
+            const appended = [...prev, ch]
+            if (prev.length === 0) queueMicrotask(() => setLetterHistoryOpen(true))
+            return appended
+          })
           break
         }
       }
@@ -1310,7 +1346,8 @@ export default function GamePage({ params }: GamePageProps) {
             <LetterCellDelayBorder
               key={i}
               active={delayRingThisCell}
-              ringColor={WRONG_DELAY_RING_COLOR}
+              ringColor={myColor}
+              ringHighlightColor={mixPlayerColorWithWhite(myColor, 0.42)}
               boxClassName={cn(
                 "w-12 h-12 sm:w-16 sm:h-16 transition-all duration-200",
                 isLast && !autoFilled && playerFilled && "scale-110 z-10",
@@ -1339,12 +1376,24 @@ export default function GamePage({ params }: GamePageProps) {
               {/* My letter or placeholder — aceeași culoare ca la final de rundă */}
               {playerFilled
                 ? (
-                  <span className="relative z-10 text-xl sm:text-3xl font-black" style={{ color: myColor }}>
-                    {ch.toUpperCase()}
-                  </span>
+                  <CorrectLetterChar
+                    ch={ch}
+                    color={myColor}
+                    cellIndex={i}
+                    burstId={correctLetterBursts.get(i)}
+                    className="text-xl sm:text-3xl"
+                  />
                   )
                 : autoFilled
-                  ? <span className="relative z-10 text-xl sm:text-3xl font-black text-red-500">{revealCh.toUpperCase()}</span>
+                  ? (
+                    <CorrectLetterChar
+                      ch={revealCh}
+                      color={AUTO_REVEAL_FX_COLOR}
+                      cellIndex={i}
+                      burstId={correctLetterBursts.get(i)}
+                      className="text-xl sm:text-3xl"
+                    />
+                    )
                   : <span className="text-muted-foreground/20 text-base sm:text-xl select-none">_</span>
               }
             </LetterCellDelayBorder>
@@ -1673,24 +1722,19 @@ export default function GamePage({ params }: GamePageProps) {
             {/* ── Result header ── */}
             {room.round_winner ? (
               <div className={cn(
-                "py-3 px-5 rounded-xl w-full text-center",
+                "flex h-12 w-full items-center justify-center rounded-xl px-5 text-center",
                 iWonRound ? "bg-amber-500/10 text-amber-700 dark:text-amber-400" : "bg-muted"
               )}>
-                <div className="flex items-center justify-center gap-2 font-semibold">
-                  <Trophy className="w-4 h-4" />
+                <div className="flex items-center justify-center gap-2 text-base font-semibold leading-tight">
+                  <Trophy className="h-4 w-4 shrink-0" />
                   {iWonRound ? "You Win!" : `${room.round_winner} Wins!`}
                 </div>
               </div>
             ) : (
-              <div className="py-3 px-5 rounded-xl w-full text-center bg-destructive/10 text-destructive">
-                <div
-                  className={cn(
-                    "flex items-center justify-center font-semibold",
-                    room.round_end_reason !== "all_speech_wrong" && "gap-2"
-                  )}
-                >
+              <div className="flex h-12 w-full items-center justify-center rounded-xl bg-destructive/10 px-5 text-center text-destructive">
+                <div className="flex items-center justify-center gap-2 text-center text-base font-semibold leading-tight">
                   {room.round_end_reason !== "all_speech_wrong" && (
-                    <Timer className="w-4 h-4 shrink-0" />
+                    <Timer className="h-4 w-4 shrink-0" />
                   )}
                   {room.round_end_reason === "all_speech_wrong"
                     ? multiplayerSpeechUi.multiplayerRoundEndAllSpeechWrong
@@ -1728,7 +1772,7 @@ export default function GamePage({ params }: GamePageProps) {
 
             {/* ── I'm Ready button ── */}
             <Button
-              className={cn("w-full", myReady && "bg-emerald-600 hover:bg-emerald-700 text-white")}
+              className={cn("h-12 w-full", myReady && "bg-emerald-600 hover:bg-emerald-700 text-white")}
               variant={myReady ? "default" : "outline"}
               size="lg"
               onClick={handleToggleReady}
@@ -1738,7 +1782,7 @@ export default function GamePage({ params }: GamePageProps) {
 
             {/* ── Next Round — orice jucător când toți sunt Ready (gazda rămâne singura care pornește prima rundă din waiting) ── */}
             <Button
-              className="w-full"
+              className="h-12 w-full"
               size="lg"
               onClick={() => startNewRound()}
               disabled={!everyoneReady}
@@ -1753,19 +1797,18 @@ export default function GamePage({ params }: GamePageProps) {
             <Card
               className={cn(
                 "relative w-full shadow-sm border-2 transition-[border-color] duration-200",
-                timeRemaining <= 10
-                  ? "border-[#fecaca] animate-[practiceUrgentBorder_0.75s_ease-in-out_infinite]"
-                  : "border-border"
+                wrongKeyFlash
+                  ? "border-red-500 dark:border-red-400"
+                  : timeRemaining <= 10
+                    ? "border-[#fecaca] animate-[practiceUrgentBorder_0.75s_ease-in-out_infinite]"
+                    : "border-border"
               )}
             >
               <CardContent
                 className={cn(
                   "px-4",
                   defCardVerticalPad,
-                  isBrowserSpeechRecognitionSupported() &&
-                    !roundEliminated &&
-                    !allPlayersSpeechWrongReveal &&
-                    "px-10 pb-9"
+                  !roundEliminated && !allPlayersSpeechWrongReveal && "px-10 pb-9"
                 )}
               >
                 <div className="flex flex-col items-center justify-center w-full text-center gap-1">
@@ -1792,6 +1835,7 @@ export default function GamePage({ params }: GamePageProps) {
                   letters={typedLetterHistory}
                   open={letterHistoryOpen}
                   onOpenChange={setLetterHistoryOpen}
+                  restoreTypingFocus={restoreTypingFocus}
                 />
               )}
               {isBrowserSpeechRecognitionSupported() && !roundEliminated && !allPlayersSpeechWrongReveal && (
@@ -1799,7 +1843,7 @@ export default function GamePage({ params }: GamePageProps) {
                   type="button"
                   variant="secondary"
                   size="icon-sm"
-                  className="absolute bottom-1 right-1 rounded-full shadow-md z-10"
+                  className="absolute bottom-1 right-1 z-10 size-6 min-h-6 min-w-6 rounded-full p-0 shadow-md"
                   title={
                     speechListeningUi
                       ? multiplayerSpeechUi.micTapToStop
@@ -1815,7 +1859,7 @@ export default function GamePage({ params }: GamePageProps) {
                     else startSpeechLetter()
                   }}
                 >
-                  <Mic className={cn("h-3.5 w-3.5", speechListeningUi && "animate-pulse text-red-500")} />
+                  <Mic className={cn("h-3 w-3", speechListeningUi && "animate-pulse text-red-500")} />
                 </Button>
               )}
             </Card>
@@ -1824,6 +1868,7 @@ export default function GamePage({ params }: GamePageProps) {
                 letters={typedLetterHistory}
                 open={letterHistoryOpen}
                 onOpenChange={setLetterHistoryOpen}
+                restoreTypingFocus={restoreTypingFocus}
               />
             )}
             </div>

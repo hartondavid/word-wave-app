@@ -11,18 +11,22 @@ export type LetterHistoryProps = {
   onOpenChange: (open: boolean) => void
   /** Mesaj când lista e goală (panou deschis) */
   emptyHint?: string
+  /** Refocus la inputul ascuns după toggle/închidere — păstrează tastatura pe mobil */
+  restoreTypingFocus?: () => void
 }
 
 /**
  * `absolute` față de `<Card className="relative">` (fiu direct al cardului), nu față de CardContent,
- * ca `top` / `bottom` să urmărească înălțimea chenarului, nu doar a textului.
+ * ca poziția să urmărească chenarul cardului. Colț stânga-jos (microfonul e dreapta-jos).
  */
 export function LetterHistoryToggleButton({
   letters,
   open,
   onOpenChange,
-}: Pick<LetterHistoryProps, "letters" | "open" | "onOpenChange">) {
+  restoreTypingFocus,
+}: Pick<LetterHistoryProps, "letters" | "open" | "onOpenChange" | "restoreTypingFocus">) {
   const last = letters.length > 0 ? letters[letters.length - 1] : null
+  const hasHistory = last != null
 
   return (
     <Button
@@ -30,21 +34,28 @@ export function LetterHistoryToggleButton({
       variant="secondary"
       size="icon-sm"
       className={cn(
-        "absolute top-2 left-2 z-20 size-6 min-h-6 min-w-6 rounded p-0 shadow-sm border border-border/80",
+        "absolute bottom-1 left-1 z-20 min-h-6 shadow-md border border-border/80 transition-[width,border-radius,padding] duration-150",
+        hasHistory
+          ? "h-6 min-w-7 rounded-md px-1.5 py-0"
+          : "size-6 min-w-6 rounded-full p-0",
         open && "ring-1 ring-primary/30"
       )}
       aria-expanded={open}
       aria-label={last ? `Wrong letters, last: ${last.toUpperCase()}` : "Wrong letters"}
-      title="Wrong letters"
+      title="History keys"
+      onPointerDown={(e) => e.preventDefault()}
       onClick={(e) => {
         e.stopPropagation()
         onOpenChange(!open)
+        queueMicrotask(() => restoreTypingFocus?.())
       }}
     >
-      {last ? (
-        <span className="text-[11px] font-black leading-none text-red-500 sm:text-xs">{last.toUpperCase()}</span>
+      {hasHistory ? (
+        <span className="text-xs font-black leading-none text-red-500 tabular-nums sm:text-sm">
+          {last.toUpperCase()}
+        </span>
       ) : (
-        <Keyboard className="h-3 w-3 text-muted-foreground" />
+        <Keyboard className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
       )}
     </Button>
   )
@@ -58,6 +69,7 @@ export function LetterHistoryPanel({
   open,
   onOpenChange,
   emptyHint = "No wrong letters yet",
+  restoreTypingFocus,
 }: LetterHistoryProps) {
   const [index, setIndex] = useState(0)
   const prevLen = useRef(0)
@@ -127,13 +139,7 @@ export function LetterHistoryPanel({
     }
     window.addEventListener("keydown", onKey, true)
     return () => window.removeEventListener("keydown", onKey, true)
-  }, [open, letters.length, onOpenChange])
-
-  useEffect(() => {
-    if (open) {
-      queueMicrotask(() => panelRef.current?.focus())
-    }
-  }, [open])
+  }, [open, letters.length, onOpenChange, restoreTypingFocus])
 
   useEffect(() => {
     if (!open || letters.length === 0) return
@@ -169,9 +175,11 @@ export function LetterHistoryPanel({
             size="icon"
             className="h-4 w-4 shrink-0 text-muted-foreground hover:bg-transparent hover:text-foreground"
             aria-label="Close wrong letters"
+            onPointerDown={(e) => e.preventDefault()}
             onClick={(e) => {
               e.stopPropagation()
               onOpenChange(false)
+              queueMicrotask(() => restoreTypingFocus?.())
             }}
           >
             <X className="h-3 w-3" />
@@ -186,9 +194,11 @@ export function LetterHistoryPanel({
             className="h-5 w-5 shrink-0 self-center border-red-200/80 p-0"
             disabled={safeIndex <= 0 && scrollEdges.atLeft}
             aria-label="Previous letter or scroll strip"
+            onPointerDown={(e) => e.preventDefault()}
             onClick={() => {
               if (safeIndex > 0) setIndex((i) => Math.max(0, i - 1))
               else scrollStripLeft()
+              queueMicrotask(() => restoreTypingFocus?.())
             }}
           >
             <ChevronLeft className="h-3 w-3" />
@@ -225,9 +235,11 @@ export function LetterHistoryPanel({
             size="icon"
             className="h-4 w-4 shrink-0 self-center text-muted-foreground hover:bg-transparent hover:text-foreground"
             aria-label="Close wrong letters"
+            onPointerDown={(e) => e.preventDefault()}
             onClick={(e) => {
               e.stopPropagation()
               onOpenChange(false)
+              queueMicrotask(() => restoreTypingFocus?.())
             }}
           >
             <X className="h-3 w-3" />
@@ -239,9 +251,11 @@ export function LetterHistoryPanel({
             className="h-5 w-5 shrink-0 self-center border-red-200/80 p-0"
             disabled={safeIndex >= letters.length - 1 && scrollEdges.atRight}
             aria-label="Next letter or scroll strip"
+            onPointerDown={(e) => e.preventDefault()}
             onClick={() => {
               if (safeIndex < letters.length - 1) setIndex((i) => Math.min(letters.length - 1, i + 1))
               else scrollStripRight()
+              queueMicrotask(() => restoreTypingFocus?.())
             }}
           >
             <ChevronRight className="h-3 w-3" />
