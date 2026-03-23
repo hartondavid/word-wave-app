@@ -382,8 +382,10 @@ export default function HomePage() {
                 width={256}
                 height={256}
                 sizes="(max-width: 640px) 144px, 160px"
-                className="h-[4.5rem] w-auto max-h-[4.5rem] object-contain rounded-2xl sm:h-20 sm:max-h-20"
+                quality={68}
                 priority
+                fetchPriority="high"
+                className="h-[4.5rem] w-auto max-h-[4.5rem] object-contain rounded-2xl sm:h-20 sm:max-h-20"
               />
             </Link>
             <HomeAmbientAndSupport />

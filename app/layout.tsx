@@ -4,8 +4,16 @@ import { AnalyticsLoader } from '@/components/analytics-loader'
 import { AudioGestureUnlock } from '@/components/audio-gesture-unlock'
 import './globals.css'
 
-const _geist = Geist({ subsets: ["latin"] });
-const _geistMono = Geist_Mono({ subsets: ["latin"] });
+const geistSans = Geist({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-geist-sans",
+})
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-geist-mono",
+})
 
 /**
  * URL canonic pentru og:image / metadataBase.
@@ -63,7 +71,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="font-sans antialiased overflow-x-hidden">
         <AudioGestureUnlock />
         {children}
