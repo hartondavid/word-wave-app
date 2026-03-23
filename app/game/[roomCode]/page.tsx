@@ -52,7 +52,7 @@ import {
 } from "@/components/letter-history-over-timer"
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
-import { Copy, Check, Timer, Trophy, ArrowLeft, AlertCircle, Mic } from "lucide-react"
+import { Copy, Check, Timer, Trophy, ArrowLeft, AlertCircle, Mic, Link2 } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
 import Confetti from "react-confetti"
 
@@ -188,6 +188,8 @@ export default function GamePage({ params }: GamePageProps) {
   const [wrongKeyFlash, setWrongKeyFlash] = useState(false)
   const wrongFlashTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [copied, setCopied] = useState(false)
+  const [joinRoomUrl, setJoinRoomUrl] = useState("")
+  const [linkCopied, setLinkCopied] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
   /** True until room reflects round_end — confetti shows immediately on local win */
   const [optimisticRoundWin, setOptimisticRoundWin] = useState(false)
@@ -307,6 +309,12 @@ export default function GamePage({ params }: GamePageProps) {
     rejoinEventKeyRef.current = null
     hostRoomPrefsSyncedRef.current = false
     hostLobbySyncInFlightRef.current = false
+  }, [roomCode])
+
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    // Home pre-fills Join tab; /game/CODE alone sends guests without session to "/".
+    setJoinRoomUrl(`${window.location.origin}/?join=${encodeURIComponent(roomCode)}`)
   }, [roomCode])
 
   // ── effects ────────────────────────────────────────────────────────────────
@@ -1217,6 +1225,13 @@ export default function GamePage({ params }: GamePageProps) {
     setTimeout(() => setCopied(false), 2000)
   }
 
+  function handleCopyJoinLink() {
+    if (!joinRoomUrl) return
+    void navigator.clipboard.writeText(joinRoomUrl)
+    setLinkCopied(true)
+    setTimeout(() => setLinkCopied(false), 2000)
+  }
+
   /** Clears this player's slot in Supabase so others detect disconnect; then home. */
   async function handleExitRoom() {
     leftVoluntarilyRef.current = true
@@ -1599,13 +1614,71 @@ export default function GamePage({ params }: GamePageProps) {
             </div>
             <div className="space-y-2">
               <p className="text-xs text-muted-foreground uppercase tracking-wider">Room Code</p>
-              <div className="flex items-center justify-center gap-2">
+              <div className="flex items-center justify-center gap-2 flex-wrap">
                 <div className="text-4xl font-mono font-bold tracking-[0.3em] bg-muted px-6 py-3 rounded-xl">
                   {roomCode}
                 </div>
-                <Button variant="outline" size="icon" onClick={handleCopyCode}>
-                  {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                </Button>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="h-9 w-9"
+                    onClick={handleCopyCode}
+                    title="Copy room code"
+                    aria-label="Copy room code"
+                  >
+                    {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="h-9 w-9"
+                    onClick={handleCopyJoinLink}
+                    disabled={!joinRoomUrl}
+                    title="Copy invite link for guests"
+                    aria-label="Copy invite link for guests"
+                  >
+                    {linkCopied ? <Check className="w-4 h-4 text-emerald-600" /> : <Link2 className="w-4 h-4" />}
+                  </Button>
+                </div>
+              </div>
+              <div className="space-y-2 pt-1 text-left">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider text-center">
+                  Link for players
+                </p>
+                {joinRoomUrl ? (
+                  <div className="flex flex-col gap-2 rounded-xl border border-border/60 bg-muted/30 px-3 py-2.5">
+                    <a
+                      href={joinRoomUrl}
+                      className="text-sm font-mono text-primary break-all underline-offset-2 hover:underline"
+                    >
+                      {joinRoomUrl}
+                    </a>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      className="w-full shrink-0"
+                      onClick={handleCopyJoinLink}
+                    >
+                      {linkCopied ? (
+                        <>
+                          <Check className="w-4 h-4 mr-2" />
+                          Copied
+                        </>
+                      ) : (
+                        <>
+                          <Link2 className="w-4 h-4 mr-2" />
+                          Copy link
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                ) : (
+                  <p className="text-center text-xs text-muted-foreground">Loading link…</p>
+                )}
               </div>
             </div>
             <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">

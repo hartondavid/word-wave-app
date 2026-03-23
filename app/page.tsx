@@ -147,6 +147,16 @@ export default function HomePage() {
     return () => stopGameAmbientWaves(true)
   }, [])
 
+  /** Invite link from lobby: ?join=ABCD opens Join tab with code pre-filled. */
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const j = new URLSearchParams(window.location.search).get("join")?.trim()
+    if (!j || !/^[A-Za-z0-9]{4}$/.test(j)) return
+    setActiveTab("join")
+    setRoomCode(j.toUpperCase())
+    window.history.replaceState(null, "", window.location.pathname || "/")
+  }, [])
+
   async function handlePracticeSolo() {
     const nameErr = validatePlayerName(playerName)
     if (nameErr) {
