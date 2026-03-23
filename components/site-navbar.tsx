@@ -1,60 +1,35 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Heart } from "lucide-react"
+import { Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 import { AmbientWavesToggle } from "@/components/ambient-waves-toggle"
+import { getSiteNavLinks } from "@/lib/nav-links"
+import { cn } from "@/lib/utils"
 
-/** Revolut.me — revtag în cod; poți suprascrie tot URL-ul cu NEXT_PUBLIC_REVOLUT_DONATION_URL */
-const REVOLUT_REV_TAG = "david1498"
-
-export const REVOLUT_DONATION_URL =
-  process.env.NEXT_PUBLIC_REVOLUT_DONATION_URL?.trim() ||
-  (REVOLUT_REV_TAG.trim() ? `https://revolut.me/${REVOLUT_REV_TAG.trim()}` : "")
-
-/** Valuri + Support — folosit pe home (navbar desktop și rând mobil). */
-export function HomeAmbientAndSupport({ className }: { className?: string }) {
-  return (
-    <div className={className ?? "flex shrink-0 items-center gap-2"}>
-      <AmbientWavesToggle />
-      {REVOLUT_DONATION_URL ? (
-        <Button variant="secondary" size="sm" className="shrink-0 gap-1.5 font-medium" asChild>
-          <a
-            href={REVOLUT_DONATION_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Support the project — donate via Revolut (opens in a new tab)"
-          >
-            <Heart className="h-4 w-4" aria-hidden />
-            Support
-          </a>
-        </Button>
-      ) : (
-        <Button
-          type="button"
-          variant="secondary"
-          size="sm"
-          className="shrink-0 gap-1.5 font-medium"
-          disabled
-          title="Set REVOLUT_REV_TAG or NEXT_PUBLIC_REVOLUT_DONATION_URL"
-        >
-          <Heart className="h-4 w-4" aria-hidden />
-          Support
-        </Button>
-      )}
-    </div>
-  )
-}
+const navLinkClass =
+  "text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
 
 /**
- * Bară de navigare: logo stânga; valuri + Support în dreapta.
+ * Bară de navigare: logo stânga; linkuri (desktop) sau meniu burger (mobil); valuri ambient.
  */
-export function SiteNavbar() {
+export function SiteNavbar({ homePriorityLogo = false }: { homePriorityLogo?: boolean }) {
+  const links = getSiteNavLinks()
+  const [menuOpen, setMenuOpen] = useState(false)
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/70 bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80">
       <nav
-        className="mx-auto flex min-h-20 max-w-6xl items-center justify-between gap-4 px-4 pt-5 pb-3 sm:px-6 sm:pt-6 sm:pb-3"
+        className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4"
         aria-label="Main navigation"
       >
         <Link
@@ -64,17 +39,93 @@ export function SiteNavbar() {
         >
           <Image
             src="/logo.png"
-            alt=""
+            alt="WordWave"
             width={192}
             height={192}
             sizes="(max-width: 640px) 112px, 128px"
             quality={68}
-            priority
-            fetchPriority="high"
-            className="h-14 w-auto max-h-14 object-contain rounded-xl sm:h-16 sm:max-h-16"
+            priority={homePriorityLogo}
+            fetchPriority={homePriorityLogo ? "high" : "auto"}
+            className={cn(
+              "w-auto object-contain rounded-xl",
+              homePriorityLogo
+                ? "h-[4.5rem] max-h-[4.5rem] sm:h-20 sm:max-h-20"
+                : "h-11 max-h-11 sm:h-14 sm:max-h-14 md:h-16 md:max-h-16"
+            )}
           />
         </Link>
-        <HomeAmbientAndSupport />
+
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <div className="hidden items-center gap-x-3 text-sm font-medium lg:flex xl:gap-x-4">
+            {links.map((item) =>
+              item.external ? (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={navLinkClass}
+                >
+                  {item.label}
+                </a>
+              ) : (
+                <Link key={item.href} href={item.href} className={navLinkClass}>
+                  {item.label}
+                </Link>
+              )
+            )}
+          </div>
+
+          <AmbientWavesToggle />
+
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="shrink-0 lg:hidden"
+                aria-label="Open menu"
+              >
+                <Menu className="h-5 w-5" aria-hidden />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="flex w-[min(100%,20rem)] flex-col gap-0">
+              <SheetHeader className="border-b border-border/60 text-left">
+                <SheetTitle>Menu</SheetTitle>
+              </SheetHeader>
+              <div className="flex flex-1 flex-col gap-1 overflow-y-auto p-4 pt-2">
+                {links.map((item) =>
+                  item.external ? (
+                    <a
+                      key={item.label}
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={cn(
+                        "rounded-md px-3 py-2.5 text-base font-medium text-foreground hover:bg-muted"
+                      )}
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      {item.label}
+                    </a>
+                  ) : (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={cn(
+                        "rounded-md px-3 py-2.5 text-base font-medium text-foreground hover:bg-muted"
+                      )}
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      {item.label}
+                    </Link>
+                  )
+                )}
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
       </nav>
     </header>
   )

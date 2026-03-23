@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { AnalyticsLoader } from '@/components/analytics-loader'
 import { AudioGestureUnlock } from '@/components/audio-gesture-unlock'
+import { GoogleAnalytics } from '@/components/google-analytics'
+import { SiteFooter } from '@/components/site-footer'
 import './globals.css'
 
 const geistSans = Geist({
@@ -36,9 +38,8 @@ const description =
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title,
+  title: { default: title, template: '%s | WordWave' },
   description,
-  generator: 'v0.app',
   openGraph: {
     title,
     description,
@@ -74,7 +75,9 @@ export default function RootLayout({
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="font-sans antialiased overflow-x-hidden">
         <AudioGestureUnlock />
+        <GoogleAnalytics />
         {children}
+        <SiteFooter />
         <AnalyticsLoader />
       </body>
     </html>

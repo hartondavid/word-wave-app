@@ -17,10 +17,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import Link from "next/link"
-import Image from "next/image"
 import { Zap, Trophy, Timer, Swords } from "lucide-react"
-import { SiteNavbar, HomeAmbientAndSupport } from "@/components/site-navbar"
+import { SiteNavbar } from "@/components/site-navbar"
 import { startGameAmbientWaves, stopGameAmbientWaves } from "@/lib/game-ambient-waves"
 import { cn } from "@/lib/utils"
 
@@ -362,35 +360,11 @@ export default function HomePage() {
 
   return (
     <>
-      <div className="hidden md:block">
-        <SiteNavbar />
-      </div>
+      <SiteNavbar homePriorityLogo />
       <main className="flex min-h-dvh flex-col items-center justify-center bg-gradient-to-b from-background to-secondary/30 px-4 py-8 md:min-h-[calc(100dvh-6rem)] md:items-stretch md:justify-start md:py-10">
       <div className="mx-auto grid w-full max-w-md grid-cols-1 gap-6 md:max-w-6xl md:grid-cols-12 md:gap-x-12 md:gap-y-8">
         {/* Stânga (desktop): hero + stats + how to play */}
         <div className="flex flex-col gap-6 md:col-span-5">
-          {/* Telefon: logo + Support în fluxul paginii (navbar-ul e ascuns sub md, ≥768px) */}
-          <div className="flex items-center justify-between gap-3 md:hidden">
-            <Link
-              href="/"
-              className="home-logo-png-animate shrink-0 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              aria-label="WordWave home"
-            >
-              <Image
-                src="/logo.png"
-                alt=""
-                width={256}
-                height={256}
-                sizes="(max-width: 640px) 144px, 160px"
-                quality={68}
-                priority
-                fetchPriority="high"
-                className="h-[4.5rem] w-auto max-h-[4.5rem] object-contain rounded-2xl sm:h-20 sm:max-h-20"
-              />
-            </Link>
-            <HomeAmbientAndSupport />
-          </div>
-
           <div className="space-y-3 text-center md:text-left">
             <h1 className="text-balance text-2xl font-bold tracking-tight text-foreground sm:text-3xl md:text-4xl">
               Race to guess the word first
