@@ -1,302 +1,118 @@
 [
   {
-    "word": "democrația",
-    "definition": "Sistem politic al poporului",
-    "word_en": "democracy",
-    "definition_en": "A political system of the people"
+    "word": "abuza",
+    "definition": "A utiliza o autoritate sau resursă în mod excesiv sau în scopuri inadecvate"
   },
   {
-    "word": "dictatură",
-    "definition": "Conducere autoritară absolută",
-    "word_en": "dictatorship",
-    "definition_en": "Absolute authoritarian rule"
+    "word": "achita",
+    "definition": "A declara oficial o persoană acuzată ca lipsită de vinovăție printr-o decizie judiciară"
   },
   {
-    "word": "statul",
-    "definition": "Organizația politică a unui popor",
-    "word_en": "state",
-    "definition_en": "The political organization of a people"
+    "word": "artefacte",
+    "definition": "Obiecte create sau modificate de oameni, cu valoare culturală sau istorică"
   },
   {
-    "word": "legea",
-    "definition": "Normă obligatorie impusă de stat",
-    "word_en": "law",
-    "definition_en": "A binding rule imposed by the state"
+    "word": "audiență",
+    "definition": "Întâlnire formală acordată de o persoană cu autoritate celui care o solicită"
   },
   {
-    "word": "dreptate",
-    "definition": "Respectarea normelor corecte",
-    "word_en": "justice",
-    "definition_en": "Upholding what is right"
+    "word": "boss",
+    "definition": "Termen englezesc pentru persoana aflată în poziție de autoritate sau conducere"
   },
   {
-    "word": "justiție",
-    "definition": "Sistemul de aplicare al legii",
-    "word_en": "judiciary",
-    "definition_en": "The system that applies the law"
+    "word": "britanici",
+    "definition": "Cetățenii statului care a inițiat procesul de retragere din Uniunea Europeană"
   },
   {
-    "word": "politică",
-    "definition": "Artă guvernării unui popor",
-    "word_en": "politics",
-    "definition_en": "The art of governing a people"
+    "word": "capre",
+    "definition": "Mamifer sălbatic agil, care trăiește în zone muntoase abrupte, protejat prin lege"
   },
   {
-    "word": "economia",
-    "definition": "Sistemul producției și schimbului",
-    "word_en": "economy",
-    "definition_en": "The system of production and exchange"
+    "word": "cârciumă",
+    "definition": "Stabiliment public specializat în servirea băuturilor alcoolice"
   },
   {
-    "word": "capitalism",
-    "definition": "Sistem economic bazat pe profit",
-    "word_en": "capitalism",
-    "definition_en": "An economic system based on profit"
+    "word": "cârd",
+    "definition": "Grup de păsări acvatice care se deplasează în formație compactă"
   },
   {
-    "word": "socialism",
-    "definition": "Sistem bazat pe egalitate",
-    "word_en": "socialism",
-    "definition_en": "A system based on equality"
+    "word": "centraliza",
+    "definition": "A concentra mai multe entități dispersate sub o autoritate unică"
   },
   {
-    "word": "clasă",
-    "definition": "Grup social cu caracteristici comune",
-    "word_en": "class",
-    "definition_en": "A social group with shared traits"
+    "word": "compostav",
+    "definition": "A valida un bilet de transport public prin intermediul unui dispozitiv special"
   },
   {
-    "word": "putere",
-    "definition": "Capacitatea de a influență alții",
-    "word_en": "power",
-    "definition_en": "The ability to influence others"
+    "word": "concetățean",
+    "definition": "Persoană cu domiciliu permanent în același municipiu"
   },
   {
-    "word": "corupția",
-    "definition": "Abuzul de putere pentru câștig",
-    "word_en": "corruption",
-    "definition_en": "Abuse of power for gain"
+    "word": "detaliu",
+    "definition": "Element specific și precis dintr-un ansamblu, care poate fi esențial pentru înțelegerea întregului"
   },
   {
-    "word": "onestitate",
-    "definition": "Calitate opusă corupției",
-    "word_en": "honesty",
-    "definition_en": "The opposite of corruption"
+    "word": "dezvăluit",
+    "definition": "Adjectiv care descrie informații sau fapte anterior secrete, acum aduse la cunoștința publică"
   },
   {
-    "word": "deschidere",
-    "definition": "Vizibilitate totală și onestă",
-    "word_en": "transparency",
-    "definition_en": "Full, honest visibility"
+    "word": "diaspora",
+    "definition": "Grup etnic sau național stabilit permanent în afara țării de origine"
   },
   {
-    "word": "votul",
-    "definition": "Exprimarea democratica a optiunii",
-    "word_en": "vote",
-    "definition_en": "The democratic expression of a choice"
+    "word": "emigra",
+    "definition": "A emigra, a-și schimba domiciliul prin trecerea frontierei unui stat"
   },
   {
-    "word": "alegeri",
-    "definition": "Procesul democratic de selecție",
-    "word_en": "elections",
-    "definition_en": "The democratic selection process"
+    "word": "evaziune",
+    "definition": "Infracțiune economică constând în sustragerea deliberată de la obligațiile fiscale"
   },
   {
-    "word": "partid",
-    "definition": "Organizație politică cu ideologie",
-    "word_en": "party",
-    "definition_en": "A political organization with an ideology"
+    "word": "federație",
+    "definition": "Formă de organizare statală în care entități autonome se asociază sub o autoritate centrală"
   },
   {
-    "word": "revoluție",
-    "definition": "Schimbarea radicală a sistemului",
-    "word_en": "revolution",
-    "definition_en": "Radical change of the system"
+    "word": "intermedia",
+    "definition": "A facilita comunicarea sau înțelegerea dintre două sau mai multe părți"
   },
   {
-    "word": "reformă",
-    "definition": "Schimbarea parțială a sistemului",
-    "word_en": "reform",
-    "definition_en": "Partial change of the system"
+    "word": "miliția",
+    "definition": "Forța de ordine publică din regimul comunist cu atribuții extinse de supraveghere"
   },
   {
-    "word": "protest",
-    "definition": "Manifestarea opoziției publice",
-    "word_en": "protest",
-    "definition_en": "Public expression of opposition"
+    "word": "miliție",
+    "definition": "Instituție de ordine publică din epoca comunistă, echivalentă poliției actuale"
   },
   {
-    "word": "media",
-    "definition": "Mijloacele de comunicare în masă",
-    "word_en": "media",
-    "definition_en": "Mass communication channels"
+    "word": "picnic",
+    "definition": "Masă festivă organizată în aer liber, de obicei în natură, în grup"
   },
   {
-    "word": "presa",
-    "definition": "Instituții jurnalistice de informare",
-    "word_en": "press",
-    "definition_en": "Journalistic institutions that inform"
+    "word": "secții",
+    "definition": "Subdiviziuni teritoriale ale instituțiilor de ordine publică sau administrative"
   },
   {
-    "word": "cenzură",
-    "definition": "Limitarea libertății de exprimare",
-    "word_en": "censorship",
-    "definition_en": "Limiting freedom of expression"
+    "word": "spionaj",
+    "definition": "Activitate clandestină de culegere și transmitere a informațiilor confidențiale"
   },
   {
-    "word": "propagandă",
-    "definition": "Manipularea informației în masă",
-    "word_en": "propaganda",
-    "definition_en": "Mass manipulation of information"
+    "word": "stat",
+    "definition": "Sistemul de instituții și organizații administrate de autoritățile guvernamentale"
   },
   {
-    "word": "manipulare",
-    "definition": "Influentarea ascunsă a publicului",
-    "word_en": "manipulation",
-    "definition_en": "Covert influence on the public"
+    "word": "stații",
+    "definition": "Loc de așteptare destinat utilizatorilor mijloacelor de transport public"
   },
   {
-    "word": "comunitate",
-    "definition": "Grup de oameni cu interese comune",
-    "word_en": "community",
-    "definition_en": "A group with shared interests"
+    "word": "tornade",
+    "definition": "Fenomene meteorologice violente caracterizate prin vârtejuri atmosferice devastatoare"
   },
   {
-    "word": "unitate",
-    "definition": "Sprijin mutual în societate",
-    "word_en": "solidarity",
-    "definition_en": "Mutual support in society"
+    "word": "uniforme",
+    "definition": "Ținută standard impusă membrilor unui grup sau instituții pentru uniformizare"
   },
   {
-    "word": "toleranță",
-    "definition": "Acceptarea diferențelor în societate",
-    "word_en": "tolerance",
-    "definition_en": "Accepting differences in society"
-  },
-  {
-    "word": "nedreptate",
-    "definition": "Tratament inegal bazat pe diferentă",
-    "word_en": "injustice",
-    "definition_en": "Unequal treatment based on difference"
-  },
-  {
-    "word": "rasismul",
-    "definition": "Discriminare bazată pe rasă",
-    "word_en": "racism",
-    "definition_en": "Discrimination based on race"
-  },
-  {
-    "word": "egalitate",
-    "definition": "Tratament identic pentru toți",
-    "word_en": "equality",
-    "definition_en": "The same treatment for everyone"
-  },
-  {
-    "word": "echitate",
-    "definition": "Tratament proporțional și drept",
-    "word_en": "equity",
-    "definition_en": "Fair, proportional treatment"
-  },
-  {
-    "word": "incluziune",
-    "definition": "Acceptarea tuturor în societate",
-    "word_en": "inclusion",
-    "definition_en": "Welcoming everyone in society"
-  },
-  {
-    "word": "excludere",
-    "definition": "Excluderea grupurilor vulnerabile",
-    "word_en": "exclusion",
-    "definition_en": "Leaving out vulnerable groups"
-  },
-  {
-    "word": "sărăcie",
-    "definition": "Lipsă resurselor necesare traiului",
-    "word_en": "poverty",
-    "definition_en": "Lack of resources needed to live"
-  },
-  {
-    "word": "bogăție",
-    "definition": "Abundență de resurse materiale",
-    "word_en": "wealth",
-    "definition_en": "Abundance of material resources"
-  },
-  {
-    "word": "decalaj",
-    "definition": "Diferentă mare între bogați și săraci",
-    "word_en": "gap",
-    "definition_en": "A large divide between rich and poor"
-  },
-  {
-    "word": "imigrare",
-    "definition": "Venirea într-o alta tara de locuit",
-    "word_en": "immigration",
-    "definition_en": "Coming to another country to live"
-  },
-  {
-    "word": "identitate",
-    "definition": "Cine esti tu că individ și grup",
-    "word_en": "identity",
-    "definition_en": "Who you are as an individual and group"
-  },
-  {
-    "word": "cultură",
-    "definition": "Ansamblul valorilor unui popor",
-    "word_en": "culture",
-    "definition_en": "The values of a people as a whole"
-  },
-  {
-    "word": "tradiție",
-    "definition": "Obicei transmis din generație",
-    "word_en": "tradition",
-    "definition_en": "A custom passed down generations"
-  },
-  {
-    "word": "modernism",
-    "definition": "Valorile și stilul epocii actuale",
-    "word_en": "modernity",
-    "definition_en": "The values and style of the present era"
-  },
-  {
-    "word": "mondial",
-    "definition": "Interdependență tarilor lumii",
-    "word_en": "globalization",
-    "definition_en": "Interdependence among countries"
-  },
-  {
-    "word": "progres",
-    "definition": "Avansul societății spre mai bine",
-    "word_en": "progress",
-    "definition_en": "Society moving toward something better"
-  },
-  {
-    "word": "regres",
-    "definition": "Întoarcerea spre forme mai slabe",
-    "word_en": "regression",
-    "definition_en": "Sliding back to weaker forms"
-  },
-  {
-    "word": "pacea",
-    "definition": "Absență conflictului între oameni",
-    "word_en": "peace",
-    "definition_en": "Absence of conflict among people"
-  },
-  {
-    "word": "razboiul",
-    "definition": "Conflictul armat între popoare",
-    "word_en": "war",
-    "definition_en": "Armed conflict between peoples"
-  },
-  {
-    "word": "drepturi",
-    "definition": "Ce au dreptul să primească toți",
-    "word_en": "rights",
-    "definition_en": "What everyone is entitled to receive"
-  },
-  {
-    "word": "datorii",
-    "definition": "Ce sunt datori să facă toți",
-    "word_en": "duties",
-    "definition_en": "What everyone is obliged to do"
+    "word": "vestitori",
+    "definition": "Persoane trimise cu misiuni diplomatice sau mesaje între conducători sau state"
   }
 ]

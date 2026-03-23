@@ -1,302 +1,42 @@
 [
   {
-    "word": "onestitate",
-    "definition": "Calitatea de a fi sincer mereu",
-    "word_en": "honesty",
-    "definition_en": "The quality of always being sincere"
+    "word": "adunare",
+    "definition": "Prima operație aritmetică, combinarea a două sau mai multe numere în un singur rezultat"
   },
   {
-    "word": "dreptate",
-    "definition": "Respectarea a ceea ce e corect",
-    "word_en": "justice",
-    "definition_en": "Upholding what is right"
+    "word": "card",
+    "definition": "Dispozitiv de plastic cu cip sau bandă magnetică utilizat pentru tranzacții bancare"
   },
   {
-    "word": "bunăstare",
-    "definition": "Starea de a fi bine",
-    "word_en": "well-being",
-    "definition_en": "The state of being well"
+    "word": "design",
+    "definition": "Configurația vizuală, formă și estetică a unui produs sau spațiu"
   },
   {
-    "word": "dăruire",
-    "definition": "Plăcerea de a da altora",
-    "word_en": "generosity",
-    "definition_en": "The joy of giving to others"
+    "word": "dreptatea",
+    "definition": "Principiu fundamental de corectitudine și echitate în aplicarea normelor juridice"
   },
   {
-    "word": "curățenie",
-    "definition": "Absență murdăriei și a răului",
-    "word_en": "purity",
-    "definition_en": "Absence of filth and evil"
+    "word": "just",
+    "definition": "Adjectiv care indică corectitudine, echitate sau conformitate cu principiile dreptului"
   },
   {
-    "word": "egalitate",
-    "definition": "Tratament identic pentru toți",
-    "word_en": "equality",
-    "definition_en": "The same treatment for everyone"
+    "word": "magnetofon",
+    "definition": "Dispozitiv electromagnetic de înregistrare și redare audio pe suport de bandă magnetică"
   },
   {
-    "word": "libertate",
-    "definition": "Starea de a nu fi constrâns",
-    "word_en": "freedom",
-    "definition_en": "The state of not being constrained"
+    "word": "nevinovați",
+    "definition": "Persoane ale căror fapte sunt conforme cu principiile morale și legale"
   },
   {
-    "word": "demnitate",
-    "definition": "Respectul de sine și al altora",
-    "word_en": "dignity",
-    "definition_en": "Self-respect and respect for others"
+    "word": "prestigiu",
+    "definition": "Reputație și autoritate morală câștigată prin realizări recunoscute public"
   },
   {
-    "word": "onestul",
-    "definition": "A fi întreg și coerent moral",
-    "word_en": "integrity",
-    "definition_en": "Being whole and morally consistent"
+    "word": "responsabilitate",
+    "definition": "Obligație juridică sau morală de a răspunde pentru acțiunile întreprinse"
   },
   {
-    "word": "empatie",
-    "definition": "A simți ce simte altul",
-    "word_en": "empathy",
-    "definition_en": "Feeling what another feels"
-  },
-  {
-    "word": "altruism",
-    "definition": "A pune pe alții înaintea ta",
-    "word_en": "altruism",
-    "definition_en": "Putting others before yourself"
-  },
-  {
-    "word": "solidar",
-    "definition": "Care susține pe ceilalți",
-    "word_en": "solidarity",
-    "definition_en": "Standing with and supporting others"
-  },
-  {
-    "word": "loialitate",
-    "definition": "Fidelitate față de principii",
-    "word_en": "loyalty",
-    "definition_en": "Fidelity to your principles"
-  },
-  {
-    "word": "curajul",
-    "definition": "Forță morală în față răului",
-    "word_en": "courage",
-    "definition_en": "Moral strength in the face of wrong"
-  },
-  {
-    "word": "prudență",
-    "definition": "Precauție în luarea deciziilor",
-    "word_en": "prudence",
-    "definition_en": "Caution in making decisions"
-  },
-  {
-    "word": "moderație",
-    "definition": "A evita excesele în viață",
-    "word_en": "moderation",
-    "definition_en": "Avoiding excess in life"
-  },
-  {
-    "word": "simplitate",
-    "definition": "Lipsă complicațiilor inutile",
-    "word_en": "simplicity",
-    "definition_en": "Lack of needless complication"
-  },
-  {
-    "word": "autenticul",
-    "definition": "A fi tu însuți, real",
-    "word_en": "authenticity",
-    "definition_en": "Being yourself, real"
-  },
-  {
-    "word": "mulțumire",
-    "definition": "Aprecierea binelui primit",
-    "word_en": "gratitude",
-    "definition_en": "Appreciation for the good received"
-  },
-  {
-    "word": "iertarea",
-    "definition": "A renunța la resentimente",
-    "word_en": "forgiveness",
-    "definition_en": "Letting go of resentment"
-  },
-  {
-    "word": "toleranță",
-    "definition": "Acceptarea diferențelor altora",
-    "word_en": "tolerance",
-    "definition_en": "Accepting others' differences"
-  },
-  {
-    "word": "varietate",
-    "definition": "Mulțime de forme diferite",
-    "word_en": "diversity",
-    "definition_en": "Many different forms"
-  },
-  {
-    "word": "incluziune",
-    "definition": "A primi pe toți fără excludere",
-    "word_en": "inclusion",
-    "definition_en": "Welcoming everyone without exclusion"
-  },
-  {
-    "word": "compasion",
-    "definition": "Dorință de a ușura suferință",
-    "word_en": "compassion",
-    "definition_en": "A wish to ease suffering"
-  },
-  {
-    "word": "sacrificiu",
-    "definition": "Renunțarea pentru un bine mai mare",
-    "word_en": "sacrifice",
-    "definition_en": "Giving up something for a greater good"
-  },
-  {
-    "word": "datoria",
-    "definition": "Obligația morală de a face ceva",
-    "word_en": "duty",
-    "definition_en": "The moral obligation to do something"
-  },
-  {
-    "word": "asumare",
-    "definition": "A-ti asuma consecințele faptelor",
-    "word_en": "accountability",
-    "definition_en": "Owning the consequences of your deeds"
-  },
-  {
-    "word": "constantă",
-    "definition": "A acționa mereu conform valorilor",
-    "word_en": "consistency",
-    "definition_en": "Always acting according to your values"
-  },
-  {
-    "word": "vocație",
-    "definition": "Chemarea spre o anumită muncă",
-    "word_en": "vocation",
-    "definition_en": "A calling toward a certain work"
-  },
-  {
-    "word": "binele",
-    "definition": "Tot ce e pozitiv și benefic",
-    "word_en": "good",
-    "definition_en": "Everything positive and beneficial"
-  },
-  {
-    "word": "răul",
-    "definition": "Tot ce produce suferință",
-    "word_en": "evil",
-    "definition_en": "Everything that causes suffering"
-  },
-  {
-    "word": "adevărul",
-    "definition": "Corespondență cu realitatea",
-    "word_en": "truth",
-    "definition_en": "Correspondence with reality"
-  },
-  {
-    "word": "frumosul",
-    "definition": "Ceea ce produce plăcere estetică",
-    "word_en": "beauty",
-    "definition_en": "What gives aesthetic pleasure"
-  },
-  {
-    "word": "spiritual",
-    "definition": "Legat de suflet și de Dumnezeu",
-    "word_en": "spiritual",
-    "definition_en": "Related to soul and God"
-  },
-  {
-    "word": "morală",
-    "definition": "Totalitatea normelor de bine",
-    "word_en": "morality",
-    "definition_en": "The whole set of norms of good"
-  },
-  {
-    "word": "etică",
-    "definition": "Studiul principiilor morale",
-    "word_en": "ethics",
-    "definition_en": "The study of moral principles"
-  },
-  {
-    "word": "conștiință",
-    "definition": "Vocea interioară a binelui",
-    "word_en": "conscience",
-    "definition_en": "The inner voice of good"
-  },
-  {
-    "word": "principiu",
-    "definition": "Regulă de baza a conduitei",
-    "word_en": "principle",
-    "definition_en": "A basic rule of conduct"
-  },
-  {
-    "word": "normă",
-    "definition": "Regulă acceptată de societate",
-    "word_en": "norm",
-    "definition_en": "A rule accepted by society"
-  },
-  {
-    "word": "legea",
-    "definition": "Regulă impusă de stat",
-    "word_en": "law",
-    "definition_en": "A rule imposed by the state"
-  },
-  {
-    "word": "justiție",
-    "definition": "Aplicarea corectă a dreptii",
-    "word_en": "justice",
-    "definition_en": "The fair application of what is due"
-  },
-  {
-    "word": "echitate",
-    "definition": "Tratament corect și drept",
-    "word_en": "equity",
-    "definition_en": "Fair and right treatment"
-  },
-  {
-    "word": "milă",
-    "definition": "Sensibilitate la suferință altora",
-    "word_en": "mercy",
-    "definition_en": "Sensitivity to others' suffering"
-  },
-  {
-    "word": "bunătatea",
-    "definition": "Dispoziția de a face bine",
-    "word_en": "kindness",
-    "definition_en": "The disposition to do good"
-  },
-  {
-    "word": "răbdarea",
-    "definition": "Capacitatea de a aștepta calm",
-    "word_en": "patience",
-    "definition_en": "The ability to wait calmly"
-  },
-  {
-    "word": "înțeleaptă",
-    "definition": "Judecată corectă și profundă",
-    "word_en": "wisdom",
-    "definition_en": "Correct and deep judgment"
-  },
-  {
-    "word": "precauție",
-    "definition": "Chibzuință în luarea deciziilor",
-    "word_en": "caution",
-    "definition_en": "Care in making decisions"
-  },
-  {
-    "word": "devotament",
-    "definition": "Dedicare totală unui ideal",
-    "word_en": "devotion",
-    "definition_en": "Total dedication to an ideal"
-  },
-  {
-    "word": "onoarea",
-    "definition": "Respectul câștigat prin fapte bune",
-    "word_en": "honor",
-    "definition_en": "Respect earned through good deeds"
-  },
-  {
-    "word": "verticalul",
-    "definition": "A sta drept în față răului",
-    "word_en": "uprightness",
-    "definition_en": "Standing firm against wrong"
+    "word": "superb",
+    "definition": "Deosebit de plăcut din perspectivă estetică, remarcabil prin frumusețe"
   }
 ]

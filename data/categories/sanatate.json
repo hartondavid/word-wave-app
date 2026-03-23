@@ -1,302 +1,42 @@
 [
   {
-    "word": "anxietate",
-    "definition": "Neliniște persistentă față de viitor",
-    "word_en": "anxiety",
-    "definition_en": "Persistent worry about the future"
+    "word": "antidot",
+    "definition": "Substanță medicinală sau chimică care neutralizează efectul unui venin sau otravă"
   },
   {
-    "word": "depresie",
-    "definition": "Stare profundă de tristețe clinică",
-    "word_en": "depression",
-    "definition_en": "A deep clinical low mood"
+    "word": "bandaj",
+    "definition": "Material textil medical aplicat pentru imobilizarea sau acoperirea unei răni"
   },
   {
-    "word": "stresul",
-    "definition": "Tensiune psihică din presiuni",
-    "word_en": "stress",
-    "definition_en": "Mental tension from pressure"
+    "word": "gazde",
+    "definition": "Persoanele care oferă adăpost și ospitalitate vizitatorilor acasă la ele"
   },
   {
-    "word": "epuizare",
-    "definition": "Oboseală totală din suprasolicitare",
-    "word_en": "burnout",
-    "definition_en": "Total exhaustion from overwork"
+    "word": "infirmieră",
+    "definition": "Personal medical calificat care acordă îngrijiri și asistă medicul în activitate"
   },
   {
-    "word": "panică",
-    "definition": "Criză bruscă de frică intensă",
-    "word_en": "panic",
-    "definition_en": "A sudden crisis of intense fear"
+    "word": "învia",
+    "definition": "A recăpăta viața după moarte, prin intervenție miraculoasă sau medicală"
   },
   {
-    "word": "fobia",
-    "definition": "Teamă irațională de ceva specific",
-    "word_en": "phobia",
-    "definition_en": "Irrational fear of something specific"
+    "word": "leacuri",
+    "definition": "Remedii terapeutice empirice transmise generațional, fără bază farmaceutică"
   },
   {
-    "word": "traumă",
-    "definition": "Rană psihică profundă din trecut",
-    "word_en": "trauma",
-    "definition_en": "A deep psychological wound from the past"
+    "word": "manichiură",
+    "definition": "Tratament cosmetic al mâinilor prin curățarea și tăierea unghiilor"
   },
   {
-    "word": "vindecare",
-    "definition": "Recuperarea după o rană psihică",
-    "word_en": "healing",
-    "definition_en": "Recovery after a psychological wound"
+    "word": "seringă",
+    "definition": "Instrument medical cilindric prevăzut cu ac pentru injecții sau extragerea fluidelor"
   },
   {
-    "word": "terapia",
-    "definition": "Procesul de vindecare psihologică",
-    "word_en": "therapy",
-    "definition_en": "The process of psychological healing"
+    "word": "tarot",
+    "definition": "Pachet de cărți utilizat în prezicerea evenimentelor prin lectură simbolică"
   },
   {
-    "word": "psiholog",
-    "definition": "Specialist în sănătatea minții",
-    "word_en": "psychologist",
-    "definition_en": "A specialist in mental health"
-  },
-  {
-    "word": "consiliere",
-    "definition": "Ghidare psihologică profesionistă",
-    "word_en": "counseling",
-    "definition_en": "Professional psychological guidance"
-  },
-  {
-    "word": "reziliență",
-    "definition": "Capacitatea de a te reface",
-    "word_en": "resilience",
-    "definition_en": "The ability to bounce back"
-  },
-  {
-    "word": "adaptare",
-    "definition": "A te ajusta la situații dificile",
-    "word_en": "adaptation",
-    "definition_en": "Adjusting to difficult situations"
-  },
-  {
-    "word": "coping",
-    "definition": "Strategii de față cu stresul",
-    "word_en": "coping",
-    "definition_en": "Strategies for dealing with stress"
-  },
-  {
-    "word": "prezență",
-    "definition": "Atenția conștientă la momentul dat",
-    "word_en": "mindfulness",
-    "definition_en": "Conscious attention to the present moment"
-  },
-  {
-    "word": "meditație",
-    "definition": "Practică de calmare a minții",
-    "word_en": "meditation",
-    "definition_en": "A practice to calm the mind"
-  },
-  {
-    "word": "respirație",
-    "definition": "Tehnică de reglare emoțională",
-    "word_en": "breathing",
-    "definition_en": "A technique to regulate emotions"
-  },
-  {
-    "word": "somnul",
-    "definition": "Odihnă esențială sănătății minții",
-    "word_en": "sleep",
-    "definition_en": "Rest essential for mental health"
-  },
-  {
-    "word": "mișcare",
-    "definition": "Exercițiu fizic pentru starea minții",
-    "word_en": "exercise",
-    "definition_en": "Physical activity for mental well-being"
-  },
-  {
-    "word": "nutriție",
-    "definition": "Alimentația corectă a minții",
-    "word_en": "nutrition",
-    "definition_en": "Proper food for the mind"
-  },
-  {
-    "word": "interacție",
-    "definition": "Relațiile sociale și efectul lor",
-    "word_en": "interaction",
-    "definition_en": "Social relationships and their effect"
-  },
-  {
-    "word": "izolarea",
-    "definition": "Retragerea dăunătoare de la alții",
-    "word_en": "isolation",
-    "definition_en": "Harmful withdrawal from others"
-  },
-  {
-    "word": "graniță",
-    "definition": "Limită sănătoasă în relații",
-    "word_en": "boundary",
-    "definition_en": "A healthy limit in relationships"
-  },
-  {
-    "word": "identitate",
-    "definition": "Cine esti cu adevărat",
-    "word_en": "identity",
-    "definition_en": "Who you really are"
-  },
-  {
-    "word": "autoestimare",
-    "definition": "Părerea despre propria valoare",
-    "word_en": "self-esteem",
-    "definition_en": "Your view of your own worth"
-  },
-  {
-    "word": "critică",
-    "definition": "Vocea interioară negativă",
-    "word_en": "self-criticism",
-    "definition_en": "The negative inner voice"
-  },
-  {
-    "word": "blândețe",
-    "definition": "Blândețea față de tine însuți",
-    "word_en": "self-compassion",
-    "definition_en": "Gentleness toward yourself"
-  },
-  {
-    "word": "acceptarea",
-    "definition": "A te accepta cu bune și rele",
-    "word_en": "self-acceptance",
-    "definition_en": "Accepting yourself, good and bad"
-  },
-  {
-    "word": "validarea",
-    "definition": "A recunoaște sentimentele proprii",
-    "word_en": "validation",
-    "definition_en": "Acknowledging your own feelings"
-  },
-  {
-    "word": "negarea",
-    "definition": "A refuza să recunoști realitatea",
-    "word_en": "denial",
-    "definition_en": "Refusing to acknowledge reality"
-  },
-  {
-    "word": "proiecția",
-    "definition": "A atribui altora ce e în tine",
-    "word_en": "projection",
-    "definition_en": "Attributing to others what is in you"
-  },
-  {
-    "word": "scuza",
-    "definition": "Găsirea de motive pentru greșeli",
-    "word_en": "excuse",
-    "definition_en": "Finding reasons for mistakes"
-  },
-  {
-    "word": "conștientă",
-    "definition": "A fi prezent și conștient",
-    "word_en": "awareness",
-    "definition_en": "Being present and aware"
-  },
-  {
-    "word": "emoția",
-    "definition": "Reacție psihică la un eveniment",
-    "word_en": "emotion",
-    "definition_en": "A mental reaction to an event"
-  },
-  {
-    "word": "starea",
-    "definition": "Condiție psihică la un moment",
-    "word_en": "state",
-    "definition_en": "Your mental condition at a moment"
-  },
-  {
-    "word": "gândurile",
-    "definition": "Produsele activității minții",
-    "word_en": "thoughts",
-    "definition_en": "Products of mental activity"
-  },
-  {
-    "word": "credintele",
-    "definition": "Convingeri profunde despre viață",
-    "word_en": "beliefs",
-    "definition_en": "Deep convictions about life"
-  },
-  {
-    "word": "valorile",
-    "definition": "Principii după care trăiești",
-    "word_en": "values",
-    "definition_en": "Principles you live by"
-  },
-  {
-    "word": "scopul",
-    "definition": "Direcția care da sens vieții",
-    "word_en": "purpose",
-    "definition_en": "The direction that gives life meaning"
-  },
-  {
-    "word": "sensul",
-    "definition": "Motivul pentru care exiști",
-    "word_en": "meaning",
-    "definition_en": "The reason you exist"
-  },
-  {
-    "word": "vocația",
-    "definition": "Chemarea interioară profundă",
-    "word_en": "calling",
-    "definition_en": "A deep inner calling"
-  },
-  {
-    "word": "creativitate",
-    "definition": "Expresie sănătoasă a sinelui",
-    "word_en": "creativity",
-    "definition_en": "Healthy expression of the self"
-  },
-  {
-    "word": "artă",
-    "definition": "Canal de exprimare emoțională",
-    "word_en": "art",
-    "definition_en": "A channel for emotional expression"
-  },
-  {
-    "word": "muzică",
-    "definition": "Sunet ce vindeca sufletul",
-    "word_en": "music",
-    "definition_en": "Sound that can heal the soul"
-  },
-  {
-    "word": "natură",
-    "definition": "Mediu terapeutic natural",
-    "word_en": "nature",
-    "definition_en": "A natural therapeutic environment"
-  },
-  {
-    "word": "animalele",
-    "definition": "Companie terapeutică pentru om",
-    "word_en": "animals",
-    "definition_en": "Therapeutic companionship for people"
-  },
-  {
-    "word": "umorul",
-    "definition": "Remediu natural împotriva tristeții",
-    "word_en": "humor",
-    "definition_en": "A natural remedy against sadness"
-  },
-  {
-    "word": "mulțumire",
-    "definition": "Recunoașterea binelui din viață",
-    "word_en": "gratitude",
-    "definition_en": "Recognizing the good in life"
-  },
-  {
-    "word": "speranță",
-    "definition": "Forță care susține sănătatea minții",
-    "word_en": "hope",
-    "definition_en": "A force that supports mental health"
-  },
-  {
-    "word": "iubirea",
-    "definition": "Cel mai puternic remediu psihic",
-    "word_en": "love",
-    "definition_en": "The strongest remedy for the mind"
+    "word": "vindeca",
+    "definition": "A restabili sănătatea unui organism afectat prin tratament"
   }
 ]

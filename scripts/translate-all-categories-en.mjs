@@ -1,10 +1,8 @@
 /**
  * Adds word_en + definition_en to every entry in data/categories/*.json
  *
- * Priority:
- * 1) OPENAI_API_KEY (from env or .env.local) — one API call per file (~20), best quality.
- * 2) MyMemory (https://mymemory.translated.net) — two calls per entry; set MYMEMORY_EMAIL
- *    in .env.local for higher daily limits (verified human account).
+ * 1) OPENAI_API_KEY — one batch per file (recommended).
+ * 2) Otherwise MyMemory (ro→en), per entry; optional MYMEMORY_EMAIL for higher limits.
  *
  * Usage:
  *   node scripts/translate-all-categories-en.mjs

@@ -1,302 +1,118 @@
 [
   {
-    "word": "trecut",
-    "definition": "Ce s-a întâmplat deja",
-    "word_en": "past",
-    "definition_en": "What has already happened"
-  },
-  {
-    "word": "prezent",
-    "definition": "Clipă de acum, momentul",
-    "word_en": "present",
-    "definition_en": "The moment right now"
-  },
-  {
-    "word": "viitor",
-    "definition": "Ce urmează să se întâmple",
-    "word_en": "future",
-    "definition_en": "What is yet to happen"
-  },
-  {
-    "word": "memorie",
-    "definition": "Păstrarea trecutului în minte",
-    "word_en": "memory",
-    "definition_en": "Keeping the past in mind"
+    "word": "albume",
+    "definition": "Colecții de fotografii sau materiale organizate cronologic sau tematic"
   },
   {
     "word": "amintire",
-    "definition": "Imagine din trecut păstrată",
+    "definition": "Capacitatea mentală de a stoca și reactualiza experiențe și informații din trecut",
     "word_en": "recollection",
     "definition_en": "A preserved image from the past"
   },
   {
-    "word": "nostalgie",
-    "definition": "Dor după o vreme apusa",
-    "word_en": "nostalgia",
-    "definition_en": "Longing for a time gone by"
+    "word": "antecedent",
+    "definition": "Faptă din trecutul unei persoane care poate influența aprecierile actuale"
   },
   {
-    "word": "răbdare",
-    "definition": "A aștepta fără a te enerva",
-    "word_en": "patience",
-    "definition_en": "Waiting without getting upset"
+    "word": "argumenta",
+    "definition": "A prezenta rațional și convingător argumente în sprijinul unei poziții sau idei"
   },
   {
-    "word": "urgență",
-    "definition": "Nevoia de a face ceva repede",
-    "word_en": "urgency",
-    "definition_en": "The need to do something quickly"
+    "word": "asistente",
+    "definition": "Personalul auxiliar prezent la locul unui eveniment pentru sprijin și asistență"
   },
   {
-    "word": "întârziere",
-    "definition": "A ajunge mai tarziu decât trebuie",
-    "word_en": "delay",
-    "definition_en": "Arriving later than you should"
+    "word": "atlas",
+    "definition": "Volum ce reunește reprezentări cartografice ale suprafețelor geografice"
   },
   {
-    "word": "eternitate",
-    "definition": "Timp fără început și sfârșit",
-    "word_en": "eternity",
-    "definition_en": "Time without beginning or end"
+    "word": "burniță",
+    "definition": "Precipitație ușoară, cu picături fine, care poate persista timp îndelungat"
   },
   {
-    "word": "clipă",
-    "definition": "Moment foarte scurt de timp",
-    "word_en": "instant",
-    "definition_en": "A very short moment of time"
+    "word": "calendare",
+    "definition": "Instrumente de organizare a timpului structurate pe zile, luni și ani"
   },
   {
-    "word": "secundă",
-    "definition": "Unitate mică de măsurare a timpului",
-    "word_en": "second",
-    "definition_en": "A small unit of time"
+    "word": "deja",
+    "definition": "Adverb care indică că un eveniment s-a produs anterior momentului prezent"
   },
   {
-    "word": "oră",
-    "definition": "Interval de șaizeci de minute",
-    "word_en": "hour",
-    "definition_en": "A span of sixty minutes"
+    "word": "demonstra",
+    "definition": "A dovedi sau explica ceva prin prezentarea de probe concrete sau exemple practice"
   },
   {
-    "word": "zi",
-    "definition": "De la răsărit până la apus",
-    "word_en": "day",
-    "definition_en": "From sunrise to sunset"
+    "word": "dimineață",
+    "definition": "Perioadă timpurie a zilei, la primele ore de lumină"
   },
   {
-    "word": "săptămână",
-    "definition": "Șapte zile consecutive",
-    "word_en": "week",
-    "definition_en": "Seven consecutive days"
+    "word": "dovedi",
+    "definition": "A prezenta argumente sau probe care confirmă veridicitatea unei afirmații"
   },
   {
-    "word": "lună",
-    "definition": "Aproximativ treizeci de zile",
-    "word_en": "month",
-    "definition_en": "About thirty days"
+    "word": "eșantioane",
+    "definition": "Cantități reprezentative extrase dintr-un lot în scopul testării calitative"
   },
   {
-    "word": "an",
-    "definition": "Doisprezece luni calendaristice",
-    "word_en": "year",
-    "definition_en": "Twelve calendar months"
+    "word": "live",
+    "definition": "Format de difuzare în timp real a unui eveniment"
   },
   {
-    "word": "deceniu",
-    "definition": "Zece ani consecutivi",
-    "word_en": "decade",
-    "definition_en": "Ten consecutive years"
+    "word": "luminițe",
+    "definition": "Șiruri de becuri colorate utilizate pentru decorarea pomilor și spațiilor de sărbători"
   },
   {
-    "word": "secol",
-    "definition": "O sută de ani consecutivi",
-    "word_en": "century",
-    "definition_en": "One hundred consecutive years"
+    "word": "memorie",
+    "definition": "Facultate cognitivă care permite stocarea, consolidarea și recuperarea informațiilor",
+    "word_en": "memory",
+    "definition_en": "Keeping the past in mind"
   },
   {
-    "word": "copilărie",
-    "definition": "Perioadă din viață de început",
-    "word_en": "childhood",
-    "definition_en": "The early period of life"
+    "word": "păsui",
+    "definition": "A acorda o amânare suplimentară pentru îndeplinirea unei obligații"
   },
   {
-    "word": "tinerețe",
-    "definition": "Perioadă tânără a vieții",
-    "word_en": "youth",
-    "definition_en": "The young period of life"
+    "word": "perene",
+    "definition": "Plante cu ciclu de viață de peste doi ani, care revin în fiecare sezon de vegetație"
   },
   {
-    "word": "maturitate",
-    "definition": "Vârstă deplină a adultului",
-    "word_en": "maturity",
-    "definition_en": "Full adulthood"
+    "word": "preface",
+    "definition": "A adopta un comportament artificial, prezentând o stare pe care nu o simți cu adevărat"
   },
   {
-    "word": "bătrânețe",
-    "definition": "Ultimă etapă a vieții",
-    "word_en": "old age",
-    "definition_en": "The last stage of life"
+    "word": "semnătură",
+    "definition": "Reprezentare grafică personalizată aplicată pe documente pentru autentificare"
   },
   {
-    "word": "moarte",
-    "definition": "Sfârșitul vieții biologice",
-    "word_en": "death",
-    "definition_en": "The end of biological life"
+    "word": "seri",
+    "definition": "Intervalele de timp ale zilei când soarele coboară sub linie orizontului"
   },
   {
-    "word": "naștere",
-    "definition": "Începutul vieții unui om",
-    "word_en": "birth",
-    "definition_en": "The beginning of a person's life"
+    "word": "stagiune",
+    "definition": "Interval de timp cuprins între deschiderea și închiderea unui program de spectacole"
   },
   {
-    "word": "schimbare",
-    "definition": "Trecerea de la o stare la alta",
-    "word_en": "change",
-    "definition_en": "Moving from one state to another"
+    "word": "timpan",
+    "definition": "Membrană vibratilă din urechea medie care transformă undele sonore în impulsuri"
   },
   {
-    "word": "evoluție",
-    "definition": "Dezvoltare graduală în timp",
-    "word_en": "evolution",
-    "definition_en": "Gradual development over time"
+    "word": "veac",
+    "definition": "Perioadă de timp de o sută de ani"
   },
   {
-    "word": "stagnare",
-    "definition": "Lipsă oricărei evoluții",
-    "word_en": "stagnation",
-    "definition_en": "Lack of any development"
+    "word": "veșnicie",
+    "definition": "Durată infinită, fără limite temporale, care transcende existența obișnuită"
   },
   {
-    "word": "ciclu",
-    "definition": "Secvență care se repeta",
-    "word_en": "cycle",
-    "definition_en": "A sequence that repeats"
+    "word": "videoclip",
+    "definition": "Conținut video scurt destinat prezentării unui artist sau produs"
   },
   {
-    "word": "ritm",
-    "definition": "Cadență regulată a acțiunilor",
-    "word_en": "rhythm",
-    "definition_en": "A steady pace of actions"
+    "word": "vioară",
+    "definition": "Instrument muzical cu corzi fricate cu arcuș, prezent în orchestre și muzica populară"
   },
   {
-    "word": "criză",
-    "definition": "Moment dificil și hotărâtor",
-    "word_en": "crisis",
-    "definition_en": "A difficult, decisive moment"
-  },
-  {
-    "word": "tranziție",
-    "definition": "Trecere între două stari",
-    "word_en": "transition",
-    "definition_en": "Passage between two states"
-  },
-  {
-    "word": "debut",
-    "definition": "Începutul unui lucru nou",
-    "word_en": "beginning",
-    "definition_en": "The start of something new"
-  },
-  {
-    "word": "final",
-    "definition": "Sfârșitul unui lucru",
-    "word_en": "end",
-    "definition_en": "The finish of something"
-  },
-  {
-    "word": "durată",
-    "definition": "Cât timp tine ceva",
-    "word_en": "duration",
-    "definition_en": "How long something lasts"
-  },
-  {
-    "word": "așteptare",
-    "definition": "Perioadă în care aștepți ceva",
-    "word_en": "waiting",
-    "definition_en": "A period while you wait for something"
-  },
-  {
-    "word": "grabă",
-    "definition": "A face ceva prea repede",
-    "word_en": "haste",
-    "definition_en": "Doing something too quickly"
-  },
-  {
-    "word": "calm",
-    "definition": "A acționa fără grabă",
-    "word_en": "calm",
-    "definition_en": "Acting without hurry"
-  },
-  {
-    "word": "moment",
-    "definition": "Clipă specifică din timp",
-    "word_en": "moment",
-    "definition_en": "A specific point in time"
-  },
-  {
-    "word": "sezon",
-    "definition": "Una din cele patru anotimpuri",
-    "word_en": "season",
-    "definition_en": "One of the four seasons"
-  },
-  {
-    "word": "iarnă",
-    "definition": "Anotimpul rece al anului",
-    "word_en": "winter",
-    "definition_en": "The cold season of the year"
-  },
-  {
-    "word": "vară",
-    "definition": "Anotimpul cald al anului",
-    "word_en": "summer",
-    "definition_en": "The warm season of the year"
-  },
-  {
-    "word": "toamnă",
-    "definition": "Anotimpul cu frunze colorate",
-    "word_en": "autumn",
-    "definition_en": "The season of colorful leaves"
-  },
-  {
-    "word": "primăvară",
-    "definition": "Anotimpul învierii naturii",
-    "word_en": "spring",
-    "definition_en": "The season when nature revives"
-  },
-  {
-    "word": "răsărit",
-    "definition": "Momentul apariției soarelui",
-    "word_en": "sunrise",
-    "definition_en": "When the sun appears"
-  },
-  {
-    "word": "apus",
-    "definition": "Momentul dispariției soarelui",
-    "word_en": "sunset",
-    "definition_en": "When the sun disappears"
-  },
-  {
-    "word": "miezul",
-    "definition": "Mijlocul unei perioade",
-    "word_en": "midpoint",
-    "definition_en": "The middle of a period"
-  },
-  {
-    "word": "termen",
-    "definition": "Limită de finalizare a ceva",
-    "word_en": "deadline",
-    "definition_en": "A limit for finishing something"
-  },
-  {
-    "word": "prioritate",
-    "definition": "Ce trebuie făcut mai intai",
-    "word_en": "priority",
-    "definition_en": "What should be done first"
-  },
-  {
-    "word": "programare",
-    "definition": "Planificarea activitatilor în timp",
-    "word_en": "scheduling",
-    "definition_en": "Planning activities in time"
+    "word": "vitrină",
+    "definition": "Expunere transparentă pentru prezentarea și protejarea produselor comerciale"
   }
 ]

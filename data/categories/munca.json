@@ -1,302 +1,36 @@
 [
   {
-    "word": "profesie",
-    "definition": "Ocupația principală de viață",
-    "word_en": "profession",
-    "definition_en": "Your main occupation in life"
+    "word": "catering",
+    "definition": "Serviciu de aprovizionare cu preparate culinare la locul desfășurării unui eveniment"
   },
   {
-    "word": "carieră",
-    "definition": "Traseul profesional al cuiva",
-    "word_en": "career",
-    "definition_en": "Someone's professional path over time"
+    "word": "navetist",
+    "definition": "Persoana care efectuează zilnic sau regulat o deplasare între domiciliu și locul de muncă"
   },
   {
-    "word": "jobul",
-    "definition": "Locul de muncă curent",
-    "word_en": "job",
-    "definition_en": "Your current place of work or role"
-  },
-  {
-    "word": "salariu",
-    "definition": "Plată primită pentru muncă",
-    "word_en": "salary",
-    "definition_en": "Payment received for work"
-  },
-  {
-    "word": "promovare",
-    "definition": "Avansarea într-un post superior",
-    "word_en": "promotion",
-    "definition_en": "Moving up to a higher position"
-  },
-  {
-    "word": "concediere",
-    "definition": "Pierderea locului de muncă",
-    "word_en": "layoff",
-    "definition_en": "Losing your job"
-  },
-  {
-    "word": "angajare",
-    "definition": "Obținerea unui loc de muncă",
-    "word_en": "hiring",
-    "definition_en": "Getting a job"
-  },
-  {
-    "word": "interviu",
-    "definition": "Discuție pentru obținerea jobului",
-    "word_en": "interview",
-    "definition_en": "A conversation to get a job"
-  },
-  {
-    "word": "dosarul",
-    "definition": "Document cu experientă profesională",
-    "word_en": "resume",
-    "definition_en": "Document listing your work experience"
-  },
-  {
-    "word": "competentă",
-    "definition": "Abilitatea de a face ceva bine",
-    "word_en": "competence",
-    "definition_en": "The ability to do something well"
-  },
-  {
-    "word": "expertiză",
-    "definition": "Cunoaștere profundă specializată",
-    "word_en": "expertise",
-    "definition_en": "Deep specialized knowledge"
-  },
-  {
-    "word": "domeniu",
-    "definition": "Aria de specializare a cuiva",
-    "word_en": "field",
-    "definition_en": "The area someone specializes in"
-  },
-  {
-    "word": "echipa",
-    "definition": "Grup care lucrează împreună",
-    "word_en": "team",
-    "definition_en": "A group that works together"
-  },
-  {
-    "word": "manager",
-    "definition": "Cel care conduce o echipa",
-    "word_en": "manager",
-    "definition_en": "The person who leads a team"
-  },
-  {
-    "word": "coleg",
-    "definition": "Persoană cu care lucrezi",
-    "word_en": "colleague",
-    "definition_en": "A person you work with"
-  },
-  {
-    "word": "productiv",
-    "definition": "Care produce rezultate bune",
-    "word_en": "productive",
-    "definition_en": "Producing good results"
-  },
-  {
-    "word": "eficient",
-    "definition": "Care obține mult cu puține resurse",
-    "word_en": "efficient",
-    "definition_en": "Getting a lot done with few resources"
-  },
-  {
-    "word": "eficace",
-    "definition": "Care atinge scopul propus",
-    "word_en": "effective",
-    "definition_en": "Achieving the intended goal"
-  },
-  {
-    "word": "termenul",
-    "definition": "Dată limită de predare",
-    "word_en": "deadline",
-    "definition_en": "The final date by which something must be finished"
-  },
-  {
-    "word": "prioritate",
-    "definition": "Ce trebuie făcut mai intai",
-    "word_en": "priority",
-    "definition_en": "What should be done first"
-  },
-  {
-    "word": "proiect",
-    "definition": "Set de activitati cu un scop",
-    "word_en": "project",
-    "definition_en": "A set of activities aimed at one goal"
-  },
-  {
-    "word": "obiectiv",
-    "definition": "Țintă concretă de atins",
-    "word_en": "objective",
-    "definition_en": "A concrete target to reach"
-  },
-  {
-    "word": "strategie",
-    "definition": "Plan de acțiune pe termen lung",
-    "word_en": "strategy",
-    "definition_en": "A long-term plan of action"
-  },
-  {
-    "word": "tactică",
-    "definition": "Metodă concretă de acțiune",
-    "word_en": "tactics",
-    "definition_en": "A concrete method of action"
-  },
-  {
-    "word": "bugetul",
-    "definition": "Suma alocată pentru ceva",
-    "word_en": "budget",
-    "definition_en": "The amount of money allocated for something"
-  },
-  {
-    "word": "profit",
-    "definition": "Câștigul rămas după cheltuieli",
-    "word_en": "profit",
-    "definition_en": "Gain left after expenses"
-  },
-  {
-    "word": "pierdere",
-    "definition": "Rezultat negativ financiar",
-    "word_en": "loss",
-    "definition_en": "A negative financial outcome"
-  },
-  {
-    "word": "risc",
-    "definition": "Posibilitate de eșec sau pierdere",
-    "word_en": "risk",
-    "definition_en": "The possibility of failure or loss"
-  },
-  {
-    "word": "inovație",
-    "definition": "Introducerea unui element nou",
-    "word_en": "innovation",
-    "definition_en": "Introducing something new"
-  },
-  {
-    "word": "fondator",
-    "definition": "Cel care înființează o afacere",
-    "word_en": "founder",
-    "definition_en": "The person who starts a business"
-  },
-  {
-    "word": "startup",
-    "definition": "O afacere nouă și inovatoare",
-    "word_en": "startup",
-    "definition_en": "A new and innovative business"
-  },
-  {
-    "word": "investiție",
-    "definition": "Plasarea banilor pentru profit",
-    "word_en": "investment",
-    "definition_en": "Putting money in hoping for profit"
-  },
-  {
-    "word": "rețea",
-    "definition": "Construirea de relații profesionale",
-    "word_en": "networking",
-    "definition_en": "Building professional relationships"
-  },
-  {
-    "word": "branding",
-    "definition": "Construirea imaginii unei marci",
-    "word_en": "branding",
-    "definition_en": "Building a brand's image"
-  },
-  {
-    "word": "marketing",
-    "definition": "Promovarea unui produs sau serviciu",
-    "word_en": "marketing",
-    "definition_en": "Promoting a product or service"
-  },
-  {
-    "word": "vânzare",
-    "definition": "Transferul unui bun contra bani",
-    "word_en": "sale",
-    "definition_en": "Transferring goods in exchange for money"
-  },
-  {
-    "word": "client",
-    "definition": "Cel care cumpăra un produs",
-    "word_en": "client",
-    "definition_en": "Someone who buys a product"
-  },
-  {
-    "word": "serviciu",
-    "definition": "Prestație oferită unui client",
-    "word_en": "service",
-    "definition_en": "Work offered to a client"
-  },
-  {
-    "word": "calitate",
-    "definition": "Gradul de excelență al unui produs",
-    "word_en": "quality",
-    "definition_en": "The level of excellence of a product"
-  },
-  {
-    "word": "reclamație",
-    "definition": "Sesizarea unei nemulțumiri",
-    "word_en": "complaint",
-    "definition_en": "Reporting dissatisfaction"
-  },
-  {
-    "word": "feedback",
-    "definition": "Informație despre rezultatele obținute",
-    "word_en": "feedback",
-    "definition_en": "Information about the results achieved"
-  },
-  {
-    "word": "evaluare",
-    "definition": "Aprecierea rezultatelor obținute",
-    "word_en": "evaluation",
-    "definition_en": "Assessing the results achieved"
-  },
-  {
-    "word": "excelență",
-    "definition": "Nivel înalt de realizare a scopurilor",
-    "word_en": "excellence",
-    "definition_en": "A high level of achieving goals"
-  },
-  {
-    "word": "bonus",
-    "definition": "Recompensă suplimentară la salariu",
-    "word_en": "bonus",
-    "definition_en": "Extra reward on top of salary"
-  },
-  {
-    "word": "concurență",
-    "definition": "Luptă dintre firme pe piață",
-    "word_en": "competition",
-    "definition_en": "Rivalry between firms in the market"
-  },
-  {
-    "word": "monopol",
-    "definition": "Control exclusiv al pieței",
-    "word_en": "monopoly",
-    "definition_en": "Exclusive control of a market"
-  },
-  {
-    "word": "contract",
-    "definition": "Acord legal între două părți",
-    "word_en": "contract",
-    "definition_en": "A legal agreement between two parties"
+    "word": "oval",
+    "definition": "Birou de formă eliptică din reședința președintelui american"
   },
   {
     "word": "pensie",
-    "definition": "Venit după terminarea muncii",
+    "definition": "Sumă de bani acordată lunar persoanelor inactive sau ieșite din sistem",
     "word_en": "pension",
     "definition_en": "Income after you stop working"
   },
   {
-    "word": "voluntar",
-    "definition": "Cel care muncește fără plată",
-    "word_en": "volunteer",
-    "definition_en": "Someone who works without pay"
+    "word": "recepție",
+    "definition": "Proces formal de acceptare a unui produs sau serviciu după verificare"
   },
   {
-    "word": "pasiunea",
-    "definition": "Plăcere intensă față de o activitate",
-    "word_en": "passion",
-    "definition_en": "Strong enjoyment of an activity"
+    "word": "recepționa",
+    "definition": "A confirma primirea unui produs sau serviciu prin semnarea documentului oficial"
+  },
+  {
+    "word": "reprofilat",
+    "definition": "Persoană care a renunțat la ocupația anterioară și a adoptat o nouă carieră"
+  },
+  {
+    "word": "rezerva",
+    "definition": "A aloca în avans un loc, un serviciu sau un produs pentru o anumită persoană sau dată"
   }
 ]

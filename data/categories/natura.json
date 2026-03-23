@@ -1,302 +1,186 @@
 [
   {
-    "word": "natură",
-    "definition": "Lumea vie din jurul nostru",
-    "word_en": "nature",
-    "definition_en": "The living world around us"
+    "word": "acvariu",
+    "definition": "Instalație publică cu bazin mare de apă pentru înot sau expunerea viețuitoarelor acvatice"
   },
   {
-    "word": "universul",
-    "definition": "Tot ce există în spațiu",
-    "word_en": "universe",
-    "definition_en": "Everything that exists in space"
+    "word": "afluent",
+    "definition": "Curs de apă care se varsă într-un fluviu sau râu principal"
   },
   {
-    "word": "pământul",
-    "definition": "Planetă pe care trăim",
-    "word_en": "earth",
-    "definition_en": "The planet we live on"
+    "word": "anșoa",
+    "definition": "Pește mic de mare cu gust pronunțat, conservat în ulei sau sare"
   },
   {
-    "word": "soarele",
-    "definition": "Steaua sistemului solar",
-    "word_en": "sun",
-    "definition_en": "The star of the solar system"
+    "word": "baraj",
+    "definition": "Construcție hidrotehnică transversală pe un curs de apă, destinată reținerii debitului"
   },
   {
-    "word": "lună",
-    "definition": "Satelitul natural al Pământului",
-    "word_en": "moon",
-    "definition_en": "Earth's natural satellite"
+    "word": "bulgăre",
+    "definition": "Masa sferică sau neregulată formată prin comprimarea unui material solid"
   },
   {
-    "word": "stele",
-    "definition": "Corpuri cerești luminoase",
-    "word_en": "stars",
-    "definition_en": "Luminous celestial bodies"
+    "word": "busuioc",
+    "definition": "Plantă aromatică cu frunze mici, verde intens, specific bucătăriei mediteraneene"
   },
   {
-    "word": "cosmos",
-    "definition": "Universul în totalitatea să",
-    "word_en": "cosmos",
-    "definition_en": "The universe as a whole"
+    "word": "caleașcă",
+    "definition": "Vehicul cu tracțiune animală, acoperit și elegant, folosit de aristocrație"
   },
   {
-    "word": "galaxia",
-    "definition": "Sistem vast de stele",
-    "word_en": "galaxy",
-    "definition_en": "A vast system of stars"
+    "word": "calificare",
+    "definition": "Set de competențe practice și teoretice acumulate printr-un parcurs de formare"
   },
   {
-    "word": "spațiu",
-    "definition": "Vastitatea în afara Pământului",
-    "word_en": "space",
-    "definition_en": "The vastness beyond Earth"
+    "word": "cisternă",
+    "definition": "Vehicul sau container cilindric mare utilizat pentru transportul lichidelor în cantități mari"
   },
   {
-    "word": "gravitație",
-    "definition": "Forță care atrage masele",
-    "word_en": "gravity",
-    "definition_en": "The force that pulls masses together"
+    "word": "contrabas",
+    "definition": "Cel mai mare și mai grav instrument cu corzi și arcuș din familia viorilor"
   },
   {
-    "word": "oceane",
-    "definition": "Întinderi vaste de apă sărată",
-    "word_en": "oceans",
-    "definition_en": "Vast stretches of salt water"
+    "word": "coreean",
+    "definition": "Persoană originară din peninsula situată între Marea Galbenă și Marea Japoniei"
   },
   {
-    "word": "munții",
-    "definition": "Forme de relief înalte",
-    "word_en": "mountains",
-    "definition_en": "High landforms"
+    "word": "corpolent",
+    "definition": "Adjectiv care descrie o persoană cu masă corporală mai mare decât media"
   },
   {
-    "word": "pădure",
-    "definition": "Zonă cu multi copaci deși",
-    "word_en": "forest",
-    "definition_en": "An area with many dense trees"
+    "word": "crispy",
+    "definition": "Carne de pasăre gătită în ulei fierbinte până capătă textură crocantă"
   },
   {
-    "word": "deșert",
-    "definition": "Zonă aridă cu nisip",
-    "word_en": "desert",
-    "definition_en": "A dry sandy area"
+    "word": "cuci",
+    "definition": "Pasăre migratoare cântătoare, simbol al primăverii, care nu-și clădește cuib"
   },
   {
-    "word": "râuri",
-    "definition": "Cursuri de apă curgătoare",
-    "word_en": "rivers",
-    "definition_en": "Flowing bodies of water"
+    "word": "defileu",
+    "definition": "Formă de relief adâncă și îngustă modelată de eroziunea apei în munți"
   },
   {
-    "word": "lacuri",
-    "definition": "Întinderi de apă inconjurate de uscat",
-    "word_en": "lakes",
-    "definition_en": "Bodies of water surrounded by land"
+    "word": "doctor",
+    "definition": "Persoana care a finalizat cel mai înalt nivel de formare universitară"
   },
   {
-    "word": "câmpii",
-    "definition": "Întinderi de teren plat",
-    "word_en": "plains",
-    "definition_en": "Stretches of flat land"
+    "word": "dresor",
+    "definition": "Specialist care antrenează animale să execute comenzi sau acrobații"
   },
   {
-    "word": "insulele",
-    "definition": "Bucăți de pământ în apă",
-    "word_en": "islands",
-    "definition_en": "Pieces of land surrounded by water"
+    "word": "educativă",
+    "definition": "Care contribuie la formarea cunoașterii și a valorilor prin procesul de predare"
   },
   {
-    "word": "vulcanul",
-    "definition": "Munte cu activitate magmatică",
-    "word_en": "volcano",
-    "definition_en": "A mountain with magma activity"
+    "word": "educative",
+    "definition": "Care contribuie la formarea cunoștințelor și abilităților intelectuale"
   },
   {
-    "word": "cutremur",
-    "definition": "Mișcare bruscă a scoarței",
-    "word_en": "earthquake",
-    "definition_en": "A sudden movement of Earth's crust"
+    "word": "elastic",
+    "definition": "Adjectiv care descrie un material capabil să revină la forma inițială după deformare"
   },
   {
-    "word": "tsunami",
-    "definition": "Val uriaș de apă oceanică",
-    "word_en": "tsunami",
-    "definition_en": "A huge ocean wave"
+    "word": "extermina",
+    "definition": "A elimina complet o specie sau un grup prin forță distructivă sistematică"
   },
   {
-    "word": "furtună",
-    "definition": "Fenomen meteorologic violent",
-    "word_en": "storm",
-    "definition_en": "A violent weather event"
+    "word": "ferme",
+    "definition": "Unități agricole sau de creștere a animalelor organizate în scop productiv"
   },
   {
-    "word": "ploaia",
-    "definition": "Precipitație din nori",
-    "word_en": "rain",
-    "definition_en": "Precipitation from clouds"
+    "word": "ficăței",
+    "definition": "Organ intern al unui animal, bogat în fier și vitamine, consumat ca aliment"
   },
   {
-    "word": "zăpadă",
-    "definition": "Precipitație solidă albă",
-    "word_en": "snow",
-    "definition_en": "White solid precipitation"
+    "word": "filmare",
+    "definition": "Procesul sau produsul înregistrării vizuale realizate cu o cameră de filmat"
   },
   {
-    "word": "vântul",
-    "definition": "Mișcarea maselor de aer",
-    "word_en": "wind",
-    "definition_en": "The movement of air masses"
+    "word": "floră",
+    "definition": "Ansamblul speciilor vegetale caracteristice unui teritoriu geografic delimitat"
   },
   {
-    "word": "ceață",
-    "definition": "Vapori condensati la sol",
-    "word_en": "fog",
-    "definition_en": "Condensed vapor near the ground"
+    "word": "gras",
+    "definition": "Varietate de ardei cu fruct mare, cărnos și lipsit de picant"
   },
   {
-    "word": "curcubeu",
-    "definition": "Fenomen optic multicolor",
-    "word_en": "rainbow",
-    "definition_en": "A multicolored optical phenomenon"
+    "word": "îndemna",
+    "definition": "A impulsiona pe cineva să întreprindă o acțiune prin îndrumare și motivare"
   },
   {
-    "word": "tunet",
-    "definition": "Zgomot din furtună electrică",
-    "word_en": "thunder",
-    "definition_en": "Sound from an electrical storm"
+    "word": "învingător",
+    "definition": "Cel care a obținut cel mai mare punctaj sau număr de reușite într-o competiție"
   },
   {
-    "word": "fulger",
-    "definition": "Descărcare electrică din furtună",
-    "word_en": "lightning",
-    "definition_en": "Electrical discharge in a storm"
+    "word": "învingătorul",
+    "definition": "Cel care acumulează cel mai mare număr de puncte într-o competiție"
   },
   {
-    "word": "anotimpuri",
-    "definition": "Cele patru perioade ale anului",
-    "word_en": "seasons",
-    "definition_en": "The four periods of the year"
+    "word": "mumii",
+    "definition": "Cadavre umane conservate prin deshidratare sau îmbălsămare, specifice Egiptului"
   },
   {
-    "word": "varietate",
-    "definition": "Mulțimea formelor de viață",
-    "word_en": "variety",
-    "definition_en": "The many forms of life"
+    "word": "mușețel",
+    "definition": "Plantă cu flori albe sau galbene utilizată ca remediu natural pentru afecțiuni"
   },
   {
-    "word": "ecosistem",
-    "definition": "Sistem de viață într-un mediu",
-    "word_en": "ecosystem",
-    "definition_en": "A living system in an environment"
+    "word": "panteră",
+    "definition": "Felină mare și periculoasă cu blana neagră sau cu pete, trăind în medii tropicale"
   },
   {
-    "word": "evoluția",
-    "definition": "Schimbarea speciilor în timp",
-    "word_en": "evolution",
-    "definition_en": "Change of species over time"
+    "word": "păpădie",
+    "definition": "Plantă comună cu flori galbene care se transformă în sferă albă de semințe zburătoare"
   },
   {
-    "word": "extincție",
-    "definition": "Dispariția unei specii",
-    "word_en": "extinction",
-    "definition_en": "The disappearance of a species"
+    "word": "peșteră",
+    "definition": "Spațiu gol natural format în roci prin procese geologice de dizolvare sau eroziune"
   },
   {
-    "word": "poluare",
-    "definition": "Contaminarea mediului natural",
-    "word_en": "pollution",
-    "definition_en": "Contamination of the natural environment"
+    "word": "pilit",
+    "definition": "Persoană cu discernământ diminuat ca urmare a consumului de băuturi alcoolice"
   },
   {
-    "word": "climatul",
-    "definition": "Condițiile meteo pe termen lung",
-    "word_en": "climate",
-    "definition_en": "Long-term weather conditions"
+    "word": "plajă",
+    "definition": "Fâșie de teren nisipos sau pietros de-a lungul malului mării, lacului sau râului"
   },
   {
-    "word": "încălzire",
-    "definition": "Creșterea temperaturii globale",
-    "word_en": "warming",
-    "definition_en": "Rise in global temperature"
+    "word": "polivalent",
+    "definition": "Capabil să îndeplinească o varietate mare de funcții diferite"
   },
   {
-    "word": "reciclare",
-    "definition": "Refolosirea materialelor uzate",
-    "word_en": "recycling",
-    "definition_en": "Reusing used materials"
+    "word": "presă",
+    "definition": "Sectorul activității de informare publică prin mijloace de difuzare în masă"
   },
   {
-    "word": "energia",
-    "definition": "Forță din natură de folosit",
-    "word_en": "energy",
-    "definition_en": "Force from nature we can use"
+    "word": "struți",
+    "definition": "Cea mai mare pasăre din lume, incapabilă să zboare, cu gâtul și picioarele lungi"
   },
   {
-    "word": "oxigenul",
-    "definition": "Gazul esențial respirației",
-    "word_en": "oxygen",
-    "definition_en": "The gas essential for breathing"
+    "word": "tipografie",
+    "definition": "Meșteșugul reproducerii textelor prin procedee tehnice de imprimare în masă"
   },
   {
-    "word": "apă",
-    "definition": "Elementul vital al vieții",
-    "word_en": "water",
-    "definition_en": "The element vital to life"
+    "word": "tomberon",
+    "definition": "Container mare pe roți, utilizat pentru colectarea și transportul deșeurilor"
   },
   {
-    "word": "focul",
-    "definition": "Element de căldură și lumină",
-    "word_en": "fire",
-    "definition_en": "Heat and light element"
+    "word": "vărgat",
+    "definition": "Adjectiv care descrie un animal cu dungi paralele pe blană sau pene"
   },
   {
-    "word": "solul",
-    "definition": "Elementul solid al naturii",
-    "word_en": "soil",
-    "definition_en": "The solid element of nature"
+    "word": "ventuze",
+    "definition": "Organe adezive circulare cu ajutorul cărora unele animale se prind de suprafețe"
   },
   {
-    "word": "aerul",
-    "definition": "Elementul gazos al naturii",
-    "word_en": "air",
-    "definition_en": "The gaseous element of nature"
+    "word": "vino",
+    "definition": "Chemare directă la acțiune sau mobilizare colectivă"
   },
   {
-    "word": "plantă",
-    "definition": "Organism vegetal al naturii",
-    "word_en": "plant",
-    "definition_en": "A plant organism in nature"
+    "word": "vreascuri",
+    "definition": "Ramuri uscate și fragile căzute din copaci, utilizate ca material de aprindere"
   },
   {
-    "word": "animal",
-    "definition": "Organism viu mobil",
-    "word_en": "animal",
-    "definition_en": "A living, moving organism"
-  },
-  {
-    "word": "bacterie",
-    "definition": "Organism viu microscopic",
-    "word_en": "bacteria",
-    "definition_en": "A microscopic living organism"
-  },
-  {
-    "word": "virusul",
-    "definition": "Entitate infecțioasă microscopică",
-    "word_en": "virus",
-    "definition_en": "A microscopic infectious agent"
-  },
-  {
-    "word": "ciupercă",
-    "definition": "Organism fără clorofilă",
-    "word_en": "fungus",
-    "definition_en": "An organism without chlorophyll"
-  },
-  {
-    "word": "viață",
-    "definition": "Proprietatea de a există și trai",
-    "word_en": "life",
-    "definition_en": "The property of existing and living"
+    "word": "vreme",
+    "definition": "Ansamblul fenomenelor meteorologice dintr-o regiune la un moment dat"
   }
 ]

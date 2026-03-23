@@ -1,302 +1,110 @@
 [
   {
-    "word": "bucurie",
-    "definition": "Fericire simțită în suflet",
-    "word_en": "joy",
-    "definition_en": "Happiness felt deep inside"
+    "word": "amanți",
+    "definition": "Persoane aflate într-o relație sentimentală extraconjugală, necunoscută partenerilor oficiali",
+    "word_en": "lovers",
+    "definition_en": "People in an extramarital sentimental relationship, unknown to official partners"
   },
   {
-    "word": "tristețe",
-    "definition": "Stare de melancolie adâncă",
-    "word_en": "sadness",
-    "definition_en": "A deep melancholy mood"
+    "word": "atmosferă",
+    "definition": "Climatul emoțional și social perceput într-un spațiu sau eveniment",
+    "word_en": "atmosphere",
+    "definition_en": "Emotional and social climate perceived in a space or event"
   },
   {
-    "word": "frică",
-    "definition": "Emoție în față pericolului",
-    "word_en": "fear",
-    "definition_en": "Emotion when facing danger"
+    "word": "boci",
+    "definition": "A-și exprima durerea prin cântece de jale sau plânsete tradiționale la o înmormântare",
+    "word_en": "wail",
+    "definition_en": "Expressing grief through traditional mourning songs or cries at a funeral"
   },
   {
-    "word": "furie",
-    "definition": "Manie puternică și intensă",
-    "word_en": "anger",
-    "definition_en": "Strong, intense rage"
+    "word": "captiva",
+    "definition": "A capta și a reține total atenția cuiva prin farmec sau interes deosebit",
+    "word_en": "captive",
+    "definition_en": "Capture and retain someone's full attention through charm or special interest"
   },
   {
-    "word": "speranță",
-    "definition": "Așteptarea unui lucru bun",
-    "word_en": "hope",
-    "definition_en": "Expecting something good"
+    "word": "compătimi",
+    "definition": "A exprima empatie față de durerea sau necazul altcuiva",
+    "word_en": "sympathize",
+    "definition_en": "Expressing empathy for someone else's pain or distress"
   },
   {
-    "word": "iubire",
-    "definition": "Sentiment profund de afecțiune",
-    "word_en": "love",
-    "definition_en": "Deep feeling of affection"
+    "word": "cult",
+    "definition": "Sentiment de reverență profundă față de o persoană sau entitate, adesea cu caracter sacru",
+    "word_en": "worship",
+    "definition_en": "A feeling of deep reverence for a person or entity, often sacred"
   },
   {
-    "word": "ură",
-    "definition": "Sentiment opus iubirii",
-    "word_en": "hate",
-    "definition_en": "Feeling opposite to love"
+    "word": "dezlănțui",
+    "definition": "A se elibera brusc și violent o energie sau emoție ținute sub control",
+    "word_en": "unleash",
+    "definition_en": "Suddenly and violently release an energy or emotion under control"
   },
   {
-    "word": "vină",
-    "definition": "Sentiment după o greșeală",
-    "word_en": "guilt",
-    "definition_en": "Feeling after doing something wrong"
+    "word": "emoții",
+    "definition": "Trăire afectivă de anticipare și neliniște plăcută față de un eveniment dorit",
+    "word_en": "emotions",
+    "definition_en": "Affective experience of pleasant anticipation and anxiety about a desired event"
+  },
+  {
+    "word": "familii",
+    "definition": "Grupuri sociale unite prin legături afective și ajutor mutual necondiționat",
+    "word_en": "families",
+    "definition_en": "Social groups united by affective bonds and unconditional mutual help"
+  },
+  {
+    "word": "înfiorător",
+    "definition": "Adjectiv care descrie ceva care provoacă o reacție profundă de frică sau groază",
+    "word_en": "creepy",
+    "definition_en": "Adjective describing something that causes a deep reaction of fear or dread"
+  },
+  {
+    "word": "mami",
+    "definition": "Apelativ afectiv pentru femeia care a adus pe lume și crescut un copil",
+    "word_en": "#mum",
+    "definition_en": "Affective appellation for the woman who gave birth and raised a child"
+  },
+  {
+    "word": "mariaje",
+    "definition": "Uniunea juridică și afectivă formalizată legal între două persoane",
+    "word_en": "marriages",
+    "definition_en": "Legally formalized legal and affective union between two persons"
+  },
+  {
+    "word": "milos",
+    "definition": "Persoană caracterizată de compasiune activă față de suferința semenilor",
+    "word_en": "milos",
+    "definition_en": "A person with active compassion for the suffering of others"
+  },
+  {
+    "word": "optimist",
+    "definition": "Caracterizat de o stare emoțională pozitivă și echilibrată",
+    "word_en": "optimistic",
+    "definition_en": "Characterized by a positive and balanced emotional state"
+  },
+  {
+    "word": "răbufni",
+    "definition": "A manifesta brusc și violent o stare emoțională reținută o perioadă",
+    "word_en": "ooze",
+    "definition_en": "To suddenly and violently manifest a restrained emotional state for a while"
   },
   {
     "word": "rușine",
-    "definition": "Emoție de jenă profundă",
+    "definition": "Emoție negativă de disconfort cauzată de conștientizarea unui comportament inadecvat",
     "word_en": "shame",
-    "definition_en": "Deep embarrassment about yourself"
+    "definition_en": "Negative emotion of discomfort caused by awareness of inappropriate behavior"
   },
   {
-    "word": "invidie",
-    "definition": "Dorință după bunul altuia",
-    "word_en": "envy",
-    "definition_en": "Wanting what someone else has"
+    "word": "strecura",
+    "definition": "A se deplasa discret printr-un loc fără a atrage atenția cuiva",
+    "word_en": "strain",
+    "definition_en": "Travel discreetly through a place without attracting anyone's attention"
   },
   {
-    "word": "gelozie",
-    "definition": "Frică de a pierde pe cineva",
-    "word_en": "jealousy",
-    "definition_en": "Fear of losing someone to another"
-  },
-  {
-    "word": "milă",
-    "definition": "Compasiune pentru suferință",
-    "word_en": "pity",
-    "definition_en": "Compassion for someone's suffering"
-  },
-  {
-    "word": "mulțumire",
-    "definition": "Apreciere pentru ajutor primit",
-    "word_en": "gratitude",
-    "definition_en": "Thanks for help you received"
-  },
-  {
-    "word": "nostalgie",
-    "definition": "Dor după trecut și acasă",
-    "word_en": "nostalgia",
-    "definition_en": "Longing for the past or home"
-  },
-  {
-    "word": "melancolie",
-    "definition": "Tristețe dulce și gânditoare",
-    "word_en": "melancholy",
-    "definition_en": "Sweet, thoughtful sadness"
-  },
-  {
-    "word": "disperare",
-    "definition": "Lipsă totală de speranță",
-    "word_en": "despair",
-    "definition_en": "Complete loss of hope"
-  },
-  {
-    "word": "extaz",
-    "definition": "Bucurie la cel mai înalt grad",
-    "word_en": "ecstasy",
-    "definition_en": "Joy at its highest level"
-  },
-  {
-    "word": "liniște",
-    "definition": "Pace interioară profundă",
-    "word_en": "peace",
-    "definition_en": "Deep inner calm"
-  },
-  {
-    "word": "anxietate",
-    "definition": "Neliniște față de viitor",
-    "word_en": "anxiety",
-    "definition_en": "Worry about the future"
-  },
-  {
-    "word": "panică",
-    "definition": "Frică extremă și bruscă",
-    "word_en": "panic",
-    "definition_en": "Sudden extreme fear"
-  },
-  {
-    "word": "surpriză",
-    "definition": "Reacție la ceva neașteptat",
-    "word_en": "surprise",
-    "definition_en": "Reaction to something unexpected"
-  },
-  {
-    "word": "dezgust",
-    "definition": "Repulsie față de ceva urât",
-    "word_en": "disgust",
-    "definition_en": "Revulsion toward something unpleasant"
-  },
-  {
-    "word": "admirație",
-    "definition": "Respect și apreciere sinceră",
-    "word_en": "admiration",
-    "definition_en": "Sincere respect and appreciation"
-  },
-  {
-    "word": "empatie",
-    "definition": "A simți ce simte altul",
-    "word_en": "empathy",
-    "definition_en": "Feeling what another person feels"
-  },
-  {
-    "word": "afecțiune",
-    "definition": "Sentimentul călduros față de cineva",
-    "word_en": "affection",
-    "definition_en": "Warm feeling toward someone"
-  },
-  {
-    "word": "dorul",
-    "definition": "Lipsă dureroasă a cuiva drag",
-    "word_en": "longing",
-    "definition_en": "Painful missing of someone dear"
-  },
-  {
-    "word": "orgoliu",
-    "definition": "Mândrie exagerată de sine",
-    "word_en": "arrogance",
-    "definition_en": "Exaggerated pride in yourself"
-  },
-  {
-    "word": "mândrie",
-    "definition": "Satisfacție față de reușită",
-    "word_en": "pride",
-    "definition_en": "Satisfaction about a success"
-  },
-  {
-    "word": "umilință",
-    "definition": "Recunoașterea limitelor proprii",
-    "word_en": "humility",
-    "definition_en": "Recognizing your own limits"
-  },
-  {
-    "word": "interes",
-    "definition": "Dorință de a afla ceva nou",
-    "word_en": "interest",
-    "definition_en": "Wanting to learn something new"
-  },
-  {
-    "word": "entuziasm",
-    "definition": "Energie și interes viu",
-    "word_en": "enthusiasm",
-    "definition_en": "Lively energy and interest"
-  },
-  {
-    "word": "plictiseală",
-    "definition": "Lipsă interesului și energiei",
-    "word_en": "boredom",
-    "definition_en": "Lack of interest and energy"
-  },
-  {
-    "word": "lehamite",
-    "definition": "Oboseală sufletească adâncă",
-    "word_en": "weariness",
-    "definition_en": "Deep weariness of the spirit"
-  },
-  {
-    "word": "revoltă",
-    "definition": "Indignare față de nedreptate",
-    "word_en": "outrage",
-    "definition_en": "Indignation at injustice"
-  },
-  {
-    "word": "izolare",
-    "definition": "Starea de a fi singur",
-    "word_en": "isolation",
-    "definition_en": "Being alone, cut off from others"
-  },
-  {
-    "word": "împlinire",
-    "definition": "Satisfacție cu ce ai obținut",
-    "word_en": "fulfillment",
-    "definition_en": "Satisfaction with what you achieved"
-  },
-  {
-    "word": "nerăbdare",
-    "definition": "Dorință că ceva să vină repede",
-    "word_en": "impatience",
-    "definition_en": "Wanting something to happen soon"
-  },
-  {
-    "word": "îndoială",
-    "definition": "Incertitudine față de ceva",
-    "word_en": "doubt",
-    "definition_en": "Uncertainty about something"
-  },
-  {
-    "word": "încredere",
-    "definition": "Certitudine că ceva e bun",
-    "word_en": "trust",
-    "definition_en": "Confidence that something is good"
-  },
-  {
-    "word": "teamă",
-    "definition": "Frică mai mică și difuză",
-    "word_en": "dread",
-    "definition_en": "A milder, vague fear"
-  },
-  {
-    "word": "veselie",
-    "definition": "Dispoziție bună și zgomotoasă",
-    "word_en": "merriment",
-    "definition_en": "Loud, cheerful good mood"
-  },
-  {
-    "word": "sensibil",
-    "definition": "Ușor afectat de emoții",
-    "word_en": "sensitive",
-    "definition_en": "Easily moved by emotions"
-  },
-  {
-    "word": "calm",
-    "definition": "Stare de liniște și echilibru",
-    "word_en": "calm",
-    "definition_en": "Quiet, balanced state"
-  },
-  {
-    "word": "fericire",
-    "definition": "Stare de bine deplină",
-    "word_en": "happiness",
-    "definition_en": "A full state of well-being"
-  },
-  {
-    "word": "suferință",
-    "definition": "Durere sufletească intensă",
-    "word_en": "suffering",
-    "definition_en": "Intense emotional pain"
-  },
-  {
-    "word": "compasiune",
-    "definition": "Dorință de a ușura suferință",
-    "word_en": "compassion",
-    "definition_en": "Wish to ease someone else's suffering"
-  },
-  {
-    "word": "frustrare",
-    "definition": "Nemulțumire dintr-un blocaj",
-    "word_en": "frustration",
-    "definition_en": "Upset from being blocked"
-  },
-  {
-    "word": "împlinire",
-    "definition": "Stare bună după o reușită",
-    "word_en": "contentment",
-    "definition_en": "A good feeling after a success"
-  },
-  {
-    "word": "regret",
-    "definition": "Părere de rău pentru trecut",
-    "word_en": "regret",
-    "definition_en": "Sorry feeling about the past"
-  },
-  {
-    "word": "optimism",
-    "definition": "Tendință de a vedea binele",
-    "word_en": "optimism",
-    "definition_en": "Tendency to see the good side"
+    "word": "tulburat",
+    "definition": "Persoană afectată de o stare de dezechilibru emoțional și cognitiv",
+    "word_en": "troubled",
+    "definition_en": "Person affected by a state of emotional and cognitive imbalance"
   }
 ]

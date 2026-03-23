@@ -1,302 +1,542 @@
 [
   {
-    "word": "sănătate",
-    "definition": "Starea de bine a corpului",
-    "word_en": "health",
-    "definition_en": "Well-being of the body"
+    "word": "a goli",
+    "definition": "A consuma complet conținutul unui recipient prin băut",
+    "word_en": "to empty",
+    "definition_en": "Completely consuming the contents of a container through drinking"
   },
   {
-    "word": "boală",
-    "definition": "Disfuncție a corpului sau minții",
-    "word_en": "disease,",
-    "definition_en": "Dysfunction of body or mind"
+    "word": "aclamată",
+    "definition": "Adjectiv care descrie o persoană sau realizare primită cu entuziasm și aplauze",
+    "word_en": "acclaimed",
+    "definition_en": "Adjective describing a person or achievement received with enthusiasm and applause"
   },
   {
-    "word": "durere",
-    "definition": "Senzație neplăcută în corp",
-    "word_en": "pain",
-    "definition_en": "Unpleasant feeling in the body"
+    "word": "albă",
+    "definition": "Noapte caracterizată prin insomnie totală sau activitate neîntreruptă",
+    "word_en": "white",
+    "definition_en": "Night characterized by total insomnia or uninterrupted activity"
   },
   {
-    "word": "oboseală",
-    "definition": "Nevoia de odihnă după efort",
-    "word_en": "common:",
-    "definition_en": "The need for rest after effort"
+    "word": "alungire",
+    "definition": "Proprietatea fizică a unui material de a-și mări lungimea sub acțiunea unei forțe",
+    "word_en": "elongation",
+    "definition_en": "Physical property of a material to increase its length under the action of a force"
   },
   {
-    "word": "odihnă",
-    "definition": "Recuperarea după efort depus",
-    "word_en": "rest",
-    "definition_en": "Recovery after effort"
+    "word": "aromatiza",
+    "definition": "A adăuga substanțe aromatice pentru a amplifica gustul și mirosul unui preparat",
+    "word_en": "flavour",
+    "definition_en": "Adding aromatic substances to amplify the taste and smell of a preparation"
   },
   {
-    "word": "somnul",
-    "definition": "Odihnă zilnică necesară corpului",
-    "word_en": "sleep",
-    "definition_en": "Daily rest required by the body"
+    "word": "arunca",
+    "definition": "A proiecta cu forța un obiect în spațiu printr-o mișcare bruscă",
+    "word_en": "throwing them",
+    "definition_en": "Forcing an object into space by a sudden movement"
   },
   {
-    "word": "foamea",
-    "definition": "Nevoia fiziologică de a mânca",
-    "word_en": "hunger",
-    "definition_en": "Physiological need to eat"
+    "word": "bagaj",
+    "definition": "Obiect sau povară purtată fizic sau metaforic de o persoană",
+    "word_en": "luggage",
+    "definition_en": "Object or burden carried physically or metaphorically by a person"
   },
   {
-    "word": "setea",
-    "definition": "Nevoia fiziologică de a bea",
-    "word_en": "thirst",
-    "definition_en": "Physiological need to drink"
+    "word": "bancheri",
+    "definition": "Profesioniști din domeniul financiar care administrează fondurile clienților",
+    "word_en": "bankers",
+    "definition_en": "Financial professionals who manage client funds"
   },
   {
-    "word": "mișcarea",
-    "definition": "Activitatea fizică a corpului",
-    "word_en": "the movement of the",
-    "definition_en": "Physical activity of the body"
+    "word": "bavețică",
+    "definition": "Bucată de material absorbant legată la gâtul sugarilor pentru a proteja hainele",
+    "word_en": "bib",
+    "definition_en": "Piece of absorbent material tied around infants' necks to protect clothing"
   },
   {
-    "word": "sportul",
-    "definition": "Activitate fizică organizată",
-    "word_en": "sports",
-    "definition_en": "Organized physical activity"
+    "word": "băga",
+    "definition": "A introduce un obiect în interiorul altui obiect sau spațiu destinat acestuia",
+    "word_en": "tuck in",
+    "definition_en": "Insert an object inside another object or space intended for it"
   },
   {
-    "word": "nutriție",
-    "definition": "Totalitatea alimentelor consumate",
-    "word_en": "nutritional",
-    "definition_en": "Total food consumed"
+    "word": "bizoni",
+    "definition": "Mamifere erbivore nord-americane de talie mare, cunoscuți și ca zimbri americani",
+    "word_en": "buffalo",
+    "definition_en": "Large North American herbivorous mammals, also known as American bison"
   },
   {
-    "word": "dietă",
-    "definition": "Regim alimentar specific",
-    "word_en": "diet",
-    "definition_en": "Specific diet"
+    "word": "borsete",
+    "definition": "Genți mici din piele sau material textil, purtate de obicei la brâu sau în mână",
+    "word_en": "handbags",
+    "definition_en": "Small bags made of leather or fabric, usually worn on the waist or in the hand"
   },
   {
-    "word": "vitamine",
-    "definition": "Substanțe nutritive esențiale",
-    "word_en": "vitamins,",
-    "definition_en": "Essential nutrients"
+    "word": "bulldog",
+    "definition": "Rasă de câine de talie medie, cu botul turtit, pliuri faciale și corp masiv",
+    "word_en": "bulldog",
+    "definition_en": "Medium-sized dog breed with a flattened muzzle, facial folds and massive body"
   },
   {
-    "word": "energia",
-    "definition": "Forță disponibilă pentru activitate",
-    "word_en": "energy",
-    "definition_en": "Force available for activity"
+    "word": "busolă",
+    "definition": "Câmpul magnetic terestru utilizat ca sistem de orientare în spațiu",
+    "word_en": "compass",
+    "definition_en": "Earth magnetic field used as a space guidance system"
   },
   {
-    "word": "forță",
-    "definition": "Puterea fizică a corpului",
-    "word_en": "force",
-    "definition_en": "Physical strength of the body"
+    "word": "cacofonie",
+    "definition": "Combinații sonore dezagreabile percepute ca neplăcute sau jenante pentru auz",
+    "word_en": "cacophony",
+    "definition_en": "Unpleasant sound combinations perceived as unpleasant or embarrassing to hear"
   },
   {
-    "word": "rezistentă",
-    "definition": "Capacitatea de a susține efort",
-    "word_en": "hardy",
-    "definition_en": "Ability to sustain effort"
+    "word": "cash",
+    "definition": "Monedă sau numerar fizic utilizat în tranzacții directe",
+    "word_en": "cash",
+    "definition_en": "Currency or physical cash used in direct transactions"
   },
   {
-    "word": "flexibil",
-    "definition": "Capabil de mișcări ample",
-    "word_en": "flexible",
-    "definition_en": "Capable of wide movements"
+    "word": "cădelniță",
+    "definition": "Recipient metalic în care se ard rășini aromatice în ritualuri religioase",
+    "word_en": "incensed",
+    "definition_en": "Metal container in which aromatic resins are burned in religious rituals"
   },
   {
-    "word": "echilibru",
-    "definition": "Stabilitate și coordonare",
-    "word_en": "digestive",
-    "definition_en": "Stability and coordination"
+    "word": "cârcă",
+    "definition": "Zona anatomică dintre umeri și ceafă",
+    "word_en": "rudder",
+    "definition_en": "Anatomical area between the shoulders and the back of the neck"
   },
   {
-    "word": "respirație",
-    "definition": "Procesul de a inspira și expira",
-    "word_en": "breathe",
-    "definition_en": "The process of inhaling and exhaling"
+    "word": "chiorăi",
+    "definition": "A produce un sunet intestinal caracteristic stării de foame intensă",
+    "word_en": "rumbling",
+    "definition_en": "Produce a bowel sound characteristic of intense hunger"
   },
   {
-    "word": "inimă",
-    "definition": "Organul central al circulației",
-    "word_en": "heart",
-    "definition_en": "Central Circulation Body"
+    "word": "ciupi",
+    "definition": "A prinde ușor pielea cuiva între degete pentru o senzație ușoară",
+    "word_en": "pinch",
+    "definition_en": "Gently pinch someone's skin between your fingers for a light feel"
   },
   {
-    "word": "creierul",
-    "definition": "Organul gândirii și controlului",
-    "word_en": "the brain",
-    "definition_en": "The organ of thought and control"
+    "word": "clipi",
+    "definition": "A efectua închiderea și deschiderea rapidă și involuntară a ochilor",
+    "word_en": "blink",
+    "definition_en": "Perform rapid and involuntary closing and opening of the eyes"
   },
   {
-    "word": "sângele",
-    "definition": "Lichidul vital din corp",
-    "word_en": "blood",
-    "definition_en": "Vital body fluid"
+    "word": "club",
+    "definition": "Spațiu de recreere destinat activităților recreative și interacțiunii sociale",
+    "word_en": "gild",
+    "definition_en": "Recreational space for recreational activities and social interaction"
   },
   {
-    "word": "imunitate",
-    "definition": "Capacitatea de a luptă cu boală",
-    "word_en": "immunity",
-    "definition_en": "Ability to fight disease"
+    "word": "coafor",
+    "definition": "Loc unde se realizează tăierea, coafarea și îngrijirea părului",
+    "word_en": "coafor",
+    "definition_en": "Cutting, styling and hair care site"
   },
   {
-    "word": "vindecare",
-    "definition": "Procesul de refacere după boală",
-    "word_en": "the healing",
-    "definition_en": "Recovery process after illness"
+    "word": "coamă",
+    "definition": "Manșon de blană lungă care înconjoară capul și gâtul masculului de leu",
+    "word_en": "mane",
+    "definition_en": "Long fur sleeve surrounding the male lion's head and neck"
   },
   {
-    "word": "medicină",
-    "definition": "Știință de a trata bolile",
-    "word_en": "medicine",
-    "definition_en": "The Science of Treating Disease"
+    "word": "coeficient",
+    "definition": "Factorul numeric constant plasat înaintea unei variabile într-o expresie algebrică",
+    "word_en": "coefficient",
+    "definition_en": "The constant numerical factor placed before a variable in an algebraic expression"
   },
   {
-    "word": "tratament",
-    "definition": "Metodă de combatere a unei boli",
-    "word_en": "1 prior line of therapy",
-    "definition_en": "Method of fighting a disease"
+    "word": "compromis",
+    "definition": "Acord rezultat din renunțări reciproce în vederea rezolvării unui conflict",
+    "word_en": "compromise",
+    "definition_en": "Agreement resulting from mutual waivers to resolve a conflict"
   },
   {
-    "word": "chirurgie",
-    "definition": "Tratament prin intervenție fizică",
-    "word_en": "chirurgie",
-    "definition_en": "Physical intervention treatment"
+    "word": "coordonate",
+    "definition": "Valori numerice ce definesc poziția unui punct într-un spațiu multidimensional",
+    "word_en": "coordinates",
+    "definition_en": "Numerical values defining the position of a point in a multidimensional space"
   },
   {
-    "word": "psihologie",
-    "definition": "Știință care studiază mintea",
-    "word_en": "psychology",
-    "definition_en": "Science that studies the mind"
+    "word": "cornet",
+    "definition": "Recipient comestibil de formă conică utilizat pentru servirea înghețatei",
+    "word_en": "cone",
+    "definition_en": "Conical shaped edible container used for serving ice cream"
   },
   {
-    "word": "stresul",
-    "definition": "Tensiune mentală și fizică",
-    "word_en": "stress",
-    "definition_en": "Mental and physical tension"
+    "word": "dans",
+    "definition": "Artă sau limbaj expresiv realizat prin mișcarea deliberată și ritmică a corpului",
+    "word_en": "the dance",
+    "definition_en": "Art or expressive language achieved through deliberate and rhythmic body movement"
   },
   {
-    "word": "relaxare",
-    "definition": "Reducerea tensiunii din corp",
-    "word_en": "relaxation",
-    "definition_en": "Reduction of tension in the body"
+    "word": "dârdâi",
+    "definition": "A tremura și a produce sunete necontrolate din cauza frigului",
+    "word_en": "shiver",
+    "definition_en": "Shivering and producing uncontrolled sounds due to the cold"
   },
   {
-    "word": "meditație",
-    "definition": "Practică de liniștire a minții",
-    "word_en": "meditation",
-    "definition_en": "Mindfulness practice"
+    "word": "decolteu",
+    "definition": "Împletitură triunghiulară care coboară de la baza gâtului spre piept",
+    "word_en": "cleavage",
+    "definition_en": "Triangular braid descending from the base of the neck to the chest"
   },
   {
-    "word": "yoga",
-    "definition": "Practică de unire corp-minte",
-    "word_en": "the yoga",
-    "definition_en": "Body-mind union practice"
+    "word": "dichisi",
+    "definition": "A-și îngriji și îmbunătăți aspectul fizic prin procedee estetice rafinate",
+    "word_en": "sprucing up",
+    "definition_en": "To care for and improve their physical appearance through refined aesthetic procedures"
   },
   {
-    "word": "masaj",
-    "definition": "Tehnică de relaxare a mușchilor",
-    "word_en": "masaj",
-    "definition_en": "Muscle relaxation technique"
+    "word": "direcție",
+    "definition": "Indicarea sensului sau a sensului de deplasare al unui element în spațiu",
+    "word_en": "direction",
+    "definition_en": "Indication of the sense or direction of movement of an element in space"
   },
   {
-    "word": "postură",
-    "definition": "Poziția corpului în spațiu",
-    "word_en": "pose",
-    "definition_en": "Position of the body in space"
+    "word": "disconfort",
+    "definition": "Stare de inconfort fizic sau psihic caracterizată prin absența bunăstării",
+    "word_en": "abdominal",
+    "definition_en": "State of physical or mental discomfort characterized by lack of well-being"
   },
   {
-    "word": "respirul",
-    "definition": "Actul de a respira conștient",
-    "word_en": "breathing",
-    "definition_en": "The act of breathing consciously"
+    "word": "doldora",
+    "definition": "Adjectiv care descrie un spațiu sau recipient completat la maximum, fără loc disponibil",
+    "word_en": "full",
+    "definition_en": "Adjective describing a space or container filled to the max with no space available"
+  },
+  {
+    "word": "etanș",
+    "definition": "Adjectiv care descrie un recipient perfect sigilat, fără schimb cu exteriorul",
+    "word_en": "luminaire",
+    "definition_en": "Adjective describing a perfectly sealed container with no exchange to the outside"
+  },
+  {
+    "word": "etanșa",
+    "definition": "A închide ermetic un recipient pentru a preveni scurgerea sau contaminarea conținutului",
+    "word_en": "watertight",
+    "definition_en": "Tightly close a container to prevent spillage or contamination of contents"
+  },
+  {
+    "word": "evapora",
+    "definition": "Fenomen fizic prin care un lichid se transformă în vapori sub efectul temperaturii",
+    "word_en": "evaporate",
+    "definition_en": "Physical phenomenon whereby a liquid turns into vapour under the effect of temperature"
+  },
+  {
+    "word": "frizerie",
+    "definition": "Unitate de servicii specializată în tunderea și coafarea părului",
+    "word_en": "barbershop",
+    "definition_en": "Service unit specializing in hair trimming and styling"
+  },
+  {
+    "word": "garsonieră",
+    "definition": "Locuință de mici dimensiuni cu funcțiuni integrate într-un spațiu compact",
+    "word_en": "studio",
+    "definition_en": "Small home with integrated functions in a compact space"
+  },
+  {
+    "word": "gemeni",
+    "definition": "Frați sau surori cu material genetic identic, nediferențiabili ca aspect fizic",
+    "word_en": "twins",
+    "definition_en": "Brothers or sisters with identical genetic material, non-differentiable in physical appearance"
+  },
+  {
+    "word": "geografie",
+    "definition": "Știință care studiază distribuția spațială a fenomenelor fizice și umane pe suprafața Pământului",
+    "word_en": "the geography",
+    "definition_en": "Science that studies the spatial distribution of physical and human phenomena on the Earth's surface"
+  },
+  {
+    "word": "gesticula",
+    "definition": "A exprima idei și sentimente exclusiv prin mișcarea corpului și a mâinilor",
+    "word_en": "gesticulate",
+    "definition_en": "Express ideas and feelings exclusively through movement of the body and hands"
+  },
+  {
+    "word": "goli",
+    "definition": "A epuiza complet conținutul unui recipient, aducându-l la capacitate zero",
+    "word_en": "empty",
+    "definition_en": "Completely exhaust the contents of a container, bringing it to zero capacity"
+  },
+  {
+    "word": "gori",
+    "definition": "Zgomot produs de activitatea intestinală în condiții de foame",
+    "word_en": "gori",
+    "definition_en": "Noise produced by intestinal activity under hungry conditions"
+  },
+  {
+    "word": "halbă",
+    "definition": "Recipient cilindric de sticlă cu mâner utilizat pentru servirea berii",
+    "word_en": "the pitcher",
+    "definition_en": "Glass cylindrical container with handle used for serving beer"
   },
   {
     "word": "hidratare",
-    "definition": "Aportul suficient de apă",
+    "definition": "Menținerea unui aport suficient de fluide pentru echilibrul intern al organismului",
     "word_en": "hydrate",
     "definition_en": "Sufficient water intake"
   },
   {
-    "word": "igienă",
-    "definition": "Curățenia care protejează sănătatea",
-    "word_en": "hygiene",
-    "definition_en": "Cleanliness that protects health"
+    "word": "ibric",
+    "definition": "Recipient de mici dimensiuni utilizat la fierberea cafelei orientale",
+    "word_en": "kettle",
+    "definition_en": "Small container used to boil oriental coffee"
   },
   {
-    "word": "natură",
-    "definition": "Mediul natural benefic corpului",
-    "word_en": "nature",
-    "definition_en": "Natural environment beneficial to the body"
+    "word": "inculpat",
+    "definition": "Persoana împotriva căreia s-a pus în mișcare acțiunea penală",
+    "word_en": "defendant",
+    "definition_en": "Person against whom the criminal action has been brought"
   },
   {
-    "word": "aerul",
-    "definition": "Gazul respirat de organism",
-    "word_en": "no air",
-    "definition_en": "The gas breathed by the body"
+    "word": "indigestie",
+    "definition": "Stare de neplăcere gastro-intestinală cauzată de digestie dificilă",
+    "word_en": "indigestion",
+    "definition_en": "Gastrointestinal discomfort caused by poor digestion"
   },
   {
-    "word": "soarele",
-    "definition": "Sursă de lumină și vitamină D",
-    "word_en": "but the sun...",
-    "definition_en": "Light source and vitamin D"
+    "word": "inspirul",
+    "definition": "Prima fază a ciclului respirator prin care aerul pătrunde în plămâni",
+    "word_en": "inspiring",
+    "definition_en": "The first phase of the respiratory cycle through which air enters the lungs"
   },
   {
-    "word": "somnul",
-    "definition": "Ciclul de odihnă nocturn",
+    "word": "înăuntru",
+    "definition": "Adverb de loc care indică poziția sau direcția spre interiorul unui spațiu",
+    "word_en": "inwards",
+    "definition_en": "Place adverb indicating position or direction towards the inside of a space"
+  },
+  {
+    "word": "încărcată",
+    "definition": "Adjectiv care descrie un recipient completat la capacitate maximă",
+    "word_en": "be charged",
+    "definition_en": "Adjective describing a container filled to full capacity"
+  },
+  {
+    "word": "înclina",
+    "definition": "A-și înclina corpul sau o parte a corpului față de poziția verticală normală",
+    "word_en": "tilt",
+    "definition_en": "Tilt their body or part of their body relative to the normal vertical position"
+  },
+  {
+    "word": "însiropat",
+    "definition": "A impregna cu sirop un strat de tort pentru a-l umezi și a-i îmbogăți gustul",
+    "word_en": "syrupy",
+    "definition_en": "To impregnate a layer of cake with syrup to moisten it and enrich its taste"
+  },
+  {
+    "word": "întruni",
+    "definition": "A se reuni, a converge într-un spațiu comun pentru deliberare colectivă",
+    "word_en": "meet",
+    "definition_en": "Reunite, converge into a common space for collective deliberation"
+  },
+  {
+    "word": "lagăr",
+    "definition": "Spațiu de detenție înconjurat cu garduri, destinat prizonierilor sau persoanelor internate forțat",
+    "word_en": "bearing bush",
+    "definition_en": "Detention facility surrounded by fences, intended for prisoners or forcibly interned persons"
+  },
+  {
+    "word": "larg",
+    "definition": "Care oferă suficient spațiu interior pentru a nu crea disconfort",
+    "word_en": "wide",
+    "definition_en": "Providing enough interior space so as not to create discomfort"
+  },
+  {
+    "word": "lupte",
+    "definition": "Confruntări fizice directe între combatanți fără armament",
+    "word_en": "amateur wrestling",
+    "definition_en": "Direct physical confrontations between unarmed combatants"
+  },
+  {
+    "word": "manoperă",
+    "definition": "Cost sau tarif asociat muncii fizice efectuate de muncitori",
+    "word_en": "workmanship",
+    "definition_en": "Cost or fee associated with physical work performed by workers"
+  },
+  {
+    "word": "năzărit",
+    "definition": "A-i veni subit o idee sau dorință capricioasă, fără o cauză rațională aparentă",
+    "word_en": "snow-white",
+    "definition_en": "Suddenly having a whimsical idea or desire without an apparent rational cause"
+  },
+  {
+    "word": "nou-nouț",
+    "definition": "Produs nefolosit, care păstrează toate marcajele originale de producție",
+    "word_en": "brand new.",
+    "definition_en": "Unused product that retains all original production markings"
+  },
+  {
+    "word": "ochi",
+    "definition": "A îndrepta atenția sau o armă cu precizie spre o țintă",
+    "word_en": "eye",
+    "definition_en": "Pointing attention or a gun accurately at a target"
+  },
+  {
+    "word": "opinii",
+    "definition": "Puncte de vedere, judecăți sau convingeri exprimate de persoane referitoare la un subiect",
+    "word_en": "opinion.",
+    "definition_en": "Views, judgments or beliefs expressed by persons relating to a subject"
+  },
+  {
+    "word": "ortodont",
+    "definition": "Specialist dentar care corectează poziția și aspectul dinților cu aparate speciale",
+    "word_en": "control.",
+    "definition_en": "Dental specialist who corrects the position and appearance of teeth with special appliances"
+  },
+  {
+    "word": "os",
+    "definition": "Element al sistemului scheletic responsabil de susținere și mișcare",
+    "word_en": "os",
+    "definition_en": "Element of the skeletal system responsible for support and movement"
+  },
+  {
+    "word": "picioare",
+    "definition": "Membrele inferioare ale corpului uman, de la bazin până la extremitățile plantare",
+    "word_en": "feet",
+    "definition_en": "Lower limbs of the human body, from the pelvis to the plantar extremities"
+  },
+  {
+    "word": "piept",
+    "definition": "Zona anatomică expusă la îmbrăcămintea cu decupaje frontale superioare",
+    "word_en": "breast",
+    "definition_en": "Anatomical area exposed to upper front cut-out clothing"
+  },
+  {
+    "word": "pieptăna",
+    "definition": "A ordona și netezi părul cu un pieptene prin mișcări ritmice",
+    "word_en": "comb",
+    "definition_en": "Order and smooth the hair with a comb through rhythmic movements"
+  },
+  {
+    "word": "piruete",
+    "definition": "Mișcări de rotație ale corpului care solicită echilibru și coordonare motorie",
+    "word_en": "pirouettes",
+    "definition_en": "Body rotation movements that require balance and motor coordination"
+  },
+  {
+    "word": "plombat",
+    "definition": "Intervenție stomatologică de sigilare a cavităților dentare cu material special",
+    "word_en": "filled",
+    "definition_en": "Dental intervention for sealing dental cavities with special material"
+  },
+  {
+    "word": "pomeți",
+    "definition": "Proeminențe osoase ale feței situate sub ochi, care definesc conturul obrazului",
+    "word_en": "cheekbones",
+    "definition_en": "Bone projections of the face located under the eyes, which define the contour of the cheek"
+  },
+  {
+    "word": "psihologie",
+    "definition": "Știință care studiază comportamentul și procesele mentale ale ființelor",
+    "word_en": "psychology",
+    "definition_en": "Science that studies the mind"
+  },
+  {
+    "word": "pumn",
+    "definition": "Lovitură sau parte a corpului utilizată în boxul și artele marțiale",
+    "word_en": "the punch",
+    "definition_en": "Kick or body part used in boxing and martial arts"
+  },
+  {
+    "word": "purici",
+    "definition": "Insecte parazite de mici dimensiuni care se hrănesc cu sânge",
+    "word_en": "flea",
+    "definition_en": "Small parasitic insects that feed on blood"
+  },
+  {
+    "word": "pușculiță",
+    "definition": "Recipient în formă de animăluț utilizat pentru acumularea de economii",
+    "word_en": "piggy-bank",
+    "definition_en": "Animal shaped container used to accumulate savings"
+  },
+  {
+    "word": "reîncarna",
+    "definition": "A se naște din nou într-un alt corp fizic, conform unor credințe spirituale",
+    "word_en": "reincarnate",
+    "definition_en": "Being born again in another physical body according to spiritual beliefs"
+  },
+  {
+    "word": "rostogolit",
+    "definition": "Adjectiv care descrie ceva sau cineva care a efectuat o mișcare de rotație completă",
+    "word_en": "rolled over",
+    "definition_en": "Adjective describing something or someone who has performed a full rotation movement"
+  },
+  {
+    "word": "sigila",
+    "definition": "A închide ermetic un recipient pentru a preveni scurgerile de fluide",
+    "word_en": "seal",
+    "definition_en": "Hermetically close a container to prevent fluid leakage"
+  },
+  {
+    "word": "somn",
+    "definition": "Pește de apă dulce cu carnea gustoasă, activ preponderent în timpul nopții",
     "word_en": "sleep",
-    "definition_en": "Night rest cycle"
+    "definition_en": "Freshwater fish with tasty meat, active mainly during the night"
   },
   {
-    "word": "veghere",
-    "definition": "Starea de a fi treaz și activ",
-    "word_en": "vigilance",
-    "definition_en": "Being awake and active"
+    "word": "sorbi",
+    "definition": "A extrage un lichid dintr-un recipient prin aspirare cu un tub îngust",
+    "word_en": "sip",
+    "definition_en": "Extract a liquid from a container by suction with a narrow tube"
   },
   {
-    "word": "bătrânețe",
-    "definition": "Etapă finală a vieții corpului",
-    "word_en": "old age",
-    "definition_en": "Final stage of body life"
+    "word": "tarantulă",
+    "definition": "Arahnidă de dimensiuni mari, temută din cauza venomului sau aspectului înfricoșător",
+    "word_en": "tarantula",
+    "definition_en": "Large arachnid, feared due to venom or scary appearance"
   },
   {
-    "word": "nașterea",
-    "definition": "Începutul existenței fizice",
-    "word_en": "birth",
-    "definition_en": "Beginning of physical existence"
+    "word": "tracțiuni",
+    "definition": "Exercițiu fizic în care corpul este ridicat cu forța brațelor la un nivel superior",
+    "word_en": "tractions",
+    "definition_en": "Exercise in which the body is lifted with the strength of the arms to a higher level"
   },
   {
-    "word": "moartea",
-    "definition": "Incetarea funcțiilor vitale",
-    "word_en": "death",
-    "definition_en": "Termination of vital functions"
+    "word": "uimiți",
+    "definition": "Persoane rămase fără grai din cauza unui șoc informațional puternic",
+    "word_en": "amazed",
+    "definition_en": "People left speechless due to a strong information shock"
   },
   {
-    "word": "vitalitate",
-    "definition": "Energie și vigoare a corpului",
-    "word_en": "vigour",
-    "definition_en": "Energy and vigor of the body"
+    "word": "umple",
+    "definition": "A completa un recipient până la capacitatea sa maximă fără să verse",
+    "word_en": "top-up",
+    "definition_en": "Fill a container to its maximum capacity without spilling"
   },
   {
-    "word": "tinerețe",
-    "definition": "Etapă de maximă vitalitate",
-    "word_en": "the youth",
-    "definition_en": "Stage of maximum vitality"
+    "word": "vampir",
+    "definition": "Personaj mitic sau literar nocturn care supraviețuiește consumând sânge",
+    "word_en": "vampire",
+    "definition_en": "Mythical or nocturnal literary character who survives by drinking blood"
   },
   {
-    "word": "maturitate",
-    "definition": "Vârstă deplină și stabilă",
-    "word_en": "maturity",
-    "definition_en": "Full and stable age"
+    "word": "vărsa",
+    "definition": "A extrage lichidul dintr-un recipient prin răsturnare sau scurgere",
+    "word_en": "shed",
+    "definition_en": "Extract liquid from a container by tipping or draining"
   },
   {
-    "word": "creșterea",
-    "definition": "Dezvoltarea fizică a corpului",
-    "word_en": "parental",
-    "definition_en": "Physical development of the body"
+    "word": "venă",
+    "definition": "Canal sangvin prin care sângele circulă de la inimă sau spre inimă",
+    "word_en": "veined",
+    "definition_en": "Blood channel through which blood flows from the heart or to the heart"
   },
   {
-    "word": "genetic",
-    "definition": "Legat de moștenirea biologică",
-    "word_en": "species of interferon.",
-    "definition_en": "Related to biological inheritance"
+    "word": "verandă",
+    "definition": "Spațiu exterior acoperit, cu coloane sau balustrade, adiacent sau înconjurând o clădire",
+    "word_en": "veranda",
+    "definition_en": "Covered outdoor space, with columns or railings, adjacent to or surrounding a building"
+  },
+  {
+    "word": "viituri",
+    "definition": "Mase mari de apă în mișcare rapidă, formate în urma precipitațiilor abundente",
+    "word_en": "flash floods",
+    "definition_en": "Large masses of fast-moving water formed from heavy rainfall"
   }
 ]
