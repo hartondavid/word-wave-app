@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
-import { Analytics } from '@vercel/analytics/next'
+import { AnalyticsLoader } from '@/components/analytics-loader'
 import { AudioGestureUnlock } from '@/components/audio-gesture-unlock'
 import './globals.css'
 
@@ -67,7 +67,7 @@ export default function RootLayout({
       <body className="font-sans antialiased overflow-x-hidden">
         <AudioGestureUnlock />
         {children}
-        <Analytics />
+        <AnalyticsLoader />
       </body>
     </html>
   )

@@ -67,6 +67,7 @@ export function SiteNavbar() {
             alt=""
             width={192}
             height={192}
+            sizes="(max-width: 640px) 112px, 128px"
             className="h-14 w-auto max-h-14 object-contain rounded-xl sm:h-16 sm:max-h-16"
             priority
           />
