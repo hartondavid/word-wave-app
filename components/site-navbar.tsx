@@ -4,6 +4,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { AmbientWavesToggle } from "@/components/ambient-waves-toggle"
 
 /** Revolut.me — revtag în cod; poți suprascrie tot URL-ul cu NEXT_PUBLIC_REVOLUT_DONATION_URL */
 const REVOLUT_REV_TAG = "david1498"
@@ -12,8 +13,42 @@ export const REVOLUT_DONATION_URL =
   process.env.NEXT_PUBLIC_REVOLUT_DONATION_URL?.trim() ||
   (REVOLUT_REV_TAG.trim() ? `https://revolut.me/${REVOLUT_REV_TAG.trim()}` : "")
 
+/** Valuri + Support — folosit pe home (navbar desktop și rând mobil). */
+export function HomeAmbientAndSupport({ className }: { className?: string }) {
+  return (
+    <div className={className ?? "flex shrink-0 items-center gap-2"}>
+      <AmbientWavesToggle />
+      {REVOLUT_DONATION_URL ? (
+        <Button variant="secondary" size="sm" className="shrink-0 gap-1.5 font-medium" asChild>
+          <a
+            href={REVOLUT_DONATION_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Support the project — donate via Revolut (opens in a new tab)"
+          >
+            <Heart className="h-4 w-4" aria-hidden />
+            Support
+          </a>
+        </Button>
+      ) : (
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          className="shrink-0 gap-1.5 font-medium"
+          disabled
+          title="Set REVOLUT_REV_TAG or NEXT_PUBLIC_REVOLUT_DONATION_URL"
+        >
+          <Heart className="h-4 w-4" aria-hidden />
+          Support
+        </Button>
+      )}
+    </div>
+  )
+}
+
 /**
- * Bară de navigare: logo stânga; buton Support doar dacă există REVOLUT_DONATION_URL.
+ * Bară de navigare: logo stânga; valuri + Support în dreapta.
  */
 export function SiteNavbar() {
   return (
@@ -36,31 +71,7 @@ export function SiteNavbar() {
             priority
           />
         </Link>
-        {REVOLUT_DONATION_URL ? (
-          <Button variant="secondary" size="sm" className="shrink-0 gap-1.5 font-medium" asChild>
-            <a
-              href={REVOLUT_DONATION_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Support the project — donate via Revolut (opens in a new tab)"
-            >
-              <Heart className="h-4 w-4" aria-hidden />
-              Support
-            </a>
-          </Button>
-        ) : (
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            className="shrink-0 gap-1.5 font-medium"
-            disabled
-            title="Set REVOLUT_REV_TAG or NEXT_PUBLIC_REVOLUT_DONATION_URL"
-          >
-            <Heart className="h-4 w-4" aria-hidden />
-            Support
-          </Button>
-        )}
+        <HomeAmbientAndSupport />
       </nav>
     </header>
   )

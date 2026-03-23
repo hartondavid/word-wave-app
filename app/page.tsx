@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import {
@@ -19,8 +19,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Link from "next/link"
 import Image from "next/image"
-import { Zap, Trophy, Timer, Swords, Heart } from "lucide-react"
-import { SiteNavbar, REVOLUT_DONATION_URL } from "@/components/site-navbar"
+import { Zap, Trophy, Timer, Swords } from "lucide-react"
+import { SiteNavbar, HomeAmbientAndSupport } from "@/components/site-navbar"
+import { startGameAmbientWaves, stopGameAmbientWaves } from "@/lib/game-ambient-waves"
 import { cn } from "@/lib/utils"
 
 function generateRoomCode(): string {
@@ -140,6 +141,11 @@ export default function HomePage() {
   const [nameFieldError, setNameFieldError] = useState("")
   const router = useRouter()
   const supabase = createClient()
+
+  useEffect(() => {
+    startGameAmbientWaves()
+    return () => stopGameAmbientWaves(true)
+  }, [])
 
   async function handlePracticeSolo() {
     const nameErr = validatePlayerName(playerName)
@@ -369,31 +375,7 @@ export default function HomePage() {
                 priority
               />
             </Link>
-            {REVOLUT_DONATION_URL ? (
-              <Button variant="secondary" size="sm" className="shrink-0 gap-1.5 font-medium" asChild>
-                <a
-                  href={REVOLUT_DONATION_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Support the project — donate via Revolut (opens in a new tab)"
-                >
-                  <Heart className="h-4 w-4" aria-hidden />
-                  Support
-                </a>
-              </Button>
-            ) : (
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                className="shrink-0 gap-1.5 font-medium"
-                disabled
-                title="Set REVOLUT_REV_TAG or NEXT_PUBLIC_REVOLUT_DONATION_URL"
-              >
-                <Heart className="h-4 w-4" aria-hidden />
-                Support
-              </Button>
-            )}
+            <HomeAmbientAndSupport />
           </div>
 
           <div className="space-y-3 text-center md:text-left">

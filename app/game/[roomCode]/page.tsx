@@ -18,6 +18,14 @@ import {
   allActivePlayersSpeechEliminated,
 } from "@/lib/game-types"
 import { tryPlaceLetter, isWordComplete } from "@/lib/words"
+import {
+  playCorrectLetterSound,
+  playWrongLetterSound,
+  playWordCompleteSound,
+  playWordIncompleteFailureSound,
+  playOpponentWonRoundSound,
+} from "@/lib/play-correct-letter-sound"
+import { startGameAmbientWaves, stopGameAmbientWaves } from "@/lib/game-ambient-waves"
 import { speechUiLang, speechUiStrings } from "@/lib/speech-ui-strings"
 import {
   collectSpeechTranscripts,
@@ -36,6 +44,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { LetterCellDelayBorder } from "@/components/letter-cell-delay-border"
 import { CorrectLetterChar, useCorrectLetterFx } from "@/components/correct-letter-fx"
+import { LetterSoundToggle } from "@/components/letter-sound-toggle"
+import { AmbientWavesToggle } from "@/components/ambient-waves-toggle"
 import {
   LetterHistoryPanel,
   LetterHistoryToggleButton,
@@ -225,6 +235,8 @@ export default function GamePage({ params }: GamePageProps) {
   } = useCorrectLetterFx()
   // Prevents handleTimerEnd from being called multiple times per round
   const timerEndCalledRef = useRef(false)
+  /** For playOpponentWonRoundSound: only on playing → round_end transition */
+  const prevGameStatusForOpponentWinSoundRef = useRef<string | null>(null)
   /** Toți jucătorii au greșit la microfon — animație + end round (un singur lanț per client). */
   const speechAllFailedEndInProgressRef = useRef(false)
   const [allPlayersSpeechWrongReveal, setAllPlayersSpeechWrongReveal] = useState(false)
@@ -629,6 +641,7 @@ export default function GamePage({ params }: GamePageProps) {
     if (timeRemaining !== 0 || !room || room.game_status !== "playing") return
     if (timerEndCalledRef.current) return
     timerEndCalledRef.current = true
+    playWordIncompleteFailureSound()
 
     const cur = localProgressRef.current ?? slotData(mySlot, room).progress ?? ""
     const word = room.current_word ?? ""
@@ -702,6 +715,7 @@ export default function GamePage({ params }: GamePageProps) {
     if (speechAllFailedEndInProgressRef.current) return
     speechAllFailedEndInProgressRef.current = true
     timerEndCalledRef.current = true
+    playWordIncompleteFailureSound()
     setAllPlayersSpeechWrongReveal(true)
 
     const slot = (playerInfo?.playerSlot ?? 1) as PlayerSlot
@@ -808,6 +822,22 @@ export default function GamePage({ params }: GamePageProps) {
     }
   }, [room?.game_status])
 
+  useEffect(() => {
+    const s = room?.game_status
+    if (s === "playing") {
+      startGameAmbientWaves()
+      return
+    }
+    if (s === "round_end") {
+      return
+    }
+    stopGameAmbientWaves(true)
+  }, [room?.game_status])
+
+  useEffect(() => {
+    return () => stopGameAmbientWaves(true)
+  }, [])
+
   // Scroll word mask into view when keyboard opens
   useEffect(() => {
     const vv = window.visualViewport
@@ -858,6 +888,25 @@ export default function GamePage({ params }: GamePageProps) {
   const mySlot = (playerInfo?.playerSlot ?? 1) as PlayerSlot
   const myName = room ? slotData(mySlot, room).name : null
 
+  useEffect(() => {
+    if (!room || !playerInfo) return
+
+    const prev = prevGameStatusForOpponentWinSoundRef.current
+    const cur = room.game_status
+    prevGameStatusForOpponentWinSoundRef.current = cur
+
+    if (cur !== "round_end" || !room.round_winner) return
+    if (prev !== "playing") return
+
+    const me = slotData(mySlot, room).name ?? playerInfo.name
+    if (normalizePlayerName(room.round_winner) === normalizePlayerName(me)) return
+
+    const prog = slotData(mySlot, room).progress ?? ""
+    if (!prog.includes("_")) return
+
+    playOpponentWonRoundSound()
+  }, [room, playerInfo, mySlot])
+
   // ── handlers ───────────────────────────────────────────────────────────────
 
   // Restarts the shake animation even if it is already playing.
@@ -883,6 +932,7 @@ export default function GamePage({ params }: GamePageProps) {
   }
 
   const triggerWrongKeyFlash = useCallback(() => {
+    playWrongLetterSound()
     if (wrongFlashTimeoutRef.current) clearTimeout(wrongFlashTimeoutRef.current)
     setWrongKeyFlash(true)
     wrongFlashTimeoutRef.current = setTimeout(() => {
@@ -947,6 +997,8 @@ export default function GamePage({ params }: GamePageProps) {
     if (!cur) return
     const next = tryPlaceLetter(letter, cur, room.current_word)
     if (next) {
+      if (isWordComplete(next)) playWordCompleteSound()
+      else playCorrectLetterSound()
       await commitProgressUpdate(next, cur)
     } else {
       setTypedLetterHistory((prev) => {
@@ -1016,6 +1068,8 @@ export default function GamePage({ params }: GamePageProps) {
         } catch {
           /* ignore */
         }
+        if (isWordComplete(next)) playWordCompleteSound()
+        else playCorrectLetterSound()
         void commitProgressUpdate(next, cur)
         return
       }
@@ -1686,7 +1740,10 @@ export default function GamePage({ params }: GamePageProps) {
               <span>· {LANGUAGES[languageForMultiplayerRoom(room.language)].flag}</span>
             </div>
           </div>
-          <div className="w-16" />
+          <div className="flex min-w-[5.25rem] items-center justify-end gap-1">
+            <AmbientWavesToggle />
+            <LetterSoundToggle />
+          </div>
         </div>
 
         {/* Player top bar */}

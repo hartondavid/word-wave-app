@@ -11,6 +11,13 @@ import {
 } from "@/app/practice/actions"
 import { tryPlaceLetter, isWordComplete } from "@/lib/words"
 import {
+  playCorrectLetterSound,
+  playWrongLetterSound,
+  playWordCompleteSound,
+  playWordIncompleteFailureSound,
+} from "@/lib/play-correct-letter-sound"
+import { startGameAmbientWaves, stopGameAmbientWaves } from "@/lib/game-ambient-waves"
+import {
   collectSpeechTranscripts,
   firstLetterFromTranscript,
   isBrowserSpeechRecognitionSupported,
@@ -34,6 +41,8 @@ import {
   LetterHistoryToggleButton,
 } from "@/components/letter-history-over-timer"
 import { CorrectLetterChar, useCorrectLetterFx } from "@/components/correct-letter-fx"
+import { LetterSoundToggle } from "@/components/letter-sound-toggle"
+import { AmbientWavesToggle } from "@/components/ambient-waves-toggle"
 
 const ROUND_DURATION = 60
 /** Culoare litere ghicite — Practice (single player) */
@@ -69,9 +78,10 @@ function readStoredField<T>(field: string, fallback: T): T {
 
 export default function PracticePage() {
   const [playerName, setPlayerName] = useState("")
-  const [category] = useState<string>(() => readStoredField("category", "general"))
-  const [language] = useState<string>(() => readStoredField("language", "en"))
-  const [totalRounds] = useState<number>(() => readStoredField("max_rounds", 10))
+  /** Fixed defaults on first paint so SSR HTML matches the client (prefs applied in bootstrap effect). */
+  const [category, setCategory] = useState("general")
+  const [language, setLanguage] = useState("en")
+  const [totalRounds, setTotalRounds] = useState(10)
   /** Definition + length for UI; `answerWordRef` holds the word for instant local typing (server cookie still used on finalize). */
   const [roundMeta, setRoundMeta] = useState<{
     definition: string
@@ -148,6 +158,7 @@ export default function PracticePage() {
   }, [])
 
   const triggerWrongKeyFlash = useCallback(() => {
+    playWrongLetterSound()
     if (wrongFlashTimeoutRef.current) clearTimeout(wrongFlashTimeoutRef.current)
     setWrongKeyFlash(true)
     wrongFlashTimeoutRef.current = setTimeout(() => {
@@ -166,7 +177,9 @@ export default function PracticePage() {
     }
   }, [router])
 
-  const loadNewWord = useCallback(async () => {
+  const loadNewWord = useCallback(async (overrideCategory?: string, overrideLanguage?: string) => {
+    const cat = overrideCategory ?? category
+    const lang = overrideLanguage ?? language
     try {
       sessionStorage.removeItem(PRACTICE_SESSION_KEY)
     } catch {
@@ -175,7 +188,7 @@ export default function PracticePage() {
     setGameStatus("loading")
     resetCorrectLetterFx()
     answerWordRef.current = ""
-    const meta = await startPracticeRound(category, language)
+    const meta = await startPracticeRound(cat, lang)
     answerWordRef.current = meta.word
     setRoundMeta({ definition: meta.definition, wordLength: meta.wordLength })
     const initProgress = "_".repeat(meta.wordLength)
@@ -210,6 +223,31 @@ export default function PracticePage() {
   }, [gameStatus])
 
   useEffect(() => {
+    if (gameStatus === "loading" || gameStatus === "finished") {
+      stopGameAmbientWaves(true)
+      return
+    }
+    if (gameStatus === "playing") {
+      startGameAmbientWaves()
+      return
+    }
+    if (
+      gameStatus === "won" ||
+      gameStatus === "timeout" ||
+      gameStatus === "lost" ||
+      gameStatus === "revealing" ||
+      gameStatus === "resolving"
+    ) {
+      return
+    }
+    stopGameAmbientWaves(true)
+  }, [gameStatus])
+
+  useEffect(() => {
+    return () => stopGameAmbientWaves(true)
+  }, [])
+
+  useEffect(() => {
     return () => {
       try {
         speechRecognitionRef.current?.abort()
@@ -219,8 +257,15 @@ export default function PracticePage() {
     }
   }, [])
 
-  // La încărcare: reia aceeași rundă dacă cookie + sessionStorage coincid (refresh păstrează întrebarea).
+  // La încărcare: aplică prefs din localStorage + reia rundă dacă cookie + sessionStorage coincid.
   useEffect(() => {
+    const cat = readStoredField("category", "general")
+    const lang = readStoredField("language", "en")
+    const maxR = readStoredField("max_rounds", 10)
+    setCategory(cat)
+    setLanguage(lang)
+    setTotalRounds(maxR)
+
     let cancelled = false
     ;(async () => {
       const resume = await tryResumePracticeSession()
@@ -236,8 +281,8 @@ export default function PracticePage() {
         resume &&
         stored &&
         stored.wordLength === resume.wordLength &&
-        stored.category === category &&
-        stored.language === language &&
+        stored.category === cat &&
+        stored.language === lang &&
         typeof stored.progress === "string" &&
         stored.progress.length === resume.wordLength
       ) {
@@ -256,12 +301,12 @@ export default function PracticePage() {
         setGameStatus("playing")
         return
       }
-      await loadNewWord()
+      await loadNewWord(cat, lang)
     })()
     return () => {
       cancelled = true
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- bootstrap o singură dată la mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- bootstrap o singură dată la mount; loadNewWord folosește override-uri
   }, [])
 
   useEffect(() => {
@@ -354,6 +399,7 @@ export default function PracticePage() {
       if (!roundMeta) return null
       if (roundConcludedRef.current) return null
       roundConcludedRef.current = true
+      playWordIncompleteFailureSound()
       hiddenInputRef.current?.blur()
       try {
         speechRecognitionRef.current?.abort()
@@ -429,6 +475,8 @@ export default function PracticePage() {
       shouldShakeRef.current = false
       if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current)
       setIsShaking(false)
+      if (isWordComplete(next)) playWordCompleteSound()
+      else playCorrectLetterSound()
       for (let i = 0; i < next.length; i++) {
         if (cur[i] === "_" && next[i] !== "_") {
           triggerCorrectLetterFxAt(i)
@@ -504,6 +552,8 @@ export default function PracticePage() {
         shouldShakeRef.current = false
         if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current)
         setIsShaking(false)
+        if (isWordComplete(next)) playWordCompleteSound()
+        else playCorrectLetterSound()
         for (let i = 0; i < next.length; i++) {
           if (cur[i] === "_" && next[i] !== "_") {
             triggerCorrectLetterFxAt(i)
@@ -740,6 +790,8 @@ export default function PracticePage() {
             <div className="flex items-center gap-1 text-sm font-bold px-3 py-1.5 rounded-lg bg-muted">
               <Trophy className="w-3.5 h-3.5 text-primary" />{score}
             </div>
+            <AmbientWavesToggle />
+            <LetterSoundToggle />
           </div>
         </div>
       </div>
