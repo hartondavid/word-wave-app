@@ -26,7 +26,6 @@ export function LetterHistoryToggleButton({
   restoreTypingFocus,
 }: Pick<LetterHistoryProps, "letters" | "open" | "onOpenChange" | "restoreTypingFocus">) {
   const last = letters.length > 0 ? letters[letters.length - 1] : null
-  const hasHistory = last != null
 
   return (
     <Button
@@ -34,10 +33,7 @@ export function LetterHistoryToggleButton({
       variant="secondary"
       size="icon-sm"
       className={cn(
-        "absolute bottom-1 left-1 z-20 min-h-6 shadow-md border border-border/80 transition-[width,border-radius,padding] duration-150",
-        hasHistory
-          ? "h-6 min-w-7 rounded-md px-1.5 py-0"
-          : "size-6 min-w-6 rounded-full p-0",
+        "absolute bottom-1 left-1 z-20 size-6 min-h-6 min-w-6 rounded-full p-0 shadow-md border border-border/80 transition-[box-shadow] duration-150",
         open && "ring-1 ring-primary/30"
       )}
       aria-expanded={open}
@@ -50,13 +46,7 @@ export function LetterHistoryToggleButton({
         queueMicrotask(() => restoreTypingFocus?.())
       }}
     >
-      {hasHistory ? (
-        <span className="text-xs font-black leading-none text-red-500 tabular-nums sm:text-sm">
-          {last.toUpperCase()}
-        </span>
-      ) : (
-        <Keyboard className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-      )}
+      <Keyboard className="h-3.5 w-3.5 shrink-0 text-red-500" />
     </Button>
   )
 }
