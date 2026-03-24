@@ -65,9 +65,6 @@ export const PLAYER_COLORS = ['#3B82F6', '#F59E0B', '#10B981', '#8B5CF6'] as con
 export const LANGUAGES = {
   en: { label: 'English', flag: '🇬🇧' },
   ro: { label: 'Română', flag: '🇷🇴' },
-  es: { label: 'Español', flag: '🇪🇸' },
-  fr: { label: 'Français', flag: '🇫🇷' },
-  de: { label: 'Deutsch', flag: '🇩🇪' },
 } as const
 
 export type LanguageKey = keyof typeof LANGUAGES

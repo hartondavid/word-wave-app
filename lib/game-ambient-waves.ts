@@ -26,7 +26,7 @@ export function setAmbientWavesEnabled(enabled: boolean): void {
 
 const WAVE_TRACKS = ["/waves.mp3", "/waves2.mp3", "/waves3.mp3"] as const
 
-const WAVES_TARGET_VOLUME = 0.32
+const WAVES_TARGET_VOLUME = 0.10
 
 let ambientDesired = false
 let trackIndex = 0

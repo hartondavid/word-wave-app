@@ -3,9 +3,6 @@ import type { LanguageKey } from "@/lib/game-types"
 const SPEECH_LOCALE: Record<LanguageKey, string> = {
   en: "en-US",
   ro: "ro-RO",
-  es: "es-ES",
-  fr: "fr-FR",
-  de: "de-DE",
 }
 
 export function speechLocaleForLanguage(lang: string | null | undefined): string {
