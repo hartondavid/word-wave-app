@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { AnalyticsLoader } from '@/components/analytics-loader'
 import { AudioGestureUnlock } from '@/components/audio-gesture-unlock'
@@ -31,6 +32,9 @@ const siteUrl =
     : process.env.VERCEL_URL
       ? `https://${process.env.VERCEL_URL}`
       : 'http://localhost:3000')
+
+/** Google AdSense publisher ID (site-wide, head equivalent via next/script). */
+const ADSENSE_CLIENT = 'ca-pub-9976449948294413'
 
 const title = 'WordWave - Multiplayer Word Guessing Game'
 const description =
@@ -74,6 +78,14 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="font-sans antialiased overflow-x-hidden">
+        {process.env.NODE_ENV === 'production' ? (
+          <Script
+            id="google-adsense"
+            strategy="afterInteractive"
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
+            crossOrigin="anonymous"
+          />
+        ) : null}
         <AudioGestureUnlock />
         <GoogleAnalytics />
         {children}
