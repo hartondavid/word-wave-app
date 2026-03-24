@@ -19,7 +19,8 @@ const geistMono = Geist_Mono({
   display: "swap",
   variable: "--font-geist-mono",
   adjustFontFallback: true,
-  preload: true,
+  /** Mono is rarely LCP; skipping preload shortens the critical font chain. */
+  preload: false,
 })
 
 /**
@@ -78,19 +79,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <head>
-        {process.env.NODE_ENV === "production" ? (
-          <>
-            <link
-              rel="preconnect"
-              href="https://pagead2.googlesyndication.com"
-              crossOrigin="anonymous"
-            />
-            <link rel="preconnect" href="https://googleads.g.doubleclick.net" crossOrigin="anonymous" />
-            <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-          </>
-        ) : null}
-      </head>
       <body className="font-sans antialiased overflow-x-hidden">
         <AudioGestureUnlock />
         <GoogleAnalytics />

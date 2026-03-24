@@ -21,7 +21,7 @@ export function SiteFooter() {
                 height={192}
                 className="h-10 w-auto object-contain sm:h-11"
                 sizes="(max-width: 640px) 112px, 128px"
-                quality={58}
+                quality={50}
               />
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed">
