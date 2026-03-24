@@ -4,17 +4,22 @@ import { AnalyticsLoader } from '@/components/analytics-loader'
 import { AudioGestureUnlock } from '@/components/audio-gesture-unlock'
 import { GoogleAnalytics } from '@/components/google-analytics'
 import { SiteFooter } from '@/components/site-footer'
+import { AdsenseDeferred } from '@/components/adsense-deferred'
 import './globals.css'
 
 const geistSans = Geist({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-geist-sans",
+  adjustFontFallback: true,
+  preload: true,
 })
 const geistMono = Geist_Mono({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-geist-mono",
+  adjustFontFallback: true,
+  preload: true,
 })
 
 /**
@@ -31,9 +36,6 @@ const siteUrl =
     : process.env.VERCEL_URL
       ? `https://${process.env.VERCEL_URL}`
       : 'http://localhost:3000')
-
-/** Google AdSense: native script in head (next/script adds data-nscript, which AdSense warns about). */
-const ADSENSE_CLIENT = 'ca-pub-9976449948294413'
 
 const title = 'WordWave - Multiplayer Word Guessing Game'
 const description =
@@ -77,12 +79,16 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <head>
-        {process.env.NODE_ENV === 'production' ? (
-          <script
-            async
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
-            crossOrigin="anonymous"
-          />
+        {process.env.NODE_ENV === "production" ? (
+          <>
+            <link
+              rel="preconnect"
+              href="https://pagead2.googlesyndication.com"
+              crossOrigin="anonymous"
+            />
+            <link rel="preconnect" href="https://googleads.g.doubleclick.net" crossOrigin="anonymous" />
+            <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+          </>
         ) : null}
       </head>
       <body className="font-sans antialiased overflow-x-hidden">
@@ -90,6 +96,7 @@ export default function RootLayout({
         <GoogleAnalytics />
         {children}
         <SiteFooter />
+        {process.env.NODE_ENV === "production" ? <AdsenseDeferred /> : null}
         <AnalyticsLoader />
       </body>
     </html>
