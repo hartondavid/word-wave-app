@@ -1771,10 +1771,10 @@ export default function GamePage({ params }: GamePageProps) {
   )
   const defCardVerticalPad =
     approxDefinitionLines <= 2
-      ? "pt-0.5 pb-1"
+      ? "pt-5 pb-4"
       : approxDefinitionLines <= 4
-        ? "pt-1 pb-1.5"
-        : "pt-1.5 pb-2"
+        ? "pt-6 pb-5"
+        : "pt-7 pb-6"
 
   return (
     <main
@@ -1837,7 +1837,7 @@ export default function GamePage({ params }: GamePageProps) {
           <>
             {/* ── Definition (kept visible) ── */}
             <Card className="w-full shadow-sm">
-              <CardContent className="py-[3px]">
+              <CardContent className="px-8 py-7 sm:px-10 sm:py-8">
                 <p className="text-base sm:text-lg text-center leading-relaxed text-balance">
                   {room.current_definition}
                 </p>
@@ -1922,11 +1922,11 @@ export default function GamePage({ params }: GamePageProps) {
           </>
         ) : (
           <>
-            {/* Definiție + timp în card; panoul istoricului sub card, în afara chenarului */}
-            <div className="flex w-full flex-col gap-2">
+            {/* Definiție + bară jos în card: tastatură | panou | microfon */}
+            <div className="flex w-full flex-col">
             <Card
               className={cn(
-                "relative w-full shadow-sm border-2 transition-[border-color] duration-200",
+                "relative w-full gap-0 py-0 shadow-sm border-2 transition-[border-color] duration-200",
                 wrongKeyFlash
                   ? "border-red-500 dark:border-red-400"
                   : timeRemaining <= 10
@@ -1938,7 +1938,7 @@ export default function GamePage({ params }: GamePageProps) {
                 className={cn(
                   "px-4",
                   defCardVerticalPad,
-                  !roundEliminated && !allPlayersSpeechWrongReveal && "px-10 pb-9"
+                  !roundEliminated && !allPlayersSpeechWrongReveal && "px-10 pt-8 pb-6 sm:px-12"
                 )}
               >
                 <div className="flex flex-col items-center justify-center w-full text-center gap-1">
@@ -1961,46 +1961,52 @@ export default function GamePage({ params }: GamePageProps) {
                 </div>
               </CardContent>
               {!roundEliminated && !allPlayersSpeechWrongReveal && (
-                <LetterHistoryToggleButton
-                  letters={typedLetterHistory}
-                  open={letterHistoryOpen}
-                  onOpenChange={setLetterHistoryOpen}
-                  restoreTypingFocus={restoreTypingFocus}
-                />
-              )}
-              {isBrowserSpeechRecognitionSupported() && !roundEliminated && !allPlayersSpeechWrongReveal && (
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="icon-sm"
-                  className="absolute bottom-1 right-1 z-10 size-6 min-h-6 min-w-6 rounded-full p-0 shadow-md"
-                  title={
-                    speechListeningUi
-                      ? multiplayerSpeechUi.micTapToStop
-                      : multiplayerSpeechUi.micTitleMultiplayer
-                  }
-                  aria-label={
-                    speechListeningUi ? multiplayerSpeechUi.micTapToStop : multiplayerSpeechUi.micAria
-                  }
-                  aria-pressed={speechListeningUi}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    if (speechListeningRef.current) stopSpeechListening()
-                    else startSpeechLetter()
-                  }}
-                >
-                  <Mic className={cn("h-3 w-3", speechListeningUi && "animate-pulse text-red-500")} />
-                </Button>
+                <div className="relative z-10 flex w-full min-h-10 items-center justify-between gap-2 border-t border-border/60 px-2 py-2 pb-2.5 pt-1.5 sm:px-3">
+                  <LetterHistoryToggleButton
+                    embedded
+                    letters={typedLetterHistory}
+                    open={letterHistoryOpen}
+                    onOpenChange={setLetterHistoryOpen}
+                    restoreTypingFocus={restoreTypingFocus}
+                  />
+                  <div className="flex min-h-6 min-w-0 flex-1 items-center justify-center px-1">
+                    <LetterHistoryPanel
+                      letters={typedLetterHistory}
+                      open={letterHistoryOpen}
+                      onOpenChange={setLetterHistoryOpen}
+                      restoreTypingFocus={restoreTypingFocus}
+                      className="mx-0 max-h-[3.25rem] w-auto max-w-[8.75rem] sm:max-w-[9.75rem]"
+                    />
+                  </div>
+                  <div className="flex size-6 shrink-0 items-center justify-end">
+                    {isBrowserSpeechRecognitionSupported() ? (
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="icon-sm"
+                        className="size-6 min-h-6 min-w-6 rounded-full p-0 shadow-md"
+                        title={
+                          speechListeningUi
+                            ? multiplayerSpeechUi.micTapToStop
+                            : multiplayerSpeechUi.micTitleMultiplayer
+                        }
+                        aria-label={
+                          speechListeningUi ? multiplayerSpeechUi.micTapToStop : multiplayerSpeechUi.micAria
+                        }
+                        aria-pressed={speechListeningUi}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          if (speechListeningRef.current) stopSpeechListening()
+                          else startSpeechLetter()
+                        }}
+                      >
+                        <Mic className={cn("h-3 w-3", speechListeningUi && "animate-pulse text-red-500")} />
+                      </Button>
+                    ) : null}
+                  </div>
+                </div>
               )}
             </Card>
-            {!roundEliminated && !allPlayersSpeechWrongReveal && (
-              <LetterHistoryPanel
-                letters={typedLetterHistory}
-                open={letterHistoryOpen}
-                onOpenChange={setLetterHistoryOpen}
-                restoreTypingFocus={restoreTypingFocus}
-              />
-            )}
             </div>
             {roundEliminated && !allPlayersSpeechWrongReveal && (
               <p className="text-xs text-center text-destructive font-medium px-2">

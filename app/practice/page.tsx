@@ -742,10 +742,10 @@ export default function PracticePage() {
   )
   const defCardVerticalPad =
     approxDefinitionLines <= 2
-      ? "pt-0.5 pb-1"
+      ? "pt-5 pb-4"
       : approxDefinitionLines <= 4
-        ? "pt-1 pb-1.5"
-        : "pt-1.5 pb-2"
+        ? "pt-6 pb-5"
+        : "pt-7 pb-6"
 
   return (
     <main
@@ -804,11 +804,11 @@ export default function PracticePage() {
         }}
       >
 
-        {/* Definiție + timp în card; panoul istoricului e sub card, în afara chenarului */}
-        <div className="flex w-full flex-col gap-2">
+        {/* Definiție + bară jos în card: tastatură | panou | microfon */}
+        <div className="flex w-full flex-col">
         <Card
           className={cn(
-            "relative w-full shadow-sm border-2 transition-[border-color] duration-200",
+            "relative w-full gap-0 py-0 shadow-sm border-2 transition-[border-color] duration-200",
             wrongKeyFlash
               ? "border-red-500 dark:border-red-400"
               : gameStatus === "playing" && timeLeft <= 10
@@ -819,8 +819,8 @@ export default function PracticePage() {
           <CardContent
             className={cn(
               "px-4",
-              defCardVerticalPad,
-              gameStatus === "playing" && "px-10 pb-9"
+              gameStatus === "loading" ? "py-8" : defCardVerticalPad,
+              gameStatus === "playing" && "px-10 pt-8 pb-6 sm:px-12"
             )}
           >
             {gameStatus === "loading" ? (
@@ -851,45 +851,52 @@ export default function PracticePage() {
             )}
           </CardContent>
           {gameStatus === "playing" && (
-            <LetterHistoryToggleButton
-              letters={typedLetterHistory}
-              open={letterHistoryOpen}
-              onOpenChange={setLetterHistoryOpen}
-            />
-          )}
-          {gameStatus === "playing" && isBrowserSpeechRecognitionSupported() && (
-            <Button
-              type="button"
-              variant="secondary"
-              size="icon-sm"
-              className="absolute bottom-1 right-1 z-10 size-6 min-h-6 min-w-6 rounded-full p-0 shadow-md"
-              title={
-                speechListeningUi
-                  ? practiceSpeechUi.micTapToStop
-                  : practiceSpeechUi.micTitlePractice
-              }
-              aria-label={
-                speechListeningUi ? practiceSpeechUi.micTapToStop : practiceSpeechUi.micAria
-              }
-              aria-pressed={speechListeningUi}
-              onClick={(e) => {
-                e.stopPropagation()
-                if (speechListeningRef.current) stopSpeechListening()
-                else startSpeechLetter()
-              }}
-            >
-              <Mic className={cn("h-3 w-3", speechListeningUi && "animate-pulse text-red-500")} />
-            </Button>
+            <div className="relative z-10 flex w-full min-h-10 items-center justify-between gap-2 border-t border-border/60 px-2 py-2 pb-2.5 pt-1.5 sm:px-3">
+              <LetterHistoryToggleButton
+                embedded
+                letters={typedLetterHistory}
+                open={letterHistoryOpen}
+                onOpenChange={setLetterHistoryOpen}
+                restoreTypingFocus={restoreTypingFocus}
+              />
+              <div className="flex min-h-6 min-w-0 flex-1 items-center justify-center px-1">
+                <LetterHistoryPanel
+                  letters={typedLetterHistory}
+                  open={letterHistoryOpen}
+                  onOpenChange={setLetterHistoryOpen}
+                  restoreTypingFocus={restoreTypingFocus}
+                  className="mx-0 max-h-[3.25rem] w-auto max-w-[8.75rem] sm:max-w-[15rem]"
+                />
+              </div>
+              <div className="flex size-6 shrink-0 items-center justify-end">
+                {isBrowserSpeechRecognitionSupported() ? (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="icon-sm"
+                    className="size-6 min-h-6 min-w-6 rounded-full p-0 shadow-md"
+                    title={
+                      speechListeningUi
+                        ? practiceSpeechUi.micTapToStop
+                        : practiceSpeechUi.micTitlePractice
+                    }
+                    aria-label={
+                      speechListeningUi ? practiceSpeechUi.micTapToStop : practiceSpeechUi.micAria
+                    }
+                    aria-pressed={speechListeningUi}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      if (speechListeningRef.current) stopSpeechListening()
+                      else startSpeechLetter()
+                    }}
+                  >
+                    <Mic className={cn("h-3 w-3", speechListeningUi && "animate-pulse text-red-500")} />
+                  </Button>
+                ) : null}
+              </div>
+            </div>
           )}
         </Card>
-        {gameStatus === "playing" && (
-          <LetterHistoryPanel
-            letters={typedLetterHistory}
-            open={letterHistoryOpen}
-            onOpenChange={setLetterHistoryOpen}
-            restoreTypingFocus={restoreTypingFocus}
-          />
-        )}
         </div>
 
         {/* Word mask — hidden input placed here so browser auto-scroll targets this area */}

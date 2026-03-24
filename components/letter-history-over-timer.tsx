@@ -13,18 +13,28 @@ export type LetterHistoryProps = {
   emptyHint?: string
   /** Refocus la inputul ascuns după toggle/închidere — păstrează tastatura pe mobil */
   restoreTypingFocus?: () => void
+  /** Clase pe containerul panoului (ex. în bară cu butoanele). */
+  className?: string
+}
+
+type ToggleProps = Pick<
+  LetterHistoryProps,
+  "letters" | "open" | "onOpenChange" | "restoreTypingFocus"
+> & {
+  /** În rând cu panoul + microfon în card; altfel colț stânga-jos absolut. */
+  embedded?: boolean
 }
 
 /**
- * `absolute` față de `<Card className="relative">` (fiu direct al cardului), nu față de CardContent,
- * ca poziția să urmărească chenarul cardului. Colț stânga-jos (microfonul e dreapta-jos).
+ * Implicit: colț stânga-jos absolut pe card. Cu `embedded`, în același rând cu panoul și microfonul.
  */
 export function LetterHistoryToggleButton({
   letters,
   open,
   onOpenChange,
   restoreTypingFocus,
-}: Pick<LetterHistoryProps, "letters" | "open" | "onOpenChange" | "restoreTypingFocus">) {
+  embedded = false,
+}: ToggleProps) {
   const last = letters.length > 0 ? letters[letters.length - 1] : null
 
   return (
@@ -33,7 +43,8 @@ export function LetterHistoryToggleButton({
       variant="secondary"
       size="icon-sm"
       className={cn(
-        "absolute bottom-1 left-1 z-20 size-6 min-h-6 min-w-6 rounded-full p-0 shadow-md border border-border/80 transition-[box-shadow] duration-150",
+        "z-20 size-6 min-h-6 min-w-6 rounded-full p-0 shadow-md border border-border/80 transition-[box-shadow] duration-150",
+        embedded ? "relative shrink-0" : "absolute bottom-1 left-1",
         open && "ring-1 ring-primary/30"
       )}
       aria-expanded={open}
@@ -52,7 +63,7 @@ export function LetterHistoryToggleButton({
 }
 
 /**
- * Panou în flux, de obicei imediat sub `<Card>` — nu e în interiorul bordurii cardului.
+ * Panou în flux — sub card sau în bară (footer) în card, cu `className`.
  */
 export function LetterHistoryPanel({
   letters,
@@ -60,6 +71,7 @@ export function LetterHistoryPanel({
   onOpenChange,
   emptyHint = "No wrong letters yet",
   restoreTypingFocus,
+  className,
 }: LetterHistoryProps) {
   const [index, setIndex] = useState(0)
   const prevLen = useRef(0)
@@ -151,7 +163,10 @@ export function LetterHistoryPanel({
       role="dialog"
       aria-label="Wrong letters"
       tabIndex={-1}
-      className="relative z-10 mx-auto flex w-full max-w-[11.5rem] sm:max-w-[13rem] max-h-[3.75rem] sm:max-h-[4rem] flex-col rounded-lg border border-border bg-muted/30 px-0.5 py-px shadow-sm outline-none backdrop-blur-sm dark:bg-muted/20"
+      className={cn(
+        "relative z-10 mx-auto flex w-full max-w-[11.5rem] sm:max-w-[13rem] max-h-[3.75rem] sm:max-h-[4rem] flex-col rounded-lg border border-border bg-muted/30 px-0.5 py-px shadow-sm outline-none backdrop-blur-sm dark:bg-muted/20",
+        className
+      )}
       onClick={(e) => e.stopPropagation()}
     >
       {letters.length === 0 ? (
