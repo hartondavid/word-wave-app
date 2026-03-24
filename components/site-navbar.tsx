@@ -78,7 +78,7 @@ export function SiteNavbar({ homePriorityLogo = false }: { homePriorityLogo?: bo
 
           <AmbientWavesToggle />
 
-          <Sheet>
+          <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
             <SheetTrigger asChild>
               <Button
                 type="button"
@@ -90,7 +90,10 @@ export function SiteNavbar({ homePriorityLogo = false }: { homePriorityLogo?: bo
                 <Menu className="h-5 w-5" aria-hidden />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="flex w-[min(100%,20rem)] flex-col gap-0">
+            <SheetContent
+              side="right"
+              className="flex !w-[min(78vw,15rem)] max-w-[15rem] flex-col gap-0"
+            >
               <SheetHeader className="border-b border-border/60 text-left">
                 <SheetTitle>Menu</SheetTitle>
               </SheetHeader>

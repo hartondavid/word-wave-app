@@ -3,6 +3,11 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import {
+  CONTACT_ALLOWED_EMAIL_DOMAINS,
+  contactEmailDomainErrorMessage,
+  isContactEmailDomainAllowed,
+} from "@/lib/contact-email-allowlist"
 
 export function ContactForm() {
   const [name, setName] = useState("")
@@ -13,13 +18,19 @@ export function ContactForm() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setStatus("sending")
     setErrMsg("")
+    const trimmedEmail = email.trim()
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail) || !isContactEmailDomainAllowed(trimmedEmail)) {
+      setErrMsg(contactEmailDomainErrorMessage())
+      setStatus("err")
+      return
+    }
+    setStatus("sending")
     try {
       const r = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, message }),
+        body: JSON.stringify({ name, email: trimmedEmail, message }),
       })
       const j = (await r.json()) as { ok?: boolean; error?: string }
       if (!r.ok || !j.ok) {
@@ -31,6 +42,7 @@ export function ContactForm() {
       setName("")
       setEmail("")
       setMessage("")
+      setErrMsg("")
     } catch {
       setErrMsg("Network error. Check your connection.")
       setStatus("err")
@@ -62,11 +74,17 @@ export function ContactForm() {
           id="contact-email"
           name="email"
           type="email"
+          inputMode="email"
           autoComplete="email"
+          placeholder="you@gmail.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
         />
+        <p className="text-xs text-muted-foreground">
+          Gmail or Yahoo only:{" "}
+          {CONTACT_ALLOWED_EMAIL_DOMAINS.map((d) => `@${d}`).join(", ")}.
+        </p>
       </div>
       <div className="space-y-2">
         <label htmlFor="contact-message" className="text-sm font-medium">
@@ -86,7 +104,7 @@ export function ContactForm() {
       </div>
       {status === "ok" ? (
         <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400" role="status">
-          Thank you — your message was sent. We will get back to you when possible.
+          Thank you — your message was sent. Check your inbox for a confirmation email.
         </p>
       ) : null}
       {status === "err" ? (

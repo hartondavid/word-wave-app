@@ -1,15 +1,17 @@
 import { NextResponse } from "next/server"
 
-const WEB3FORMS_KEY = process.env.WEB3FORMS_ACCESS_KEY?.trim()
+export const runtime = "nodejs"
+import {
+  contactEmailDomainErrorMessage,
+  isContactEmailDomainAllowed,
+} from "@/lib/contact-email-allowlist"
+import { getSmtpConfigFromEnv, sendContactEmails } from "@/lib/send-contact-emails"
 
-/**
- * Contact form → Web3Forms (free tier). Set WEB3FORMS_ACCESS_KEY in Vercel env.
- * https://web3forms.com — inbox without running your own mail server.
- */
 export async function POST(req: Request) {
-  if (!WEB3FORMS_KEY) {
+  const smtp = getSmtpConfigFromEnv()
+  if (!smtp) {
     return NextResponse.json(
-      { ok: false, error: "Contact is not configured on this server." },
+      { ok: false, error: "Contact email is not configured on this server." },
       { status: 503 }
     )
   }
@@ -26,11 +28,19 @@ export async function POST(req: Request) {
   const message = String(body.message ?? "").trim()
 
   if (name.length < 2 || name.length > 120) {
-    return NextResponse.json({ ok: false, error: "Please enter your name (2–120 characters)." }, { status: 400 })
+    return NextResponse.json(
+      { ok: false, error: "Please enter your name (2–120 characters)." },
+      { status: 400 }
+    )
   }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return NextResponse.json({ ok: false, error: "Please enter a valid email address." }, { status: 400 })
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !isContactEmailDomainAllowed(email)) {
+    return NextResponse.json(
+      { ok: false, error: contactEmailDomainErrorMessage() },
+      { status: 400 }
+    )
   }
+
   if (message.length < 10 || message.length > 8000) {
     return NextResponse.json(
       { ok: false, error: "Message must be between 10 and 8000 characters." },
@@ -38,23 +48,11 @@ export async function POST(req: Request) {
     )
   }
 
-  const res = await fetch("https://api.web3forms.com/submit", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      access_key: WEB3FORMS_KEY,
-      subject: `[WordWave] ${name}`,
-      name,
-      email,
-      message,
-    }),
-  })
-
-  const data = (await res.json()) as { success?: boolean; message?: string }
-
-  if (!res.ok || !data.success) {
+  try {
+    await sendContactEmails(smtp, { name, email, message })
+  } catch {
     return NextResponse.json(
-      { ok: false, error: data.message || "Failed to send message. Try again later." },
+      { ok: false, error: "Could not send your message. Try again later." },
       { status: 502 }
     )
   }
