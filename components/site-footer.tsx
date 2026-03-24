@@ -17,11 +17,11 @@ export function SiteFooter() {
               <Image
                 src="/logo.png"
                 alt="WordWave"
-                width={192}
-                height={192}
+                width={128}
+                height={128}
                 className="h-10 w-auto object-contain sm:h-11"
-                sizes="(max-width: 640px) 112px, 128px"
-                quality={50}
+                sizes="(max-width: 640px) 96px, 112px"
+                quality={45}
               />
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed">

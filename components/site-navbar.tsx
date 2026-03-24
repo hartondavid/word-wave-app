@@ -40,10 +40,10 @@ export function SiteNavbar({ homePriorityLogo = false }: { homePriorityLogo?: bo
           <Image
             src="/logo.png"
             alt="WordWave"
-            width={192}
-            height={192}
-            sizes="(max-width: 640px) 96px, 128px"
-            quality={50}
+            width={160}
+            height={160}
+            sizes="(max-width: 640px) 90px, 120px"
+            quality={45}
             priority={homePriorityLogo}
             fetchPriority={homePriorityLogo ? "high" : "auto"}
             className={cn(

@@ -19,19 +19,7 @@ export function AdsenseDeferred() {
 
     const inject = () => {
       if (document.querySelector('script[data-adsense-deferred="1"]')) return
-      const addPreconnect = (href: string) => {
-        const sel = `link[data-ads-preconnect="${href}"]`
-        if (document.querySelector(sel)) return
-        const l = document.createElement("link")
-        l.rel = "preconnect"
-        l.href = href
-        l.crossOrigin = "anonymous"
-        l.setAttribute("data-ads-preconnect", href)
-        document.head.appendChild(l)
-      }
-      addPreconnect("https://pagead2.googlesyndication.com")
-      addPreconnect("https://googleads.g.doubleclick.net")
-
+      // No preconnect: Lighthouse flags unused preconnect if no request follows in the trace window.
       const s = document.createElement("script")
       s.async = true
       s.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(client)}`
