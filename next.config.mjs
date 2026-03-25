@@ -25,7 +25,9 @@ const nextConfig = {
     minimumCacheTTL: 60 * 60 * 24 * 7,
   },
   experimental: {
-    optimizePackageImports: ["lucide-react"],
+    optimizePackageImports: ["lucide-react", "@radix-ui/react-tabs"],
+    /** Inlinează CSS în HTML pentru a reduce lanțul critic link CSS → font (Lighthouse FCP/LCP). Experimental. */
+    inlineCss: true,
   },
   poweredByHeader: false,
 }
