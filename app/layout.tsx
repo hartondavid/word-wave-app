@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { AnalyticsLoader } from '@/components/analytics-loader'
 import { AudioGestureUnlock } from '@/components/audio-gesture-unlock'
@@ -70,6 +70,15 @@ export const metadata: Metadata = {
     icon: [{ url: '/favicon.png', type: 'image/png' }],
     apple: '/favicon.png',
   },
+  appleWebApp: {
+    capable: true,
+    title: 'WordWave',
+    statusBarStyle: 'default',
+  },
+}
+
+export const viewport: Viewport = {
+  themeColor: '#30327d',
 }
 
 export default function RootLayout({

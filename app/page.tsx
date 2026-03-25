@@ -19,6 +19,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Zap, Trophy, Timer, Swords } from "lucide-react"
 import { SiteNavbar } from "@/components/site-navbar"
+import { PwaClient } from "@/components/pwa-client"
 import { startGameAmbientWaves, stopGameAmbientWaves } from "@/lib/game-ambient-waves"
 import { cn } from "@/lib/utils"
 
@@ -369,6 +370,7 @@ export default function HomePage() {
             <h1 className="text-balance text-2xl font-bold tracking-tight text-foreground sm:text-3xl md:text-4xl">
               Race to guess the word first
             </h1>
+            <PwaClient className="justify-center md:justify-start" />
             <p className="mx-auto max-w-prose text-base text-muted-foreground md:mx-0 md:text-lg">
               Same definition for everyone. Up to 4 players — fastest fingers win the round.
             </p>
