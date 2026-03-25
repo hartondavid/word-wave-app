@@ -1,8 +1,8 @@
 [
   {
-    "word": "a goli",
+    "word": "goli",
     "definition": "A consuma complet conținutul unui recipient prin băut",
-    "word_en": "to empty",
+    "word_en": "empty",
     "definition_en": "Completely consuming the contents of a container through drinking"
   },
   {
@@ -32,7 +32,7 @@
   {
     "word": "arunca",
     "definition": "A proiecta cu forța un obiect în spațiu printr-o mișcare bruscă",
-    "word_en": "throwing them",
+    "word_en": "throw",
     "definition_en": "Forcing an object into space by a sudden movement"
   },
   {
@@ -56,7 +56,7 @@
   {
     "word": "băga",
     "definition": "A introduce un obiect în interiorul altui obiect sau spațiu destinat acestuia",
-    "word_en": "tuck in",
+    "word_en": "insert",
     "definition_en": "Insert an object inside another object or space intended for it"
   },
   {
@@ -170,7 +170,7 @@
   {
     "word": "dans",
     "definition": "Artă sau limbaj expresiv realizat prin mișcarea deliberată și ritmică a corpului",
-    "word_en": "the dance",
+    "word_en": "dance",
     "definition_en": "Art or expressive language achieved through deliberate and rhythmic body movement"
   },
   {
@@ -188,7 +188,7 @@
   {
     "word": "dichisi",
     "definition": "A-și îngriji și îmbunătăți aspectul fizic prin procedee estetice rafinate",
-    "word_en": "sprucing up",
+    "word_en": "spruce",
     "definition_en": "To care for and improve their physical appearance through refined aesthetic procedures"
   },
   {
@@ -362,13 +362,13 @@
   {
     "word": "năzărit",
     "definition": "A-i veni subit o idee sau dorință capricioasă, fără o cauză rațională aparentă",
-    "word_en": "snow-white",
+    "word_en": "think",
     "definition_en": "Suddenly having a whimsical idea or desire without an apparent rational cause"
   },
   {
-    "word": "nou-nouț",
+    "word": "nou",
     "definition": "Produs nefolosit, care păstrează toate marcajele originale de producție",
-    "word_en": "brand new.",
+    "word_en": "new",
     "definition_en": "Unused product that retains all original production markings"
   },
   {
@@ -380,13 +380,13 @@
   {
     "word": "opinii",
     "definition": "Puncte de vedere, judecăți sau convingeri exprimate de persoane referitoare la un subiect",
-    "word_en": "opinion.",
+    "word_en": "opinion",
     "definition_en": "Views, judgments or beliefs expressed by persons relating to a subject"
   },
   {
     "word": "ortodont",
     "definition": "Specialist dentar care corectează poziția și aspectul dinților cu aparate speciale",
-    "word_en": "control.",
+    "word_en": "control",
     "definition_en": "Dental specialist who corrects the position and appearance of teeth with special appliances"
   },
   {
@@ -440,7 +440,7 @@
   {
     "word": "pumn",
     "definition": "Lovitură sau parte a corpului utilizată în boxul și artele marțiale",
-    "word_en": "the punch",
+    "word_en": "punch",
     "definition_en": "Kick or body part used in boxing and martial arts"
   },
   {

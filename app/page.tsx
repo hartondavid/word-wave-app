@@ -421,7 +421,11 @@ export default function HomePage() {
                   setNameFieldError("")
                 }}
                 maxLength={15}
-                onKeyDown={(e) => e.key === "Enter" && handlePracticeSolo()}
+                onKeyDown={(e) => {
+                  if (e.key !== "Enter") return
+                  if (activeTab === "create") void handlePracticeSolo()
+                  else void handleJoinRoom()
+                }}
               />
               {nameFieldError ? (
                 <p id="playerName-error" className="text-xs text-destructive font-medium" role="alert">
@@ -506,24 +510,28 @@ export default function HomePage() {
               </div>
             )}
 
-            {/* Practice */}
-            <Button
-              variant="default"
-              className="w-full bg-green-600 text-white hover:bg-green-700 focus-visible:ring-green-500/40 dark:bg-green-600 dark:hover:bg-green-700"
-              size="lg"
-              onClick={handlePracticeSolo}
-              disabled={isLoading}
-            >
-              <Zap className="w-4 h-4 mr-2" />
-              Practice Solo
-            </Button>
+            {/* Practice — ascuns pe tab-ul Join (la fel ca category / rounds) */}
+            {activeTab === "create" && (
+              <>
+                <Button
+                  variant="default"
+                  className="w-full bg-green-600 text-white hover:bg-green-700 focus-visible:ring-green-500/40 dark:bg-green-600 dark:hover:bg-green-700"
+                  size="lg"
+                  onClick={handlePracticeSolo}
+                  disabled={isLoading}
+                >
+                  <Zap className="w-4 h-4 mr-2" />
+                  Practice Solo
+                </Button>
 
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">Multiplayer</span>
-              </div>
-            </div>
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-card px-2 text-muted-foreground">Multiplayer</span>
+                  </div>
+                </div>
+              </>
+            )}
 
             {/* Tabs */}
             <Tabs
