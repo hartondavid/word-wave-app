@@ -47,8 +47,6 @@ import { LetterCellDelayBorder } from "@/components/letter-cell-delay-border"
 import { CorrectLetterChar, useCorrectLetterFx } from "@/components/correct-letter-fx"
 import { LetterSoundToggle } from "@/components/letter-sound-toggle"
 import { AmbientWavesToggle } from "@/components/ambient-waves-toggle"
-import { OnScreenLetterKeyboard } from "@/components/on-screen-letter-keyboard"
-import { useMobileOnScreenKeyboard } from "@/hooks/use-mobile-on-screen-keyboard"
 import {
   LetterHistoryPanel,
   LetterHistoryToggleButton,
@@ -182,7 +180,6 @@ function mixPlayerColorWithWhite(hex: string, whiteFraction: number): string {
 // ── component ─────────────────────────────────────────────────────────────────
 
 export default function GamePage({ params }: GamePageProps) {
-  const mobileOnScreenKb = useMobileOnScreenKeyboard()
   const { roomCode } = use(params)
   const [room, setRoom] = useState<GameRoom | null>(null)
   const [playerInfo, setPlayerInfo] = useState<PlayerInfo | null>(null)
@@ -235,8 +232,8 @@ export default function GamePage({ params }: GamePageProps) {
   const [typedLetterHistory, setTypedLetterHistory] = useState<string[]>([])
   const [letterHistoryOpen, setLetterHistoryOpen] = useState(false)
   const restoreTypingFocus = useCallback(() => {
-    if (!mobileOnScreenKb) hiddenInputRef.current?.focus()
-  }, [mobileOnScreenKb])
+    hiddenInputRef.current?.focus()
+  }, [])
   const {
     cellBursts: correctLetterBursts,
     triggerAt: triggerCorrectLetterFxAt,
@@ -824,18 +821,17 @@ export default function GamePage({ params }: GamePageProps) {
     }
   }, [])
 
-  // Desktop: focus input ascuns la rundă. Mobil: tastatură on-screen, fără tastatură sistem.
   useEffect(() => {
-    if (roundEliminated || room?.game_status !== "playing") {
+    if (roundEliminated) {
       hiddenInputRef.current?.blur()
       return
     }
-    if (!mobileOnScreenKb) {
+    if (room?.game_status === "playing") {
       queueMicrotask(() => hiddenInputRef.current?.focus())
     } else {
       hiddenInputRef.current?.blur()
     }
-  }, [room?.game_status, mobileOnScreenKb, roundEliminated])
+  }, [room?.game_status, roundEliminated])
 
   useEffect(() => {
     const s = room?.game_status
@@ -1843,12 +1839,7 @@ export default function GamePage({ params }: GamePageProps) {
       <div
         className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-none flex flex-col items-center justify-start px-4 pt-5 pb-6 max-w-2xl mx-auto w-full gap-5"
         onClick={() => {
-          if (
-            !isRoundEnd &&
-            !roundEliminated &&
-            !allPlayersSpeechWrongReveal &&
-            !mobileOnScreenKb
-          ) {
+          if (!isRoundEnd && !roundEliminated && !allPlayersSpeechWrongReveal) {
             hiddenInputRef.current?.focus()
           }
         }}
@@ -2040,16 +2031,13 @@ export default function GamePage({ params }: GamePageProps) {
               <input
                 ref={hiddenInputRef}
                 type="text"
-                inputMode={mobileOnScreenKb ? "none" : "text"}
-                readOnly={mobileOnScreenKb}
-                tabIndex={mobileOnScreenKb ? -1 : undefined}
+                inputMode="text"
                 autoComplete="off"
                 autoCorrect="off"
                 autoCapitalize="none"
                 spellCheck={false}
                 className="absolute opacity-0 w-px h-px top-1/2 left-1/2 pointer-events-none"
                 style={{ fontSize: 16 }}
-                aria-hidden={mobileOnScreenKb}
                 onChange={(e) => {
                   const v = e.target.value
                   if (v) {
@@ -2065,24 +2053,6 @@ export default function GamePage({ params }: GamePageProps) {
               />
               {renderWordMask()}
             </div>
-
-            <OnScreenLetterKeyboard
-              visible={
-                mobileOnScreenKb &&
-                room.game_status === "playing" &&
-                !!room.current_word &&
-                !roundEliminated &&
-                !allPlayersSpeechWrongReveal &&
-                !isWordComplete(
-                  myDisplayProgress ?? slotData(mySlot, room).progress ?? ""
-                )
-              }
-              disabled={wrongLetterDelayRing}
-              onKey={(ch) => {
-                keyHandledRef.current = true
-                void handleLetterInput(ch)
-              }}
-            />
 
             {/* Legend */}
             <div className="text-center space-y-2">

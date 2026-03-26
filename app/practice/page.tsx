@@ -44,8 +44,6 @@ import {
 import { CorrectLetterChar, useCorrectLetterFx } from "@/components/correct-letter-fx"
 import { LetterSoundToggle } from "@/components/letter-sound-toggle"
 import { AmbientWavesToggle } from "@/components/ambient-waves-toggle"
-import { OnScreenLetterKeyboard } from "@/components/on-screen-letter-keyboard"
-import { useMobileOnScreenKeyboard } from "@/hooks/use-mobile-on-screen-keyboard"
 import { FinishedPlayerScoreRow } from "@/components/game-finished-score-row"
 
 const ROUND_DURATION = 60
@@ -81,7 +79,6 @@ function readStoredField<T>(field: string, fallback: T): T {
 }
 
 export default function PracticePage() {
-  const mobileOnScreenKb = useMobileOnScreenKeyboard()
   const [playerName, setPlayerName] = useState("")
   /** Fixed defaults on first paint so SSR HTML matches the client (prefs applied in bootstrap effect). */
   const [category, setCategory] = useState("general")
@@ -137,8 +134,8 @@ export default function PracticePage() {
   const [typedLetterHistory, setTypedLetterHistory] = useState<string[]>([])
   const [letterHistoryOpen, setLetterHistoryOpen] = useState(false)
   const restoreTypingFocus = useCallback(() => {
-    if (!mobileOnScreenKb) hiddenInputRef.current?.focus()
-  }, [mobileOnScreenKb])
+    hiddenInputRef.current?.focus()
+  }, [])
   const {
     cellBursts: correctLetterBursts,
     triggerAt: triggerCorrectLetterFxAt,
@@ -648,14 +645,14 @@ export default function PracticePage() {
     triggerCorrectLetterFxAt,
   ])
 
-  // Desktop: focalizează input ascuns (tastatură fizică). Mobil: tastatură on-screen, fără focus → fără tastatură sistem.
+  // Auto-focus hidden input when round starts (shows mobile keyboard), blur when it ends
   useEffect(() => {
-    if (gameStatus === "playing" && !mobileOnScreenKb) {
+    if (gameStatus === "playing") {
       queueMicrotask(() => hiddenInputRef.current?.focus())
     } else {
       hiddenInputRef.current?.blur()
     }
-  }, [gameStatus, mobileOnScreenKb])
+  }, [gameStatus])
 
   // Scroll word mask into view when keyboard opens
   useEffect(() => {
@@ -923,16 +920,13 @@ export default function PracticePage() {
           <input
             ref={hiddenInputRef}
             type="text"
-            inputMode={mobileOnScreenKb ? "none" : "text"}
-            readOnly={mobileOnScreenKb}
-            tabIndex={mobileOnScreenKb ? -1 : undefined}
+            inputMode="text"
             autoComplete="off"
             autoCorrect="off"
             autoCapitalize="none"
             spellCheck={false}
             className="absolute opacity-0 w-px h-px top-1/2 left-1/2 pointer-events-none"
             style={{ fontSize: 16 }}
-            aria-hidden={mobileOnScreenKb}
             onChange={(e) => {
               const v = e.target.value
               if (v) {
@@ -999,20 +993,6 @@ export default function PracticePage() {
             )
           })}
         </div>
-
-        <OnScreenLetterKeyboard
-          visible={
-            mobileOnScreenKb &&
-            gameStatus === "playing" &&
-            progress.length > 0 &&
-            !isWordComplete(progress)
-          }
-          disabled={wrongLetterDelayRing}
-          onKey={(ch) => {
-            keyHandledRef.current = true
-            void handleLetterInput(ch)
-          }}
-        />
 
         {/* Instruction / Round result */}
         {gameStatus === "playing" && (
