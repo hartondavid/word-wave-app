@@ -9,7 +9,8 @@ import {
   finalizePracticeRound,
   tryResumePracticeSession,
 } from "@/app/practice/actions"
-import { tryPlaceLetter, isWordComplete } from "@/lib/words"
+import { tryPlaceLetter, isWordComplete, countNewlyFilledLetters } from "@/lib/words"
+import { SCORE_PER_LETTER, WIN_SCORE } from "@/lib/game-types"
 import {
   playCorrectLetterSound,
   playWrongLetterSound,
@@ -43,6 +44,9 @@ import {
 import { CorrectLetterChar, useCorrectLetterFx } from "@/components/correct-letter-fx"
 import { LetterSoundToggle } from "@/components/letter-sound-toggle"
 import { AmbientWavesToggle } from "@/components/ambient-waves-toggle"
+import { OnScreenLetterKeyboard } from "@/components/on-screen-letter-keyboard"
+import { useMobileOnScreenKeyboard } from "@/hooks/use-mobile-on-screen-keyboard"
+import { FinishedPlayerScoreRow } from "@/components/game-finished-score-row"
 
 const ROUND_DURATION = 60
 /** Culoare litere ghicite — Practice (single player) */
@@ -77,6 +81,7 @@ function readStoredField<T>(field: string, fallback: T): T {
 }
 
 export default function PracticePage() {
+  const mobileOnScreenKb = useMobileOnScreenKeyboard()
   const [playerName, setPlayerName] = useState("")
   /** Fixed defaults on first paint so SSR HTML matches the client (prefs applied in bootstrap effect). */
   const [category, setCategory] = useState("general")
@@ -132,8 +137,8 @@ export default function PracticePage() {
   const [typedLetterHistory, setTypedLetterHistory] = useState<string[]>([])
   const [letterHistoryOpen, setLetterHistoryOpen] = useState(false)
   const restoreTypingFocus = useCallback(() => {
-    hiddenInputRef.current?.focus()
-  }, [])
+    if (!mobileOnScreenKb) hiddenInputRef.current?.focus()
+  }, [mobileOnScreenKb])
   const {
     cellBursts: correctLetterBursts,
     triggerAt: triggerCorrectLetterFxAt,
@@ -480,11 +485,14 @@ export default function PracticePage() {
       for (let i = 0; i < next.length; i++) {
         if (cur[i] === "_" && next[i] !== "_") {
           triggerCorrectLetterFxAt(i)
-          break
         }
       }
       progressRef.current = next
       setProgress(next)
+      const placed = countNewlyFilledLetters(cur, next)
+      if (placed > 0) {
+        setScore((prev) => prev + placed * SCORE_PER_LETTER)
+      }
 
       if (isWordComplete(next)) {
         roundConcludedRef.current = true
@@ -496,7 +504,6 @@ export default function PracticePage() {
         }
         hiddenInputRef.current?.blur()
         setShowConfetti(true)
-        setScore((prev) => prev + 1)
         setGameStatus("won")
         setTimeout(() => setShowConfetti(false), 2500)
       }
@@ -557,11 +564,14 @@ export default function PracticePage() {
         for (let i = 0; i < next.length; i++) {
           if (cur[i] === "_" && next[i] !== "_") {
             triggerCorrectLetterFxAt(i)
-            break
           }
         }
         progressRef.current = next
         setProgress(next)
+        const placedVoice = countNewlyFilledLetters(cur, next)
+        if (placedVoice > 0) {
+          setScore((prev) => prev + placedVoice * SCORE_PER_LETTER)
+        }
         if (isWordComplete(next)) {
           void (async () => {
             roundConcludedRef.current = true
@@ -573,7 +583,6 @@ export default function PracticePage() {
             }
             hiddenInputRef.current?.blur()
             setShowConfetti(true)
-            setScore((prev) => prev + 1)
             setGameStatus("won")
             setTimeout(() => setShowConfetti(false), 2500)
           })()
@@ -639,14 +648,14 @@ export default function PracticePage() {
     triggerCorrectLetterFxAt,
   ])
 
-  // Auto-focus hidden input when round starts, blur when it ends
+  // Desktop: focalizează input ascuns (tastatură fizică). Mobil: tastatură on-screen, fără focus → fără tastatură sistem.
   useEffect(() => {
-    if (gameStatus === "playing") {
+    if (gameStatus === "playing" && !mobileOnScreenKb) {
       queueMicrotask(() => hiddenInputRef.current?.focus())
     } else {
       hiddenInputRef.current?.blur()
     }
-  }, [gameStatus])
+  }, [gameStatus, mobileOnScreenKb])
 
   // Scroll word mask into view when keyboard opens
   useEffect(() => {
@@ -704,6 +713,7 @@ export default function PracticePage() {
   // ── FINISHED ────────────────────────────────────────────────────────────────
 
   if (gameStatus === "finished") {
+    const maxBarScore = Math.max(WIN_SCORE, score, 1)
     return (
       <main className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-background to-secondary/30">
         <Card className="w-full max-w-md">
@@ -713,10 +723,19 @@ export default function PracticePage() {
             </div>
             <div>
               <h2 className="text-2xl font-bold">Practice Complete!</h2>
-              <p className="text-muted-foreground mt-2">
-                {playerName && <span className="font-semibold">{playerName} — </span>}
-                {score} / {totalRounds} correct
+              <p className="mt-2 text-muted-foreground">
+                {totalRounds} {totalRounds === 1 ? "round" : "rounds"}
               </p>
+            </div>
+            <div className="space-y-2 text-left">
+              <FinishedPlayerScoreRow
+                rank={1}
+                name={playerName || "You"}
+                color={PRACTICE_PLAYER_COLOR}
+                finalScore={score}
+                isMe
+                maxForBar={maxBarScore}
+              />
             </div>
             <div className="flex gap-3 justify-center">
               <Button variant="outline" onClick={() => router.push("/")}>
@@ -904,13 +923,16 @@ export default function PracticePage() {
           <input
             ref={hiddenInputRef}
             type="text"
-            inputMode="text"
+            inputMode={mobileOnScreenKb ? "none" : "text"}
+            readOnly={mobileOnScreenKb}
+            tabIndex={mobileOnScreenKb ? -1 : undefined}
             autoComplete="off"
             autoCorrect="off"
             autoCapitalize="none"
             spellCheck={false}
             className="absolute opacity-0 w-px h-px top-1/2 left-1/2 pointer-events-none"
             style={{ fontSize: 16 }}
+            aria-hidden={mobileOnScreenKb}
             onChange={(e) => {
               const v = e.target.value
               if (v) {
@@ -977,6 +999,20 @@ export default function PracticePage() {
             )
           })}
         </div>
+
+        <OnScreenLetterKeyboard
+          visible={
+            mobileOnScreenKb &&
+            gameStatus === "playing" &&
+            progress.length > 0 &&
+            !isWordComplete(progress)
+          }
+          disabled={wrongLetterDelayRing}
+          onKey={(ch) => {
+            keyHandledRef.current = true
+            void handleLetterInput(ch)
+          }}
+        />
 
         {/* Instruction / Round result */}
         {gameStatus === "playing" && (

@@ -57,7 +57,10 @@ export interface WordPair {
 
 export const ROUND_DURATION = 60
 export const TOTAL_ROUNDS = 10
-export const WIN_SCORE = 6
+/** Puncte primite la fiecare literă corectă plasată (multiplayer + practice). */
+export const SCORE_PER_LETTER = 10
+/** Primul jucător care atinge acest total de puncte câștigă meciul (sau se termină după `total_rounds` runde). */
+export const WIN_SCORE = 500
 
 // P1 Blue | P2 Amber | P3 Emerald | P4 Violet
 export const PLAYER_COLORS = ['#3B82F6', '#F59E0B', '#10B981', '#8B5CF6'] as const

@@ -28,6 +28,16 @@ export function isWordComplete(progress: string): boolean {
   return !progress.includes("_")
 }
 
+/** Număr de poziții trecute de la `_` la literă între două progresuri (aceeași lungime). */
+export function countNewlyFilledLetters(before: string, after: string): number {
+  const n = Math.min(before.length, after.length)
+  let c = 0
+  for (let i = 0; i < n; i++) {
+    if (before[i] === "_" && after[i] !== "_") c++
+  }
+  return c
+}
+
 /** Extrage doar literele Unicode din transcriere (fără spații/punctuație). */
 export function normalizeSpeechLetters(text: string): string {
   return Array.from(text.normalize("NFC"))

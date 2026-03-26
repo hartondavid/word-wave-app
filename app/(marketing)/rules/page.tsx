@@ -14,9 +14,9 @@ export default function RulesPage() {
       <LegalProse>
         <h2>Goal</h2>
         <p>
-          Each round shows one definition. The answer is a word of fixed length, shown as blanks. Complete the word first
-          to win the round and earn a point. After the agreed number of rounds, the player with the highest score wins the
-          match.
+          Each round shows one definition. The answer is a word of fixed length, shown as blanks. Every correct letter
+          you place earns 10 points. Complete the word first to win the round. The match ends when someone reaches the
+          point target or after the agreed number of rounds—highest score wins.
         </p>
         <h2>Creating or joining a room</h2>
         <p>

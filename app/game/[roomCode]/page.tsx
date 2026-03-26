@@ -10,6 +10,7 @@ import type { GameRoom, PlayerSlot, CategoryKey, LanguageKey } from "@/lib/game-
 import {
   ROUND_DURATION,
   WIN_SCORE,
+  SCORE_PER_LETTER,
   TOTAL_ROUNDS,
   PLAYER_COLORS,
   CATEGORIES,
@@ -17,7 +18,7 @@ import {
   languageForMultiplayerRoom,
   allActivePlayersSpeechEliminated,
 } from "@/lib/game-types"
-import { tryPlaceLetter, isWordComplete } from "@/lib/words"
+import { tryPlaceLetter, isWordComplete, countNewlyFilledLetters } from "@/lib/words"
 import {
   playCorrectLetterSound,
   playWrongLetterSound,
@@ -46,6 +47,8 @@ import { LetterCellDelayBorder } from "@/components/letter-cell-delay-border"
 import { CorrectLetterChar, useCorrectLetterFx } from "@/components/correct-letter-fx"
 import { LetterSoundToggle } from "@/components/letter-sound-toggle"
 import { AmbientWavesToggle } from "@/components/ambient-waves-toggle"
+import { OnScreenLetterKeyboard } from "@/components/on-screen-letter-keyboard"
+import { useMobileOnScreenKeyboard } from "@/hooks/use-mobile-on-screen-keyboard"
 import {
   LetterHistoryPanel,
   LetterHistoryToggleButton,
@@ -55,6 +58,7 @@ import { cn } from "@/lib/utils"
 import { Copy, Check, Timer, Trophy, ArrowLeft, AlertCircle, Mic, Link2 } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
 import Confetti from "react-confetti"
+import { FinishedPlayerScoreRow } from "@/components/game-finished-score-row"
 
 interface PlayerInfo {
   id: string
@@ -178,6 +182,7 @@ function mixPlayerColorWithWhite(hex: string, whiteFraction: number): string {
 // ── component ─────────────────────────────────────────────────────────────────
 
 export default function GamePage({ params }: GamePageProps) {
+  const mobileOnScreenKb = useMobileOnScreenKeyboard()
   const { roomCode } = use(params)
   const [room, setRoom] = useState<GameRoom | null>(null)
   const [playerInfo, setPlayerInfo] = useState<PlayerInfo | null>(null)
@@ -216,6 +221,8 @@ export default function GamePage({ params }: GamePageProps) {
   const wordMaskRef = useRef<HTMLDivElement>(null)
   // Local progress ref to avoid race condition on rapid key presses
   const localProgressRef = useRef<string | null>(null)
+  /** Scor local după ultimele +10/literă până vine rândul din Realtime (rapid typing). */
+  const localLetterScoreRef = useRef<number | null>(null)
   const shakeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const shouldShakeRef = useRef(false)
   // Prevents double-firing: keydown sets this true so onChange skips the same key
@@ -228,8 +235,8 @@ export default function GamePage({ params }: GamePageProps) {
   const [typedLetterHistory, setTypedLetterHistory] = useState<string[]>([])
   const [letterHistoryOpen, setLetterHistoryOpen] = useState(false)
   const restoreTypingFocus = useCallback(() => {
-    hiddenInputRef.current?.focus()
-  }, [])
+    if (!mobileOnScreenKb) hiddenInputRef.current?.focus()
+  }, [mobileOnScreenKb])
   const {
     cellBursts: correctLetterBursts,
     triggerAt: triggerCorrectLetterFxAt,
@@ -770,6 +777,7 @@ export default function GamePage({ params }: GamePageProps) {
   useEffect(() => {
     if (room?.game_status === "playing") {
       localProgressRef.current = null
+      localLetterScoreRef.current = null
       setMyDisplayProgress(null)
       setRevealProgress(null)
       consecutiveWrongRef.current = 0
@@ -816,19 +824,18 @@ export default function GamePage({ params }: GamePageProps) {
     }
   }, [])
 
+  // Desktop: focus input ascuns la rundă. Mobil: tastatură on-screen, fără tastatură sistem.
   useEffect(() => {
-    if (roundEliminated) hiddenInputRef.current?.blur()
-  }, [roundEliminated])
-
-  // Auto-focus hidden input when round starts (shows mobile keyboard),
-  // blur when round ends (hides mobile keyboard)
-  useEffect(() => {
-    if (room?.game_status === "playing") {
+    if (roundEliminated || room?.game_status !== "playing") {
+      hiddenInputRef.current?.blur()
+      return
+    }
+    if (!mobileOnScreenKb) {
       queueMicrotask(() => hiddenInputRef.current?.focus())
     } else {
       hiddenInputRef.current?.blur()
     }
-  }, [room?.game_status])
+  }, [room?.game_status, mobileOnScreenKb, roundEliminated])
 
   useEffect(() => {
     const s = room?.game_status
@@ -956,14 +963,21 @@ export default function GamePage({ params }: GamePageProps) {
       cancelShake()
       localProgressRef.current = next
       setMyDisplayProgress(next)
+      let lastNew = -1
       for (let i = 0; i < next.length; i++) {
         if (curBefore[i] === "_" && next[i] !== "_") {
-          setLastPlacedIndex(i)
+          lastNew = i
           triggerCorrectLetterFxAt(i)
-          break
         }
       }
+      if (lastNew >= 0) setLastPlacedIndex(lastNew)
       const pf = `player${mySlot}_progress`
+      const sf = `player${mySlot}_score`
+      const lettersDelta = countNewlyFilledLetters(curBefore, next)
+      const baseScore = localLetterScoreRef.current ?? (slotData(mySlot, room).score ?? 0)
+      const newScore = baseScore + lettersDelta * SCORE_PER_LETTER
+      localLetterScoreRef.current = newScore
+
       if (isWordComplete(next)) {
         hiddenInputRef.current?.blur()
         flushSync(() => {
@@ -971,8 +985,6 @@ export default function GamePage({ params }: GamePageProps) {
           setShowConfetti(true)
         })
         setTimeout(() => setShowConfetti(false), 3000)
-        const sf = `player${mySlot}_score`
-        const newScore = (slotData(mySlot, room).score ?? 0) + 1
         const totalRounds = room.total_rounds ?? TOTAL_ROUNDS
         const isOver = newScore >= WIN_SCORE || room.current_round >= totalRounds
         const roundEndUpdate: Record<string, unknown> = {
@@ -989,7 +1001,7 @@ export default function GamePage({ params }: GamePageProps) {
         }
         await supabase.from("game_rooms").update(roundEndUpdate).eq("room_code", roomCode)
       } else {
-        await supabase.from("game_rooms").update({ [pf]: next }).eq("room_code", roomCode)
+        await supabase.from("game_rooms").update({ [pf]: next, [sf]: newScore }).eq("room_code", roomCode)
       }
     },
     [room, mySlot, roomCode, supabase, playerInfo]
@@ -1535,6 +1547,7 @@ export default function GamePage({ params }: GamePageProps) {
     const isTie = sorted.filter(p => p.score === topScore).length > 1
     const winnerName = isTie ? null : sorted[0]?.name
     const iWon = winnerName === myName
+    const maxBarScore = Math.max(WIN_SCORE, topScore, 1)
 
     return (
       <main className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-background to-secondary/30">
@@ -1552,14 +1565,15 @@ export default function GamePage({ params }: GamePageProps) {
             </h2>
             <div className="space-y-2">
               {sorted.map((p, idx) => (
-                <div key={p.slot} className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-muted/50">
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-sm font-bold text-muted-foreground w-5 text-right">#{idx + 1}</span>
-                    <div className="w-3 h-3 rounded-full" style={{ background: PLAYER_COLORS[p.slot - 1] }} />
-                    <span className="font-semibold">{p.name}{p.name === myName ? " (You)" : ""}</span>
-                  </div>
-                  <span className="font-bold text-lg">{p.score} pts</span>
-                </div>
+                <FinishedPlayerScoreRow
+                  key={p.slot}
+                  rank={idx + 1}
+                  name={p.name}
+                  color={PLAYER_COLORS[p.slot - 1]}
+                  finalScore={p.score}
+                  isMe={p.name === myName}
+                  maxForBar={maxBarScore}
+                />
               ))}
             </div>
             <div className="flex gap-3 justify-center">
@@ -1829,7 +1843,14 @@ export default function GamePage({ params }: GamePageProps) {
       <div
         className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-none flex flex-col items-center justify-start px-4 pt-5 pb-6 max-w-2xl mx-auto w-full gap-5"
         onClick={() => {
-          if (!isRoundEnd && !roundEliminated && !allPlayersSpeechWrongReveal) hiddenInputRef.current?.focus()
+          if (
+            !isRoundEnd &&
+            !roundEliminated &&
+            !allPlayersSpeechWrongReveal &&
+            !mobileOnScreenKb
+          ) {
+            hiddenInputRef.current?.focus()
+          }
         }}
       >
 
@@ -2019,13 +2040,16 @@ export default function GamePage({ params }: GamePageProps) {
               <input
                 ref={hiddenInputRef}
                 type="text"
-                inputMode="text"
+                inputMode={mobileOnScreenKb ? "none" : "text"}
+                readOnly={mobileOnScreenKb}
+                tabIndex={mobileOnScreenKb ? -1 : undefined}
                 autoComplete="off"
                 autoCorrect="off"
                 autoCapitalize="none"
                 spellCheck={false}
                 className="absolute opacity-0 w-px h-px top-1/2 left-1/2 pointer-events-none"
                 style={{ fontSize: 16 }}
+                aria-hidden={mobileOnScreenKb}
                 onChange={(e) => {
                   const v = e.target.value
                   if (v) {
@@ -2041,6 +2065,24 @@ export default function GamePage({ params }: GamePageProps) {
               />
               {renderWordMask()}
             </div>
+
+            <OnScreenLetterKeyboard
+              visible={
+                mobileOnScreenKb &&
+                room.game_status === "playing" &&
+                !!room.current_word &&
+                !roundEliminated &&
+                !allPlayersSpeechWrongReveal &&
+                !isWordComplete(
+                  myDisplayProgress ?? slotData(mySlot, room).progress ?? ""
+                )
+              }
+              disabled={wrongLetterDelayRing}
+              onKey={(ch) => {
+                keyHandledRef.current = true
+                void handleLetterInput(ch)
+              }}
+            />
 
             {/* Legend */}
             <div className="text-center space-y-2">
