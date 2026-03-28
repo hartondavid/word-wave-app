@@ -28,6 +28,23 @@ export function isWordComplete(progress: string): boolean {
   return !progress.includes("_")
 }
 
+/** Practice hints: fill one random empty slot with the correct letter from the answer. */
+export function revealRandomAnswerLetter(
+  progress: string,
+  answer: string
+): { next: string; index: number } | null {
+  if (progress.length !== answer.length) return null
+  const open: number[] = []
+  for (let i = 0; i < progress.length; i++) {
+    if (progress[i] === "_") open.push(i)
+  }
+  if (open.length === 0) return null
+  const idx = open[Math.floor(Math.random() * open.length)]!
+  const arr = progress.split("")
+  arr[idx] = answer[idx]!
+  return { next: arr.join(""), index: idx }
+}
+
 /** Număr de poziții trecute de la `_` la literă între două progresuri (aceeași lungime). */
 export function countNewlyFilledLetters(before: string, after: string): number {
   const n = Math.min(before.length, after.length)

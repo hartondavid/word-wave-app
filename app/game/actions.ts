@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import type { GameRoom } from "@/lib/game-types"
-import { ROUND_DURATION, languageForMultiplayerRoom } from "@/lib/game-types"
+import { effectiveRoundDurationSeconds, languageForMultiplayerRoom } from "@/lib/game-types"
 import { resolveWordPairForRound } from "@/lib/server/resolve-round-word"
 
 /**
@@ -60,6 +60,7 @@ export async function serverStartNewRound(
   const word = await resolveWordPairForRound(r.category, playLang)
   const init = "_".repeat(word.word.length)
   const active = activeSlots(r)
+  const roundSeconds = effectiveRoundDurationSeconds(r)
 
   const update: Record<string, unknown> = {
     language: playLang,
@@ -72,7 +73,7 @@ export async function serverStartNewRound(
     round_winner: null,
     game_status: "playing",
     current_round: (r.current_round ?? 0) + 1,
-    round_end_time: new Date(Date.now() + ROUND_DURATION * 1000).toISOString(),
+    round_end_time: new Date(Date.now() + roundSeconds * 1000).toISOString(),
   }
 
   if (active.some(slot => slot >= 3)) {

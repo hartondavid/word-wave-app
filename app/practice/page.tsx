@@ -9,7 +9,12 @@ import {
   finalizePracticeRound,
   tryResumePracticeSession,
 } from "@/app/practice/actions"
-import { tryPlaceLetter, isWordComplete, countNewlyFilledLetters } from "@/lib/words"
+import {
+  tryPlaceLetter,
+  isWordComplete,
+  countNewlyFilledLetters,
+  revealRandomAnswerLetter,
+} from "@/lib/words"
 import { SCORE_PER_LETTER, WIN_SCORE } from "@/lib/game-types"
 import {
   playCorrectLetterSound,
@@ -30,8 +35,8 @@ import {
   applySpeechRecognitionResultToProgress,
   speechLocaleForRoundLanguage,
 } from "@/lib/speech-word-match"
-import type { CategoryKey, LanguageKey } from "@/lib/game-types"
-import { CATEGORIES, LANGUAGES } from "@/lib/game-types"
+import type { CategoryKey } from "@/lib/game-types"
+import { CATEGORIES } from "@/lib/game-types"
 import { speechUiStrings } from "@/lib/speech-ui-strings"
 import { ArrowLeft, RotateCcw, Trophy, Mic } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -46,7 +51,16 @@ import { LetterSoundToggle } from "@/components/letter-sound-toggle"
 import { AmbientWavesToggle } from "@/components/ambient-waves-toggle"
 import { FinishedPlayerScoreRow } from "@/components/game-finished-score-row"
 
-const ROUND_DURATION = 60
+const PRACTICE_TIMER_SECONDS_OPTIONS = [30, 60] as const
+type PracticeTimerSeconds = (typeof PRACTICE_TIMER_SECONDS_OPTIONS)[number]
+const DEFAULT_PRACTICE_TIMER_SECONDS: PracticeTimerSeconds = 30
+
+function normalizePracticeTimerSeconds(raw: unknown): PracticeTimerSeconds {
+  const n = typeof raw === "number" ? raw : typeof raw === "string" ? parseInt(raw, 10) : NaN
+  if (n === 30 || n === 60) return n
+  return DEFAULT_PRACTICE_TIMER_SECONDS
+}
+
 /** Culoare litere ghicite — Practice (single player) */
 const PRACTICE_PLAYER_COLOR = "#22C55E"
 /** Accent verde deschis pentru inelul animat la lockout (greșeală) */
@@ -55,6 +69,7 @@ const PRACTICE_DELAY_RING_HIGHLIGHT = "#86efac"
 const PRACTICE_AUTO_REVEAL_FX_COLOR = "#dc2626"
 
 const PRACTICE_SESSION_KEY = "wordmatch_practice_session_v1"
+const PRACTICE_HINT_LETTERS_PER_ROUND = 3
 
 type PracticeSessionSnapshot = {
   progress: string
@@ -64,6 +79,8 @@ type PracticeSessionSnapshot = {
   wordLength: number
   category: string
   language: string
+  roundTimerSeconds?: number
+  hintLettersRemaining?: number
 }
 
 function readStoredField<T>(field: string, fallback: T): T {
@@ -76,6 +93,13 @@ function readStoredField<T>(field: string, fallback: T): T {
   } catch {
     return fallback
   }
+}
+
+function normalizeHintLettersRemaining(raw: unknown): number {
+  if (typeof raw !== "number" || !Number.isFinite(raw)) return PRACTICE_HINT_LETTERS_PER_ROUND
+  const n = Math.floor(raw)
+  if (n < 0 || n > PRACTICE_HINT_LETTERS_PER_ROUND) return PRACTICE_HINT_LETTERS_PER_ROUND
+  return n
 }
 
 export default function PracticePage() {
@@ -93,7 +117,10 @@ export default function PracticePage() {
   const [progress, setProgress] = useState("")
   const [score, setScore] = useState(0)
   const [round, setRound] = useState(1)
-  const [timeLeft, setTimeLeft] = useState(ROUND_DURATION)
+  const [practiceTimerSeconds, setPracticeTimerSeconds] = useState<PracticeTimerSeconds>(
+    DEFAULT_PRACTICE_TIMER_SECONDS
+  )
+  const [timeLeft, setTimeLeft] = useState<number>(DEFAULT_PRACTICE_TIMER_SECONDS)
   const [gameStatus, setGameStatus] = useState<
     | "loading"
     | "playing"
@@ -133,6 +160,9 @@ export default function PracticePage() {
   const wrongLetterDelayRingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [typedLetterHistory, setTypedLetterHistory] = useState<string[]>([])
   const [letterHistoryOpen, setLetterHistoryOpen] = useState(false)
+  const [practiceHintsEnabled, setPracticeHintsEnabled] = useState(false)
+  const [hintLettersRemaining, setHintLettersRemaining] = useState(PRACTICE_HINT_LETTERS_PER_ROUND)
+  const hintLettersRemainingRef = useRef(PRACTICE_HINT_LETTERS_PER_ROUND)
   const restoreTypingFocus = useCallback(() => {
     hiddenInputRef.current?.focus()
   }, [])
@@ -179,9 +209,15 @@ export default function PracticePage() {
     }
   }, [router])
 
-  const loadNewWord = useCallback(async (overrideCategory?: string, overrideLanguage?: string) => {
+  const loadNewWord = useCallback(
+    async (
+      overrideCategory?: string,
+      overrideLanguage?: string,
+      overrideTimerSeconds?: PracticeTimerSeconds
+    ) => {
     const cat = overrideCategory ?? category
     const lang = overrideLanguage ?? language
+    const roundDuration = overrideTimerSeconds ?? practiceTimerSeconds
     try {
       sessionStorage.removeItem(PRACTICE_SESSION_KEY)
     } catch {
@@ -206,10 +242,14 @@ export default function PracticePage() {
     setLetterHistoryOpen(false)
     setProgress(initProgress)
     setRevealProgress("_".repeat(meta.wordLength))
-    setTimeLeft(ROUND_DURATION)
+    hintLettersRemainingRef.current = PRACTICE_HINT_LETTERS_PER_ROUND
+    setHintLettersRemaining(PRACTICE_HINT_LETTERS_PER_ROUND)
+    setTimeLeft(roundDuration)
     roundConcludedRef.current = false
     setGameStatus("playing")
-  }, [category, language, resetCorrectLetterFx])
+  },
+    [category, language, practiceTimerSeconds, resetCorrectLetterFx]
+  )
 
   useEffect(() => {
     if (gameStatus !== "playing") {
@@ -264,9 +304,15 @@ export default function PracticePage() {
     const cat = readStoredField("category", "general")
     const lang = readStoredField("language", "en")
     const maxR = readStoredField("max_rounds", 10)
+    const timerSec = normalizePracticeTimerSeconds(
+      readStoredField("practice_round_seconds", DEFAULT_PRACTICE_TIMER_SECONDS)
+    )
     setCategory(cat)
     setLanguage(lang)
     setTotalRounds(maxR)
+    setPracticeTimerSeconds(timerSec)
+    const hintsPref = readStoredField("practice_hints_enabled", false)
+    setPracticeHintsEnabled(typeof hintsPref === "boolean" ? hintsPref : true)
 
     let cancelled = false
     ;(async () => {
@@ -293,17 +339,25 @@ export default function PracticePage() {
         progressRef.current = stored.progress
         setProgress(stored.progress)
         setRevealProgress("_".repeat(resume.wordLength))
+        const resumeCap =
+          typeof stored.roundTimerSeconds === "number" &&
+          PRACTICE_TIMER_SECONDS_OPTIONS.includes(stored.roundTimerSeconds as PracticeTimerSeconds)
+            ? stored.roundTimerSeconds
+            : timerSec
         setTimeLeft(
           typeof stored.timeLeft === "number"
-            ? Math.max(0, Math.min(ROUND_DURATION, stored.timeLeft))
-            : ROUND_DURATION
+            ? Math.max(0, Math.min(resumeCap, stored.timeLeft))
+            : timerSec
         )
         setRound(typeof stored.round === "number" ? stored.round : 1)
         setScore(typeof stored.score === "number" ? stored.score : 0)
+        const hr = normalizeHintLettersRemaining(stored.hintLettersRemaining)
+        hintLettersRemainingRef.current = hr
+        setHintLettersRemaining(hr)
         setGameStatus("playing")
         return
       }
-      await loadNewWord(cat, lang)
+      await loadNewWord(cat, lang, timerSec)
     })()
     return () => {
       cancelled = true
@@ -322,12 +376,25 @@ export default function PracticePage() {
         wordLength: roundMeta.wordLength,
         category,
         language,
+        roundTimerSeconds: practiceTimerSeconds,
+        hintLettersRemaining,
       }
       sessionStorage.setItem(PRACTICE_SESSION_KEY, JSON.stringify(snap))
     } catch {
       /* ignore */
     }
-  }, [gameStatus, roundMeta, progress, timeLeft, round, score, category, language])
+  }, [
+    gameStatus,
+    roundMeta,
+    progress,
+    timeLeft,
+    round,
+    score,
+    category,
+    language,
+    practiceTimerSeconds,
+    hintLettersRemaining,
+  ])
 
   useEffect(() => {
     if (gameStatus === "won" || gameStatus === "timeout" || gameStatus === "lost" || gameStatus === "finished") {
@@ -507,6 +574,43 @@ export default function PracticePage() {
     },
     [roundMeta, gameStatus, loadNewWord, triggerWrongKeyFlash, triggerCorrectLetterFxAt]
   )
+
+  const requestHintLetter = useCallback(async () => {
+    if (!practiceHintsEnabled) return
+    if (gameStatus !== "playing" || !roundMeta || roundConcludedRef.current) return
+    if (hintLettersRemainingRef.current <= 0) return
+
+    const word = answerWordRef.current
+    const cur = progressRef.current
+    if (!word || word.length !== roundMeta.wordLength || cur.length !== word.length) return
+
+    const out = revealRandomAnswerLetter(cur, word)
+    if (!out) return
+
+    hintLettersRemainingRef.current -= 1
+    setHintLettersRemaining(hintLettersRemainingRef.current)
+
+    const { next, index } = out
+    if (isWordComplete(next)) playWordCompleteSound()
+    else playCorrectLetterSound()
+    triggerCorrectLetterFxAt(index)
+    progressRef.current = next
+    setProgress(next)
+
+    if (isWordComplete(next)) {
+      roundConcludedRef.current = true
+      setGameStatus("resolving")
+      const fin = await finalizePracticeRound("won", next)
+      if (!fin.ok) {
+        await loadNewWord()
+        return
+      }
+      hiddenInputRef.current?.blur()
+      setShowConfetti(true)
+      setGameStatus("won")
+      setTimeout(() => setShowConfetti(false), 2500)
+    }
+  }, [practiceHintsEnabled, gameStatus, roundMeta, loadNewWord, triggerCorrectLetterFxAt])
 
   handleLetterInputRef.current = handleLetterInput
 
@@ -787,24 +891,26 @@ export default function PracticePage() {
             <ArrowLeft className="w-4 h-4 mr-1" />Exit
           </Button>
 
-          <div className="flex flex-col items-center gap-0.5">
-            <span className="text-sm font-medium text-muted-foreground">
+          <div className="flex flex-col items-center gap-0">
+            <span className="text-xs font-medium text-muted-foreground tabular-nums">
               Round {round}/{totalRounds}
             </span>
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground/60">
-              {category && CATEGORIES[category as CategoryKey] && (
-                <span suppressHydrationWarning>{CATEGORIES[category as CategoryKey].emoji} {CATEGORIES[category as CategoryKey].category}</span>
-              )}
-              {language && LANGUAGES[language as LanguageKey] && (
-                <span suppressHydrationWarning>· {LANGUAGES[language as LanguageKey].flag}</span>
-              )}
-            </div>
+            {category && CATEGORIES[category as CategoryKey] && (
+              <div
+                className="flex items-center gap-1 text-[11px] leading-tight text-muted-foreground/60 max-w-[min(12rem,55vw)] justify-center"
+                suppressHydrationWarning
+              >
+                <span className="text-[10px] leading-none shrink-0 scale-90 origin-center inline-block" aria-hidden>
+                  {CATEGORIES[category as CategoryKey].emoji}
+                </span>
+                <span className="truncate">{CATEGORIES[category as CategoryKey].category}</span>
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-1.5">
-            {/* Score */}
-            <div className="flex items-center gap-1 text-sm font-bold px-3 py-1.5 rounded-lg bg-muted">
-              <Trophy className="w-3.5 h-3.5 text-primary" />{score}
+            <div className="tabular-nums text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/12 text-emerald-700 dark:text-emerald-400 min-w-[2.5rem] text-center leading-tight">
+              {score} pts
             </div>
             <AmbientWavesToggle />
             <LetterSoundToggle />
@@ -814,7 +920,7 @@ export default function PracticePage() {
 
       {/* Main content — tap anywhere to re-focus keyboard on iOS */}
       <div
-        className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-none flex flex-col items-center justify-start px-4 pt-5 pb-6 max-w-2xl mx-auto w-full gap-5"
+        className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-none flex flex-col items-stretch justify-start px-4 pt-5 pb-6 max-w-2xl mx-auto w-full gap-5"
         onClick={() => {
           if (gameStatus === "playing") hiddenInputRef.current?.focus()
         }}
@@ -836,7 +942,7 @@ export default function PracticePage() {
             className={cn(
               "px-4",
               gameStatus === "loading" ? "py-8" : defCardVerticalPad,
-              gameStatus === "playing" && "px-10 pt-8 pb-6 sm:px-12"
+              gameStatus === "playing" && "relative px-10 pt-8 pb-6 sm:px-12"
             )}
           >
             {gameStatus === "loading" ? (
@@ -844,11 +950,35 @@ export default function PracticePage() {
                 <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center w-full text-center gap-1">
+              <div className="flex w-full flex-col items-center">
+                {gameStatus === "playing" && practiceHintsEnabled && hintLettersRemaining > 0 ? (
+                  <div
+                    className="absolute left-2 top-2 z-10 sm:left-3 sm:top-3"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      title="Reveal a random correct letter"
+                      aria-label={`Hint: reveal one letter (${hintLettersRemaining} left)`}
+                      className={cn(
+                        "flex size-6 min-h-6 min-w-6 shrink-0 items-center justify-center rounded-md border border-emerald-600 bg-emerald-50 p-0 shadow-md",
+                        "text-[11px] font-bold tabular-nums leading-none text-emerald-700",
+                        "hover:border-emerald-700 hover:bg-emerald-100/90 dark:border-emerald-500 dark:bg-emerald-950/40 dark:text-emerald-400 dark:hover:bg-emerald-950/60"
+                      )}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        void requestHintLetter()
+                      }}
+                    >
+                      {hintLettersRemaining}
+                    </Button>
+                  </div>
+                ) : null}
                 {gameStatus === "playing" && (
                   <p
                     className={cn(
-                      "text-lg sm:text-xl font-bold tabular-nums leading-none w-full",
+                      "w-full text-center text-lg sm:text-xl font-bold tabular-nums leading-none",
                       timeLeft <= 10 ? "text-red-400" : "text-muted-foreground"
                     )}
                   >
@@ -857,7 +987,8 @@ export default function PracticePage() {
                 )}
                 <p
                   className={cn(
-                    "text-base sm:text-lg text-balance w-full max-w-prose mx-auto",
+                    "mx-auto w-full max-w-prose text-balance text-center text-base sm:text-lg",
+                    gameStatus === "playing" && "mt-1",
                     approxDefinitionLines > 4 ? "leading-tight" : "leading-snug"
                   )}
                 >
@@ -1004,9 +1135,9 @@ export default function PracticePage() {
         )}
 
         {(gameStatus === "won" || gameStatus === "timeout" || gameStatus === "lost") && (
-          <div className="w-full space-y-4 text-center">
+          <div className="w-full min-w-0 space-y-4 text-center">
             <div className={cn(
-              "flex h-12 w-full items-center justify-center rounded-xl px-6",
+              "flex min-h-12 w-full shrink-0 items-center justify-center rounded-xl px-4 py-3 sm:h-12 sm:px-6 sm:py-0",
               gameStatus === "won"
                 ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
                 : "bg-destructive/10 text-destructive"

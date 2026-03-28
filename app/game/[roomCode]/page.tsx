@@ -14,11 +14,15 @@ import {
   TOTAL_ROUNDS,
   PLAYER_COLORS,
   CATEGORIES,
-  LANGUAGES,
   languageForMultiplayerRoom,
   allActivePlayersSpeechEliminated,
 } from "@/lib/game-types"
-import { tryPlaceLetter, isWordComplete, countNewlyFilledLetters } from "@/lib/words"
+import {
+  tryPlaceLetter,
+  isWordComplete,
+  countNewlyFilledLetters,
+  revealRandomAnswerLetter,
+} from "@/lib/words"
 import {
   playCorrectLetterSound,
   playWrongLetterSound,
@@ -66,6 +70,8 @@ interface PlayerInfo {
   /** Set by host on create — used to patch DB if language/category didn’t persist. */
   language?: LanguageKey
   category?: CategoryKey
+  /** Same key as practice/home: hint button in rounds (default off if missing). */
+  practice_hints_enabled?: boolean
 }
 
 interface GamePageProps {
@@ -153,6 +159,9 @@ function isSamePlayerRejoin(
 /** Durată lockout tastatură după literă greșită (= durată inel animat). */
 const WRONG_LETTER_LOCK_MS = 2000
 
+/** Indicii literă aleatoare per rundă (fără puncte), ca în Practice. */
+const MULTIPLAYER_HINT_LETTERS_PER_ROUND = 3
+
 /** Praf + pop la litere completate automat (timeout / all speech wrong). */
 const AUTO_REVEAL_FX_COLOR = "#dc2626"
 
@@ -229,6 +238,9 @@ export default function GamePage({ params }: GamePageProps) {
   const lockedUntilRef = useRef(0)
   const [wrongLetterDelayRing, setWrongLetterDelayRing] = useState(false)
   const wrongLetterDelayRingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [hintLettersRemaining, setHintLettersRemaining] = useState(MULTIPLAYER_HINT_LETTERS_PER_ROUND)
+  const hintLettersRemainingRef = useRef(MULTIPLAYER_HINT_LETTERS_PER_ROUND)
+  const [multiplayerHintsEnabled, setMultiplayerHintsEnabled] = useState(false)
   const [typedLetterHistory, setTypedLetterHistory] = useState<string[]>([])
   const [letterHistoryOpen, setLetterHistoryOpen] = useState(false)
   const restoreTypingFocus = useCallback(() => {
@@ -327,8 +339,11 @@ export default function GamePage({ params }: GamePageProps) {
     const stored = localStorage.getItem("wordmatch_player")
     if (!stored) { router.push("/"); return }
     const parsed = JSON.parse(stored)
-    if (parsed.roomCode === roomCode) setPlayerInfo(parsed)
-    else router.push("/")
+    if (parsed.roomCode === roomCode) {
+      setPlayerInfo(parsed)
+      const h = parsed.practice_hints_enabled
+      setMultiplayerHintsEnabled(typeof h === "boolean" ? h : false)
+    } else router.push("/")
   }, [roomCode, router])
 
   // Golire slot la închidere tab / navigare (ceilalți văd plecarea în realtime)
@@ -786,6 +801,8 @@ export default function GamePage({ params }: GamePageProps) {
       setWrongLetterDelayRing(false)
       setTypedLetterHistory([])
       setLetterHistoryOpen(false)
+      hintLettersRemainingRef.current = MULTIPLAYER_HINT_LETTERS_PER_ROUND
+      setHintLettersRemaining(MULTIPLAYER_HINT_LETTERS_PER_ROUND)
       resetCorrectLetterFx()
       timerEndCalledRef.current = false
       speechAllFailedEndInProgressRef.current = false
@@ -953,7 +970,7 @@ export default function GamePage({ params }: GamePageProps) {
   }, [])
 
   const commitProgressUpdate = useCallback(
-    async (next: string, curBefore: string) => {
+    async (next: string, curBefore: string, opts?: { skipScore?: boolean }) => {
       if (!room || !playerInfo || !room.current_word) return
       consecutiveWrongRef.current = 0
       cancelShake()
@@ -969,7 +986,7 @@ export default function GamePage({ params }: GamePageProps) {
       if (lastNew >= 0) setLastPlacedIndex(lastNew)
       const pf = `player${mySlot}_progress`
       const sf = `player${mySlot}_score`
-      const lettersDelta = countNewlyFilledLetters(curBefore, next)
+      const lettersDelta = opts?.skipScore ? 0 : countNewlyFilledLetters(curBefore, next)
       const baseScore = localLetterScoreRef.current ?? (slotData(mySlot, room).score ?? 0)
       const newScore = baseScore + lettersDelta * SCORE_PER_LETTER
       localLetterScoreRef.current = newScore
@@ -1002,6 +1019,23 @@ export default function GamePage({ params }: GamePageProps) {
     },
     [room, mySlot, roomCode, supabase, playerInfo]
   )
+
+  const requestMultiplayerHint = useCallback(async () => {
+    if (!multiplayerHintsEnabled) return
+    if (!room || !playerInfo || room.game_status !== "playing" || !room.current_word) return
+    if (eliminatedFromRoundRef.current) return
+    if (hintLettersRemainingRef.current <= 0) return
+    const cur = localProgressRef.current ?? slotData(mySlot, room).progress ?? ""
+    if (!cur || cur.length !== room.current_word.length) return
+    const out = revealRandomAnswerLetter(cur, room.current_word)
+    if (!out) return
+    hintLettersRemainingRef.current -= 1
+    setHintLettersRemaining(hintLettersRemainingRef.current)
+    const { next } = out
+    if (isWordComplete(next)) playWordCompleteSound()
+    else playCorrectLetterSound()
+    await commitProgressUpdate(next, cur, { skipScore: true })
+  }, [multiplayerHintsEnabled, room, playerInfo, mySlot, commitProgressUpdate])
 
   const handleLetterInput = useCallback(async (letter: string) => {
     if (!room || !playerInfo || room.game_status !== "playing" || !room.current_word) return
@@ -1295,8 +1329,8 @@ export default function GamePage({ params }: GamePageProps) {
     if (!room) return null
     const active = activeSlots(room)
     return (
-      <div className="w-full overflow-x-auto scrollbar-none">
-        <div className="flex gap-2 w-max mx-auto px-1">
+      <div className="w-full overflow-x-auto overflow-y-visible scrollbar-none py-0.5">
+        <div className="flex gap-1.5 w-max mx-auto px-0.5 items-stretch">
           {active.map(slot => {
             const d = slotData(slot, room)
             const isMe = slot === mySlot
@@ -1305,21 +1339,21 @@ export default function GamePage({ params }: GamePageProps) {
               <div
                 key={slot}
                 className={cn(
-                  "flex items-center gap-2 px-3 py-2 rounded-xl border-2 transition-all duration-200",
-                  isMe ? "scale-[1.04] shadow-sm" : "opacity-65"
+                  "flex items-center gap-1.5 px-2 py-1 rounded-lg border-2 transition-all duration-200 box-border",
+                  isMe ? "shadow-sm" : "opacity-65"
                 )}
                 style={{
                   borderColor: isMe ? color : "transparent",
                   background: `${color}${isMe ? "18" : "08"}`,
                 }}
               >
-                <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: color }} />
+                <div className="size-2 rounded-full shrink-0" style={{ background: color }} />
                 <div className="min-w-0">
-                  <p className="font-bold text-sm leading-tight truncate max-w-[80px]">
+                  <p className="font-bold text-xs leading-tight truncate max-w-[72px]">
                     {d.name ?? `P${slot}`}
-                    {isMe && <span className="font-normal text-xs text-muted-foreground"> (you)</span>}
+                    {isMe && <span className="font-normal text-[10px] text-muted-foreground"> (you)</span>}
                   </p>
-                  <p className="text-xs font-bold" style={{ color }}>{d.score} pts</p>
+                  <p className="text-[10px] font-bold leading-tight" style={{ color }}>{d.score} pts</p>
                 </div>
               </div>
             )
@@ -1786,6 +1820,25 @@ export default function GamePage({ params }: GamePageProps) {
         ? "pt-6 pb-5"
         : "pt-7 pb-6"
 
+  /** Mai puțin spațiu vertical când răspunsul e deja complet (în rundă sau la round_end). */
+  const defCardVerticalPadWordComplete =
+    approxDefinitionLines <= 2
+      ? "pt-3 pb-2"
+      : approxDefinitionLines <= 4
+        ? "pt-4 pb-3"
+        : "pt-5 pb-4"
+
+  const myProgressForPad = myDisplayProgress ?? slotData(mySlot, room).progress ?? ""
+  const playingWordComplete =
+    room.game_status === "playing" &&
+    !!room.current_word &&
+    myProgressForPad.length === room.current_word.length &&
+    isWordComplete(myProgressForPad)
+
+  const defCardPlayingVerticalPad = playingWordComplete ? defCardVerticalPadWordComplete : defCardVerticalPad
+
+  const myPlayerColor = PLAYER_COLORS[mySlot - 1]
+
   return (
     <main
       className={cn(
@@ -1806,22 +1859,24 @@ export default function GamePage({ params }: GamePageProps) {
       )}
 
       {/* Sticky top bar */}
-      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b px-4 pt-3 pb-3 space-y-3">
+      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b px-4 pt-3 pb-2 space-y-2">
         {/* Row: Exit · Round+Category · Timer */}
         <div className="flex items-center justify-between">
           <Button variant="ghost" size="sm" className="h-8 px-2" onClick={() => void handleExitRoom()}>
             <ArrowLeft className="w-4 h-4 mr-1" />Exit
           </Button>
-          <div className="flex flex-col items-center gap-0.5">
-            <span className="text-sm font-medium text-muted-foreground">
+          <div className="flex flex-col items-center gap-0">
+            <span className="text-xs font-medium text-muted-foreground tabular-nums">
               Round {room.current_round}/{room.total_rounds ?? TOTAL_ROUNDS}
             </span>
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground/60">
-              {room.category && CATEGORIES[room.category as CategoryKey] && (
-                <span>{CATEGORIES[room.category as CategoryKey].emoji} {CATEGORIES[room.category as CategoryKey].category}</span>
-              )}
-              <span>· {LANGUAGES[languageForMultiplayerRoom(room.language)].flag}</span>
-            </div>
+            {room.category && CATEGORIES[room.category as CategoryKey] && (
+              <div className="flex items-center gap-1 text-[11px] leading-tight text-muted-foreground/60 max-w-[min(12rem,55vw)] justify-center">
+                <span className="text-[10px] leading-none shrink-0 scale-90 origin-center inline-block" aria-hidden>
+                  {CATEGORIES[room.category as CategoryKey].emoji}
+                </span>
+                <span className="truncate">{CATEGORIES[room.category as CategoryKey].category}</span>
+              </div>
+            )}
           </div>
           <div className="flex min-w-[5.25rem] items-center justify-end gap-1">
             <AmbientWavesToggle />
@@ -1837,7 +1892,7 @@ export default function GamePage({ params }: GamePageProps) {
 
       {/* Main content */}
       <div
-        className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-none flex flex-col items-center justify-start px-4 pt-5 pb-6 max-w-2xl mx-auto w-full gap-5"
+        className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-none flex flex-col items-stretch justify-start px-4 pt-2 pb-6 max-w-2xl mx-auto w-full gap-5"
         onClick={() => {
           if (!isRoundEnd && !roundEliminated && !allPlayersSpeechWrongReveal) {
             hiddenInputRef.current?.focus()
@@ -1849,7 +1904,7 @@ export default function GamePage({ params }: GamePageProps) {
           <>
             {/* ── Definition (kept visible) ── */}
             <Card className="w-full shadow-sm">
-              <CardContent className="px-8 py-7 sm:px-10 sm:py-8">
+              <CardContent className="px-6 py-4 sm:px-8 sm:py-5">
                 <p className="text-base sm:text-lg text-center leading-relaxed text-balance">
                   {room.current_definition}
                 </p>
@@ -1864,7 +1919,7 @@ export default function GamePage({ params }: GamePageProps) {
             {/* ── Result header ── */}
             {room.round_winner ? (
               <div className={cn(
-                "flex h-12 w-full items-center justify-center rounded-xl px-5 text-center",
+                "flex min-h-12 w-full shrink-0 items-center justify-center rounded-xl px-4 py-3 text-center sm:h-12 sm:py-0",
                 iWonRound ? "bg-amber-500/10 text-amber-700 dark:text-amber-400" : "bg-muted"
               )}>
                 <div className="flex items-center justify-center gap-2 text-base font-semibold leading-tight">
@@ -1873,7 +1928,7 @@ export default function GamePage({ params }: GamePageProps) {
                 </div>
               </div>
             ) : (
-              <div className="flex h-12 w-full items-center justify-center rounded-xl bg-destructive/10 px-5 text-center text-destructive">
+              <div className="flex min-h-12 w-full shrink-0 items-center justify-center rounded-xl bg-destructive/10 px-4 py-3 text-center text-destructive sm:h-12 sm:py-0">
                 <div className="flex items-center justify-center gap-2 text-center text-base font-semibold leading-tight">
                   {room.round_end_reason !== "all_speech_wrong" && (
                     <Timer className="h-4 w-4 shrink-0" />
@@ -1949,14 +2004,44 @@ export default function GamePage({ params }: GamePageProps) {
               <CardContent
                 className={cn(
                   "px-4",
-                  defCardVerticalPad,
-                  !roundEliminated && !allPlayersSpeechWrongReveal && "px-10 pt-8 pb-6 sm:px-12"
+                  defCardPlayingVerticalPad,
+                  !roundEliminated &&
+                    !allPlayersSpeechWrongReveal &&
+                    cn(
+                      "relative px-10 sm:px-12",
+                      playingWordComplete ? "pt-4 pb-3" : "pt-8 pb-6"
+                    )
                 )}
               >
-                <div className="flex flex-col items-center justify-center w-full text-center gap-1">
+                <div className="flex w-full flex-col items-center text-center">
+                  {!roundEliminated && !allPlayersSpeechWrongReveal && multiplayerHintsEnabled && hintLettersRemaining > 0 ? (
+                    <div
+                      className="absolute left-2 top-2 z-10 sm:left-3 sm:top-3"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        title="Reveal a random letter (no points)"
+                        aria-label={`Hint: one letter (${hintLettersRemaining} left)`}
+                        className="flex size-6 min-h-6 min-w-6 shrink-0 items-center justify-center rounded-md border-2 p-0 shadow-md text-[11px] font-bold tabular-nums leading-none"
+                        style={{
+                          borderColor: `${myPlayerColor}80`,
+                          background: `${myPlayerColor}18`,
+                          color: myPlayerColor,
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          void requestMultiplayerHint()
+                        }}
+                      >
+                        {hintLettersRemaining}
+                      </Button>
+                    </div>
+                  ) : null}
                   <p
                     className={cn(
-                      "text-lg sm:text-xl font-bold tabular-nums leading-none w-full",
+                      "w-full text-lg sm:text-xl font-bold tabular-nums leading-none",
                       timeRemaining <= 10 ? "text-red-400" : "text-muted-foreground"
                     )}
                   >
@@ -1964,7 +2049,7 @@ export default function GamePage({ params }: GamePageProps) {
                   </p>
                   <p
                     className={cn(
-                      "text-base sm:text-lg text-balance w-full max-w-prose mx-auto",
+                      "mt-1 w-full max-w-prose text-balance text-base sm:text-lg",
                       approxDefinitionLines > 4 ? "leading-tight" : "leading-snug"
                     )}
                   >

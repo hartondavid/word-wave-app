@@ -41,6 +41,8 @@ export interface GameRoom {
   /** Când nu e câștigător: timeout (timp) sau all_speech_wrong (toți au greșit la microfon). */
   round_end_reason?: string | null
   round_end_time: string | null
+  /** Secunde per rundă de tastare (30 sau 60); setat de gazdă la creare. Lipsește în DB vechi → 60. */
+  round_duration_seconds?: number | null
 
   player1_speech_eliminated?: boolean | null
   player2_speech_eliminated?: boolean | null
@@ -57,6 +59,15 @@ export interface WordPair {
 
 export const ROUND_DURATION = 60
 export const TOTAL_ROUNDS = 10
+
+/** Durata efectivă a rundei multiplayer din rândul camerei (fallback 60). */
+export function effectiveRoundDurationSeconds(
+  room: Pick<GameRoom, "round_duration_seconds">
+): number {
+  const v = room.round_duration_seconds
+  if (v === 30 || v === 60) return v
+  return ROUND_DURATION
+}
 /** Puncte primite la fiecare literă corectă plasată (multiplayer + practice). */
 export const SCORE_PER_LETTER = 10
 /** Primul jucător care atinge acest total de puncte câștigă meciul (sau se termină după `total_rounds` runde). */

@@ -17,6 +17,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import { Switch } from "@/components/ui/switch"
 import { Zap } from "lucide-react"
 import { HomeHowToPlayCard } from "@/components/home-how-to-play-card"
 import { startGameAmbientWaves, stopGameAmbientWaves } from "@/lib/game-ambient-waves"
@@ -60,6 +62,32 @@ const MSG_NAME_TAKEN =
   "This name is already taken in the room."
 const MIN_NAME_LENGTH = 2
 
+type PracticeRoundTimerSeconds = 30 | 60
+
+function persistPracticeRoundSecondsPartial(sec: PracticeRoundTimerSeconds) {
+  if (typeof window === "undefined") return
+  try {
+    const raw = localStorage.getItem("wordmatch_player")
+    const o: Record<string, unknown> = raw ? (JSON.parse(raw) as Record<string, unknown>) : {}
+    o.practice_round_seconds = sec
+    localStorage.setItem("wordmatch_player", JSON.stringify(o))
+  } catch {
+    /* ignore */
+  }
+}
+
+function persistPracticeHintsEnabledPartial(on: boolean) {
+  if (typeof window === "undefined") return
+  try {
+    const raw = localStorage.getItem("wordmatch_player")
+    const o: Record<string, unknown> = raw ? (JSON.parse(raw) as Record<string, unknown>) : {}
+    o.practice_hints_enabled = on
+    localStorage.setItem("wordmatch_player", JSON.stringify(o))
+  } catch {
+    /* ignore */
+  }
+}
+
 function validatePlayerName(raw: string): string {
   const t = raw.trim()
   if (!t) return MSG_NAME_REQUIRED
@@ -98,6 +126,8 @@ export function HomePlayClient() {
   const [roomCode, setRoomCode] = useState("")
   const [maxPlayers, setMaxPlayers] = useState<2 | 3 | 4>(2)
   const [maxRoundsInput, setMaxRoundsInput] = useState<string>(String(TOTAL_ROUNDS))
+  const [practiceRoundSeconds, setPracticeRoundSeconds] = useState<PracticeRoundTimerSeconds>(30)
+  const [practiceHintsEnabled, setPracticeHintsEnabled] = useState(false)
   const [roundsError, setRoundsError] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<CategoryKey>("general")
   const [selectedLanguage, setSelectedLanguage] = useState<LanguageKey>("en")
@@ -122,6 +152,26 @@ export function HomePlayClient() {
     window.history.replaceState(null, "", window.location.pathname || "/")
   }, [])
 
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    try {
+      const prev = localStorage.getItem("wordmatch_player")
+      if (!prev) return
+      const j = JSON.parse(prev) as {
+        practice_round_seconds?: unknown
+        practice_hints_enabled?: unknown
+      }
+      if (j.practice_round_seconds === 30 || j.practice_round_seconds === 60) {
+        setPracticeRoundSeconds(j.practice_round_seconds)
+      }
+      if (typeof j.practice_hints_enabled === "boolean") {
+        setPracticeHintsEnabled(j.practice_hints_enabled)
+      }
+    } catch {
+      /* ignore */
+    }
+  }, [])
+
   async function handlePracticeSolo() {
     const nameErr = validatePlayerName(playerName)
     if (nameErr) {
@@ -136,6 +186,8 @@ export function HomePlayClient() {
       category: selectedCategory,
       language: selectedLanguage,
       max_rounds: !isNaN(rounds) && rounds > 0 ? rounds : 10,
+      practice_round_seconds: practiceRoundSeconds,
+      practice_hints_enabled: practiceHintsEnabled,
     }))
     router.push("/practice")
   }
@@ -167,11 +219,12 @@ export function HomePlayClient() {
         total_rounds: maxRounds,
       }
 
-      const OPTIONAL_COLUMNS = ["language", "category", "max_players"] as const
+      const OPTIONAL_COLUMNS = ["language", "category", "max_players", "round_duration_seconds"] as const
       const optionalValues: Record<string, unknown> = {
         max_players: maxPlayers,
         category: selectedCategory,
         language: roomLanguage,
+        round_duration_seconds: practiceRoundSeconds,
       }
 
       let payload = { ...basePayload, ...optionalValues }
@@ -203,6 +256,7 @@ export function HomePlayClient() {
           language: roomLanguage,
           category: selectedCategory,
           max_players: maxPlayers,
+          round_duration_seconds: practiceRoundSeconds,
         })
         .eq("room_code", newRoomCode)
       if (patchErr) {
@@ -221,6 +275,7 @@ export function HomePlayClient() {
         playerSlot: 1,
         language: roomLanguage,
         category: selectedCategory,
+        practice_hints_enabled: practiceHintsEnabled,
       }))
       router.push(`/game/${newRoomCode}`)
     } catch (err) {
@@ -308,6 +363,7 @@ export function HomePlayClient() {
         name: playerName.trim(),
         roomCode: upperCode,
         playerSlot,
+        practice_hints_enabled: practiceHintsEnabled,
       }))
       router.push(`/game/${upperCode}`)
     } catch (err) {
@@ -429,6 +485,48 @@ export function HomePlayClient() {
               {roundsError && (
                 <p className="text-xs text-destructive">{roundsError}</p>
               )}
+              <div className="space-y-2 pt-1">
+                <p className="text-sm font-medium">Round timer</p>
+
+                <ToggleGroup
+                  type="single"
+                  value={String(practiceRoundSeconds)}
+                  onValueChange={(v) => {
+                    if (v !== "30" && v !== "60") return
+                    const sec = Number(v) as PracticeRoundTimerSeconds
+                    setPracticeRoundSeconds(sec)
+                    persistPracticeRoundSecondsPartial(sec)
+                  }}
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  aria-label="Round timer length for practice and new multiplayer rooms"
+                >
+                  <ToggleGroupItem value="30" className="flex-1 text-xs sm:text-sm">
+                    30 seconds
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="60" className="flex-1 text-xs sm:text-sm">
+                    60 seconds
+                  </ToggleGroupItem>
+                </ToggleGroup>
+              </div>
+              <div className="space-y-2 pt-1">
+                <p className="text-sm font-medium">Letter hints</p>
+                <div className="flex w-full items-center justify-between gap-3 rounded-md border border-input bg-background px-3 py-2.5">
+                  <p className="min-w-0 flex-1 text-xs leading-snug text-muted-foreground">
+                    Show hint button in rounds (up to 3 random letters per round)
+                  </p>
+                  <Switch
+                    id="home-practice-hints"
+                    checked={practiceHintsEnabled}
+                    onCheckedChange={(on) => {
+                      setPracticeHintsEnabled(on)
+                      persistPracticeHintsEnabledPartial(on)
+                    }}
+                    className="shrink-0"
+                  />
+                </div>
+              </div>
             </div>
           )}
 
