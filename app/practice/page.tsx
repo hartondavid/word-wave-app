@@ -892,15 +892,15 @@ export default function PracticePage() {
           </Button>
 
           <div className="flex flex-col items-center gap-0">
-            <span className="text-xs font-medium text-muted-foreground tabular-nums">
+            <span className="text-sm font-semibold text-muted-foreground tabular-nums">
               Round {round}/{totalRounds}
             </span>
             {category && CATEGORIES[category as CategoryKey] && (
               <div
-                className="flex items-center gap-1 text-[11px] leading-tight text-muted-foreground/60 max-w-[min(12rem,55vw)] justify-center"
+                className="flex items-center gap-1 text-xs leading-tight text-muted-foreground/70 max-w-[min(12rem,55vw)] justify-center"
                 suppressHydrationWarning
               >
-                <span className="text-[10px] leading-none shrink-0 scale-90 origin-center inline-block" aria-hidden>
+                <span className="text-xs leading-none shrink-0 inline-block" aria-hidden>
                   {CATEGORIES[category as CategoryKey].emoji}
                 </span>
                 <span className="truncate">{CATEGORIES[category as CategoryKey].category}</span>
@@ -909,7 +909,13 @@ export default function PracticePage() {
           </div>
 
           <div className="flex items-center gap-1.5">
-            <div className="tabular-nums text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/12 text-emerald-700 dark:text-emerald-400 min-w-[2.5rem] text-center leading-tight">
+            <div
+              className="tabular-nums text-[10px] font-bold px-1.5 py-0.5 rounded-md min-w-[2.5rem] text-center leading-tight"
+              style={{
+                color: PRACTICE_PLAYER_COLOR,
+                backgroundColor: `color-mix(in srgb, ${PRACTICE_PLAYER_COLOR} 14%, transparent)`,
+              }}
+            >
               {score} pts
             </div>
             <AmbientWavesToggle />
@@ -962,10 +968,15 @@ export default function PracticePage() {
                       title="Reveal a random correct letter"
                       aria-label={`Hint: reveal one letter (${hintLettersRemaining} left)`}
                       className={cn(
-                        "flex size-6 min-h-6 min-w-6 shrink-0 items-center justify-center rounded-md border border-emerald-600 bg-emerald-50 p-0 shadow-md",
-                        "text-[11px] font-bold tabular-nums leading-none text-emerald-700",
-                        "hover:border-emerald-700 hover:bg-emerald-100/90 dark:border-emerald-500 dark:bg-emerald-950/40 dark:text-emerald-400 dark:hover:bg-emerald-950/60"
+                        "flex size-6 min-h-6 min-w-6 shrink-0 items-center justify-center rounded-md border-2 p-0 shadow-md transition-opacity",
+                        "text-[11px] font-bold tabular-nums leading-none",
+                        "hover:opacity-90"
                       )}
+                      style={{
+                        borderColor: PRACTICE_PLAYER_COLOR,
+                        backgroundColor: `color-mix(in srgb, ${PRACTICE_PLAYER_COLOR} 14%, transparent)`,
+                        color: PRACTICE_PLAYER_COLOR,
+                      }}
                       onClick={(e) => {
                         e.stopPropagation()
                         void requestHintLetter()
@@ -987,7 +998,7 @@ export default function PracticePage() {
                 )}
                 <p
                   className={cn(
-                    "mx-auto w-full max-w-prose text-balance text-center text-base sm:text-lg",
+                    "w-full text-center text-base sm:text-lg",
                     gameStatus === "playing" && "mt-1",
                     approxDefinitionLines > 4 ? "leading-tight" : "leading-snug"
                   )}

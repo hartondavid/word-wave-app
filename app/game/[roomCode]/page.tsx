@@ -1866,12 +1866,12 @@ export default function GamePage({ params }: GamePageProps) {
             <ArrowLeft className="w-4 h-4 mr-1" />Exit
           </Button>
           <div className="flex flex-col items-center gap-0">
-            <span className="text-xs font-medium text-muted-foreground tabular-nums">
+            <span className="text-sm font-semibold text-muted-foreground tabular-nums">
               Round {room.current_round}/{room.total_rounds ?? TOTAL_ROUNDS}
             </span>
             {room.category && CATEGORIES[room.category as CategoryKey] && (
-              <div className="flex items-center gap-1 text-[11px] leading-tight text-muted-foreground/60 max-w-[min(12rem,55vw)] justify-center">
-                <span className="text-[10px] leading-none shrink-0 scale-90 origin-center inline-block" aria-hidden>
+              <div className="flex items-center gap-1 text-xs leading-tight text-muted-foreground/70 max-w-[min(12rem,55vw)] justify-center">
+                <span className="text-xs leading-none shrink-0 inline-block" aria-hidden>
                   {CATEGORIES[room.category as CategoryKey].emoji}
                 </span>
                 <span className="truncate">{CATEGORIES[room.category as CategoryKey].category}</span>
@@ -1905,7 +1905,7 @@ export default function GamePage({ params }: GamePageProps) {
             {/* ── Definition (kept visible) ── */}
             <Card className="w-full shadow-sm">
               <CardContent className="px-6 py-4 sm:px-8 sm:py-5">
-                <p className="text-base sm:text-lg text-center leading-relaxed text-balance">
+                <p className="text-base sm:text-lg text-center leading-relaxed">
                   {room.current_definition}
                 </p>
               </CardContent>
@@ -2049,7 +2049,7 @@ export default function GamePage({ params }: GamePageProps) {
                   </p>
                   <p
                     className={cn(
-                      "mt-1 w-full max-w-prose text-balance text-base sm:text-lg",
+                      "mt-1 w-full text-base sm:text-lg",
                       approxDefinitionLines > 4 ? "leading-tight" : "leading-snug"
                     )}
                   >
