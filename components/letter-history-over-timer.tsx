@@ -43,7 +43,7 @@ export function LetterHistoryToggleButton({
       variant="secondary"
       size="icon-sm"
       className={cn(
-        "z-20 size-6 min-h-6 min-w-6 rounded-full p-0 shadow-md border border-border/80 transition-[box-shadow] duration-150",
+        "z-20 min-h-11 min-w-11 rounded-full p-0 shadow-md border border-border/80 transition-[box-shadow] duration-150 [&_svg]:h-3.5 [&_svg]:w-3.5",
         embedded ? "relative shrink-0" : "absolute bottom-1 left-1",
         open && "ring-1 ring-primary/30"
       )}

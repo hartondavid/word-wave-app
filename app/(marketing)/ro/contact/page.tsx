@@ -1,9 +1,11 @@
 import type { Metadata } from "next"
 import { ContactForm } from "@/components/contact-form"
+import { alternatesRoCanonical } from "@/lib/seo-alternates"
 
 export const metadata: Metadata = {
   title: "Contact",
   description: "Contactează echipa WordWave — întrebări, feedback, solicitări de confidențialitate sau parteneriate.",
+  alternates: alternatesRoCanonical("/contact", "/ro/contact"),
 }
 
 export default function ContactPageRo() {

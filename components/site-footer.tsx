@@ -35,7 +35,7 @@ export function SiteFooter() {
             >
               <Image
                 src="/logo.png"
-                alt="WordWave"
+                alt=""
                 width={128}
                 height={128}
                 className="h-10 w-auto object-contain sm:h-11"

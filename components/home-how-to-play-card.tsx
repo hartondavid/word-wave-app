@@ -5,7 +5,7 @@ export function HomeHowToPlayCard({ className }: { className?: string }) {
   return (
     <Card className={cn(className)}>
       <CardContent className="space-y-2 pt-4 pb-4 text-sm text-muted-foreground">
-        <p className="mb-2 text-sm font-semibold text-foreground">How to Play</p>
+        <h2 className="mb-2 text-sm font-semibold text-foreground">How to Play</h2>
         <p>
           <span className="font-semibold text-foreground">1.</span> All players see the same word definition
         </p>

@@ -39,13 +39,13 @@ export function SiteNavbar({ homePriorityLogo = false }: { homePriorityLogo?: bo
         aria-label="Main navigation"
       >
         <Link
-          href="/"
+          href={homeHref}
           className="home-logo-png-animate shrink-0 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           aria-label="WordWave home"
         >
           <Image
             src="/logo.png"
-            alt="WordWave"
+            alt=""
             width={160}
             height={160}
             sizes="(max-width: 640px) 90px, 120px"

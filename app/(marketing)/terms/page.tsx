@@ -1,10 +1,12 @@
 import type { Metadata } from "next"
 import { LegalProse } from "@/components/legal-prose"
+import { alternatesEnCanonical } from "@/lib/seo-alternates"
 
 export const metadata: Metadata = {
   title: "Terms of Service",
   description: "Terms governing use of WordWave at wordwave.live.",
   robots: { index: true, follow: true },
+  alternates: alternatesEnCanonical("/terms", "/ro/terms"),
 }
 
 export default function TermsPage() {

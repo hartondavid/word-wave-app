@@ -10,10 +10,6 @@ export default function RoBlogIndexPage() {
   return (
     <div>
       <h1 className="mb-3 text-3xl font-bold tracking-tight text-foreground">Blog WordWave</h1>
-      <p className="mb-10 text-muted-foreground leading-relaxed">
-        Listă în română: linkurile folosesc rute /ro/blog/...; articolele markdown sunt integral în română, iar ghidurile
-        originale au textul în engleză, cu titlu și rezumat afișate aici în română.
-      </p>
       <ul className="space-y-8">
         {allBlogPosts.map((post) => {
           const loc = getPostLocale(post)

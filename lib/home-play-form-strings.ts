@@ -69,6 +69,7 @@ export type HomePlayFormStrings = {
   createRoomTab: string
   joinRoomTab: string
   numberOfPlayers: string
+  playerCountButtonAria: (n: number) => string
   shareCodeWithFriends: (n: number) => string
   creating: string
   createRoomButton: (n: number) => string
@@ -114,6 +115,7 @@ const STRINGS: Record<HomePlayFormLocale, HomePlayFormStrings> = {
     createRoomTab: "Create Room",
     joinRoomTab: "Join Room",
     numberOfPlayers: "Number of Players",
+    playerCountButtonAria: (n) => `${n} players in the room`,
     shareCodeWithFriends: (maxPlayers) =>
       `Share the room code with ${maxPlayers - 1} friend${maxPlayers > 2 ? "s" : ""} to start`,
     creating: "Creating...",
@@ -158,6 +160,7 @@ const STRINGS: Record<HomePlayFormLocale, HomePlayFormStrings> = {
     createRoomTab: "Creează cameră",
     joinRoomTab: "Intră în cameră",
     numberOfPlayers: "Număr de jucători",
+    playerCountButtonAria: (n) => `Cameră cu ${n} jucători`,
     shareCodeWithFriends: (maxPlayers) => {
       const n = maxPlayers - 1
       if (n === 1) return "Distribuie codul camerei cu un prieten ca să începeți"

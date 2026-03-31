@@ -9,10 +9,6 @@ export default function EnBlogIndexPage() {
   return (
     <div>
       <h1 className="mb-3 text-3xl font-bold tracking-tight text-foreground">WordWave blog</h1>
-      <p className="mb-10 text-muted-foreground leading-relaxed">
-        Guides in English, plus Romanian articles (same content at /en/blog/… and /ro/blog/…). Host tips, rounds, voice
-        input, and vocabulary.
-      </p>
       <ul className="space-y-8">
         {allBlogPosts.map((post) => (
           <li key={post.slug} className="border-b border-border/70 pb-8 last:border-0">

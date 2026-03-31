@@ -37,6 +37,7 @@ const copy = {
 } as const
 
 export function ContactForm({ locale = "en" }: { locale?: "en" | "ro" }) {
+  const t = copy[locale]
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [message, setMessage] = useState("")
@@ -71,13 +72,17 @@ export function ContactForm({ locale = "en" }: { locale?: "en" | "ro" }) {
       setMessage("")
       setErrMsg("")
     } catch {
-      setErrMsg(copy[locale].networkError)
+      setErrMsg(t.networkError)
       setStatus("err")
     }
   }
 
-  const t = copy[locale]
   const domainList = CONTACT_ALLOWED_EMAIL_DOMAINS.map((d) => `@${d}`).join(", ")
+  const domainEmailError = errMsg === contactEmailDomainErrorMessage(locale)
+  const emailDescribedBy = domainEmailError
+    ? "contact-email-hint contact-form-error"
+    : "contact-email-hint"
+  const emailInvalid = status === "err" && domainEmailError
 
   return (
     <form onSubmit={onSubmit} className="space-y-4" lang={locale === "ro" ? "ro" : "en"}>
@@ -135,7 +140,11 @@ export function ContactForm({ locale = "en" }: { locale?: "en" | "ro" }) {
         </p>
       ) : null}
       {status === "err" ? (
-        <p className="text-sm font-medium text-destructive" role="alert">
+        <p
+          id="contact-form-error"
+          className="text-sm font-medium text-destructive"
+          role="alert"
+        >
           {errMsg}
         </p>
       ) : null}

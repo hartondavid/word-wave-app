@@ -1,10 +1,12 @@
 import type { Metadata } from "next"
 import { LegalProse } from "@/components/legal-prose"
+import { alternatesEnCanonical } from "@/lib/seo-alternates"
 
 export const metadata: Metadata = {
   title: "How to Play — Rules",
   description:
     "Official WordWave rules: rounds, scoring, ready checks, keyboard and microphone input, and fair play for multiplayer rooms.",
+  alternates: alternatesEnCanonical("/rules", "/ro/rules"),
 }
 
 export default function RulesPage() {

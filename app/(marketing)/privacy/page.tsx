@@ -1,10 +1,12 @@
 import type { Metadata } from "next"
 import { LegalProse } from "@/components/legal-prose"
+import { alternatesEnCanonical } from "@/lib/seo-alternates"
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description: "How WordWave collects, uses, and stores data; cookies; analytics; and your rights under GDPR.",
   robots: { index: true, follow: true },
+  alternates: alternatesEnCanonical("/privacy", "/ro/privacy"),
 }
 
 export default function PrivacyPage() {

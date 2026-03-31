@@ -38,7 +38,7 @@ export function AmbientWavesToggle({ className }: { className?: string }) {
       onClick={toggle}
     >
       {on ? (
-        <Waves className="h-4 w-4" />
+        <Waves className="h-4 w-4" aria-hidden />
       ) : (
         <span className="relative inline-flex h-4 w-4 items-center justify-center">
           <Waves className="h-4 w-4 opacity-35" aria-hidden />

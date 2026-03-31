@@ -1519,15 +1519,23 @@ export default function GamePage({ params }: GamePageProps) {
 
   if (isLoading || !playerInfo) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="flex min-h-screen items-center justify-center bg-background outline-none"
+      >
         <Spinner className="w-8 h-8" />
-      </div>
+      </main>
     )
   }
 
   if (!room) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-background">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background outline-none"
+      >
         <p className="text-muted-foreground">Room not found</p>
         <Button
           variant="outline"
@@ -1538,7 +1546,7 @@ export default function GamePage({ params }: GamePageProps) {
         >
           <ArrowLeft className="w-4 h-4 mr-2" />Back Home
         </Button>
-      </div>
+      </main>
     )
   }
 
@@ -1547,7 +1555,11 @@ export default function GamePage({ params }: GamePageProps) {
   if (room.game_status === "finished") {
     if (disconnectMessage) {
       return (
-        <main className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-background to-secondary/30">
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-background to-secondary/30 p-4 outline-none"
+        >
           <Card className="w-full max-w-md">
             <CardContent className="pt-8 pb-8 text-center space-y-6">
               <div className="w-20 h-20 mx-auto rounded-full bg-destructive/10 flex items-center justify-center">
@@ -1581,7 +1593,11 @@ export default function GamePage({ params }: GamePageProps) {
     const maxBarScore = Math.max(WIN_SCORE, topScore, 1)
 
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-background to-secondary/30">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-background to-secondary/30 p-4 outline-none"
+      >
         {iWon && <Confetti recycle={false} numberOfPieces={500} />}
         <Card className="w-full max-w-md">
           <CardContent className="pt-8 pb-8 text-center space-y-6">
@@ -1624,13 +1640,17 @@ export default function GamePage({ params }: GamePageProps) {
   if (room.game_status === "waiting" && !isFull(room)) {
     const maxP = room.max_players ?? 2
     return (
-      <main className="min-h-screen flex flex-col bg-gradient-to-b from-background to-secondary/30">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="flex min-h-screen flex-col bg-gradient-to-b from-background to-secondary/30 outline-none"
+      >
         {topTransientNotice && (
           <div className="w-full shrink-0 px-4 pt-3 pb-2 border-b border-border/60 bg-background/95 backdrop-blur-sm z-20">
             {renderTopTransientNoticeBanner()}
           </div>
         )}
-        <div className="flex-1 flex flex-col items-center justify-center p-4">
+        <div className="flex flex-1 flex-col items-center justify-center p-4">
         <Card className="w-full max-w-sm">
           <CardContent className="pt-3 pb-4 text-center space-y-3">
             <div>
@@ -1745,13 +1765,17 @@ export default function GamePage({ params }: GamePageProps) {
     const myReady = slotData(mySlot, room).ready
     const active = activeSlots(room)
     return (
-      <main className="min-h-screen flex flex-col bg-gradient-to-b from-background to-secondary/30">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="flex min-h-screen flex-col bg-gradient-to-b from-background to-secondary/30 outline-none"
+      >
         {topTransientNotice && (
           <div className="w-full shrink-0 px-4 pt-3 pb-2 border-b border-border/60 bg-background/95 backdrop-blur-sm z-20">
             {renderTopTransientNoticeBanner()}
           </div>
         )}
-        <div className="flex-1 flex flex-col items-center justify-center p-4">
+        <div className="flex flex-1 flex-col items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardContent className="pt-3 pb-4 space-y-3">
             <div className="text-center">
@@ -1842,6 +1866,7 @@ export default function GamePage({ params }: GamePageProps) {
 
   return (
     <main
+      id="main-content"
       className={cn(
         "relative h-dvh flex flex-col overflow-hidden bg-gradient-to-b from-background to-secondary/30 outline-none",
         isShaking && "animate-[shake_0.3s_ease-in-out]"

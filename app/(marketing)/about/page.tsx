@@ -1,10 +1,12 @@
 import type { Metadata } from "next"
 import { LegalProse } from "@/components/legal-prose"
+import { alternatesEnCanonical } from "@/lib/seo-alternates"
 
 export const metadata: Metadata = {
   title: "About WordWave",
   description:
     "WordWave is a real-time multiplayer word guessing game: shared definitions, room codes, practice mode, and optional voice input.",
+  alternates: alternatesEnCanonical("/about", "/ro/about"),
 }
 
 export default function AboutPage() {

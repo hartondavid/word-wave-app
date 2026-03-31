@@ -1,11 +1,13 @@
 import type { Metadata } from "next"
 import { LegalProse } from "@/components/legal-prose"
+import { alternatesRoCanonical } from "@/lib/seo-alternates"
 
 export const metadata: Metadata = {
   title: "Politica de confidențialitate",
   description:
     "Cum prelucrează WordWave datele; cookie-uri; analitice; drepturile tale conform GDPR.",
   robots: { index: true, follow: true },
+  alternates: alternatesRoCanonical("/privacy", "/ro/privacy"),
 }
 
 export default function PrivacyPageRo() {

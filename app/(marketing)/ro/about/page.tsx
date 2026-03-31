@@ -1,10 +1,12 @@
 import type { Metadata } from "next"
 import { LegalProse } from "@/components/legal-prose"
+import { alternatesRoCanonical } from "@/lib/seo-alternates"
 
 export const metadata: Metadata = {
   title: "Despre WordWave",
   description:
     "WordWave este un joc multiplayer în timp real de ghicit cuvinte: definiții comune, coduri de cameră, mod practică și voce opțională.",
+  alternates: alternatesRoCanonical("/about", "/ro/about"),
 }
 
 export default function AboutPageRo() {

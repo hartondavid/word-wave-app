@@ -520,9 +520,14 @@ export function HomePlayClient() {
                 </ToggleGroup>
               </div>
               <div className="space-y-2 pt-1">
-                <p className="text-sm font-medium">{t.letterHints}</p>
+                <p id="home-letter-hints-label" className="text-sm font-medium">
+                  {t.letterHints}
+                </p>
                 <div className="flex w-full items-center justify-between gap-3 rounded-md border border-input bg-background px-3 py-2.5">
-                  <p className="min-w-0 flex-1 text-xs leading-snug text-muted-foreground">
+                  <p
+                    id="home-practice-hints-desc"
+                    className="min-w-0 flex-1 text-xs leading-snug text-muted-foreground"
+                  >
                     {t.letterHintsHint}
                   </p>
                   <Switch
@@ -533,6 +538,8 @@ export function HomePlayClient() {
                       persistPracticeHintsEnabledPartial(on)
                     }}
                     className="shrink-0"
+                    aria-labelledby="home-letter-hints-label"
+                    aria-describedby="home-practice-hints-desc"
                   />
                 </div>
               </div>
@@ -584,6 +591,8 @@ export function HomePlayClient() {
                       key={n}
                       type="button"
                       onClick={() => setMaxPlayers(n)}
+                      aria-pressed={maxPlayers === n}
+                      aria-label={t.playerCountButtonAria(n)}
                       className={cn(
                         "flex-1 py-3 rounded-xl border-2 font-bold text-sm transition-all",
                         maxPlayers === n

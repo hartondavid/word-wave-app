@@ -1,10 +1,12 @@
 import type { Metadata } from "next"
 import { LegalProse } from "@/components/legal-prose"
+import { alternatesRoCanonical } from "@/lib/seo-alternates"
 
 export const metadata: Metadata = {
   title: "Cum se joacă — Reguli",
   description:
     "Regulile WordWave: runde, scor, gata în lobby, tastatură și microfon, fair play în camere multiplayer.",
+  alternates: alternatesRoCanonical("/rules", "/ro/rules"),
 }
 
 export default function RulesPageRo() {

@@ -127,6 +127,12 @@ export function buildBlogIndexMetadata(locale: BlogLocale): Metadata {
         type: "website",
         locale: "en_US",
       },
+      twitter: {
+        card: "summary_large_image",
+        title: "WordWave blog",
+        description:
+          "Guides for hosts and players: rooms, typing strategy, voice input, categories, and game nights.",
+      },
     }
   }
 
@@ -146,6 +152,12 @@ export function buildBlogIndexMetadata(locale: BlogLocale): Metadata {
       url: roUrl,
       type: "website",
       locale: "ro_RO",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Blog WordWave",
+      description:
+        "Ghiduri pentru gazde și jucători: camere, strategie, voce, categorii și seri de joc.",
     },
   }
 }

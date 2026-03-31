@@ -35,11 +35,16 @@ export function SiteLocaleSwitch() {
   const pill =
     "inline-flex min-w-[2.25rem] items-center justify-center rounded-md px-2 py-1 text-xs font-semibold transition-colors"
 
+  const groupLabel =
+    locale === "ro"
+      ? "Limba site-ului: English / Română"
+      : "Site language: English / Română"
+
   return (
     <div
       className="flex shrink-0 items-center gap-0.5 rounded-lg border border-border/80 bg-muted/40 p-0.5"
       role="group"
-      aria-label="Limba site-ului: English / Română"
+      aria-label={groupLabel}
     >
       <Link
         href={enHref}
@@ -50,6 +55,8 @@ export function SiteLocaleSwitch() {
             : "text-muted-foreground hover:text-foreground"
         )}
         title="English"
+        aria-label={locale === "en" ? "English, current language" : "Switch site to English"}
+        aria-current={locale === "en" ? "page" : undefined}
       >
         EN
       </Link>
@@ -62,6 +69,8 @@ export function SiteLocaleSwitch() {
             : "text-muted-foreground hover:text-foreground"
         )}
         title="Română"
+        aria-label={locale === "ro" ? "Română, limba curentă" : "Trece site-ul la română"}
+        aria-current={locale === "ro" ? "page" : undefined}
       >
         RO
       </Link>

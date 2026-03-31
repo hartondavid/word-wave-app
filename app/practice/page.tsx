@@ -817,7 +817,11 @@ export default function PracticePage() {
   if (gameStatus === "finished") {
     const maxBarScore = Math.max(WIN_SCORE, score, 1)
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-background to-secondary/30">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-background to-secondary/30 p-4 outline-none"
+      >
         <Card className="w-full max-w-md">
           <CardContent className="pt-8 pb-8 text-center space-y-6">
             <div className="w-20 h-20 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
@@ -870,6 +874,7 @@ export default function PracticePage() {
 
   return (
     <main
+      id="main-content"
       className={cn(
         "relative h-dvh flex flex-col overflow-hidden bg-gradient-to-b from-background to-secondary/30 outline-none",
         isShaking && "animate-[shake_0.3s_ease-in-out]"

@@ -1,10 +1,12 @@
 import type { Metadata } from "next"
 import { LegalProse } from "@/components/legal-prose"
+import { alternatesRoCanonical } from "@/lib/seo-alternates"
 
 export const metadata: Metadata = {
   title: "Termeni și condiții",
   description: "Termenii care guvernează utilizarea WordWave la wordwave.live.",
   robots: { index: true, follow: true },
+  alternates: alternatesRoCanonical("/terms", "/ro/terms"),
 }
 
 export default function TermsPageRo() {

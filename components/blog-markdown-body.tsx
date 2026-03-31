@@ -3,6 +3,11 @@ import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 
 type AnchorProps = ComponentPropsWithoutRef<"a">
+type ImgProps = ComponentPropsWithoutRef<"img">
+
+function MarkdownImg({ alt, ...rest }: ImgProps) {
+  return <img alt={alt ?? ""} {...rest} />
+}
 
 function MarkdownLink({ href, children, ...rest }: AnchorProps) {
   const external = href?.startsWith("http")
@@ -19,6 +24,7 @@ export function BlogMarkdownBody({ markdown }: { markdown: string }) {
       remarkPlugins={[remarkGfm]}
       components={{
         a: MarkdownLink,
+        img: MarkdownImg,
       }}
     >
       {markdown}

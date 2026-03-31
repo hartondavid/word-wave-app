@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
+import { headers } from 'next/headers'
 import { AnalyticsLoader } from '@/components/analytics-loader'
+import { HtmlLangSync } from '@/components/html-lang-sync'
+import { SkipToMain } from '@/components/skip-to-main'
 import { AudioGestureUnlock } from '@/components/audio-gesture-unlock'
 import { GoogleAnalytics } from '@/components/google-analytics'
 import { SiteFooter } from '@/components/site-footer'
@@ -10,6 +13,7 @@ import './globals.css'
 
 const geistSans = Geist({
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
   variable: "--font-geist-sans",
   adjustFontFallback: true,
@@ -17,6 +21,7 @@ const geistSans = Geist({
 })
 const geistMono = Geist_Mono({
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
   variable: "--font-geist-mono",
   adjustFontFallback: true,
@@ -70,14 +75,38 @@ export const viewport: Viewport = {
   themeColor: '#30327d',
 }
 
-export default function RootLayout({
+function htmlLangFromPathname(pathname: string): 'en' | 'ro' {
+  if (pathname === '/ro' || pathname.startsWith('/ro/')) return 'ro'
+  return 'en'
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const headersList = await headers()
+  const pathname = headersList.get('x-pathname') ?? ''
+  const lang = htmlLangFromPathname(pathname)
+
+  const websiteJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'WordWave',
+    url: siteUrl,
+    description,
+    inLanguage: ['en', 'ro'],
+  }
+
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang={lang} className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="font-sans antialiased overflow-x-hidden">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
+        <SkipToMain lang={lang} />
+        <HtmlLangSync />
         <AudioGestureUnlock />
         <GoogleAnalytics />
         {children}
