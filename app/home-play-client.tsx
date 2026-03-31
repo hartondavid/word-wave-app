@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import {
   PLAYER_COLORS,
@@ -23,6 +23,12 @@ import { Zap } from "lucide-react"
 import { HomeHowToPlayCard } from "@/components/home-how-to-play-card"
 import { startGameAmbientWaves, stopGameAmbientWaves } from "@/lib/game-ambient-waves"
 import { cn } from "@/lib/utils"
+import { currentLocaleFromPathname } from "@/lib/locale-switch-paths"
+import {
+  categoryLabelForLocale,
+  getHomePlayFormStrings,
+  type HomePlayFormStrings,
+} from "@/lib/home-play-form-strings"
 
 function generateRoomCode(): string {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -56,11 +62,14 @@ function pickJoinPlayerSlot(
 
 const JOINABLE_GAME_STATUSES = new Set(["waiting", "playing", "round_end", "finished"])
 
-const MSG_NAME_REQUIRED = "Please enter your name"
-const MSG_NAME_TOO_SHORT = "Name must be at least 2 characters"
-const MSG_NAME_TAKEN =
-  "This name is already taken in the room."
 const MIN_NAME_LENGTH = 2
+
+function validatePlayerName(raw: string, t: HomePlayFormStrings): string {
+  const trimmed = raw.trim()
+  if (!trimmed) return t.nameRequired
+  if (trimmed.length < MIN_NAME_LENGTH) return t.nameTooShort
+  return ""
+}
 
 type PracticeRoundTimerSeconds = 30 | 60
 
@@ -86,13 +95,6 @@ function persistPracticeHintsEnabledPartial(on: boolean) {
   } catch {
     /* ignore */
   }
-}
-
-function validatePlayerName(raw: string): string {
-  const t = raw.trim()
-  if (!t) return MSG_NAME_REQUIRED
-  if (t.length < MIN_NAME_LENGTH) return MSG_NAME_TOO_SHORT
-  return ""
 }
 
 type RoomRowForNameCheck = {
@@ -122,6 +124,10 @@ function isDisplayNameTakenInRoom(room: RoomRowForNameCheck, candidate: string):
 }
 
 export function HomePlayClient() {
+  const pathname = usePathname() ?? ""
+  const formLocale = currentLocaleFromPathname(pathname) === "ro" ? "ro" : "en"
+  const t = getHomePlayFormStrings(formLocale)
+
   const [playerName, setPlayerName] = useState("")
   const [roomCode, setRoomCode] = useState("")
   const [maxPlayers, setMaxPlayers] = useState<2 | 3 | 4>(2)
@@ -173,7 +179,7 @@ export function HomePlayClient() {
   }, [])
 
   async function handlePracticeSolo() {
-    const nameErr = validatePlayerName(playerName)
+    const nameErr = validatePlayerName(playerName, t)
     if (nameErr) {
       setNameFieldError(nameErr)
       return
@@ -189,18 +195,18 @@ export function HomePlayClient() {
       practice_round_seconds: practiceRoundSeconds,
       practice_hints_enabled: practiceHintsEnabled,
     }))
-    router.push("/practice")
+    router.push(formLocale === "ro" ? "/ro/practice" : "/practice")
   }
 
   async function handleCreateRoom() {
-    const nameErr = validatePlayerName(playerName)
+    const nameErr = validatePlayerName(playerName, t)
     if (nameErr) {
       setNameFieldError(nameErr)
       return
     }
     const maxRounds = parseInt(maxRoundsInput, 10)
     if (!maxRoundsInput.trim() || isNaN(maxRounds) || maxRounds <= 0) {
-      setRoundsError("Number of rounds must be at least 1")
+      setRoundsError(t.roundsMin1)
       return
     }
     setIsLoading(true)
@@ -245,7 +251,7 @@ export function HomePlayClient() {
       if (roomError) {
         const msg = (roomError as { message?: string }).message ?? JSON.stringify(roomError)
         console.error("Create room error:", msg, roomError)
-        setError(`Failed to create room: ${msg}`)
+        setError(t.failedCreate(msg))
         setIsLoading(false)
         return
       }
@@ -277,24 +283,24 @@ export function HomePlayClient() {
         category: selectedCategory,
         practice_hints_enabled: practiceHintsEnabled,
       }))
-      router.push(`/game/${newRoomCode}`)
+      router.push(formLocale === "ro" ? `/ro/game/${newRoomCode}` : `/game/${newRoomCode}`)
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       console.error("Create room exception:", err)
-      setError(`Failed to create room: ${msg}`)
+      setError(t.failedCreate(msg))
     } finally {
       setIsLoading(false)
     }
   }
 
   async function handleJoinRoom() {
-    const nameErr = validatePlayerName(playerName)
+    const nameErr = validatePlayerName(playerName, t)
     if (nameErr) {
       setNameFieldError(nameErr)
       return
     }
     if (!roomCode.trim() || roomCode.trim().length !== 4) {
-      setError("Please enter a valid 4-character room code")
+      setError(t.roomCodeInvalid)
       return
     }
     setIsLoading(true)
@@ -308,19 +314,19 @@ export function HomePlayClient() {
         .from("game_rooms").select("*").eq("room_code", upperCode).single()
 
       if (roomError || !room) {
-        setError("Room not found. Check the code and try again.")
+        setError(t.roomNotFound)
         setIsLoading(false)
         return
       }
 
       if (!JOINABLE_GAME_STATUSES.has(room.game_status)) {
-        setError("Nu te poți alătura camerei în acest moment.")
+        setError(t.cannotJoinNow)
         setIsLoading(false)
         return
       }
 
       if (isDisplayNameTakenInRoom(room as RoomRowForNameCheck, playerName)) {
-        setNameFieldError(MSG_NAME_TAKEN)
+        setNameFieldError(t.nameTaken)
         setIsLoading(false)
         return
       }
@@ -328,7 +334,7 @@ export function HomePlayClient() {
       const mx = room.max_players ?? 4
       const playerSlot = pickJoinPlayerSlot(room, mx)
       if (playerSlot === null) {
-        setError("Camera este plină. Încearcă alt cod.")
+        setError(t.roomFull)
         setIsLoading(false)
         return
       }
@@ -350,9 +356,9 @@ export function HomePlayClient() {
         const msg = (updateError as { message?: string }).message ?? JSON.stringify(updateError)
         console.error("Join room error:", msg, updateError)
         if (msg.includes("player3") || msg.includes("player4")) {
-          setError("3–4 player support needs a DB migration. Run scripts/005_add_4player_support.sql in Supabase.")
+          setError(t.migration34)
         } else {
-          setError(`Failed to join room: ${msg}`)
+          setError(t.failedJoin(msg))
         }
         setIsLoading(false)
         return
@@ -365,22 +371,22 @@ export function HomePlayClient() {
         playerSlot,
         practice_hints_enabled: practiceHintsEnabled,
       }))
-      router.push(`/game/${upperCode}`)
+      router.push(formLocale === "ro" ? `/ro/game/${upperCode}` : `/game/${upperCode}`)
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       console.error("Join room exception:", err)
-      setError(`Failed to join room: ${msg}`)
+      setError(t.failedJoin(msg))
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="flex flex-col gap-6 md:col-span-7">
+    <div className="flex flex-col gap-6 md:col-span-7" lang={formLocale === "ro" ? "ro" : "en"}>
       <Card className="border-2 md:shadow-md">
         <CardHeader className="pb-4">
-          <CardTitle>Play Now</CardTitle>
-          <CardDescription>Practice solo or multiplayer with friends</CardDescription>
+          <CardTitle>{t.cardTitle}</CardTitle>
+          <CardDescription>{t.cardDescription}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -388,11 +394,11 @@ export function HomePlayClient() {
               htmlFor="playerName"
               className={cn("text-sm font-medium", nameFieldError && "text-destructive")}
             >
-              Your Name
+              {t.yourName}
             </label>
             <Input
               id="playerName"
-              placeholder="Enter your nickname"
+              placeholder={t.nicknamePlaceholder}
               value={playerName}
               aria-invalid={!!nameFieldError}
               aria-describedby={nameFieldError ? "playerName-error" : undefined}
@@ -417,7 +423,7 @@ export function HomePlayClient() {
 
           {activeTab === "create" && (
             <div className="space-y-2">
-              <label htmlFor="categorySelect" className="text-sm font-medium">Category</label>
+              <label htmlFor="categorySelect" className="text-sm font-medium">{t.category}</label>
               <select
                 id="categorySelect"
                 value={selectedCategory}
@@ -425,7 +431,9 @@ export function HomePlayClient() {
                 className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               >
                 {(Object.entries(CATEGORIES) as [CategoryKey, { category: string; emoji: string }][]).map(([key, { category, emoji }]) => (
-                  <option key={key} value={key}>{emoji} {category}</option>
+                  <option key={key} value={key}>
+                    {categoryLabelForLocale(key, category, emoji, formLocale)}
+                  </option>
                 ))}
               </select>
             </div>
@@ -433,11 +441,11 @@ export function HomePlayClient() {
 
           {activeTab === "create" && (
             <div className="space-y-2">
-              <p className="text-sm font-medium">Definition &amp; word language</p>
+              <p className="text-sm font-medium">{t.definitionLanguage}</p>
               <div
                 className="flex flex-wrap gap-1.5"
                 role="group"
-                aria-label="Definition and word language"
+                aria-label={t.definitionLanguageAria}
               >
                 {(Object.entries(LANGUAGES) as [LanguageKey, { label: string; flag: string }][]).map(([key, { label, flag }]) => (
                   <button
@@ -462,20 +470,21 @@ export function HomePlayClient() {
           {activeTab === "create" && (
             <div className="space-y-2">
               <label htmlFor="maxRounds" className="text-sm font-medium">
-                Number of Rounds <span className="text-muted-foreground font-normal">(min 1)</span>
+                {t.numberOfRounds}{" "}
+                <span className="text-muted-foreground font-normal">{t.roundsMinHint}</span>
               </label>
               <Input
                 id="maxRounds"
                 type="number"
                 min={1}
-                placeholder="e.g. 10"
+                placeholder={t.roundsPlaceholder}
                 value={maxRoundsInput}
                 onChange={(e) => {
                   const raw = e.target.value
                   setMaxRoundsInput(raw)
                   const val = parseInt(raw, 10)
                   if (!raw.trim() || isNaN(val) || val <= 0) {
-                    setRoundsError("Number of rounds must be at least 1")
+                    setRoundsError(t.roundsMin1)
                   } else {
                     setRoundsError("")
                   }
@@ -486,7 +495,7 @@ export function HomePlayClient() {
                 <p className="text-xs text-destructive">{roundsError}</p>
               )}
               <div className="space-y-2 pt-1">
-                <p className="text-sm font-medium">Round timer</p>
+                <p className="text-sm font-medium">{t.roundTimer}</p>
 
                 <ToggleGroup
                   type="single"
@@ -500,21 +509,21 @@ export function HomePlayClient() {
                   variant="outline"
                   size="sm"
                   className="w-full"
-                  aria-label="Round timer length for practice and new multiplayer rooms"
+                  aria-label={t.roundTimerAria}
                 >
                   <ToggleGroupItem value="30" className="flex-1 text-xs sm:text-sm">
-                    30 seconds
+                    {t.sec30}
                   </ToggleGroupItem>
                   <ToggleGroupItem value="60" className="flex-1 text-xs sm:text-sm">
-                    60 seconds
+                    {t.sec60}
                   </ToggleGroupItem>
                 </ToggleGroup>
               </div>
               <div className="space-y-2 pt-1">
-                <p className="text-sm font-medium">Letter hints</p>
+                <p className="text-sm font-medium">{t.letterHints}</p>
                 <div className="flex w-full items-center justify-between gap-3 rounded-md border border-input bg-background px-3 py-2.5">
                   <p className="min-w-0 flex-1 text-xs leading-snug text-muted-foreground">
-                    Show hint button in rounds (up to 3 random letters per round)
+                    {t.letterHintsHint}
                   </p>
                   <Switch
                     id="home-practice-hints"
@@ -540,13 +549,13 @@ export function HomePlayClient() {
                 disabled={isLoading}
               >
                 <Zap className="w-4 h-4 mr-2" />
-                Practice Solo
+                {t.practiceSolo}
               </Button>
 
               <div className="relative">
                 <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">Multiplayer</span>
+                  <span className="bg-card px-2 text-muted-foreground">{t.multiplayerDivider}</span>
                 </div>
               </div>
             </>
@@ -562,13 +571,13 @@ export function HomePlayClient() {
             className="w-full"
           >
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="create">Create Room</TabsTrigger>
-              <TabsTrigger value="join">Join Room</TabsTrigger>
+              <TabsTrigger value="create">{t.createRoomTab}</TabsTrigger>
+              <TabsTrigger value="join">{t.joinRoomTab}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="create" className="space-y-4 pt-4">
               <div className="space-y-2">
-                <p className="text-sm font-medium">Number of Players</p>
+                <p className="text-sm font-medium">{t.numberOfPlayers}</p>
                 <div className="flex gap-2">
                   {([2, 3, 4] as const).map((n) => (
                     <button
@@ -596,17 +605,17 @@ export function HomePlayClient() {
                   ))}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Share the room code with {maxPlayers - 1} friend{maxPlayers > 2 ? "s" : ""} to start
+                  {t.shareCodeWithFriends(maxPlayers)}
                 </p>
               </div>
 
               <Button className="w-full" size="lg" onClick={handleCreateRoom} disabled={isLoading}>
-                {isLoading ? "Creating..." : `Create ${maxPlayers} Players Room`}
+                {isLoading ? t.creating : t.createRoomButton(maxPlayers)}
               </Button>
               <div
                 className="space-y-1 min-h-[1.25rem]"
                 aria-live="polite"
-                aria-label="Create room validation"
+                aria-label={t.createRoomValidationAria}
               >
                 {nameFieldError ? (
                   <p className="text-xs text-destructive text-center font-medium" role="alert">
@@ -623,7 +632,7 @@ export function HomePlayClient() {
 
             <TabsContent value="join" className="space-y-4 pt-4">
               <div className="space-y-2">
-                <label htmlFor="roomCode" className="text-sm font-medium">Room Code</label>
+                <label htmlFor="roomCode" className="text-sm font-medium">{t.roomCode}</label>
                 <Input
                   id="roomCode"
                   placeholder="ABCD"
@@ -635,7 +644,7 @@ export function HomePlayClient() {
                 />
               </div>
               <Button className="w-full" size="lg" onClick={handleJoinRoom} disabled={isLoading}>
-                {isLoading ? "Joining..." : "Join Game"}
+                {isLoading ? t.joining : t.joinGame}
               </Button>
             </TabsContent>
           </Tabs>

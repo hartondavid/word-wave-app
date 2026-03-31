@@ -18,6 +18,9 @@ export function isContactEmailDomainAllowed(email: string): boolean {
   return allowed.has(domain)
 }
 
-export function contactEmailDomainErrorMessage(): string {
+export function contactEmailDomainErrorMessage(locale: "en" | "ro" = "en"): string {
+  if (locale === "ro") {
+    return "Folosește o adresă Gmail sau Yahoo (ex. @gmail.com, @yahoo.com)."
+  }
   return "Please use a Gmail or Yahoo address (e.g. @gmail.com, @yahoo.com)."
 }

@@ -51,6 +51,7 @@ import { LetterCellDelayBorder } from "@/components/letter-cell-delay-border"
 import { CorrectLetterChar, useCorrectLetterFx } from "@/components/correct-letter-fx"
 import { LetterSoundToggle } from "@/components/letter-sound-toggle"
 import { AmbientWavesToggle } from "@/components/ambient-waves-toggle"
+import { BlogLocaleSwitch } from "@/components/blog-locale-switch"
 import {
   LetterHistoryPanel,
   LetterHistoryToggleButton,
@@ -1878,7 +1879,8 @@ export default function GamePage({ params }: GamePageProps) {
               </div>
             )}
           </div>
-          <div className="flex min-w-[5.25rem] items-center justify-end gap-1">
+          <div className="flex min-w-[5.25rem] flex-wrap items-center justify-end gap-1 sm:min-w-0">
+            <BlogLocaleSwitch />
             <AmbientWavesToggle />
             <LetterSoundToggle />
           </div>

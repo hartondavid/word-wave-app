@@ -49,6 +49,7 @@ import {
 import { CorrectLetterChar, useCorrectLetterFx } from "@/components/correct-letter-fx"
 import { LetterSoundToggle } from "@/components/letter-sound-toggle"
 import { AmbientWavesToggle } from "@/components/ambient-waves-toggle"
+import { BlogLocaleSwitch } from "@/components/blog-locale-switch"
 import { FinishedPlayerScoreRow } from "@/components/game-finished-score-row"
 
 const PRACTICE_TIMER_SECONDS_OPTIONS = [30, 60] as const
@@ -908,7 +909,7 @@ export default function PracticePage() {
             )}
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex flex-wrap items-center justify-end gap-1.5">
             <div
               className="tabular-nums text-[10px] font-bold px-1.5 py-0.5 rounded-md min-w-[2.5rem] text-center leading-tight"
               style={{
@@ -918,6 +919,7 @@ export default function PracticePage() {
             >
               {score} pts
             </div>
+            <BlogLocaleSwitch />
             <AmbientWavesToggle />
             <LetterSoundToggle />
           </div>

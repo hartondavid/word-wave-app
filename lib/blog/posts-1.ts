@@ -1,7 +1,7 @@
-import type { BlogPost } from "./types"
+import type { StaticBlogPost } from "./types"
 
 /** Articles 1–6 (guides & multiplayer). */
-export const blogPostsPart1: BlogPost[] = [
+export const blogPostsPart1: StaticBlogPost[] = [
   {
     slug: "how-multiplayer-wordwave-works",
     title: "How multiplayer WordWave works (rooms, codes, and sync)",

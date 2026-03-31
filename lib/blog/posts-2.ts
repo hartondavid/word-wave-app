@@ -1,7 +1,7 @@
-import type { BlogPost } from "./types"
+import type { StaticBlogPost } from "./types"
 
 /** Articles 7–12 (history, etiquette, technical, languages). */
-export const blogPostsPart2: BlogPost[] = [
+export const blogPostsPart2: StaticBlogPost[] = [
   {
     slug: "fair-play-etiquette-multiplayer-word-games",
     title: "Fair play etiquette in real-time word games",

@@ -9,7 +9,34 @@ import {
   isContactEmailDomainAllowed,
 } from "@/lib/contact-email-allowlist"
 
-export function ContactForm() {
+const copy = {
+  en: {
+    name: "Name",
+    email: "Email",
+    emailHint: (domains: string) => `Gmail or Yahoo only: ${domains}.`,
+    message: "Message",
+    thankYou:
+      "Thank you — your message was sent. Check your inbox for a confirmation email.",
+    genericError: "Something went wrong.",
+    networkError: "Network error. Check your connection.",
+    sending: "Sending…",
+    send: "Send message",
+  },
+  ro: {
+    name: "Nume",
+    email: "E-mail",
+    emailHint: (domains: string) => `Doar Gmail sau Yahoo: ${domains}.`,
+    message: "Mesaj",
+    thankYou:
+      "Mulțumim — mesajul a fost trimis. Verifică și căsuța de e-mail pentru confirmare.",
+    genericError: "Ceva nu a funcționat.",
+    networkError: "Eroare de rețea. Verifică conexiunea.",
+    sending: "Se trimite…",
+    send: "Trimite mesajul",
+  },
+} as const
+
+export function ContactForm({ locale = "en" }: { locale?: "en" | "ro" }) {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [message, setMessage] = useState("")
@@ -21,7 +48,7 @@ export function ContactForm() {
     setErrMsg("")
     const trimmedEmail = email.trim()
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail) || !isContactEmailDomainAllowed(trimmedEmail)) {
-      setErrMsg(contactEmailDomainErrorMessage())
+      setErrMsg(contactEmailDomainErrorMessage(locale))
       setStatus("err")
       return
     }
@@ -44,16 +71,19 @@ export function ContactForm() {
       setMessage("")
       setErrMsg("")
     } catch {
-      setErrMsg("Network error. Check your connection.")
+      setErrMsg(copy[locale].networkError)
       setStatus("err")
     }
   }
 
+  const t = copy[locale]
+  const domainList = CONTACT_ALLOWED_EMAIL_DOMAINS.map((d) => `@${d}`).join(", ")
+
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <form onSubmit={onSubmit} className="space-y-4" lang={locale === "ro" ? "ro" : "en"}>
       <div className="space-y-2">
         <label htmlFor="contact-name" className="text-sm font-medium">
-          Name
+          {t.name}
         </label>
         <Input
           id="contact-name"
@@ -81,14 +111,11 @@ export function ContactForm() {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-        <p className="text-xs text-muted-foreground">
-          Gmail or Yahoo only:{" "}
-          {CONTACT_ALLOWED_EMAIL_DOMAINS.map((d) => `@${d}`).join(", ")}.
-        </p>
+        <p className="text-xs text-muted-foreground">{t.emailHint(domainList)}</p>
       </div>
       <div className="space-y-2">
         <label htmlFor="contact-message" className="text-sm font-medium">
-          Message
+          {t.message}
         </label>
         <textarea
           id="contact-message"
@@ -104,7 +131,7 @@ export function ContactForm() {
       </div>
       {status === "ok" ? (
         <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400" role="status">
-          Thank you — your message was sent. Check your inbox for a confirmation email.
+          {t.thankYou}
         </p>
       ) : null}
       {status === "err" ? (
@@ -113,7 +140,7 @@ export function ContactForm() {
         </p>
       ) : null}
       <Button type="submit" disabled={status === "sending"}>
-        {status === "sending" ? "Sending…" : "Send message"}
+        {status === "sending" ? t.sending : t.send}
       </Button>
     </form>
   )

@@ -5,6 +5,7 @@ import { AudioGestureUnlock } from '@/components/audio-gesture-unlock'
 import { GoogleAnalytics } from '@/components/google-analytics'
 import { SiteFooter } from '@/components/site-footer'
 import { AdsenseDeferred } from '@/components/adsense-deferred'
+import { getSiteUrl } from '@/lib/site-url'
 import './globals.css'
 
 const geistSans = Geist({
@@ -23,20 +24,8 @@ const geistMono = Geist_Mono({
   preload: false,
 })
 
-/**
- * URL canonic pentru og:image / metadataBase.
- * - Preferă NEXT_PUBLIC_SITE_URL (ex. https://wordwave.live) în Vercel → Environment Variables.
- * - Apoi VERCEL_PROJECT_PRODUCTION_URL = domeniul de producție (custom domain), NU *.vercel.app.
- *   WhatsApp / alte aplicații refuză adesea thumbnail dacă og:image e pe alt host decât linkul.
- * - VERCEL_URL e doar ultimul fallback (preview *.vercel.app).
- */
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ??
-  (process.env.VERCEL_PROJECT_PRODUCTION_URL
-    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : 'http://localhost:3000')
+/** Vezi `getSiteUrl()` — NEXT_PUBLIC_SITE_URL pe Vercel pentru producție. */
+const siteUrl = getSiteUrl()
 
 const title = 'WordWave - Multiplayer Word Guessing Game'
 const description =

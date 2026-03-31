@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { usePathname } from "next/navigation"
 import { Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -13,7 +14,9 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { AmbientWavesToggle } from "@/components/ambient-waves-toggle"
-import { getSiteNavLinks } from "@/lib/nav-links"
+import { SiteLocaleSwitch } from "@/components/site-locale-switch"
+import { currentLocaleFromPathname } from "@/lib/locale-switch-paths"
+import { getSiteNavLinksForLocale } from "@/lib/nav-links"
 import { cn } from "@/lib/utils"
 
 const navLinkClass =
@@ -23,7 +26,10 @@ const navLinkClass =
  * Bară de navigare: logo stânga; linkuri (desktop) sau meniu burger (mobil); valuri ambient.
  */
 export function SiteNavbar({ homePriorityLogo = false }: { homePriorityLogo?: boolean }) {
-  const links = getSiteNavLinks()
+  const pathname = usePathname() ?? ""
+  const locale = currentLocaleFromPathname(pathname)
+  const links = getSiteNavLinksForLocale(locale)
+  const homeHref = locale === "ro" ? "/ro" : "/"
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
@@ -76,6 +82,7 @@ export function SiteNavbar({ homePriorityLogo = false }: { homePriorityLogo?: bo
             )}
           </div>
 
+          <SiteLocaleSwitch />
           <AmbientWavesToggle />
 
           <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
@@ -95,7 +102,7 @@ export function SiteNavbar({ homePriorityLogo = false }: { homePriorityLogo?: bo
               className="flex !w-[min(78vw,15rem)] max-w-[15rem] flex-col gap-0"
             >
               <SheetHeader className="border-b border-border/60 text-left">
-                <SheetTitle>Menu</SheetTitle>
+                <SheetTitle>{locale === "ro" ? "Meniu" : "Menu"}</SheetTitle>
               </SheetHeader>
               <div className="flex flex-1 flex-col gap-1 overflow-y-auto p-4 pt-2">
                 {links.map((item) =>

@@ -3,7 +3,7 @@ export const SITE_NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About" },
   { href: "/rules", label: "Rules" },
-  { href: "/blog", label: "Blog" },
+  { href: "/en/blog", label: "Blog" },
   { href: "/contact", label: "Contact" },
   { href: "/privacy", label: "Privacy" },
   { href: "/terms", label: "Terms" },
@@ -28,10 +28,35 @@ export type SiteNavLinkItem = {
 
 /** Full navbar/footer list including Support (donate or /contact fallback). */
 export function getSiteNavLinks(): SiteNavLinkItem[] {
+  return getSiteNavLinksForLocale("en")
+}
+
+export function getSiteNavLinksForLocale(locale: "en" | "ro"): SiteNavLinkItem[] {
   const donate = getRevolutDonationUrl()
   const support: SiteNavLinkItem = donate
-    ? { href: donate, label: "Support", external: true }
-    : { href: "/contact", label: "Support", external: false }
+    ? {
+        href: donate,
+        label: locale === "ro" ? "Susținere" : "Support",
+        external: true,
+      }
+    : {
+        href: locale === "ro" ? "/ro/contact" : "/contact",
+        label: locale === "ro" ? "Susținere" : "Support",
+        external: false,
+      }
+
+  if (locale === "ro") {
+    return [
+      { href: "/ro", label: "Acasă", external: false },
+      { href: "/ro/about", label: "Despre", external: false },
+      { href: "/ro/rules", label: "Reguli", external: false },
+      { href: "/ro/blog", label: "Blog", external: false },
+      { href: "/ro/contact", label: "Contact", external: false },
+      { href: "/ro/privacy", label: "Confidențialitate", external: false },
+      { href: "/ro/terms", label: "Termeni", external: false },
+      support,
+    ]
+  }
 
   return [
     ...SITE_NAV_LINKS.map((l) => ({
