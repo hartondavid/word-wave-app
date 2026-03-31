@@ -1,6 +1,10 @@
 """
-Generează articole markdown EN + RO în content/en și content/ro (același slug).
-Necesită secret repo GEMINI_API_KEY.
+O singură „postare” logică pe rulare: articol în engleză, apoi traducere în română
+(același conținut / structură), salvat ca două fișiere cu același slug:
+  content/en/<slug>.md  și  content/ro/<slug>.md
+
+Necesită secret repo GEMINI_API_KEY. Pentru 1 pereche/zi, folosește workflow-ul
+GitHub „Auto Dual Language Content” cu cron zilnic (vezi .github/workflows).
 """
 
 from __future__ import annotations
@@ -21,8 +25,8 @@ model = genai.GenerativeModel("gemini-1.5-flash")
 
 now = datetime.now(timezone.utc)
 date_str = now.strftime("%Y-%m-%d")
-time_str = now.strftime("%H%M")
-base_slug = f"{date_str}-{time_str}-word-puzzle"
+# Un slug pe zi (același articol EN+RO). Rulare manuală repetată aceeași zi suprascrie fișierele.
+base_slug = f"{date_str}-wordwave-daily"
 
 keywords_en = ["daily word puzzle", "brain teaser", "vocabulary game"]
 keywords_ro = ["puzzle zilnic cuvinte", "joc de vocabular", "antrenament minte"]
@@ -97,14 +101,14 @@ def bodies_too_similar(en_md: str, ro_md: str, min_ratio: float = 0.92) -> bool:
 def main() -> None:
     prompt_en = f"""
 Write a high-quality SEO article in English for a word game website.
-Topic: daily word puzzle.
+Topic: daily word puzzle / vocabulary and WordWave-style multiplayer tips.
 Target keywords: {", ".join(keywords_en)}.
 Length: 900 to 1200 words.
 
 Requirements:
 - Output valid markdown only.
-- Start with an H1 title.
-- Add an intro, 4 H2 sections, bullet lists, and a short FAQ.
+- Do NOT use H1 (#) in the body (the page template already shows the title as H1).
+- Start with a short intro paragraph, then 4 H2 (##) sections, bullet lists where useful, and a short FAQ (use H2 for FAQ or ### for each question).
 - Make the content useful and natural, not robotic.
 - Do not wrap the answer in code fences.
 """
@@ -113,7 +117,7 @@ Requirements:
     en_text = en_response.text or ""
     en_body = ensure_frontmatter(
         en_text,
-        title=f"Daily Word Puzzle - {date_str} {time_str}",
+        title=f"Daily Word Puzzle — {date_str}",
         description="Solve today's word puzzle and improve your vocabulary with a fresh daily challenge.",
         slug=base_slug,
         lang="en",
@@ -123,9 +127,9 @@ Requirements:
 
     prompt_ro = f"""
 Tradu în limba română articolul de mai jos. Reguli stricte:
-- Tot conținutul vizibil (titluri H1/H2, paragrafe, liste, FAQ) trebuie să fie în ROMÂNĂ.
+- Tot conținutul vizibil (titluri H2/H3, paragrafe, liste, FAQ) trebuie să fie în ROMÂNĂ.
 - Nu lăsa propoziții sau paragrafe în engleză.
-- Păstrează structura markdown (aceleași H1/H2, liste).
+- Păstrează structura markdown (aceleași niveluri de titluri, liste).
 - Ton natural pentru cititori români interesați de jocuri cu cuvinte.
 - Ieșire: doar markdown valid, fără blocuri ```.
 
@@ -137,7 +141,7 @@ ARTICOL ENGLEZĂ:
     ro_text = ro_response.text or ""
     ro_body = ensure_frontmatter(
         ro_text,
-        title=f"Puzzle zilnic de cuvinte - {date_str} {time_str}",
+        title=f"Puzzle zilnic de cuvinte — {date_str}",
         description="Rezolvă puzzle-ul zilnic de cuvinte și antrenează-ți vocabularul în fiecare zi.",
         slug=base_slug,
         lang="ro",
@@ -155,7 +159,7 @@ ARTICOL ENGLEZĂ:
         if ro_text2:
             ro_body = ensure_frontmatter(
                 ro_text2,
-                title=f"Puzzle zilnic de cuvinte - {date_str} {time_str}",
+                title=f"Puzzle zilnic de cuvinte — {date_str}",
                 description="Rezolvă puzzle-ul zilnic de cuvinte și antrenează-ți vocabularul în fiecare zi.",
                 slug=base_slug,
                 lang="ro",

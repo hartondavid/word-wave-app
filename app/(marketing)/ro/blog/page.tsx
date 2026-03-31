@@ -23,7 +23,7 @@ export default function RoBlogIndexPage() {
                     {title}
                   </h2>
                   <span className="rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-                    {loc === "ro" ? "RO" : "EN"}
+                    {loc === "both" ? "EN · RO" : loc === "ro" ? "RO" : "EN"}
                   </span>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">{post.date}</p>

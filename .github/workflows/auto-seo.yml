@@ -1,16 +1,9 @@
+# Dezactivat pentru generare zilnică: articolele bilingve vin din „Auto Dual Language Content”
+# (un singur articol tradus EN+RO în content/). Poți rula manual din Actions dacă mai ai nevoie de posts/.
 name: Auto SEO post
 
 on:
-  schedule:
-    # Zilnic la 06:00 UTC (ajustează cron după nevoie)
-    - cron: "0 6 * * *"
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - ".github/workflows/auto-seo.yml"
-      - "scripts/auto_seo.py"
 
 jobs:
   generate-seo:

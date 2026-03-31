@@ -1,9 +1,11 @@
+# O singură pereche / zi: același articol în EN + RO (content/en + content/ro, același slug).
 name: Auto Dual Language Content
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 9,15 * * *"
+    # O dată pe zi, 07:00 UTC (~09:00 RO iarna). Schimbă cron după fusul dorit.
+    - cron: "0 7 * * *"
 
 concurrency:
   group: auto-dual-lang-content
@@ -42,6 +44,6 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "content: add EN/RO daily articles (auto)"
+            git commit -m "content: daily article EN+RO (same slug, auto)"
             git push
           fi
