@@ -77,8 +77,8 @@ export const WIN_SCORE = 500
 export const PLAYER_COLORS = ['#3B82F6', '#F59E0B', '#10B981', '#8B5CF6'] as const
 
 export const LANGUAGES = {
-  en: { label: "En" },
-  ro: { label: "Ro" },
+  en: { label: "English" },
+  ro: { label: "Română" },
 } as const
 
 export type LanguageKey = keyof typeof LANGUAGES

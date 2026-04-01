@@ -937,7 +937,7 @@ export default function PracticePage() {
 
           <div className="flex flex-wrap items-center justify-end gap-1.5">
             <div
-              className="tabular-nums text-sm sm:text-base font-bold px-2.5 py-1 rounded-full min-w-[2.75rem] text-center leading-snug"
+              className="tabular-nums text-[12px] sm:text-base font-bold px-2.5 py-1 rounded-full min-w-[2.75rem] text-center leading-snug"
               style={{
                 color: PRACTICE_PLAYER_COLOR,
                 backgroundColor: `color-mix(in srgb, ${PRACTICE_PLAYER_COLOR} 14%, transparent)`,
