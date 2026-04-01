@@ -3,8 +3,10 @@ O singură „postare” logică pe rulare: articol în engleză, apoi traducere
 (același conținut / structură), salvat ca două fișiere cu același slug:
   content/en/<slug>.md  și  content/ro/<slug>.md
 
-Necesită secret repo GEMINI_API_KEY. Folosește SDK-ul google-genai (API Gemini actuală).
-Env: GEMINI_MODEL (implicit gemini-1.5-flash), GEMINI_MODEL_FALLBACK opțional (ex. gemini-2.5-flash).
+Necesită secret repo GEMINI_API_KEY. SDK google-genai.
+Lanțul de modele: GEMINI_MODEL (opțional), GEMINI_MODEL_FALLBACK, GEMINI_EXTRA_MODELS
+(coma), apoi mulți candidați stabili; opțional GEMINI_DISCOVER_MODELS=1 adaugă modele
+disponibile din API. La erori de model/cotă/server (nu 401/403), se trece la următorul.
 """
 
 from __future__ import annotations
@@ -23,11 +25,24 @@ api_key = os.getenv("GEMINI_API_KEY")
 if not api_key:
     raise SystemExit("GEMINI_API_KEY is missing")
 
-# ID-uri fără prefix „models/”. SDK-ul nou folosește REST-ul actual (nu v1beta vechi).
-PRIMARY_MODEL_ID = (os.getenv("GEMINI_MODEL") or "gemini-1.5-flash").strip() or "gemini-1.5-flash"
-FALLBACK_MODEL_ID = (os.getenv("GEMINI_MODEL_FALLBACK") or "").strip()
+# Ordine: rapide/ieftine întâi; sufixe alternative pentru conturi/regiuni diferite.
+_GEMINI_MODEL_CANDIDATES: tuple[str, ...] = (
+    "gemini-2.5-flash",
+    "gemini-2.5-flash-lite",
+    "gemini-2.0-flash",
+    "gemini-2.0-flash-001",
+    "gemini-2.0-flash-lite",
+    "gemini-1.5-flash-8b",
+    "gemini-1.5-flash",
+    "gemini-1.5-flash-002",
+    "gemini-2.5-pro",
+    "gemini-1.5-pro",
+    "gemini-1.5-pro-002",
+)
 
 client = genai.Client(api_key=api_key)
+
+_model_chain_cache: list[str] | None = None
 
 now = datetime.now(timezone.utc)
 date_str = now.strftime("%Y-%m-%d")
@@ -39,12 +54,57 @@ keywords_ro = ["puzzle zilnic cuvinte", "joc de vocabular", "antrenament minte"]
 _GEN_CONFIG = types.GenerateContentConfig(max_output_tokens=8192)
 
 
+def _extra_models_from_env() -> list[str]:
+    raw = (os.getenv("GEMINI_EXTRA_MODELS") or "").strip()
+    if not raw:
+        return []
+    return [x.strip() for x in raw.split(",") if x.strip()]
+
+
+def _discovered_generate_model_ids() -> list[str]:
+    flag = (os.getenv("GEMINI_DISCOVER_MODELS") or "").strip().lower()
+    if flag not in ("1", "true", "yes", "on"):
+        return []
+    found: list[str] = []
+    try:
+        for item in client.models.list():
+            name = getattr(item, "name", None) or ""
+            if "gemini" not in name.lower():
+                continue
+            short = name.rsplit("/", 1)[-1]
+            methods = getattr(item, "supported_generation_methods", None)
+            if methods is not None and "generateContent" not in methods:
+                continue
+            found.append(short)
+    except Exception as e:
+        print(f"[Gemini] list models (descoperire) a eșuat: {e}", flush=True)
+        return []
+    return found
+
+
 def _model_chain() -> list[str]:
+    global _model_chain_cache
+    if _model_chain_cache is not None:
+        return _model_chain_cache
+    primary = (os.getenv("GEMINI_MODEL") or "").strip()
+    fb = (os.getenv("GEMINI_MODEL_FALLBACK") or "").strip()
     out: list[str] = []
-    for m in (PRIMARY_MODEL_ID, FALLBACK_MODEL_ID):
+    for m in (primary, fb, *_extra_models_from_env(), *_GEMINI_MODEL_CANDIDATES):
         if m and m not in out:
             out.append(m)
+    for m in _discovered_generate_model_ids():
+        if m not in out:
+            out.append(m)
+    _model_chain_cache = out
     return out
+
+
+def _should_try_next_model(exc: errors.ClientError) -> bool:
+    """401/403 = cheie sau permisiuni — schimbarea modelului nu ajută."""
+    c = getattr(exc, "code", None)
+    if c in (401, 403):
+        return False
+    return True
 
 
 def _retry_sleep_seconds(exc: BaseException) -> float:
@@ -86,7 +146,7 @@ def generate_with_retry(
 
 
 def generate_with_model_fallback(prompt: str, what: str) -> tuple[Any, str]:
-    """Încearcă lanțul de modele la 404 sau după epuizarea reîncercărilor pe 429."""
+    """Parcurge lanțul de modele la erori ClientError (excl. 401/403), inclusiv după 429 epuizat."""
     chain = _model_chain()
     if not chain:
         raise SystemExit("Niciun model Gemini configurat.")
@@ -97,9 +157,10 @@ def generate_with_model_fallback(prompt: str, what: str) -> tuple[Any, str]:
             return resp, mid
         except errors.ClientError as e:
             last_err = e
-            if e.code in (404, 429) and i < len(chain) - 1:
+            if _should_try_next_model(e) and i < len(chain) - 1:
+                nxt = chain[i + 1]
                 print(
-                    f"[Gemini] «{mid}» a eșuat ({e.code}). Încerc: «{chain[i + 1]}»…",
+                    f"[Gemini] «{mid}» a eșuat ({getattr(e, 'code', '?')}). Încerc: «{nxt}»…",
                     flush=True,
                 )
                 continue
@@ -199,8 +260,10 @@ Requirements:
     except errors.ClientError as e:
         raise SystemExit(
             f"Gemini a eșuat ({e.code}): {e.message or e}. "
-            "Setează GEMINI_MODEL / GEMINI_MODEL_FALLBACK la un model din AI Studio. "
-            "Vezi https://ai.google.dev/gemini-api/docs/models"
+            f"Lanț încercat: {', '.join(_model_chain())}. "
+            "Ajustează GEMINI_MODEL / GEMINI_MODEL_FALLBACK / GEMINI_EXTRA_MODELS "
+            "sau GEMINI_DISCOVER_MODELS=1; verifică cota cheii: "
+            "https://ai.google.dev/gemini-api/docs/models"
         ) from None
 
     en_text = _response_text(en_response)

@@ -31,12 +31,17 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements-dual-lang.txt
 
-      # Opțional: repo Variables GEMINI_MODEL / GEMINI_MODEL_FALLBACK dacă primul model are cotă 0 sau 429 des.
+      # Opțional (repo → Settings → Actions → Variables):
+      #   GEMINI_MODEL, GEMINI_MODEL_FALLBACK — prioritate în lanț.
+      #   GEMINI_EXTRA_MODELS — ID-uri separate prin virgulă.
+      #   GEMINI_DISCOVER_MODELS — 1 sau true = adaugă modele din API (list).
       - name: Generate EN and RO articles
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
           GEMINI_MODEL_FALLBACK: ${{ vars.GEMINI_MODEL_FALLBACK }}
+          GEMINI_EXTRA_MODELS: ${{ vars.GEMINI_EXTRA_MODELS }}
+          GEMINI_DISCOVER_MODELS: ${{ vars.GEMINI_DISCOVER_MODELS }}
         run: python scripts/generate_content.py
 
       - name: Commit and push changes
