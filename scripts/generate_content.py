@@ -3,8 +3,8 @@ O singură „postare” logică pe rulare: articol în engleză, apoi traducere
 (același conținut / structură), salvat ca două fișiere cu același slug:
   content/en/<slug>.md  și  content/ro/<slug>.md
 
-Necesită secret repo GEMINI_API_KEY. Pentru 1 pereche/zi, folosește workflow-ul
-GitHub „Auto Dual Language Content” cu cron zilnic (vezi .github/workflows).
+Necesită secret repo GEMINI_API_KEY. Folosește SDK-ul google-genai (API Gemini actuală).
+Env: GEMINI_MODEL (implicit gemini-1.5-flash), GEMINI_MODEL_FALLBACK opțional (ex. gemini-2.5-flash).
 """
 
 from __future__ import annotations
@@ -12,38 +12,42 @@ from __future__ import annotations
 import os
 import re
 import time
-import warnings
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-warnings.filterwarnings(
-    "ignore",
-    message="All support for the `google.generativeai` package",
-    category=FutureWarning,
-)
-
-import google.generativeai as genai
-from google.api_core import exceptions as google_api_exceptions
+from google import genai
+from google.genai import errors, types
 
 api_key = os.getenv("GEMINI_API_KEY")
 if not api_key:
     raise SystemExit("GEMINI_API_KEY is missing")
 
-# Implicit: gemini-1.5-flash-002 (ID stabil pe v1beta; aliniat cu cotele din AI Studio „Rate limits”).
-# gemini-1.5-flash fără sufix poate da 404; gemini-2.0-flash a avut uneori cotă free tier 0.
-# Suprascrie cu GEMINI_MODEL / GEMINI_MODEL_FALLBACK în env sau în GitHub Variables.
-genai.configure(api_key=api_key)
-PRIMARY_MODEL_ID = (os.getenv("GEMINI_MODEL") or "gemini-1.5-flash-002").strip() or "gemini-1.5-flash-002"
+# ID-uri fără prefix „models/”. SDK-ul nou folosește REST-ul actual (nu v1beta vechi).
+PRIMARY_MODEL_ID = (os.getenv("GEMINI_MODEL") or "gemini-1.5-flash").strip() or "gemini-1.5-flash"
 FALLBACK_MODEL_ID = (os.getenv("GEMINI_MODEL_FALLBACK") or "").strip()
 
+client = genai.Client(api_key=api_key)
 
-def make_model(model_id: str) -> genai.GenerativeModel:
-    return genai.GenerativeModel(model_id)
+now = datetime.now(timezone.utc)
+date_str = now.strftime("%Y-%m-%d")
+base_slug = f"{date_str}-wordwave-daily"
+
+keywords_en = ["daily word puzzle", "brain teaser", "vocabulary game"]
+keywords_ro = ["puzzle zilnic cuvinte", "joc de vocabular", "antrenament minte"]
+
+_GEN_CONFIG = types.GenerateContentConfig(max_output_tokens=8192)
+
+
+def _model_chain() -> list[str]:
+    out: list[str] = []
+    for m in (PRIMARY_MODEL_ID, FALLBACK_MODEL_ID):
+        if m and m not in out:
+            out.append(m)
+    return out
 
 
 def _retry_sleep_seconds(exc: BaseException) -> float:
-    """Extrage „Please retry in 53.3s” din mesajul API sau folosește backoff."""
     m = re.search(r"retry in ([\d.]+)\s*s", str(exc), re.IGNORECASE)
     if m:
         return min(float(m.group(1)) + 3.0, 180.0)
@@ -51,21 +55,28 @@ def _retry_sleep_seconds(exc: BaseException) -> float:
 
 
 def generate_with_retry(
-    m: genai.GenerativeModel,
+    model_id: str,
     prompt: str,
     *,
     max_attempts: int = 8,
     what: str = "generate_content",
 ) -> Any:
+    """429 → pauză și reîncearcă. Alte ClientError → propagă imediat."""
     last: BaseException | None = None
     for attempt in range(1, max_attempts + 1):
         try:
-            return m.generate_content(prompt)
-        except google_api_exceptions.ResourceExhausted as e:
+            return client.models.generate_content(
+                model=model_id,
+                contents=prompt,
+                config=_GEN_CONFIG,
+            )
+        except errors.ClientError as e:
             last = e
+            if e.code != 429:
+                raise
             wait = _retry_sleep_seconds(e)
             print(
-                f"[Gemini] {what}: quota/rate limit (încercare {attempt}/{max_attempts}), "
+                f"[Gemini] {what} ({model_id}): 429 (încercare {attempt}/{max_attempts}), "
                 f"pauză {wait:.0f}s…",
                 flush=True,
             )
@@ -73,13 +84,28 @@ def generate_with_retry(
     assert last is not None
     raise last
 
-now = datetime.now(timezone.utc)
-date_str = now.strftime("%Y-%m-%d")
-# Un slug pe zi (același articol EN+RO). Rulare manuală repetată aceeași zi suprascrie fișierele.
-base_slug = f"{date_str}-wordwave-daily"
 
-keywords_en = ["daily word puzzle", "brain teaser", "vocabulary game"]
-keywords_ro = ["puzzle zilnic cuvinte", "joc de vocabular", "antrenament minte"]
+def generate_with_model_fallback(prompt: str, what: str) -> tuple[Any, str]:
+    """Încearcă lanțul de modele la 404 sau după epuizarea reîncercărilor pe 429."""
+    chain = _model_chain()
+    if not chain:
+        raise SystemExit("Niciun model Gemini configurat.")
+    last_err: BaseException | None = None
+    for i, mid in enumerate(chain):
+        try:
+            resp = generate_with_retry(mid, prompt, what=f"{what} [{mid}]")
+            return resp, mid
+        except errors.ClientError as e:
+            last_err = e
+            if e.code in (404, 429) and i < len(chain) - 1:
+                print(
+                    f"[Gemini] «{mid}» a eșuat ({e.code}). Încerc: «{chain[i + 1]}»…",
+                    flush=True,
+                )
+                continue
+            raise
+    assert last_err is not None
+    raise last_err
 
 
 def clean_markdown(text: str) -> str:
@@ -135,12 +161,10 @@ def strip_frontmatter(md: str) -> str:
 
 
 def bodies_too_similar(en_md: str, ro_md: str, min_ratio: float = 0.92) -> bool:
-    """True dacă corpul RO e aproape identic cu EN (modelul a copiat engleza)."""
     a = "".join(strip_frontmatter(en_md).lower().split())
     b = "".join(strip_frontmatter(ro_md).lower().split())
     if len(a) < 80 or len(b) < 80:
         return True
-    # similitudine simplă pe prefix
     n = min(len(a), len(b), 2000)
     if n == 0:
         return True
@@ -148,9 +172,14 @@ def bodies_too_similar(en_md: str, ro_md: str, min_ratio: float = 0.92) -> bool:
     return (same / n) >= min_ratio
 
 
-def main() -> None:
-    model = make_model(PRIMARY_MODEL_ID)
+def _response_text(response: Any) -> str:
+    t = getattr(response, "text", None)
+    if t is not None:
+        return str(t)
+    return ""
 
+
+def main() -> None:
     prompt_en = f"""
 Write a high-quality SEO article in English for a word game website.
 Topic: daily word puzzle / vocabulary and WordWave-style multiplayer tips.
@@ -166,19 +195,15 @@ Requirements:
 """
 
     try:
-        en_response = generate_with_retry(model, prompt_en, what="Articol EN")
-    except google_api_exceptions.ResourceExhausted:
-        if not FALLBACK_MODEL_ID:
-            raise SystemExit(
-                f"Gemini: cotă epuizată pentru «{PRIMARY_MODEL_ID}». "
-                "Încearcă GEMINI_MODEL cu alt model, setează GEMINI_MODEL_FALLBACK, "
-                "sau verifică billing / cote în Google AI Studio: "
-                "https://ai.google.dev/gemini-api/docs/rate-limits"
-            ) from None
-        print(f"[Gemini] folosesc model rezervă: {FALLBACK_MODEL_ID}", flush=True)
-        model = make_model(FALLBACK_MODEL_ID)
-        en_response = generate_with_retry(model, prompt_en, what="Articol EN (fallback)")
-    en_text = en_response.text or ""
+        en_response, active_model = generate_with_model_fallback(prompt_en, "Articol EN")
+    except errors.ClientError as e:
+        raise SystemExit(
+            f"Gemini a eșuat ({e.code}): {e.message or e}. "
+            "Setează GEMINI_MODEL / GEMINI_MODEL_FALLBACK la un model din AI Studio. "
+            "Vezi https://ai.google.dev/gemini-api/docs/models"
+        ) from None
+
+    en_text = _response_text(en_response)
     en_body = ensure_frontmatter(
         en_text,
         title=f"Daily Word Puzzle — {date_str}",
@@ -201,8 +226,8 @@ ARTICOL ENGLEZĂ:
 {en_body}
 """
 
-    ro_response = generate_with_retry(model, prompt_ro, what="Traducere RO")
-    ro_text = ro_response.text or ""
+    ro_response = generate_with_retry(active_model, prompt_ro, what="Traducere RO")
+    ro_text = _response_text(ro_response)
     ro_body = ensure_frontmatter(
         ro_text,
         title=f"Puzzle zilnic de cuvinte — {date_str}",
@@ -215,13 +240,13 @@ ARTICOL ENGLEZĂ:
 
     if bodies_too_similar(en_body, ro_body):
         retry = generate_with_retry(
-            model,
+            active_model,
             prompt_ro
             + "\n\nATENȚIE: Răspunsul anterior era prea asemănător cu engleza. "
             "Retradu COMPLET în română, fără a copia fraze în engleză.",
             what="Retraducere RO",
         )
-        ro_text2 = (retry.text or "").strip()
+        ro_text2 = _response_text(retry).strip()
         if ro_text2:
             ro_body = ensure_frontmatter(
                 ro_text2,
@@ -248,10 +273,10 @@ ARTICOL ENGLEZĂ:
     path_en.write_text(en_body, encoding="utf-8")
     path_ro.write_text(ro_body, encoding="utf-8")
 
-    # O pereche = același slug: 1 articol în engleză + 1 articol în română (conținut echivalent).
     print(f"EN (engleză): {path_en.relative_to(root)}")
     print(f"RO (română):  {path_ro.relative_to(root)}")
     print(f"Slug comun:     {base_slug}")
+    print(f"Model folosit:  {active_model}", flush=True)
 
 
 if __name__ == "__main__":
