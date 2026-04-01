@@ -23,6 +23,7 @@ export {
   blogUrlSegment,
   urlSegmentForBlogPost,
 } from "./en-ro-slugs"
+export { formatBlogDateForDisplay, stripBlogTitleDateSuffix } from "./format-blog-date"
 
 const byDateDesc = (a: BlogPost, b: BlogPost) =>
   new Date(b.date).getTime() - new Date(a.date).getTime()

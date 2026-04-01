@@ -1,9 +1,9 @@
 ---
-title: "Puzzle zilnic de cuvinte — 2026-04-01"
+title: "Puzzle zilnic de cuvinte"
 description: "Rezolvă puzzle-ul zilnic de cuvinte și antrenează-ți vocabularul în fiecare zi."
-slug: "2026-04-01-wordwave-daily"
-path_en: "/en/blog/2026-04-01-wordwave-daily"
-path_ro: "/ro/blog/2026-04-01-wordwave-daily"
+slug: "daily-word-puzzle"
+path_en: "/en/blog/daily-word-puzzle"
+path_ro: "/ro/blog/daily-word-puzzle"
 lang: "ro"
 date: "2026-04-01T08:22:14.498085+00:00"
 keywords:

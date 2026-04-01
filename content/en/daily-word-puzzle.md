@@ -1,9 +1,9 @@
 ---
-title: "Daily Word Puzzle — 2026-04-01"
+title: "Daily Word Puzzle"
 description: "Solve today's word puzzle and improve your vocabulary with a fresh daily challenge."
-slug: "2026-04-01-wordwave-daily"
-path_en: "/en/blog/2026-04-01-wordwave-daily"
-path_ro: "/ro/blog/2026-04-01-wordwave-daily"
+slug: "daily-word-puzzle"
+path_en: "/en/blog/daily-word-puzzle"
+path_ro: "/ro/blog/daily-word-puzzle"
 lang: "en"
 date: "2026-04-01T08:22:14.498085+00:00"
 keywords:

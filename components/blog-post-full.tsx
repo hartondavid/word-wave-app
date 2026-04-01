@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { BlogMarkdownBody } from "@/components/blog-markdown-body"
 import { LegalProse } from "@/components/legal-prose"
-import { allBlogPosts, blogPostPath } from "@/lib/blog"
+import { allBlogPosts, blogPostPath, stripBlogTitleDateSuffix } from "@/lib/blog"
 import type { BlogLocale } from "@/lib/blog/locale-utils"
 import { romanianListingForPost } from "@/lib/blog/ro-blog-listing"
 import { markdownBodyForLocale } from "@/lib/blog/markdown-for-locale"
@@ -19,8 +19,9 @@ export function BlogPostFull({ post, locale }: Props) {
   const canonicalUrl = `${getSiteUrl()}${blogPostPath(post, locale)}`
   const listing =
     locale === "ro" ? romanianListingForPost(post) : { title: post.title, description: post.description }
+  const displayTitle = stripBlogTitleDateSuffix(listing.title)
   const jsonLd = blogPostingJsonLd(post, canonicalUrl, {
-    headline: listing.title,
+    headline: displayTitle,
     description: listing.description,
     inLanguage: locale === "ro" ? "ro" : "en",
   })
@@ -38,10 +39,8 @@ export function BlogPostFull({ post, locale }: Props) {
         <Link href={blogHref} className="font-medium text-primary underline underline-offset-4">
           ← Blog
         </Link>
-        <span className="mx-2">·</span>
-        {post.date}
       </p>
-      <h1 className="mb-8 text-3xl font-bold tracking-tight text-balance text-foreground">{listing.title}</h1>
+      <h1 className="mb-8 text-3xl font-bold tracking-tight text-balance text-foreground">{displayTitle}</h1>
       {locale === "en" && post.source === "markdown" && !post.markdownEn ? (
         <p className="mb-6 rounded-lg border border-border/60 bg-muted/30 px-3 py-2 text-sm text-muted-foreground">
           Acest articol este în română.{" "}
@@ -74,7 +73,9 @@ export function BlogPostFull({ post, locale }: Props) {
           {more.map((p) => (
             <li key={p.slug}>
               <Link href={blogPostPath(p, locale)} className="text-primary underline underline-offset-4">
-                {locale === "ro" ? romanianListingForPost(p).title : p.title}
+                {stripBlogTitleDateSuffix(
+                  locale === "ro" ? romanianListingForPost(p).title : p.title
+                )}
               </Link>
             </li>
           ))}

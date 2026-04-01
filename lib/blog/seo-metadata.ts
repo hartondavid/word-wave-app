@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { getSiteUrl } from "@/lib/site-url"
+import { stripBlogTitleDateSuffix } from "./format-blog-date"
 import { EN_TO_RO_SLUG, blogPostPath } from "./en-ro-slugs"
 import { romanianListingForPost } from "./ro-blog-listing"
 import type { BlogPost, BlogPostFromMarkdown } from "./types"
@@ -78,9 +79,10 @@ export function buildBlogArticleMetadata(post: BlogPost, locale: BlogLocale): Me
   const languages = blogArticleHreflangs(post)
   const listing =
     locale === "ro" ? romanianListingForPost(post) : { title: post.title, description: post.description }
+  const displayTitle = stripBlogTitleDateSuffix(listing.title)
 
   return {
-    title: listing.title,
+    title: displayTitle,
     description: listing.description,
     alternates: {
       canonical: canonicalUrl,
@@ -98,7 +100,7 @@ export function buildBlogArticleMetadata(post: BlogPost, locale: BlogLocale): Me
     },
     twitter: {
       card: "summary_large_image",
-      title: listing.title,
+      title: displayTitle,
       description: listing.description,
     },
   }

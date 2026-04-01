@@ -2,6 +2,7 @@
 O singură „postare” logică pe rulare: articol în engleză, apoi traducere în română
 (același conținut / structură), salvat ca două fișiere cu același slug:
   content/en/<slug>.md  și  content/ro/<slug>.md
+  Slug: derivat din titlul EN (slugify), fără prefix/sufix; dacă fișierul există deja, scriptul se oprește.
 
 Necesită secret repo GEMINI_API_KEY. SDK google-genai.
 Lanțul de modele: GEMINI_MODEL (opțional), GEMINI_MODEL_FALLBACK, GEMINI_EXTRA_MODELS
@@ -14,6 +15,7 @@ from __future__ import annotations
 import os
 import re
 import time
+import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -43,10 +45,6 @@ _GEMINI_MODEL_CANDIDATES: tuple[str, ...] = (
 client = genai.Client(api_key=api_key)
 
 _model_chain_cache: list[str] | None = None
-
-now = datetime.now(timezone.utc)
-date_str = now.strftime("%Y-%m-%d")
-base_slug = f"{date_str}-wordwave-daily"
 
 keywords_en = ["daily word puzzle", "brain teaser", "vocabulary game"]
 keywords_ro = ["puzzle zilnic cuvinte", "joc de vocabular", "antrenament minte"]
@@ -240,15 +238,105 @@ def _response_text(response: Any) -> str:
     return ""
 
 
+def _take_meta_line(prefix: str, line: str) -> str | None:
+    s = line.strip()
+    if s.upper().startswith(prefix.upper()):
+        return s[len(prefix) :].strip()
+    return None
+
+
+def slug_from_title(title: str, *, max_len: int = 80) -> str:
+    """URL slug din titlu: litere/cifre, cratime, fără diacritice."""
+    t = sanitize_title_no_dates(title).strip().lower()
+    t = unicodedata.normalize("NFKD", t)
+    t = "".join(ch for ch in t if not unicodedata.combining(ch))
+    t = re.sub(r"[^a-z0-9]+", "-", t)
+    t = re.sub(r"-{2,}", "-", t).strip("-")
+    if not t:
+        t = "article"
+    if len(t) > max_len:
+        t = t[:max_len].rstrip("-")
+    return t
+
+
+def assert_new_slug_from_title(title: str, en_dir: Path, ro_dir: Path) -> str:
+    base = slug_from_title(title)
+    if (en_dir / f"{base}.md").exists() or (ro_dir / f"{base}.md").exists():
+        raise SystemExit(
+            f"Slug «{base}» (din titlul EN) există deja în content/en sau content/ro. "
+            "Folosește un TITLE_LINE care să producă alt URL, sau șterge/redenumește articolul vechi."
+        )
+    return base
+
+
+def sanitize_title_no_dates(title: str) -> str:
+    """Fără date în titlu: scoate yyyy-mm-dd și forme similare rămase accidental."""
+    t = title.strip()
+    t = re.sub(r"\b\d{4}-\d{2}-\d{2}\b", "", t)
+    t = re.sub(r"\b\d{1,2}/\d{1,2}/\d{2,4}\b", "", t)
+    t = re.sub(r"\s+", " ", t).strip(" \t-–—·")
+    return t if t else title.strip()
+
+
+def split_article_response(
+    raw: str,
+    *,
+    fallback_title: str,
+    fallback_description: str,
+) -> tuple[str, str, str]:
+    """
+    Așteaptă la început:
+      TITLE_LINE: ...
+      DESC_LINE: ...
+    apoi corp markdown. Returnează (title, description, body).
+    """
+    text = raw.strip()
+    lines = text.split("\n")
+    i = 0
+    while i < len(lines) and not lines[i].strip():
+        i += 1
+    title = fallback_title
+    desc = fallback_description
+    if i < len(lines):
+        t = _take_meta_line("TITLE_LINE:", lines[i])
+        if t is not None:
+            title = sanitize_title_no_dates(t)[:200]
+            i += 1
+    while i < len(lines) and not lines[i].strip():
+        i += 1
+    if i < len(lines):
+        d = _take_meta_line("DESC_LINE:", lines[i])
+        if d is not None:
+            desc = d.strip()[:400]
+            i += 1
+    while i < len(lines) and not lines[i].strip():
+        i += 1
+    body = "\n".join(lines[i:]).strip()
+    if not body:
+        body = clean_markdown(text)
+    return title, desc, body
+
+
 def main() -> None:
+    now = datetime.now(timezone.utc)
+    root = Path(__file__).resolve().parent.parent
+    en_dir = root / "content" / "en"
+    ro_dir = root / "content" / "ro"
+    en_dir.mkdir(parents=True, exist_ok=True)
+    ro_dir.mkdir(parents=True, exist_ok=True)
+
     prompt_en = f"""
 Write a high-quality SEO article in English for a word game website.
 Topic: daily word puzzle / vocabulary and WordWave-style multiplayer tips.
 Target keywords: {", ".join(keywords_en)}.
 Length: 900 to 1200 words.
 
-Requirements:
-- Output valid markdown only.
+First, output exactly two metadata lines (English), then a blank line, then the article:
+TITLE_LINE: <one unique SEO title for THIS article only, max ~70 characters, specific to the angle you choose; do NOT include any calendar date, year, or "April 1"-style wording>
+DESC_LINE: <one unique meta description for THIS article only, max ~155 characters, concrete and specific; no dates>
+
+Then the article body:
+- Valid markdown only.
 - Do NOT use H1 (#) in the body (the page template already shows the title as H1).
 - Start with a short intro paragraph, then 4 H2 (##) sections, bullet lists where useful, and a short FAQ (use H2 for FAQ or ### for each question).
 - Make the content useful and natural, not robotic.
@@ -267,34 +355,57 @@ Requirements:
         ) from None
 
     en_text = _response_text(en_response)
-    en_body = ensure_frontmatter(
+    title_en, desc_en, body_en = split_article_response(
         en_text,
-        title=f"Daily Word Puzzle — {date_str}",
-        description="Solve today's word puzzle and improve your vocabulary with a fresh daily challenge.",
+        fallback_title="Word games, puzzles, and vocabulary tips",
+        fallback_description=(
+            "Ideas for word puzzle fans: vocabulary, multiplayer rhythm, and sharper play — "
+            "practical tips for your next game."
+        ),
+    )
+    base_slug = assert_new_slug_from_title(title_en, en_dir, ro_dir)
+    en_body = ensure_frontmatter(
+        body_en,
+        title=title_en,
+        description=desc_en,
         slug=base_slug,
         lang="en",
         date_value=now.isoformat(),
         keywords=keywords_en,
     )
 
-    prompt_ro = f"""
-Tradu în limba română articolul de mai jos. Reguli stricte:
-- Tot conținutul vizibil (titluri H2/H3, paragrafe, liste, FAQ) trebuie să fie în ROMÂNĂ.
-- Nu lăsa propoziții sau paragrafe în engleză.
-- Păstrează structura markdown (aceleași niveluri de titluri, liste).
-- Ton natural pentru cititori români interesați de jocuri cu cuvinte.
-- Ieșire: doar markdown valid, fără blocuri ```.
+    en_markdown_only = strip_frontmatter(en_body)
 
-ARTICOL ENGLEZĂ:
-{en_body}
+    prompt_ro = f"""
+Tradu în limba română articolul markdown de mai jos (fără frontmatter YAML).
+
+Reguli stricte:
+- La începutul răspunsului, exact două rânduri în română, apoi linie goală, apoi traducerea:
+TITLE_LINE: <titlu SEO unic pentru ACEST articol, max ~70 caractere, specific; FĂRĂ dată calendaristică, an sau formulări gen „1 aprilie”>
+DESC_LINE: <descriere meta unică, max ~155 caractere, concretă; fără date>
+- Apoi traducerea corpului: titluri H2/H3, paragrafe, liste, FAQ — tot în ROMÂNĂ.
+- Nu lăsa propoziții în engleză.
+- Păstrează structura markdown (aceleași niveluri de titluri, liste).
+- Ieșire fără blocuri ``` în jurul întregului răspuns.
+
+ARTICOL (markdown, engleză):
+{en_markdown_only}
 """
 
     ro_response = generate_with_retry(active_model, prompt_ro, what="Traducere RO")
     ro_text = _response_text(ro_response)
-    ro_body = ensure_frontmatter(
+    title_ro, desc_ro, body_ro = split_article_response(
         ro_text,
-        title=f"Puzzle zilnic de cuvinte — {date_str}",
-        description="Rezolvă puzzle-ul zilnic de cuvinte și antrenează-ți vocabularul în fiecare zi.",
+        fallback_title="Jocuri de cuvinte, puzzle-uri și vocabular",
+        fallback_description=(
+            "Idei pentru pasionații de puzzle-uri cu cuvinte: vocabular, ritm în multiplayer "
+            "și joc mai clar — sfaturi practice."
+        ),
+    )
+    ro_body = ensure_frontmatter(
+        body_ro,
+        title=title_ro,
+        description=desc_ro,
         slug=base_slug,
         lang="ro",
         date_value=now.isoformat(),
@@ -311,10 +422,15 @@ ARTICOL ENGLEZĂ:
         )
         ro_text2 = _response_text(retry).strip()
         if ro_text2:
-            ro_body = ensure_frontmatter(
+            tr2, dr2, br2 = split_article_response(
                 ro_text2,
-                title=f"Puzzle zilnic de cuvinte — {date_str}",
-                description="Rezolvă puzzle-ul zilnic de cuvinte și antrenează-ți vocabularul în fiecare zi.",
+                fallback_title=title_ro,
+                fallback_description=desc_ro,
+            )
+            ro_body = ensure_frontmatter(
+                br2,
+                title=tr2,
+                description=dr2,
                 slug=base_slug,
                 lang="ro",
                 date_value=now.isoformat(),
@@ -324,12 +440,6 @@ ARTICOL ENGLEZĂ:
             raise SystemExit(
                 "Eșec: varianta RO e prea asemănătoare cu EN. Verifică modelul / promptul."
             )
-
-    root = Path(__file__).resolve().parent.parent
-    en_dir = root / "content" / "en"
-    ro_dir = root / "content" / "ro"
-    en_dir.mkdir(parents=True, exist_ok=True)
-    ro_dir.mkdir(parents=True, exist_ok=True)
 
     path_en = en_dir / f"{base_slug}.md"
     path_ro = ro_dir / f"{base_slug}.md"
