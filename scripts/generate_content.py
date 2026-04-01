@@ -11,20 +11,67 @@ from __future__ import annotations
 
 import os
 import re
+import time
+import warnings
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
+
+warnings.filterwarnings(
+    "ignore",
+    message="All support for the `google.generativeai` package",
+    category=FutureWarning,
+)
 
 import google.generativeai as genai
+from google.api_core import exceptions as google_api_exceptions
 
 api_key = os.getenv("GEMINI_API_KEY")
 if not api_key:
     raise SystemExit("GEMINI_API_KEY is missing")
 
-# ID-uri vechi (ex. gemini-1.5-flash fără sufix) nu mai sunt pe v1beta — vezi ListModels în Google AI Studio.
-# Opțional în CI: secret sau env GEMINI_MODEL (ex. gemini-2.0-flash, gemini-2.5-flash).
+# Implicit: gemini-1.5-flash-002 (ID stabil pe v1beta; aliniat cu cotele din AI Studio „Rate limits”).
+# gemini-1.5-flash fără sufix poate da 404; gemini-2.0-flash a avut uneori cotă free tier 0.
+# Suprascrie cu GEMINI_MODEL / GEMINI_MODEL_FALLBACK în env sau în GitHub Variables.
 genai.configure(api_key=api_key)
-_model_id = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
-model = genai.GenerativeModel(_model_id)
+PRIMARY_MODEL_ID = (os.getenv("GEMINI_MODEL") or "gemini-1.5-flash-002").strip() or "gemini-1.5-flash-002"
+FALLBACK_MODEL_ID = (os.getenv("GEMINI_MODEL_FALLBACK") or "").strip()
+
+
+def make_model(model_id: str) -> genai.GenerativeModel:
+    return genai.GenerativeModel(model_id)
+
+
+def _retry_sleep_seconds(exc: BaseException) -> float:
+    """Extrage „Please retry in 53.3s” din mesajul API sau folosește backoff."""
+    m = re.search(r"retry in ([\d.]+)\s*s", str(exc), re.IGNORECASE)
+    if m:
+        return min(float(m.group(1)) + 3.0, 180.0)
+    return 45.0
+
+
+def generate_with_retry(
+    m: genai.GenerativeModel,
+    prompt: str,
+    *,
+    max_attempts: int = 8,
+    what: str = "generate_content",
+) -> Any:
+    last: BaseException | None = None
+    for attempt in range(1, max_attempts + 1):
+        try:
+            return m.generate_content(prompt)
+        except google_api_exceptions.ResourceExhausted as e:
+            last = e
+            wait = _retry_sleep_seconds(e)
+            print(
+                f"[Gemini] {what}: quota/rate limit (încercare {attempt}/{max_attempts}), "
+                f"pauză {wait:.0f}s…",
+                flush=True,
+            )
+            time.sleep(wait)
+    assert last is not None
+    raise last
 
 now = datetime.now(timezone.utc)
 date_str = now.strftime("%Y-%m-%d")
@@ -102,6 +149,8 @@ def bodies_too_similar(en_md: str, ro_md: str, min_ratio: float = 0.92) -> bool:
 
 
 def main() -> None:
+    model = make_model(PRIMARY_MODEL_ID)
+
     prompt_en = f"""
 Write a high-quality SEO article in English for a word game website.
 Topic: daily word puzzle / vocabulary and WordWave-style multiplayer tips.
@@ -116,7 +165,19 @@ Requirements:
 - Do not wrap the answer in code fences.
 """
 
-    en_response = model.generate_content(prompt_en)
+    try:
+        en_response = generate_with_retry(model, prompt_en, what="Articol EN")
+    except google_api_exceptions.ResourceExhausted:
+        if not FALLBACK_MODEL_ID:
+            raise SystemExit(
+                f"Gemini: cotă epuizată pentru «{PRIMARY_MODEL_ID}». "
+                "Încearcă GEMINI_MODEL cu alt model, setează GEMINI_MODEL_FALLBACK, "
+                "sau verifică billing / cote în Google AI Studio: "
+                "https://ai.google.dev/gemini-api/docs/rate-limits"
+            ) from None
+        print(f"[Gemini] folosesc model rezervă: {FALLBACK_MODEL_ID}", flush=True)
+        model = make_model(FALLBACK_MODEL_ID)
+        en_response = generate_with_retry(model, prompt_en, what="Articol EN (fallback)")
     en_text = en_response.text or ""
     en_body = ensure_frontmatter(
         en_text,
@@ -140,7 +201,7 @@ ARTICOL ENGLEZĂ:
 {en_body}
 """
 
-    ro_response = model.generate_content(prompt_ro)
+    ro_response = generate_with_retry(model, prompt_ro, what="Traducere RO")
     ro_text = ro_response.text or ""
     ro_body = ensure_frontmatter(
         ro_text,
@@ -153,10 +214,12 @@ ARTICOL ENGLEZĂ:
     )
 
     if bodies_too_similar(en_body, ro_body):
-        retry = model.generate_content(
+        retry = generate_with_retry(
+            model,
             prompt_ro
             + "\n\nATENȚIE: Răspunsul anterior era prea asemănător cu engleza. "
-            "Retradu COMPLET în română, fără a copia fraze în engleză."
+            "Retradu COMPLET în română, fără a copia fraze în engleză.",
+            what="Retraducere RO",
         )
         ro_text2 = (retry.text or "").strip()
         if ro_text2:

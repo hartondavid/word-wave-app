@@ -31,9 +31,12 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements-dual-lang.txt
 
+      # Opțional: repo Variables GEMINI_MODEL / GEMINI_MODEL_FALLBACK dacă primul model are cotă 0 sau 429 des.
       - name: Generate EN and RO articles
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
+          GEMINI_MODEL_FALLBACK: ${{ vars.GEMINI_MODEL_FALLBACK }}
         run: python scripts/generate_content.py
 
       - name: Commit and push changes
