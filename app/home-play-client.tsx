@@ -27,6 +27,7 @@ import { currentLocaleFromPathname } from "@/lib/locale-switch-paths"
 import {
   categoryLabelForLocale,
   getHomePlayFormStrings,
+  getHowToPlayStrings,
   type HomePlayFormStrings,
 } from "@/lib/home-play-form-strings"
 
@@ -127,6 +128,7 @@ export function HomePlayClient() {
   const pathname = usePathname() ?? ""
   const formLocale = currentLocaleFromPathname(pathname) === "ro" ? "ro" : "en"
   const t = getHomePlayFormStrings(formLocale)
+  const howToPlay = getHowToPlayStrings(formLocale)
 
   const [playerName, setPlayerName] = useState("")
   const [roomCode, setRoomCode] = useState("")
@@ -447,7 +449,7 @@ export function HomePlayClient() {
                 role="group"
                 aria-label={t.definitionLanguageAria}
               >
-                {(Object.entries(LANGUAGES) as [LanguageKey, { label: string; flag: string }][]).map(([key, { label, flag }]) => (
+                {(Object.entries(LANGUAGES) as [LanguageKey, { label: string }][]).map(([key, { label }]) => (
                   <button
                     key={key}
                     type="button"
@@ -460,7 +462,7 @@ export function HomePlayClient() {
                         : "border bg-muted/40 text-muted-foreground border-transparent hover:border-muted-foreground/30 hover:bg-muted/70",
                     )}
                   >
-                    {flag} {label}
+                    {label}
                   </button>
                 ))}
               </div>
@@ -664,7 +666,7 @@ export function HomePlayClient() {
         </CardContent>
       </Card>
 
-      <HomeHowToPlayCard className="border md:shadow-sm md:hidden" />
+      <HomeHowToPlayCard className="border md:shadow-sm md:hidden" strings={howToPlay} />
     </div>
   )
 }

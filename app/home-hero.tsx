@@ -1,6 +1,7 @@
 import { Swords, Timer, Trophy } from "lucide-react"
 import { PwaClient } from "@/components/pwa-client"
 import { HomeHowToPlayCard } from "@/components/home-how-to-play-card"
+import { getHowToPlayStrings } from "@/lib/home-play-form-strings"
 
 const STATS = [
   { icon: Swords, label: "2–4 Players" },
@@ -37,7 +38,7 @@ export function HomeHero() {
         ))}
       </div>
 
-      <HomeHowToPlayCard className="hidden border-2 md:block" />
+      <HomeHowToPlayCard className="hidden border-2 md:block" strings={getHowToPlayStrings("en")} />
     </div>
   )
 }

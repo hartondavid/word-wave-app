@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef, useMemo, use, type CSSProperties } from "react"
 import { flushSync } from "react-dom"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { getClearSlotPayload, patchClearPlayerSlotKeepalive } from "@/lib/supabase/clear-player-slot-keepalive"
 import { deleteGameRoomRow } from "@/lib/supabase/delete-game-room"
@@ -31,7 +31,15 @@ import {
   playOpponentWonRoundSound,
 } from "@/lib/play-correct-letter-sound"
 import { startGameAmbientWaves, stopGameAmbientWaves } from "@/lib/game-ambient-waves"
-import { speechUiLang, speechUiStrings } from "@/lib/speech-ui-strings"
+import { currentLocaleFromPathname } from "@/lib/locale-switch-paths"
+import { categoryTitleForLocale } from "@/lib/home-play-form-strings"
+import {
+  formatDisconnectMessage,
+  formatPlayerLeftPauseTitle,
+  formatPlayerReturnedNotice,
+  gameUiStrings,
+} from "@/lib/game-ui-strings"
+import { speechUiStrings } from "@/lib/speech-ui-strings"
 import {
   collectSpeechTranscripts,
   firstLetterFromTranscript,
@@ -51,7 +59,6 @@ import { LetterCellDelayBorder } from "@/components/letter-cell-delay-border"
 import { CorrectLetterChar, useCorrectLetterFx } from "@/components/correct-letter-fx"
 import { LetterSoundToggle } from "@/components/letter-sound-toggle"
 import { AmbientWavesToggle } from "@/components/ambient-waves-toggle"
-import { BlogLocaleSwitch } from "@/components/blog-locale-switch"
 import {
   LetterHistoryPanel,
   LetterHistoryToggleButton,
@@ -124,18 +131,6 @@ function whoLeftSlots(prev: GameRoom, next: GameRoom): PlayerSlot[] {
     if (before.id && !after.id) slots.push(s)
   }
   return slots
-}
-
-function formatDisconnectMessage(names: string[]): string {
-  if (names.length === 0) return ""
-  if (names.length === 1) return `${names[0]} a ieșit din joc`
-  return `${names.join(" și ")} au ieșit din joc`
-}
-
-function formatPlayerLeftPauseTitle(names: string[]): string {
-  if (names.length === 0) return "Un jucător a ieșit din joc"
-  if (names.length === 1) return `${names[0]} a ieșit din joc`
-  return `${names.join(" și ")} au ieșit din joc`
 }
 
 function normalizePlayerName(n: string | null | undefined): string {
@@ -274,6 +269,10 @@ export default function GamePage({ params }: GamePageProps) {
   /** True după Exit explicit — evită dublarea PATCH la pagehide */
   const leftVoluntarilyRef = useRef(false)
   const router = useRouter()
+  const pathname = usePathname() ?? ""
+  const siteLocale = currentLocaleFromPathname(pathname)
+  const ui = useMemo(() => gameUiStrings(siteLocale), [siteLocale])
+  const homePath = siteLocale === "ro" ? "/ro" : "/"
   const supabase = createClient()
   /** Ultimul playerInfo fără a extinde deps la useEffect-ul de plecare/reintrare */
   const playerInfoRef = useRef<PlayerInfo | null>(null)
@@ -289,8 +288,8 @@ export default function GamePage({ params }: GamePageProps) {
 
   /** Texte microfon / instrucțiuni — potrivirea e în lib/speech-word-match + lib/words. */
   const multiplayerSpeechUi = useMemo(
-    () => speechUiStrings(speechUiLang(room?.language)),
-    [room?.language]
+    () => speechUiStrings(siteLocale === "ro" ? "ro" : "en"),
+    [siteLocale]
   )
 
   function dismissTopTransientNotice() {
@@ -330,22 +329,22 @@ export default function GamePage({ params }: GamePageProps) {
 
   useEffect(() => {
     if (typeof window === "undefined") return
-    // Home pre-fills Join tab; /game/CODE alone sends guests without session to "/".
-    setJoinRoomUrl(`${window.location.origin}/?join=${encodeURIComponent(roomCode)}`)
-  }, [roomCode])
+    const base = siteLocale === "ro" ? "/ro" : ""
+    setJoinRoomUrl(`${window.location.origin}${base}/?join=${encodeURIComponent(roomCode)}`)
+  }, [roomCode, siteLocale])
 
   // ── effects ────────────────────────────────────────────────────────────────
 
   useEffect(() => {
     const stored = localStorage.getItem("wordmatch_player")
-    if (!stored) { router.push("/"); return }
+    if (!stored) { router.push(homePath); return }
     const parsed = JSON.parse(stored)
     if (parsed.roomCode === roomCode) {
       setPlayerInfo(parsed)
       const h = parsed.practice_hints_enabled
       setMultiplayerHintsEnabled(typeof h === "boolean" ? h : false)
-    } else router.push("/")
-  }, [roomCode, router])
+    } else router.push(homePath)
+  }, [roomCode, router, homePath])
 
   // Golire slot la închidere tab / navigare (ceilalți văd plecarea în realtime)
   useEffect(() => {
@@ -587,13 +586,10 @@ export default function GamePage({ params }: GamePageProps) {
           rejoinEventKeyRef.current = eventKey
           const viewerSlot = (playerInfoRef.current?.playerSlot ?? 1) as PlayerSlot
           const viewerName = slotData(viewerSlot, room).name
-          const msg =
-            returnedNames.length === 1
-              ? returnedNames[0] === viewerName
-                ? "Te-ai întors în joc"
-                : `${returnedNames[0]} s-a întors în joc`
-              : `${returnedNames.join(" și ")} s-au întors în joc`
-          scheduleTopTransientNotice(msg, "returned")
+          scheduleTopTransientNotice(
+            formatPlayerReturnedNotice(returnedNames, viewerName, siteLocale),
+            "returned"
+          )
         }
       }
 
@@ -614,7 +610,7 @@ export default function GamePage({ params }: GamePageProps) {
           // Gazda a ieșit, erau ≥3 jucători → banderolă sus ~3s; timpul merge în continuare
           if (hostLeft && prevN >= 3) {
             scheduleDepartedNotice(
-              `${formatPlayerLeftPauseTitle(left)} — Jocul continuă.`
+              `${formatPlayerLeftPauseTitle(left, siteLocale)}${ui.gameContinuesBanner}`
             )
             prevRoomSnapshotRef.current = room
             return
@@ -623,7 +619,7 @@ export default function GamePage({ params }: GamePageProps) {
           // Gazda + un invitat (2 jucători) → ecran finished cu numele gazdei, doar Home
           if (hostLeft && prevN === 2 && nextN === 1 && !disconnectHandledRef.current) {
             disconnectHandledRef.current = true
-            setDisconnectMessage(formatDisconnectMessage(left))
+            setDisconnectMessage(formatDisconnectMessage(left, siteLocale))
             setDisconnectHidePlayAgain(true)
             setRoom(r => (r ? { ...r, game_status: "finished", round_end_time: null } : r))
             void (async () => {
@@ -639,7 +635,7 @@ export default function GamePage({ params }: GamePageProps) {
 
           // ≥3 jucători înainte, încă ≥2 după plecare (non-gazdă) → banderolă; timpul merge
           if (prevN >= 3 && nextN >= 2) {
-            scheduleDepartedNotice(formatPlayerLeftPauseTitle(left))
+            scheduleDepartedNotice(formatPlayerLeftPauseTitle(left, siteLocale))
             prevRoomSnapshotRef.current = room
             return
           }
@@ -647,7 +643,7 @@ export default function GamePage({ params }: GamePageProps) {
           // 2 jucători, invitatul pleacă → rămâne unul: încheiere directă (fără popup gazdă)
           if (prevN >= 2 && nextN === 1 && !disconnectHandledRef.current) {
             disconnectHandledRef.current = true
-            setDisconnectMessage(formatDisconnectMessage(left))
+            setDisconnectMessage(formatDisconnectMessage(left, siteLocale))
             setRoom(r => (r ? { ...r, game_status: "finished", round_end_time: null } : r))
             void (async () => {
               const { error } = await supabase
@@ -662,7 +658,7 @@ export default function GamePage({ params }: GamePageProps) {
     }
 
     prevRoomSnapshotRef.current = room
-  }, [room, roomCode, supabase])
+  }, [room, roomCode, supabase, siteLocale, ui.gameContinuesBanner])
 
   // When timer hits 0, animate auto-reveal of remaining letters, then end the round
   useEffect(() => {
@@ -1256,7 +1252,7 @@ export default function GamePage({ params }: GamePageProps) {
     }
     if (error || !data?.length) {
       clearWordmatchPlayerSession()
-      router.push("/")
+      router.push(homePath)
       return
     }
     setRoom(data[0] as GameRoom)
@@ -1291,7 +1287,7 @@ export default function GamePage({ params }: GamePageProps) {
       patchClearPlayerSlotKeepalive(roomCode, playerInfo.playerSlot as PlayerSlot)
     }
     clearWordmatchPlayerSession()
-    router.push("/")
+    router.push(homePath)
   }
 
   // ── render helpers ─────────────────────────────────────────────────────────
@@ -1312,7 +1308,7 @@ export default function GamePage({ params }: GamePageProps) {
           checked
           className="scale-[0.72] shrink-0"
           onCheckedChange={(on) => { if (!on) dismissTopTransientNotice() }}
-          aria-label="Închide notificarea"
+          aria-label={ui.closeNoticeAria}
         />
         <span
           className={cn(
@@ -1351,10 +1347,10 @@ export default function GamePage({ params }: GamePageProps) {
                 <div className="size-2 rounded-full shrink-0" style={{ background: color }} />
                 <div className="min-w-0">
                   <p className="font-bold text-xs leading-tight truncate max-w-[72px]">
-                    {d.name ?? `P${slot}`}
-                    {isMe && <span className="font-normal text-[10px] text-muted-foreground"> (you)</span>}
+                    {d.name ?? ui.playerFallback(slot)}
+                    {isMe && <span className="font-normal text-[10px] text-muted-foreground">{ui.youParen}</span>}
                   </p>
-                  <p className="text-[10px] font-bold leading-tight" style={{ color }}>{d.score} pts</p>
+                  <p className="text-[10px] font-bold leading-tight" style={{ color }}>{d.score} {ui.pts}</p>
                 </div>
               </div>
             )
@@ -1536,15 +1532,15 @@ export default function GamePage({ params }: GamePageProps) {
         tabIndex={-1}
         className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background outline-none"
       >
-        <p className="text-muted-foreground">Room not found</p>
+        <p className="text-muted-foreground">{ui.roomNotFound}</p>
         <Button
           variant="outline"
           onClick={() => {
             clearWordmatchPlayerSession()
-            router.push("/")
+            router.push(homePath)
           }}
         >
-          <ArrowLeft className="w-4 h-4 mr-2" />Back Home
+          <ArrowLeft className="w-4 h-4 mr-2" />{ui.backHome}
         </Button>
       </main>
     )
@@ -1567,14 +1563,14 @@ export default function GamePage({ params }: GamePageProps) {
               </div>
               <div className="space-y-2">
                 <h2 className="text-xl font-bold leading-snug">{disconnectMessage}</h2>
-                <p className="text-muted-foreground">Jocul s-a încheiat.</p>
+                <p className="text-muted-foreground">{ui.gameEnded}</p>
               </div>
               <div className="flex gap-3 justify-center">
                 <Button variant="outline" onClick={() => void handleExitRoom()}>
-                  <ArrowLeft className="w-4 h-4 mr-2" />Home
+                  <ArrowLeft className="w-4 h-4 mr-2" />{ui.home}
                 </Button>
                 {!disconnectHidePlayAgain && (
-                  <Button onClick={() => void handlePlayAgain()}>Play Again</Button>
+                  <Button onClick={() => void handlePlayAgain()}>{ui.playAgain}</Button>
                 )}
               </div>
             </CardContent>
@@ -1608,7 +1604,7 @@ export default function GamePage({ params }: GamePageProps) {
               <Trophy className={cn("w-10 h-10", iWon ? "text-amber-500" : "text-muted-foreground")} />
             </div>
             <h2 className="text-2xl font-bold">
-              {winnerName ? `${winnerName} Wins!` : "It's a Tie!"}
+              {winnerName ? ui.winnerWins(winnerName) : ui.itsATie}
             </h2>
             <div className="space-y-2">
               {sorted.map((p, idx) => (
@@ -1620,14 +1616,16 @@ export default function GamePage({ params }: GamePageProps) {
                   finalScore={p.score}
                   isMe={p.name === myName}
                   maxForBar={maxBarScore}
+                  youSuffix={ui.finishedYouSuffix}
+                  ptsSuffix={ui.finishedPts}
                 />
               ))}
             </div>
             <div className="flex gap-3 justify-center">
               <Button variant="outline" onClick={() => void handleExitRoom()}>
-                <ArrowLeft className="w-4 h-4 mr-2" />Home
+                <ArrowLeft className="w-4 h-4 mr-2" />{ui.home}
               </Button>
-              <Button onClick={() => void handlePlayAgain()}>Play Again</Button>
+              <Button onClick={() => void handlePlayAgain()}>{ui.playAgain}</Button>
             </div>
           </CardContent>
         </Card>
@@ -1654,9 +1652,9 @@ export default function GamePage({ params }: GamePageProps) {
         <Card className="w-full max-w-sm">
           <CardContent className="pt-3 pb-4 text-center space-y-3">
             <div>
-              <h2 className="text-xl font-bold">Waiting for Players</h2>
+              <h2 className="text-xl font-bold">{ui.waitingForPlayersTitle}</h2>
               <p className="text-sm text-muted-foreground mt-1">
-                {activeSlots(room).length} / {maxP} joined
+                {ui.joinedCount(activeSlots(room).length, maxP)}
               </p>
             </div>
             <div className="space-y-2">
@@ -1670,7 +1668,7 @@ export default function GamePage({ params }: GamePageProps) {
                       style={{ background: PLAYER_COLORS[i], opacity: d.id ? 1 : 0.25 }}
                     />
                     <span className={cn("text-sm font-medium", !d.id && "text-muted-foreground/40 italic")}>
-                      {d.name ?? `Waiting for player ${s}…`}
+                      {d.name ?? ui.waitingForPlayerSlot(s)}
                     </span>
                     {d.id && <Check className="w-4 h-4 text-emerald-500 ml-auto" />}
                   </div>
@@ -1678,7 +1676,7 @@ export default function GamePage({ params }: GamePageProps) {
               })}
             </div>
             <div className="space-y-2">
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">Room Code</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">{ui.roomCode}</p>
               <div className="flex items-center justify-center gap-2 flex-wrap">
                 <div className="text-4xl font-mono font-bold tracking-[0.3em] bg-muted px-6 py-3 rounded-xl">
                   {roomCode}
@@ -1690,8 +1688,8 @@ export default function GamePage({ params }: GamePageProps) {
                     size="icon"
                     className="h-9 w-9"
                     onClick={handleCopyCode}
-                    title="Copy room code"
-                    aria-label="Copy room code"
+                    title={ui.copyRoomCode}
+                    aria-label={ui.copyRoomCode}
                   >
                     {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                   </Button>
@@ -1711,7 +1709,7 @@ export default function GamePage({ params }: GamePageProps) {
               </div>
               <div className="space-y-2 pt-1 text-left">
                 <p className="text-xs text-muted-foreground uppercase tracking-wider text-center">
-                  Link for players
+                  {ui.linkForPlayers}
                 </p>
                 {joinRoomUrl ? (
                   <div className="flex flex-col gap-2 rounded-xl border border-border/60 bg-muted/30 px-3 py-2.5">
@@ -1731,26 +1729,26 @@ export default function GamePage({ params }: GamePageProps) {
                       {linkCopied ? (
                         <>
                           <Check className="w-4 h-4 mr-2" />
-                          Copied
+                          {ui.copied}
                         </>
                       ) : (
                         <>
                           <Link2 className="w-4 h-4 mr-2" />
-                          Copy link
+                          {ui.copyLink}
                         </>
                       )}
                     </Button>
                   </div>
                 ) : (
-                  <p className="text-center text-xs text-muted-foreground">Loading link…</p>
+                  <p className="text-center text-xs text-muted-foreground">{ui.loadingLink}</p>
                 )}
               </div>
             </div>
             <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-              <Spinner className="w-4 h-4" /> Waiting for players…
+              <Spinner className="w-4 h-4" /> {ui.waitingForPlayersEllipsis}
             </div>
             <Button variant="ghost" onClick={() => void handleExitRoom()}>
-              <ArrowLeft className="w-4 h-4 mr-2" />Leave Room
+              <ArrowLeft className="w-4 h-4 mr-2" />{ui.leaveRoom}
             </Button>
           </CardContent>
         </Card>
@@ -1779,8 +1777,8 @@ export default function GamePage({ params }: GamePageProps) {
         <Card className="w-full max-w-md">
           <CardContent className="pt-3 pb-4 space-y-3">
             <div className="text-center">
-              <h2 className="text-xl font-bold">Ready to Start?</h2>
-              <p className="text-sm text-muted-foreground mt-1">All players must be ready to start</p>
+              <h2 className="text-xl font-bold">{ui.readyToStartTitle}</h2>
+              <p className="text-sm text-muted-foreground mt-1">{ui.readyToStartSubtitle}</p>
             </div>
             <div className={cn(
               "grid gap-3",
@@ -1801,7 +1799,7 @@ export default function GamePage({ params }: GamePageProps) {
                       <p className="font-semibold text-sm truncate">{d.name}</p>
                     </div>
                     <p className={cn("text-xs font-medium", d.ready ? "text-emerald-600" : "text-muted-foreground")}>
-                      {d.ready ? "Ready!" : "Not ready"}
+                      {d.ready ? ui.readyStatus : ui.notReadyStatus}
                     </p>
                   </div>
                 )
@@ -1812,10 +1810,10 @@ export default function GamePage({ params }: GamePageProps) {
               variant={myReady ? "secondary" : "default"}
               onClick={handleToggleReady}
             >
-              {myReady ? "Cancel Ready" : "I'm Ready!"}
+              {myReady ? ui.cancelReady : ui.imReady}
             </Button>
             <Button variant="ghost" className="w-full" onClick={() => void handleExitRoom()}>
-              <ArrowLeft className="w-4 h-4 mr-2" />Leave Room
+              <ArrowLeft className="w-4 h-4 mr-2" />{ui.leaveRoom}
             </Button>
           </CardContent>
         </Card>
@@ -1889,23 +1887,24 @@ export default function GamePage({ params }: GamePageProps) {
         {/* Row: Exit · Round+Category · Timer */}
         <div className="flex items-center justify-between">
           <Button variant="ghost" size="sm" className="h-8 px-2" onClick={() => void handleExitRoom()}>
-            <ArrowLeft className="w-4 h-4 mr-1" />Exit
+            <ArrowLeft className="w-4 h-4 mr-1" />{ui.exit}
           </Button>
           <div className="flex flex-col items-center gap-0">
             <span className="text-sm font-semibold text-muted-foreground tabular-nums">
-              Round {room.current_round}/{room.total_rounds ?? TOTAL_ROUNDS}
+              {ui.roundProgress(room.current_round, room.total_rounds ?? TOTAL_ROUNDS)}
             </span>
             {room.category && CATEGORIES[room.category as CategoryKey] && (
               <div className="flex items-center gap-1 text-xs leading-tight text-muted-foreground/70 max-w-[min(12rem,55vw)] justify-center">
                 <span className="text-xs leading-none shrink-0 inline-block" aria-hidden>
                   {CATEGORIES[room.category as CategoryKey].emoji}
                 </span>
-                <span className="truncate">{CATEGORIES[room.category as CategoryKey].category}</span>
+                <span className="truncate">
+                  {categoryTitleForLocale(room.category as CategoryKey, siteLocale === "ro" ? "ro" : "en")}
+                </span>
               </div>
             )}
           </div>
           <div className="flex min-w-[5.25rem] flex-wrap items-center justify-end gap-1 sm:min-w-0">
-            <BlogLocaleSwitch />
             <AmbientWavesToggle />
             <LetterSoundToggle />
           </div>
@@ -1951,7 +1950,7 @@ export default function GamePage({ params }: GamePageProps) {
               )}>
                 <div className="flex items-center justify-center gap-2 text-base font-semibold leading-tight">
                   <Trophy className="h-4 w-4 shrink-0" />
-                  {iWonRound ? "You Win!" : `${room.round_winner} Wins!`}
+                  {iWonRound ? ui.youWinRound : ui.winnerWins(room.round_winner)}
                 </div>
               </div>
             ) : (
@@ -2001,7 +2000,7 @@ export default function GamePage({ params }: GamePageProps) {
               size="lg"
               onClick={handleToggleReady}
             >
-              {myReady ? <><Check className="w-4 h-4 mr-2" />Ready!</> : "I'm Ready"}
+              {myReady ? <><Check className="w-4 h-4 mr-2" />{ui.readyExclaim}</> : ui.imReady}
             </Button>
 
             {/* ── Next Round — orice jucător când toți sunt Ready (gazda rămâne singura care pornește prima rundă din waiting) ── */}
@@ -2011,7 +2010,7 @@ export default function GamePage({ params }: GamePageProps) {
               onClick={() => startNewRound()}
               disabled={!everyoneReady}
             >
-              {everyoneReady ? "Next Round →" : "Waiting for players..."}
+              {everyoneReady ? ui.nextRound : ui.waitingForPlayers}
             </Button>
           </>
         ) : (
@@ -2049,8 +2048,8 @@ export default function GamePage({ params }: GamePageProps) {
                       <Button
                         type="button"
                         variant="secondary"
-                        title="Reveal a random letter (no points)"
-                        aria-label={`Hint: one letter (${hintLettersRemaining} left)`}
+                        title={ui.hintRevealTitleMultiplayer}
+                        aria-label={ui.hintRevealAriaMultiplayer(hintLettersRemaining)}
                         className="flex size-6 min-h-6 min-w-6 shrink-0 items-center justify-center rounded-md border-2 p-0 shadow-md text-[11px] font-bold tabular-nums leading-none"
                         style={{
                           borderColor: `${myPlayerColor}80`,
@@ -2188,7 +2187,7 @@ export default function GamePage({ params }: GamePageProps) {
                       {slotData(s, room).name}
                     </span>
                   ))}
-                  <span className="italic">= rival progress</span>
+                  <span className="italic">{ui.rivalProgressLegend}</span>
                 </div>
               )}
             </div>

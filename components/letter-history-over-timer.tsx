@@ -5,12 +5,16 @@ import { ChevronLeft, ChevronRight, Keyboard, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
+import type { LetterHistoryUiLabels } from "@/lib/game-ui-strings"
+
 export type LetterHistoryProps = {
   letters: string[]
   open: boolean
   onOpenChange: (open: boolean) => void
   /** Mesaj când lista e goală (panou deschis) */
   emptyHint?: string
+  /** Etichete EN/RO (dacă lipsește, se folosesc stringurile implicite în engleză). */
+  ui?: LetterHistoryUiLabels
   /** Refocus la inputul ascuns după toggle/închidere — păstrează tastatura pe mobil */
   restoreTypingFocus?: () => void
   /** Clase pe containerul panoului (ex. în bară cu butoanele). */
@@ -19,7 +23,7 @@ export type LetterHistoryProps = {
 
 type ToggleProps = Pick<
   LetterHistoryProps,
-  "letters" | "open" | "onOpenChange" | "restoreTypingFocus"
+  "letters" | "open" | "onOpenChange" | "restoreTypingFocus" | "ui"
 > & {
   /** În rând cu panoul + microfon în card; altfel colț stânga-jos absolut. */
   embedded?: boolean
@@ -34,8 +38,10 @@ export function LetterHistoryToggleButton({
   onOpenChange,
   restoreTypingFocus,
   embedded = false,
+  ui,
 }: ToggleProps) {
   const last = letters.length > 0 ? letters[letters.length - 1] : null
+  const L = ui
 
   return (
     <Button
@@ -43,13 +49,21 @@ export function LetterHistoryToggleButton({
       variant="secondary"
       size="icon-sm"
       className={cn(
-        "z-20 min-h-11 min-w-11 rounded-full p-0 shadow-md border border-border/80 transition-[box-shadow] duration-150 [&_svg]:h-3.5 [&_svg]:w-3.5",
+        "z-20 size-6 min-h-6 min-w-6 rounded-full p-0 shadow-md border border-border/80 transition-[box-shadow] duration-150 [&_svg]:h-3 [&_svg]:w-3",
         embedded ? "relative shrink-0" : "absolute bottom-1 left-1",
         open && "ring-1 ring-primary/30"
       )}
       aria-expanded={open}
-      aria-label={last ? `Wrong letters, last: ${last.toUpperCase()}` : "Wrong letters"}
-      title="History keys"
+      aria-label={
+        L
+          ? last
+            ? L.toggleAriaLast(last)
+            : L.toggleAriaEmpty
+          : last
+            ? `Wrong letters, last: ${last.toUpperCase()}`
+            : "Wrong letters"
+      }
+      title={L?.toggleTitle ?? "History keys"}
       onPointerDown={(e) => e.preventDefault()}
       onClick={(e) => {
         e.stopPropagation()
@@ -57,7 +71,7 @@ export function LetterHistoryToggleButton({
         queueMicrotask(() => restoreTypingFocus?.())
       }}
     >
-      <Keyboard className="h-3.5 w-3.5 shrink-0 text-red-500" />
+      <Keyboard className="h-3 w-3 shrink-0 text-red-500" />
     </Button>
   )
 }
@@ -72,7 +86,10 @@ export function LetterHistoryPanel({
   emptyHint = "No wrong letters yet",
   restoreTypingFocus,
   className,
+  ui,
 }: LetterHistoryProps) {
+  const L = ui
+  const resolvedEmpty = L?.panelEmptyHint ?? emptyHint
   const [index, setIndex] = useState(0)
   const prevLen = useRef(0)
   const panelRef = useRef<HTMLDivElement>(null)
@@ -161,7 +178,7 @@ export function LetterHistoryPanel({
     <div
       ref={panelRef}
       role="dialog"
-      aria-label="Wrong letters"
+      aria-label={L?.panelAria ?? "Wrong letters"}
       tabIndex={-1}
       className={cn(
         "relative z-10 mx-auto flex w-full max-w-[11.5rem] sm:max-w-[13rem] max-h-[3.75rem] sm:max-h-[4rem] flex-col rounded-lg border border-border bg-muted/30 px-0.5 py-px shadow-sm outline-none backdrop-blur-sm dark:bg-muted/20",
@@ -172,14 +189,14 @@ export function LetterHistoryPanel({
       {letters.length === 0 ? (
         <div className="flex items-center justify-end gap-1.5 px-1.5 py-1">
           <p className="min-w-0 flex-1 text-center text-[11px] leading-tight text-muted-foreground">
-            {emptyHint}
+            {resolvedEmpty}
           </p>
           <Button
             type="button"
             variant="ghost"
             size="icon"
             className="h-4 w-4 shrink-0 text-muted-foreground hover:bg-transparent hover:text-foreground"
-            aria-label="Close wrong letters"
+            aria-label={L?.closeWrongLetters ?? "Close wrong letters"}
             onPointerDown={(e) => e.preventDefault()}
             onClick={(e) => {
               e.stopPropagation()
@@ -198,7 +215,7 @@ export function LetterHistoryPanel({
             size="icon"
             className="h-5 w-5 shrink-0 self-center border-red-200/80 p-0"
             disabled={safeIndex <= 0 && scrollEdges.atLeft}
-            aria-label="Previous letter or scroll strip"
+            aria-label={L?.prevLetterOrScroll ?? "Previous letter or scroll strip"}
             onPointerDown={(e) => e.preventDefault()}
             onClick={() => {
               if (safeIndex > 0) setIndex((i) => Math.max(0, i - 1))
@@ -212,7 +229,7 @@ export function LetterHistoryPanel({
             ref={scrollRef}
             onScroll={measureScrollEdges}
             className="min-h-0 min-w-0 flex-1 touch-pan-x overflow-x-auto overflow-y-hidden overscroll-x-contain py-px [-webkit-overflow-scrolling:touch] scrollbar-none"
-            aria-label="All wrong letters — swipe horizontally"
+            aria-label={L?.stripSwipeAria ?? "All wrong letters — swipe horizontally"}
           >
             <div className="flex w-max min-w-full flex-nowrap items-center justify-center gap-px">
               {letters.map((ch, i) => (
@@ -239,7 +256,7 @@ export function LetterHistoryPanel({
             variant="ghost"
             size="icon"
             className="h-4 w-4 shrink-0 self-center text-muted-foreground hover:bg-transparent hover:text-foreground"
-            aria-label="Close wrong letters"
+            aria-label={L?.closeWrongLetters ?? "Close wrong letters"}
             onPointerDown={(e) => e.preventDefault()}
             onClick={(e) => {
               e.stopPropagation()
@@ -255,7 +272,7 @@ export function LetterHistoryPanel({
             size="icon"
             className="h-5 w-5 shrink-0 self-center border-red-200/80 p-0"
             disabled={safeIndex >= letters.length - 1 && scrollEdges.atRight}
-            aria-label="Next letter or scroll strip"
+            aria-label={L?.nextLetterOrScroll ?? "Next letter or scroll strip"}
             onPointerDown={(e) => e.preventDefault()}
             onClick={() => {
               if (safeIndex < letters.length - 1) setIndex((i) => Math.min(letters.length - 1, i + 1))

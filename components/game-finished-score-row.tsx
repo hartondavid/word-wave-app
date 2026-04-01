@@ -12,6 +12,10 @@ type FinishedPlayerScoreRowProps = {
   isMe: boolean
   /** Scorul maxim pentru 100% pe bară (ex. WIN_SCORE sau leaderul). */
   maxForBar: number
+  /** Ex. " (You)" / " (tu)" */
+  youSuffix?: string
+  /** Ex. "pts" / "pct" */
+  ptsSuffix?: string
 }
 
 /**
@@ -24,6 +28,8 @@ export function FinishedPlayerScoreRow({
   finalScore,
   isMe,
   maxForBar,
+  youSuffix = " (You)",
+  ptsSuffix = "pts",
 }: FinishedPlayerScoreRowProps) {
   const [shown, setShown] = useState(0)
 
@@ -57,10 +63,12 @@ export function FinishedPlayerScoreRow({
           <span className="h-3 w-3 shrink-0 rounded-full" style={{ background: color }} />
           <span className="truncate font-semibold">
             {name}
-            {isMe ? " (You)" : ""}
+            {isMe ? youSuffix : ""}
           </span>
         </div>
-        <span className="shrink-0 tabular-nums text-lg font-bold">{shown} pts</span>
+        <span className="shrink-0 tabular-nums text-lg font-bold">
+          {shown} {ptsSuffix}
+        </span>
       </div>
       <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted">
         <div

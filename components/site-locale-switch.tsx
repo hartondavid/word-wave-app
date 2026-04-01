@@ -3,6 +3,13 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
+import { Check, ChevronDown } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import {
   alternatePathForLocale,
   currentLocaleFromPathname,
@@ -11,7 +18,7 @@ import { cn } from "@/lib/utils"
 
 /**
  * EN / RO: aceeași pagină logică (marketing, blog, practice, cameră).
- * Randare după mount → evită hydration mismatch cu Radix (Sheet) în navbar.
+ * Randare după mount → evită hydration mismatch cu Radix în navbar.
  */
 export function SiteLocaleSwitch() {
   const [mounted, setMounted] = useState(false)
@@ -22,7 +29,7 @@ export function SiteLocaleSwitch() {
   if (!mounted) {
     return (
       <div
-        className="flex h-[1.875rem] min-w-[4.75rem] shrink-0 items-center rounded-lg border border-transparent p-0.5"
+        className="flex h-8 min-w-[2.5rem] shrink-0 items-center justify-center rounded-lg border border-transparent"
         aria-hidden
       />
     )
@@ -32,48 +39,65 @@ export function SiteLocaleSwitch() {
   const enHref = alternatePathForLocale(pathname, "en")
   const roHref = alternatePathForLocale(pathname, "ro")
 
-  const pill =
-    "inline-flex min-w-[2.25rem] items-center justify-center rounded-md px-2 py-1 text-xs font-semibold transition-colors"
-
-  const groupLabel =
+  const triggerLabel =
     locale === "ro"
-      ? "Limba site-ului: English / Română"
-      : "Site language: English / Română"
+      ? "Limba site-ului. Deschide meniul pentru a alege limba."
+      : "Site language. Open menu to choose language."
 
   return (
-    <div
-      className="flex shrink-0 items-center gap-0.5 rounded-lg border border-border/80 bg-muted/40 p-0.5"
-      role="group"
-      aria-label={groupLabel}
-    >
-      <Link
-        href={enHref}
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        type="button"
         className={cn(
-          pill,
-          locale === "en"
-            ? "bg-background text-foreground shadow-sm"
-            : "text-muted-foreground hover:text-foreground"
+          "inline-flex h-8 shrink-0 items-center gap-1 rounded-lg border border-border/80 bg-muted/40 px-2 py-0.5",
+          "text-foreground outline-none transition-colors",
+          "hover:bg-muted/70 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+          "data-[state=open]:bg-muted/70"
         )}
-        title="English"
-        aria-label={locale === "en" ? "English, current language" : "Switch site to English"}
-        aria-current={locale === "en" ? "page" : undefined}
+        aria-label={triggerLabel}
       >
-        EN
-      </Link>
-      <Link
-        href={roHref}
-        className={cn(
-          pill,
-          locale === "ro"
-            ? "bg-background text-foreground shadow-sm"
-            : "text-muted-foreground hover:text-foreground"
-        )}
-        title="Română"
-        aria-label={locale === "ro" ? "Română, limba curentă" : "Trece site-ul la română"}
-        aria-current={locale === "ro" ? "page" : undefined}
+        <span className="text-[11px] font-semibold tabular-nums leading-none">
+          {locale === "en" ? "EN" : "RO"}
+        </span>
+        <ChevronDown className="size-3 shrink-0 text-muted-foreground" aria-hidden />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="end"
+        side="bottom"
+        sideOffset={6}
+        className="w-max min-w-0 p-0 py-px"
       >
-        RO
-      </Link>
-    </div>
+        <DropdownMenuItem
+          asChild
+          className="h-auto min-h-0 cursor-pointer rounded-none py-1.5 pl-2 pr-2"
+        >
+          <Link
+            href={enHref}
+            className="flex w-full items-center gap-1"
+            aria-current={locale === "en" ? "page" : undefined}
+          >
+            <span className="text-sm">English</span>
+            {locale === "en" ? (
+              <Check className="size-3.5 shrink-0 text-primary" aria-hidden />
+            ) : null}
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          asChild
+          className="h-auto min-h-0 cursor-pointer rounded-none py-1.5 pl-2 pr-2"
+        >
+          <Link
+            href={roHref}
+            className="flex w-full items-center gap-1"
+            aria-current={locale === "ro" ? "page" : undefined}
+          >
+            <span className="text-sm">Română</span>
+            {locale === "ro" ? (
+              <Check className="size-3.5 shrink-0 text-primary" aria-hidden />
+            ) : null}
+          </Link>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }

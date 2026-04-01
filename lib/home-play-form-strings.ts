@@ -1,4 +1,4 @@
-import type { CategoryKey } from "@/lib/game-types"
+import { CATEGORIES, type CategoryKey } from "@/lib/game-types"
 
 export type HomePlayFormLocale = "en" | "ro"
 
@@ -24,6 +24,11 @@ const CATEGORY_LABELS_RO: Record<CategoryKey, string> = {
   societate: "Societate",
   filosofie: "Filosofie",
   persoana: "Sine",
+}
+
+/** Titlu categorie fără emoji (ex. bara de rundă în joc / practică). */
+export function categoryTitleForLocale(key: CategoryKey, locale: HomePlayFormLocale): string {
+  return locale === "ro" ? CATEGORY_LABELS_RO[key] : CATEGORIES[key].category
 }
 
 export function categoryLabelForLocale(
@@ -177,4 +182,34 @@ const STRINGS: Record<HomePlayFormLocale, HomePlayFormStrings> = {
 
 export function getHomePlayFormStrings(locale: HomePlayFormLocale): HomePlayFormStrings {
   return STRINGS[locale]
+}
+
+/** Instrucțiuni scurte pe prima pagină (card „How to play”). */
+export type HowToPlayStrings = {
+  title: string
+  step1: string
+  step2: string
+  step3: string
+  step4: string
+}
+
+const HOW_TO_PLAY: Record<HomePlayFormLocale, HowToPlayStrings> = {
+  en: {
+    title: "How to Play",
+    step1: "All players see the same word definition",
+    step2: "Press letter keys to fill in the word",
+    step3: "Colored lines show enemy progress",
+    step4: "First to complete the word wins the round!",
+  },
+  ro: {
+    title: "Cum se joacă",
+    step1: "Toți jucătorii văd aceeași definiție a cuvântului",
+    step2: "Apasă tastele cu litere ca să completezi cuvântul",
+    step3: "Liniile colorate arată progresul adversarilor",
+    step4: "Cine completează primul cuvântul câștigă runda!",
+  },
+}
+
+export function getHowToPlayStrings(locale: HomePlayFormLocale): HowToPlayStrings {
+  return HOW_TO_PLAY[locale]
 }

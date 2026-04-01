@@ -20,8 +20,11 @@ api_key = os.getenv("GEMINI_API_KEY")
 if not api_key:
     raise SystemExit("GEMINI_API_KEY is missing")
 
+# ID-uri vechi (ex. gemini-1.5-flash fără sufix) nu mai sunt pe v1beta — vezi ListModels în Google AI Studio.
+# Opțional în CI: secret sau env GEMINI_MODEL (ex. gemini-2.0-flash, gemini-2.5-flash).
 genai.configure(api_key=api_key)
-model = genai.GenerativeModel("gemini-1.5-flash")
+_model_id = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+model = genai.GenerativeModel(_model_id)
 
 now = datetime.now(timezone.utc)
 date_str = now.strftime("%Y-%m-%d")

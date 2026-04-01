@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
@@ -37,6 +37,9 @@ import {
 } from "@/lib/speech-word-match"
 import type { CategoryKey } from "@/lib/game-types"
 import { CATEGORIES } from "@/lib/game-types"
+import { currentLocaleFromPathname } from "@/lib/locale-switch-paths"
+import { categoryTitleForLocale } from "@/lib/home-play-form-strings"
+import { gameUiStrings } from "@/lib/game-ui-strings"
 import { speechUiStrings } from "@/lib/speech-ui-strings"
 import { ArrowLeft, RotateCcw, Trophy, Mic } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -49,7 +52,6 @@ import {
 import { CorrectLetterChar, useCorrectLetterFx } from "@/components/correct-letter-fx"
 import { LetterSoundToggle } from "@/components/letter-sound-toggle"
 import { AmbientWavesToggle } from "@/components/ambient-waves-toggle"
-import { BlogLocaleSwitch } from "@/components/blog-locale-switch"
 import { FinishedPlayerScoreRow } from "@/components/game-finished-score-row"
 
 const PRACTICE_TIMER_SECONDS_OPTIONS = [30, 60] as const
@@ -175,9 +177,15 @@ export default function PracticePage() {
   const handleLetterInputRef = useRef<((letter: string) => void | Promise<void>) | null>(null)
   const gameStatusRef = useRef(gameStatus)
   const router = useRouter()
+  const pathname = usePathname() ?? ""
+  const siteLocale = currentLocaleFromPathname(pathname)
+  const ui = useMemo(() => gameUiStrings(siteLocale), [siteLocale])
 
-  /** Practice: mesaje UI mereu în engleză (conținutul rundei rămâne după limba aleasă). */
-  const practiceSpeechUi = useMemo(() => speechUiStrings("en"), [])
+  /** Mesaje microfon / rundă — după limba site-ului (/ro vs EN). */
+  const practiceSpeechUi = useMemo(
+    () => speechUiStrings(siteLocale === "ro" ? "ro" : "en"),
+    [siteLocale]
+  )
 
   useEffect(() => {
     gameStatusRef.current = gameStatus
@@ -202,13 +210,14 @@ export default function PracticePage() {
 
   useEffect(() => {
     const stored = localStorage.getItem("wordmatch_player")
+    const home = siteLocale === "ro" ? "/ro" : "/"
     if (stored) {
       const data = JSON.parse(stored)
-      setPlayerName(data.name || "Player")
+      setPlayerName(data.name || ui.defaultPlayerName)
     } else {
-      router.push("/")
+      router.push(home)
     }
-  }, [router])
+  }, [router, siteLocale, ui.defaultPlayerName])
 
   const loadNewWord = useCallback(
     async (
@@ -828,27 +837,31 @@ export default function PracticePage() {
               <Trophy className="w-10 h-10 text-primary" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold">Practice Complete!</h2>
+              <h2 className="text-2xl font-bold">{ui.practiceComplete}</h2>
               <p className="mt-2 text-muted-foreground">
-                {totalRounds} {totalRounds === 1 ? "round" : "rounds"}
+                {totalRounds} {totalRounds === 1 ? ui.roundSingular : ui.roundPlural}
               </p>
             </div>
             <div className="space-y-2 text-left">
               <FinishedPlayerScoreRow
                 rank={1}
-                name={playerName || "You"}
+                name={playerName || ui.you}
                 color={PRACTICE_PLAYER_COLOR}
                 finalScore={score}
                 isMe
                 maxForBar={maxBarScore}
+                youSuffix={ui.finishedYouSuffix}
+                ptsSuffix={ui.finishedPts}
               />
             </div>
             <div className="flex gap-3 justify-center">
-              <Button variant="outline" onClick={() => router.push("/")}>
-                <ArrowLeft className="w-4 h-4 mr-2" />Home
+              <Button variant="outline" onClick={() => router.push(siteLocale === "ro" ? "/ro" : "/")}>
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                {ui.home}
               </Button>
               <Button onClick={handleRestart}>
-                <RotateCcw className="w-4 h-4 mr-2" />Play Again
+                <RotateCcw className="w-4 h-4 mr-2" />
+                {ui.playAgain}
               </Button>
             </div>
           </CardContent>
@@ -893,13 +906,19 @@ export default function PracticePage() {
       {/* Sticky top bar — mirrors game page */}
       <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b px-4 pt-3 pb-3">
         <div className="flex items-center justify-between">
-          <Button variant="ghost" size="sm" className="h-8 px-2" onClick={() => router.push("/")}>
-            <ArrowLeft className="w-4 h-4 mr-1" />Exit
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 px-2"
+            onClick={() => router.push(siteLocale === "ro" ? "/ro" : "/")}
+          >
+            <ArrowLeft className="w-4 h-4 mr-1" />
+            {ui.exit}
           </Button>
 
           <div className="flex flex-col items-center gap-0">
             <span className="text-sm font-semibold text-muted-foreground tabular-nums">
-              Round {round}/{totalRounds}
+              {ui.roundProgress(round, totalRounds)}
             </span>
             {category && CATEGORIES[category as CategoryKey] && (
               <div
@@ -909,22 +928,23 @@ export default function PracticePage() {
                 <span className="text-xs leading-none shrink-0 inline-block" aria-hidden>
                   {CATEGORIES[category as CategoryKey].emoji}
                 </span>
-                <span className="truncate">{CATEGORIES[category as CategoryKey].category}</span>
+                <span className="truncate">
+                  {categoryTitleForLocale(category as CategoryKey, siteLocale === "ro" ? "ro" : "en")}
+                </span>
               </div>
             )}
           </div>
 
           <div className="flex flex-wrap items-center justify-end gap-1.5">
             <div
-              className="tabular-nums text-[10px] font-bold px-1.5 py-0.5 rounded-md min-w-[2.5rem] text-center leading-tight"
+              className="tabular-nums text-sm sm:text-base font-bold px-2.5 py-1 rounded-full min-w-[2.75rem] text-center leading-snug"
               style={{
                 color: PRACTICE_PLAYER_COLOR,
                 backgroundColor: `color-mix(in srgb, ${PRACTICE_PLAYER_COLOR} 14%, transparent)`,
               }}
             >
-              {score} pts
+              {score} {ui.pts}
             </div>
-            <BlogLocaleSwitch />
             <AmbientWavesToggle />
             <LetterSoundToggle />
           </div>
@@ -972,8 +992,8 @@ export default function PracticePage() {
                     <Button
                       type="button"
                       variant="secondary"
-                      title="Reveal a random correct letter"
-                      aria-label={`Hint: reveal one letter (${hintLettersRemaining} left)`}
+                      title={ui.hintRevealTitle}
+                      aria-label={ui.hintRevealAria(hintLettersRemaining)}
                       className={cn(
                         "flex size-6 min-h-6 min-w-6 shrink-0 items-center justify-center rounded-md border-2 p-0 shadow-md transition-opacity",
                         "text-[11px] font-bold tabular-nums leading-none",
@@ -1030,6 +1050,7 @@ export default function PracticePage() {
                   open={letterHistoryOpen}
                   onOpenChange={setLetterHistoryOpen}
                   restoreTypingFocus={restoreTypingFocus}
+                  ui={ui.letterHistory}
                   className="mx-0 max-h-[3.25rem] w-auto max-w-[8.75rem] sm:max-w-[15rem]"
                 />
               </div>
