@@ -1,6 +1,6 @@
 ---
-title: "Jocuri de cuvinte, puzzle-uri și vocabular"
-description: "Idei pentru pasionații de puzzle-uri cu cuvinte: vocabular, ritm în multiplayer și joc mai clar — sfaturi practice."
+title: "Stăpânește puzzle-ul zilnic: vocabular și victorie în WordWave"
+description: "Îmbunătățește puzzle-ul zilnic de cuvinte: strategii pentru jocuri de logică, vocabular mai bogat și victorii în multiplayer în stil WordWave."
 slug: "master-the-daily-word-puzzle-boost-vocabulary-conquer-wordwave"
 path_en: "/en/blog/master-the-daily-word-puzzle-boost-vocabulary-conquer-wordwave"
 path_ro: "/ro/blog/master-the-daily-word-puzzle-boost-vocabulary-conquer-wordwave"

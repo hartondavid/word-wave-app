@@ -8,6 +8,14 @@ Necesită secret repo GEMINI_API_KEY. SDK google-genai.
 Lanțul de modele: GEMINI_MODEL (opțional), GEMINI_MODEL_FALLBACK, GEMINI_EXTRA_MODELS
 (coma), apoi mulți candidați stabili; opțional GEMINI_DISCOVER_MODELS=1 adaugă modele
 disponibile din API. La erori de model/cotă/server (nu 401/403), se trece la următorul.
+
+Mod implicit: UN singur apel Gemini — articol EN + RO în același răspuns, delimitat cu markeri
+===BEGIN_EN=== / ===END_EN=== / ===BEGIN_RO=== / ===END_RO===; în fiecare secțiune: TITLE_LINE,
+DESC_LINE, apoi corp markdown.
+Opțional: GEMINI_CONTENT_TWO_STEP=1 → două apeluri (EN apoi traducere RO, tot cu TITLE_LINE/DESC_LINE).
+
+Dacă generarea sau validarea eșuează, nu se creează/actualizează fișiere. Scrierea pe disc e
+„tot sau nimic”: dacă a doua scriere eșuează, fișierul EN tocmai scris e șters.
 """
 
 from __future__ import annotations
@@ -50,6 +58,13 @@ keywords_en = ["daily word puzzle", "brain teaser", "vocabulary game"]
 keywords_ro = ["puzzle zilnic cuvinte", "joc de vocabular", "antrenament minte"]
 
 _GEN_CONFIG = types.GenerateContentConfig(max_output_tokens=8192)
+# Un răspuns = EN + RO (~2× articol); fără response_json_schema (text liber cu markeri).
+_GEN_CONFIG_BILINGUAL = types.GenerateContentConfig(max_output_tokens=16384)
+
+_MARK_BEGIN_EN = "===BEGIN_EN==="
+_MARK_END_EN = "===END_EN==="
+_MARK_BEGIN_RO = "===BEGIN_RO==="
+_MARK_END_RO = "===END_RO==="
 
 
 def _extra_models_from_env() -> list[str]:
@@ -118,15 +133,19 @@ def generate_with_retry(
     *,
     max_attempts: int = 8,
     what: str = "generate_content",
+    gen_config: types.GenerateContentConfig | dict[str, Any] | None = None,
 ) -> Any:
     """429 → pauză și reîncearcă. Alte ClientError → propagă imediat."""
+    cfg: types.GenerateContentConfig | dict[str, Any] = (
+        gen_config if gen_config is not None else _GEN_CONFIG
+    )
     last: BaseException | None = None
     for attempt in range(1, max_attempts + 1):
         try:
             return client.models.generate_content(
                 model=model_id,
                 contents=prompt,
-                config=_GEN_CONFIG,
+                config=cfg,
             )
         except errors.ClientError as e:
             last = e
@@ -143,7 +162,12 @@ def generate_with_retry(
     raise last
 
 
-def generate_with_model_fallback(prompt: str, what: str) -> tuple[Any, str]:
+def generate_with_model_fallback(
+    prompt: str,
+    what: str,
+    *,
+    gen_config: types.GenerateContentConfig | dict[str, Any] | None = None,
+) -> tuple[Any, str]:
     """Parcurge lanțul de modele la erori ClientError (excl. 401/403), inclusiv după 429 epuizat."""
     chain = _model_chain()
     if not chain:
@@ -151,7 +175,9 @@ def generate_with_model_fallback(prompt: str, what: str) -> tuple[Any, str]:
     last_err: BaseException | None = None
     for i, mid in enumerate(chain):
         try:
-            resp = generate_with_retry(mid, prompt, what=f"{what} [{mid}]")
+            resp = generate_with_retry(
+                mid, prompt, what=f"{what} [{mid}]", gen_config=gen_config
+            )
             return resp, mid
         except errors.ClientError as e:
             last_err = e
@@ -238,13 +264,6 @@ def _response_text(response: Any) -> str:
     return ""
 
 
-def _take_meta_line(prefix: str, line: str) -> str | None:
-    s = line.strip()
-    if s.upper().startswith(prefix.upper()):
-        return s[len(prefix) :].strip()
-    return None
-
-
 def slug_from_title(title: str, *, max_len: int = 80) -> str:
     """URL slug din titlu: litere/cifre, cratime, fără diacritice."""
     t = sanitize_title_no_dates(title).strip().lower()
@@ -264,7 +283,7 @@ def assert_new_slug_from_title(title: str, en_dir: Path, ro_dir: Path) -> str:
     if (en_dir / f"{base}.md").exists() or (ro_dir / f"{base}.md").exists():
         raise SystemExit(
             f"Slug «{base}» (din titlul EN) există deja în content/en sau content/ro. "
-            "Folosește un TITLE_LINE care să producă alt URL, sau șterge/redenumește articolul vechi."
+            "Alege alt titlu EN (alt unghi) sau șterge/redenumește articolul vechi."
         )
     return base
 
@@ -278,54 +297,172 @@ def sanitize_title_no_dates(title: str) -> str:
     return t if t else title.strip()
 
 
+def _env_flag(name: str) -> bool:
+    return (os.getenv(name) or "").strip().lower() in ("1", "true", "yes", "on")
+
+
+_RE_TITLE_LINE = re.compile(r"^\s*TITLE_LINE\s*:\s*(.+)$", re.IGNORECASE)
+_RE_DESC_LINE = re.compile(r"^\s*DESC_LINE\s*:\s*(.+)$", re.IGNORECASE)
+
+
 def split_article_response(
     raw: str,
     *,
     fallback_title: str,
     fallback_description: str,
-) -> tuple[str, str, str]:
+) -> tuple[str, str, str, bool]:
     """
-    Așteaptă la început:
-      TITLE_LINE: ...
-      DESC_LINE: ...
-    apoi corp markdown. Returnează (title, description, body).
+    Caută TITLE_LINE / DESC_LINE în primele linii (toleră preambul, spații înainte de «:»).
+    Returnează (title, description, body, meta_ok).
     """
     text = raw.strip()
     lines = text.split("\n")
-    i = 0
-    while i < len(lines) and not lines[i].strip():
-        i += 1
     title = fallback_title
     desc = fallback_description
-    if i < len(lines):
-        t = _take_meta_line("TITLE_LINE:", lines[i])
-        if t is not None:
-            title = sanitize_title_no_dates(t)[:200]
-            i += 1
-    while i < len(lines) and not lines[i].strip():
-        i += 1
-    if i < len(lines):
-        d = _take_meta_line("DESC_LINE:", lines[i])
-        if d is not None:
-            desc = d.strip()[:400]
-            i += 1
-    while i < len(lines) and not lines[i].strip():
-        i += 1
-    body = "\n".join(lines[i:]).strip()
+    title_idx: int | None = None
+    desc_idx: int | None = None
+
+    for i, line in enumerate(lines[:120]):
+        m = _RE_TITLE_LINE.match(line)
+        if m and title_idx is None:
+            title = sanitize_title_no_dates(m.group(1).strip())[:200]
+            title_idx = i
+            continue
+        m = _RE_DESC_LINE.match(line)
+        if m and desc_idx is None:
+            desc = m.group(1).strip()[:400]
+            desc_idx = i
+
+    meta_ok = title_idx is not None and desc_idx is not None
+
+    if title_idx is not None or desc_idx is not None:
+        start = max(i for i in (title_idx, desc_idx) if i is not None) + 1
+        while start < len(lines) and not lines[start].strip():
+            start += 1
+        body = "\n".join(lines[start:]).strip()
+    else:
+        body = "\n".join(lines).strip()
+
     if not body:
         body = clean_markdown(text)
-    return title, desc, body
+    return title, desc, body, meta_ok
 
 
-def main() -> None:
-    now = datetime.now(timezone.utc)
-    root = Path(__file__).resolve().parent.parent
-    en_dir = root / "content" / "en"
-    ro_dir = root / "content" / "ro"
-    en_dir.mkdir(parents=True, exist_ok=True)
-    ro_dir.mkdir(parents=True, exist_ok=True)
+def split_bilingual_response(raw: str) -> tuple[str, str]:
+    """Extrage secțiunile dintre markeri; ridică ValueError dacă lipsește ceva."""
+    s = raw.strip()
+    ib = s.find(_MARK_BEGIN_EN)
+    ie = s.find(_MARK_END_EN, ib + 1 if ib >= 0 else 0)
+    rb = s.find(_MARK_BEGIN_RO)
+    re_end = s.find(_MARK_END_RO, rb + 1 if rb >= 0 else 0)
+    if ib < 0 or ie < 0 or rb < 0 or re_end < 0:
+        raise ValueError(
+            "Răspuns fără toți markerii "
+            f"{_MARK_BEGIN_EN}…{_MARK_END_EN} și {_MARK_BEGIN_RO}…{_MARK_END_RO}."
+        )
+    en = s[ib + len(_MARK_BEGIN_EN) : ie].strip()
+    ro = s[rb + len(_MARK_BEGIN_RO) : re_end].strip()
+    if not en or not ro:
+        raise ValueError("Secțiunea EN sau RO e goală (posibil răspuns trunchiat).")
+    return en, ro
 
-    prompt_en = f"""
+
+def prompt_translate_ro(en_markdown_only: str) -> str:
+    """Al doilea apel (rezervă): traduce doar corpul EN → RO cu meta."""
+    return f"""
+Tradu în limba română articolul markdown de mai jos (fără frontmatter YAML).
+
+Reguli stricte:
+- La începutul răspunsului, exact două rânduri în română, apoi linie goală, apoi traducerea:
+TITLE_LINE: <titlu SEO unic pentru ACEST articol, max ~70 caractere, specific; FĂRĂ dată calendaristică, an sau formulări gen „1 aprilie”>
+DESC_LINE: <descriere meta unică, max ~155 caractere, concretă; fără date>
+- Apoi traducerea corpului: titluri H2/H3, paragrafe, liste, FAQ — tot în ROMÂNĂ.
+- Nu lăsa propoziții în engleză.
+- Păstrează structura markdown (aceleași niveluri de titluri, liste).
+- Ieșire fără blocuri ``` în jurul întregului răspuns.
+
+ARTICOL (markdown, engleză):
+{en_markdown_only}
+"""
+
+
+def translate_ro_metadata(model_id: str, title_en: str, desc_en: str) -> tuple[str, str]:
+    """Dacă traducerea articolului nu a inclus meta lizibil, traduce doar titlul și descrierea EN."""
+    prompt = f"""Traduci în română pentru meta SEO (site de jocuri cu cuvinte). Fără date calendaristice în titlu.
+
+Răspunde DOAR cu două rânduri exact în forma de mai jos (fără text înainte/după, fără ```):
+TITLE_LINE: <titlu unic, natural, max ~70 caractere>
+DESC_LINE: <descriere meta unică, max ~155 caractere>
+
+Titlu (EN): {title_en}
+Descriere (EN): {desc_en}
+"""
+    resp = generate_with_retry(model_id, prompt, what="Meta RO (traducere dedicată)")
+    raw = _response_text(resp)
+    t, d, _, ok = split_article_response(
+        raw,
+        fallback_title=title_en[:200],
+        fallback_description=desc_en[:400],
+    )
+    if ok:
+        return t, d
+    stripped = [ln.strip() for ln in raw.split("\n") if ln.strip()]
+    if len(stripped) >= 2:
+        return (
+            sanitize_title_no_dates(stripped[0])[:200],
+            stripped[1][:400],
+        )
+    if len(stripped) == 1:
+        return sanitize_title_no_dates(stripped[0])[:200], desc_en[:400]
+    return sanitize_title_no_dates(title_en)[:200], desc_en[:400]
+
+
+def _gemini_exit(e: errors.ClientError) -> None:
+    raise SystemExit(
+        f"Gemini a eșuat ({e.code}): {e.message or e}. "
+        f"Lanț încercat: {', '.join(_model_chain())}. "
+        "Ajustează GEMINI_MODEL / GEMINI_MODEL_FALLBACK / GEMINI_EXTRA_MODELS "
+        "sau GEMINI_DISCOVER_MODELS=1; verifică cota cheii: "
+        "https://ai.google.dev/gemini-api/docs/models"
+    ) from None
+
+
+_PROMPT_BILINGUAL = f"""
+Produce ONE response for a word game website (WordWave-style). Exactly two marked sections.
+
+Topic: daily word puzzle / vocabulary and WordWave-style multiplayer tips.
+English keywords (English section only): {", ".join(keywords_en)}.
+English article length: ~900-1200 words of body text.
+
+Rules:
+- Do not write ANY text before {_MARK_BEGIN_EN} or after {_MARK_END_RO}.
+- Do not wrap the entire response in markdown code fences (```).
+- No H1 (#) in article bodies (title is shown by the site).
+- English section: intro, four ## sections, lists where useful, short FAQ (## or ###).
+- Romanian section: faithful translation — same heading structure, entire body in natural Romanian,
+  no English sentences left in the body.
+- TITLE_LINE / DESC_LINE in each section: no calendar dates in titles.
+
+Format (copy the marker lines exactly):
+
+{_MARK_BEGIN_EN}
+TITLE_LINE: <English SEO title, max ~70 characters>
+DESC_LINE: <English meta description, max ~155 characters>
+
+<English markdown body>
+{_MARK_END_EN}
+
+{_MARK_BEGIN_RO}
+TITLE_LINE: <Romanian SEO title, max ~70 characters>
+DESC_LINE: <Romanian meta description, max ~155 characters>
+
+<Romanian markdown body>
+{_MARK_END_RO}
+"""
+
+
+def _prompt_en_only() -> str:
+    return f"""
 Write a high-quality SEO article in English for a word game website.
 Topic: daily word puzzle / vocabulary and WordWave-style multiplayer tips.
 Target keywords: {", ".join(keywords_en)}.
@@ -343,26 +480,134 @@ Then the article body:
 - Do not wrap the answer in code fences.
 """
 
-    try:
-        en_response, active_model = generate_with_model_fallback(prompt_en, "Articol EN")
-    except errors.ClientError as e:
-        raise SystemExit(
-            f"Gemini a eșuat ({e.code}): {e.message or e}. "
-            f"Lanț încercat: {', '.join(_model_chain())}. "
-            "Ajustează GEMINI_MODEL / GEMINI_MODEL_FALLBACK / GEMINI_EXTRA_MODELS "
-            "sau GEMINI_DISCOVER_MODELS=1; verifică cota cheii: "
-            "https://ai.google.dev/gemini-api/docs/models"
-        ) from None
 
-    en_text = _response_text(en_response)
-    title_en, desc_en, body_en = split_article_response(
-        en_text,
-        fallback_title="Word games, puzzles, and vocabulary tips",
-        fallback_description=(
+def _fallback_en() -> tuple[str, str]:
+    return (
+        "Word games, puzzles, and vocabulary tips",
+        (
             "Ideas for word puzzle fans: vocabulary, multiplayer rhythm, and sharper play — "
             "practical tips for your next game."
         ),
     )
+
+
+def _fallback_ro() -> tuple[str, str]:
+    return (
+        "Jocuri de cuvinte, puzzle-uri și vocabular",
+        (
+            "Idei pentru pasionații de puzzle-uri cu cuvinte: vocabular, ritm în multiplayer "
+            "și joc mai clar — sfaturi practice."
+        ),
+    )
+
+
+def _write_both_markdown_or_none(path_en: Path, path_ro: Path, en_body: str, ro_body: str) -> None:
+    """Scrie ambele fișiere; la orice eroare după primul write, șterge ce s-a scris deja."""
+    written: list[Path] = []
+    try:
+        path_en.write_text(en_body, encoding="utf-8")
+        written.append(path_en)
+        path_ro.write_text(ro_body, encoding="utf-8")
+        written.append(path_ro)
+    except OSError:
+        for p in written:
+            try:
+                p.unlink(missing_ok=True)
+            except OSError:
+                pass
+        raise
+
+
+def _maybe_retry_ro_if_similar(
+    *,
+    en_body: str,
+    ro_body: str,
+    base_slug: str,
+    active_model: str,
+    now: datetime,
+    title_en: str,
+    desc_en: str,
+    title_ro: str,
+    desc_ro: str,
+) -> str:
+    if not bodies_too_similar(en_body, ro_body):
+        return ro_body
+    print(
+        "[Gemini] RO prea asemănător cu EN — al doilea apel (doar traducere RO).",
+        flush=True,
+    )
+    en_markdown_only = strip_frontmatter(en_body)
+    prompt_ro = prompt_translate_ro(en_markdown_only)
+    retry = generate_with_retry(
+        active_model,
+        prompt_ro
+        + "\n\nATENȚIE: Răspunsul anterior era prea asemănător cu engleza. "
+        "Retradu COMPLET în română, fără a copia fraze în engleză.",
+        what="Retraducere RO",
+    )
+    ro_text2 = _response_text(retry).strip()
+    if not ro_text2:
+        return ro_body
+    tr2, dr2, br2, meta2 = split_article_response(
+        ro_text2,
+        fallback_title=title_ro,
+        fallback_description=desc_ro,
+    )
+    if not meta2:
+        tr2, dr2 = translate_ro_metadata(active_model, title_en, desc_en)
+    return ensure_frontmatter(
+        br2,
+        title=tr2,
+        description=dr2,
+        slug=base_slug,
+        lang="ro",
+        date_value=now.isoformat(),
+        keywords=keywords_ro,
+    )
+
+
+def _pipeline_bilingual(
+    now: datetime,
+    en_dir: Path,
+    ro_dir: Path,
+) -> tuple[str, str, str, str, tuple[str, str, str, str]]:
+    """1 apel Gemini: secțiuni delimitate cu markeri + TITLE_LINE/DESC_LINE în fiecare."""
+    try:
+        response, active_model = generate_with_model_fallback(
+            _PROMPT_BILINGUAL,
+            "Articol EN+RO (markeri)",
+            gen_config=_GEN_CONFIG_BILINGUAL,
+        )
+    except errors.ClientError as e:
+        _gemini_exit(e)
+    raw = _response_text(response)
+    en_text, ro_text = split_bilingual_response(raw)
+    ft_en, fd_en = _fallback_en()
+    ft_ro, fd_ro = _fallback_ro()
+    title_en, desc_en, body_en, en_ok = split_article_response(
+        en_text, fallback_title=ft_en, fallback_description=fd_en
+    )
+    title_ro, desc_ro, body_ro, ro_ok = split_article_response(
+        ro_text, fallback_title=ft_ro, fallback_description=fd_ro
+    )
+    if not en_ok:
+        print(
+            "[Gemini] Secțiune EN: TITLE_LINE/DESC_LINE slabe; se folosesc extrageri/fallback.",
+            flush=True,
+        )
+    if len(body_en.strip()) < 200 or len(body_ro.strip()) < 200:
+        raise ValueError(
+            "Corpul EN sau RO e prea scurt — posibil răspuns trunchiat; "
+            "încearcă GEMINI_CONTENT_TWO_STEP=1 sau un model cu limită de ieșire mai mare."
+        )
+
+    if not ro_ok or not title_ro.strip() or not desc_ro.strip():
+        print(
+            "[Gemini] Secțiune RO: meta slabă — retraduc titlul și descrierea din EN.",
+            flush=True,
+        )
+        title_ro, desc_ro = translate_ro_metadata(active_model, title_en, desc_en)
+
     base_slug = assert_new_slug_from_title(title_en, en_dir, ro_dir)
     en_body = ensure_frontmatter(
         body_en,
@@ -373,35 +618,6 @@ Then the article body:
         date_value=now.isoformat(),
         keywords=keywords_en,
     )
-
-    en_markdown_only = strip_frontmatter(en_body)
-
-    prompt_ro = f"""
-Tradu în limba română articolul markdown de mai jos (fără frontmatter YAML).
-
-Reguli stricte:
-- La începutul răspunsului, exact două rânduri în română, apoi linie goală, apoi traducerea:
-TITLE_LINE: <titlu SEO unic pentru ACEST articol, max ~70 caractere, specific; FĂRĂ dată calendaristică, an sau formulări gen „1 aprilie”>
-DESC_LINE: <descriere meta unică, max ~155 caractere, concretă; fără date>
-- Apoi traducerea corpului: titluri H2/H3, paragrafe, liste, FAQ — tot în ROMÂNĂ.
-- Nu lăsa propoziții în engleză.
-- Păstrează structura markdown (aceleași niveluri de titluri, liste).
-- Ieșire fără blocuri ``` în jurul întregului răspuns.
-
-ARTICOL (markdown, engleză):
-{en_markdown_only}
-"""
-
-    ro_response = generate_with_retry(active_model, prompt_ro, what="Traducere RO")
-    ro_text = _response_text(ro_response)
-    title_ro, desc_ro, body_ro = split_article_response(
-        ro_text,
-        fallback_title="Jocuri de cuvinte, puzzle-uri și vocabular",
-        fallback_description=(
-            "Idei pentru pasionații de puzzle-uri cu cuvinte: vocabular, ritm în multiplayer "
-            "și joc mai clar — sfaturi practice."
-        ),
-    )
     ro_body = ensure_frontmatter(
         body_ro,
         title=title_ro,
@@ -411,40 +627,123 @@ ARTICOL (markdown, engleză):
         date_value=now.isoformat(),
         keywords=keywords_ro,
     )
+    meta = (title_en, desc_en, title_ro, desc_ro)
+    return active_model, base_slug, en_body, ro_body, meta
 
-    if bodies_too_similar(en_body, ro_body):
-        retry = generate_with_retry(
-            active_model,
-            prompt_ro
-            + "\n\nATENȚIE: Răspunsul anterior era prea asemănător cu engleza. "
-            "Retradu COMPLET în română, fără a copia fraze în engleză.",
-            what="Retraducere RO",
+
+def _pipeline_two_step(
+    now: datetime,
+    en_dir: Path,
+    ro_dir: Path,
+) -> tuple[str, str, str, str, tuple[str, str, str, str]]:
+    """2 apeluri (flux vechi)."""
+    try:
+        en_response, active_model = generate_with_model_fallback(
+            _prompt_en_only(), "Articol EN"
         )
-        ro_text2 = _response_text(retry).strip()
-        if ro_text2:
-            tr2, dr2, br2 = split_article_response(
-                ro_text2,
-                fallback_title=title_ro,
-                fallback_description=desc_ro,
+    except errors.ClientError as e:
+        _gemini_exit(e)
+    en_text = _response_text(en_response)
+    ft_en, fd_en = _fallback_en()
+    ft_ro, fd_ro = _fallback_ro()
+    title_en, desc_en, body_en, en_ok = split_article_response(
+        en_text, fallback_title=ft_en, fallback_description=fd_en
+    )
+    if not en_ok:
+        print(
+            "[Gemini] Articol EN: TITLE_LINE/DESC_LINE nu au fost recunoscute clar; "
+            "se folosesc valorile extrase sau fallback.",
+            flush=True,
+        )
+    base_slug = assert_new_slug_from_title(title_en, en_dir, ro_dir)
+    en_body = ensure_frontmatter(
+        body_en,
+        title=title_en,
+        description=desc_en,
+        slug=base_slug,
+        lang="en",
+        date_value=now.isoformat(),
+        keywords=keywords_en,
+    )
+    en_markdown_only = strip_frontmatter(en_body)
+    ro_response = generate_with_retry(
+        active_model,
+        prompt_translate_ro(en_markdown_only),
+        what="Traducere RO",
+    )
+    ro_text = _response_text(ro_response)
+    title_ro, desc_ro, body_ro, ro_ok = split_article_response(
+        ro_text, fallback_title=ft_ro, fallback_description=fd_ro
+    )
+    if not ro_ok:
+        print(
+            "[Gemini] Traducere RO: meta lipsă sau format greșit — retraduc titlul și descrierea din EN.",
+            flush=True,
+        )
+        title_ro, desc_ro = translate_ro_metadata(active_model, title_en, desc_en)
+    ro_body = ensure_frontmatter(
+        body_ro,
+        title=title_ro,
+        description=desc_ro,
+        slug=base_slug,
+        lang="ro",
+        date_value=now.isoformat(),
+        keywords=keywords_ro,
+    )
+    meta = (title_en, desc_en, title_ro, desc_ro)
+    return active_model, base_slug, en_body, ro_body, meta
+
+
+def main() -> None:
+    now = datetime.now(timezone.utc)
+    root = Path(__file__).resolve().parent.parent
+    en_dir = root / "content" / "en"
+    ro_dir = root / "content" / "ro"
+    en_dir.mkdir(parents=True, exist_ok=True)
+    ro_dir.mkdir(parents=True, exist_ok=True)
+
+    if _env_flag("GEMINI_CONTENT_TWO_STEP"):
+        print("[Gemini] Mod două pași (GEMINI_CONTENT_TWO_STEP=1).", flush=True)
+        active_model, base_slug, en_body, ro_body, meta = _pipeline_two_step(
+            now, en_dir, ro_dir
+        )
+    else:
+        print(
+            "[Gemini] Mod un singur apel (EN+RO, markeri ===BEGIN_EN=== …). "
+            "Pentru 2 pași: GEMINI_CONTENT_TWO_STEP=1.",
+            flush=True,
+        )
+        try:
+            active_model, base_slug, en_body, ro_body, meta = _pipeline_bilingual(
+                now, en_dir, ro_dir
             )
-            ro_body = ensure_frontmatter(
-                br2,
-                title=tr2,
-                description=dr2,
-                slug=base_slug,
-                lang="ro",
-                date_value=now.isoformat(),
-                keywords=keywords_ro,
-            )
-        if bodies_too_similar(en_body, ro_body):
+        except ValueError as e:
             raise SystemExit(
-                "Eșec: varianta RO e prea asemănătoare cu EN. Verifică modelul / promptul."
-            )
+                f"{e}\n"
+                "Sfat: GEMINI_CONTENT_TWO_STEP=1 (două apeluri) sau verifică că modelul respectă "
+                "markerii și TITLE_LINE/DESC_LINE; reduce lungimea cerută dacă răspunsul e trunchiat."
+            ) from e
+
+    title_en, desc_en, title_ro, desc_ro = meta
+    ro_body = _maybe_retry_ro_if_similar(
+        en_body=en_body,
+        ro_body=ro_body,
+        base_slug=base_slug,
+        active_model=active_model,
+        now=now,
+        title_en=title_en,
+        desc_en=desc_en,
+        title_ro=title_ro,
+        desc_ro=desc_ro,
+    )
+    if bodies_too_similar(en_body, ro_body):
+        raise SystemExit(
+            "Eșec: varianta RO e prea asemănătoare cu EN. Verifică modelul / promptul."
+        )
 
     path_en = en_dir / f"{base_slug}.md"
     path_ro = ro_dir / f"{base_slug}.md"
-    path_en.write_text(en_body, encoding="utf-8")
-    path_ro.write_text(ro_body, encoding="utf-8")
+    _write_both_markdown_or_none(path_en, path_ro, en_body, ro_body)
 
     print(f"EN (engleză): {path_en.relative_to(root)}")
     print(f"RO (română):  {path_ro.relative_to(root)}")
