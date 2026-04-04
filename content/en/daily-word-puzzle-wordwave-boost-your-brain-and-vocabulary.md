@@ -1,6 +1,6 @@
 ---
-title: "Daily Word Puzzle & WordWave: Boost Your Brain and Vocabulary"
-description: "Unlock strategies for daily word puzzles, expand your vocabulary, and master WordWave-style multiplayer games. Sharpen your mind with engaging brain teasers!"
+title: "Pacing Your Puzzle Habit: Solo Drills vs Short WordWave Sessions"
+description: "Mix quiet solo word puzzles with brief competitive bursts so vocabulary grows sustainably—without repeating the same multiplayer pitch as every other post."
 slug: "daily-word-puzzle-wordwave-boost-your-brain-and-vocabulary"
 path_en: "/en/blog/daily-word-puzzle-wordwave-boost-your-brain-and-vocabulary"
 path_ro: "/ro/blog/daily-word-puzzle-wordwave-boost-your-brain-and-vocabulary"

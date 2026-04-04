@@ -1,6 +1,6 @@
 ---
-title: "Master Daily Word Puzzles & Boost Your Vocabulary: WordWave Tips"
-description: "Unlock strategies for daily word puzzles, enhance your vocabulary, and dominate multiplayer WordWave games with expert tips and brain-teasing techniques."
+title: "WordWave Multiplayer: Win More Rounds With Category and Timer Play"
+description: "Room flow, ready checks, and when to type hard in WordWave—practical habits for hosts and guests, not recycled daily-puzzle clichés."
 slug: "master-daily-word-puzzles-boost-your-vocabulary-wordwave-tips"
 path_en: "/en/blog/master-daily-word-puzzles-boost-your-vocabulary-wordwave-tips"
 path_ro: "/ro/blog/master-daily-word-puzzles-boost-your-vocabulary-wordwave-tips"

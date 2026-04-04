@@ -903,57 +903,80 @@ export default function PracticePage() {
       />
       {showConfetti && <Confetti recycle={false} numberOfPieces={500} />}
 
-      {/* Sticky top bar — mirrors game page */}
-      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b px-4 pt-3 pb-3">
-        <div className="flex items-center justify-between">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 px-2"
-            onClick={() => router.push(siteLocale === "ro" ? "/ro" : "/")}
-          >
-            <ArrowLeft className="w-4 h-4 mr-1" />
-            {ui.exit}
-          </Button>
-
-          <div className="flex flex-col items-center gap-0">
-            <span className="text-sm font-semibold text-muted-foreground tabular-nums">
-              {ui.roundProgress(round, totalRounds)}
-            </span>
-            {category && CATEGORIES[category as CategoryKey] && (
-              <div
-                className="flex items-center gap-1 text-xs leading-tight text-muted-foreground/70 max-w-[min(12rem,55vw)] justify-center"
-                suppressHydrationWarning
+      {/* Sticky top bar — same grid + player row pattern as multiplayer (scores not in header) */}
+      <div className="sticky top-0 z-20 border-b border-border/60 bg-background/90 shadow-[0_1px_0_hsl(var(--border)/0.35)] backdrop-blur-md supports-[backdrop-filter]:bg-background/80">
+        <div className="mx-auto flex w-full max-w-2xl flex-col gap-2.5 px-3 pt-2.5 pb-2 sm:px-4 sm:pt-3 sm:pb-2.5">
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-x-2 sm:gap-x-3">
+            <div className="flex min-w-0 justify-start">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="-ml-1.5 h-9 shrink-0 px-2 text-muted-foreground hover:text-foreground sm:-ml-1 sm:h-8"
+                onClick={() => router.push(siteLocale === "ro" ? "/ro" : "/")}
               >
-                <span className="text-xs leading-none shrink-0 inline-block" aria-hidden>
-                  {CATEGORIES[category as CategoryKey].emoji}
-                </span>
-                <span className="truncate">
-                  {categoryTitleForLocale(category as CategoryKey, siteLocale === "ro" ? "ro" : "en")}
-                </span>
-              </div>
-            )}
+                <ArrowLeft className="mr-1 size-4 shrink-0" aria-hidden />
+                {ui.exit}
+              </Button>
+            </div>
+            <div className="flex min-w-0 max-w-[min(16rem,52vw)] flex-col items-center gap-1 text-center sm:max-w-xs">
+              <span className="text-sm font-semibold tabular-nums tracking-tight text-foreground sm:text-base">
+                {ui.roundProgress(round, totalRounds)}
+              </span>
+              {category && CATEGORIES[category as CategoryKey] && (
+                <div
+                  className="inline-flex max-w-full items-center gap-1 rounded-full border border-border/40 bg-muted/50 px-2.5 py-0.5 text-[11px] leading-tight text-muted-foreground sm:text-xs"
+                  title={categoryTitleForLocale(category as CategoryKey, siteLocale === "ro" ? "ro" : "en")}
+                  suppressHydrationWarning
+                >
+                  <span className="shrink-0 text-[13px] leading-none sm:text-sm" aria-hidden>
+                    {CATEGORIES[category as CategoryKey].emoji}
+                  </span>
+                  <span className="min-w-0 truncate font-medium">
+                    {categoryTitleForLocale(category as CategoryKey, siteLocale === "ro" ? "ro" : "en")}
+                  </span>
+                </div>
+              )}
+            </div>
+            <div className="flex min-w-0 items-center justify-end gap-1 sm:gap-1.5">
+              <AmbientWavesToggle />
+              <LetterSoundToggle />
+            </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-end gap-1.5">
-            <div
-              className="tabular-nums text-[12px] sm:text-base font-bold px-2.5 py-1 rounded-full min-w-[2.75rem] text-center leading-snug"
-              style={{
-                color: PRACTICE_PLAYER_COLOR,
-                backgroundColor: `color-mix(in srgb, ${PRACTICE_PLAYER_COLOR} 14%, transparent)`,
-              }}
-            >
-              {score} {ui.pts}
+          <div className="w-full py-0.5">
+            <div className="mx-auto flex w-max max-w-full justify-center px-0.5 sm:px-1">
+              <div
+                className="box-border flex items-center gap-2 rounded-xl border-2 px-2.5 py-1.5 shadow-sm ring-1 ring-black/[0.06] transition-all duration-200 dark:ring-white/[0.08] sm:px-3 sm:py-2"
+                style={{
+                  borderColor: PRACTICE_PLAYER_COLOR,
+                  background: `${PRACTICE_PLAYER_COLOR}18`,
+                }}
+              >
+                <div
+                  className="size-2 shrink-0 rounded-full sm:size-2.5"
+                  style={{ background: PRACTICE_PLAYER_COLOR }}
+                />
+                <div className="min-w-0 text-left">
+                  <p className="max-w-[min(12rem,70vw)] truncate text-xs font-bold leading-tight sm:max-w-[14rem] sm:text-sm">
+                    {playerName.trim() || ui.defaultPlayerName}
+                    <span className="font-normal text-[10px] text-muted-foreground sm:text-xs">{ui.youParen}</span>
+                  </p>
+                  <p
+                    className="text-[10px] font-bold tabular-nums leading-tight sm:text-xs"
+                    style={{ color: PRACTICE_PLAYER_COLOR }}
+                  >
+                    {score} {ui.pts}
+                  </p>
+                </div>
+              </div>
             </div>
-            <AmbientWavesToggle />
-            <LetterSoundToggle />
           </div>
         </div>
       </div>
 
       {/* Main content — tap anywhere to re-focus keyboard on iOS */}
       <div
-        className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-none flex flex-col items-stretch justify-start px-4 pt-5 pb-6 max-w-2xl mx-auto w-full gap-5"
+        className="mx-auto flex w-full max-w-2xl flex-1 min-h-0 flex-col items-stretch justify-start gap-5 overflow-y-auto overflow-x-hidden px-4 pb-6 pt-2 scrollbar-none"
         onClick={() => {
           if (gameStatus === "playing") hiddenInputRef.current?.focus()
         }}

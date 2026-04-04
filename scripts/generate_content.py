@@ -16,10 +16,16 @@ Opțional: GEMINI_CONTENT_TWO_STEP=1 → două apeluri (EN apoi traducere RO, to
 
 Dacă generarea sau validarea eșuează, nu se creează/actualizează fișiere. Scrierea pe disc e
 „tot sau nimic”: dacă a doua scriere eșuează, fișierul EN tocmai scris e șters.
+
+După extragerea TITLE_LINE/DESC_LINE, scriptul compară titlul și descrierea EN cu articolele
+deja din content/en/*.md (similitudine SequenceMatcher, prag implicit 0.5 = 50%).
+Peste prag: apeluri Gemini pentru titlu / descriere noi. Variabilă: BLOG_META_SIMILARITY_THRESHOLD.
+Pentru descriere, se verifică și similitudinea corpului articolului față de corpurile existente.
 """
 
 from __future__ import annotations
 
+import difflib
 import os
 import re
 import time
@@ -257,6 +263,201 @@ def bodies_too_similar(en_md: str, ro_md: str, min_ratio: float = 0.92) -> bool:
     return (same / n) >= min_ratio
 
 
+def _blog_meta_similarity_threshold() -> float:
+    raw = (os.getenv("BLOG_META_SIMILARITY_THRESHOLD") or "0.5").strip()
+    try:
+        v = float(raw)
+    except ValueError:
+        return 0.5
+    return min(1.0, max(0.0, v))
+
+
+def _unescape_yaml_quoted(s: str) -> str:
+    return s.replace('\\"', '"').replace("\\\\", "\\")
+
+
+def _extract_fm_field(raw_md: str, key: str) -> str | None:
+    if not raw_md.lstrip().startswith("---"):
+        return None
+    lines = raw_md.split("\n")
+    if not lines or lines[0].strip() != "---":
+        return None
+    prefix = f'{key}: "'
+    for line in lines[1:]:
+        if line.strip() == "---":
+            break
+        st = line.strip()
+        if st.startswith(prefix) and st.endswith('"') and len(st) > len(prefix) + 1:
+            inner = st[len(prefix) : -1]
+            return _unescape_yaml_quoted(inner)
+    return None
+
+
+def load_en_blog_corpus(en_dir: Path) -> tuple[list[str], list[str], list[str]]:
+    """Titluri, descrieri și corpuri normalizate (compact) din articolele EN existente pe disc."""
+    titles: list[str] = []
+    descriptions: list[str] = []
+    bodies_norm: list[str] = []
+    for path in sorted(en_dir.glob("*.md")):
+        raw = path.read_text(encoding="utf-8")
+        t = _extract_fm_field(raw, "title")
+        d = _extract_fm_field(raw, "description")
+        if t:
+            titles.append(t)
+        if d:
+            descriptions.append(d)
+        body = strip_frontmatter(raw)
+        compact = "".join(body.lower().split())
+        if len(compact) >= 80:
+            bodies_norm.append(compact[:8000])
+    return titles, descriptions, bodies_norm
+
+
+def similarity_ratio(a: str, b: str) -> float:
+    if not a.strip() or not b.strip():
+        return 0.0
+    a2 = " ".join(a.lower().split())
+    b2 = " ".join(b.lower().split())
+    return difflib.SequenceMatcher(None, a2, b2).ratio()
+
+
+def max_similarity_to_corpus(text: str, corpus: list[str]) -> float:
+    if not corpus or not text.strip():
+        return 0.0
+    return max(similarity_ratio(text, c) for c in corpus)
+
+
+def _regenerate_unique_blog_title(
+    model_id: str,
+    title: str,
+    description: str,
+    body_md: str,
+    peer_titles: list[str],
+) -> str:
+    preview = clean_markdown(body_md.strip())[:1800]
+    bullets = "\n".join(f"- {x}" for x in peer_titles[:35])
+    prompt = f"""You write unique SEO titles for the WordWave word-game blog. No calendar dates in the title.
+
+The draft title is too similar (wording or structure) to titles we already have. Reply with ONE line only: the new title (plain text, no quotation marks, max 72 characters). Must sound like a different angle, not a minor rephrase.
+
+Draft title: {title}
+Draft description: {description}
+
+Article opening (markdown):
+{preview}
+
+Existing titles (be clearly different from ALL):
+{bullets}
+"""
+    resp = generate_with_retry(model_id, prompt, what="Regenerare titlu blog (deduplicare)")
+    line = (_response_text(resp) or "").strip().split("\n")[0]
+    line = line.strip().strip('"').strip("'")
+    return sanitize_title_no_dates(line)[:200]
+
+
+def _regenerate_unique_blog_description(
+    model_id: str,
+    title: str,
+    description: str,
+    body_md: str,
+    peer_descs: list[str],
+) -> str:
+    preview = clean_markdown(body_md.strip())[:2000]
+    desc_bullets = "\n".join(f"- {x}" for x in peer_descs[:28])
+    prompt = f"""You write unique English meta descriptions for the WordWave blog (~155 characters max).
+
+The draft is too similar to existing meta descriptions OR the article overlaps other posts too much in theme. Write ONE new meta description: different opening, concrete angle tied to this title, not a copy of "Unlock strategies for daily word puzzles".
+
+Title: {title}
+Draft description: {description}
+
+Article excerpt:
+{preview[:1400]}
+
+Existing descriptions (do NOT echo their openings or structure):
+{desc_bullets}
+
+Reply with ONE line only (plain text, no quotation marks): the new meta description."""
+    resp = generate_with_retry(model_id, prompt, what="Regenerare descriere blog (deduplicare)")
+    line = (_response_text(resp) or "").strip().split("\n")[0]
+    line = line.strip().strip('"').strip("'")
+    return line[:400]
+
+
+def ensure_distinct_en_blog_metadata(
+    model_id: str,
+    title_en: str,
+    desc_en: str,
+    body_en: str,
+    en_dir: Path,
+    *,
+    max_attempts: int = 5,
+) -> tuple[str, str, bool]:
+    """
+    Compară titlul și descrierea (și similitudinea corpului) cu articolele EN deja în content/en.
+    Dacă similitudinea > prag (implicit 50%), regenerează prin Gemini până la max_attempts.
+    Returnează (title_en, desc_en, meta_schimbat).
+    """
+    th = _blog_meta_similarity_threshold()
+    peer_titles, peer_descs, peer_bodies = load_en_blog_corpus(en_dir)
+    t_en = title_en.strip()
+    d_en = desc_en.strip()
+    body_raw = clean_markdown(body_en.strip())
+    body_compact = "".join(body_raw.lower().split())[:8000]
+    changed = False
+
+    for attempt in range(max_attempts):
+        sim_title = max_similarity_to_corpus(t_en, peer_titles)
+        if sim_title <= th:
+            break
+        print(
+            f"[Gemini] Titlu EN prea similar ({sim_title:.0%} > {th:.0%}) față de articole existente — "
+            f"regenerare (încercare {attempt + 1}/{max_attempts}).",
+            flush=True,
+        )
+        t_new = _regenerate_unique_blog_title(model_id, t_en, d_en, body_raw, peer_titles)
+        if t_new and similarity_ratio(t_new, t_en) < 0.92:
+            t_en = t_new
+            changed = True
+        else:
+            break
+
+    if max_similarity_to_corpus(t_en, peer_titles) > th:
+        print(
+            f"[Gemini] Avertisment: titlul EN rămâne peste {th:.0%} similitudine față de un articol existent.",
+            flush=True,
+        )
+
+    avoid_descs = list(peer_descs)
+    for attempt in range(max_attempts):
+        sim_desc = max_similarity_to_corpus(d_en, avoid_descs)
+        sim_body = max_similarity_to_corpus(body_compact, peer_bodies) if peer_bodies else 0.0
+        if sim_desc <= th and sim_body <= th:
+            break
+        print(
+            f"[Gemini] Descriere EN sau corp prea similar (desc {sim_desc:.0%}, corp {sim_body:.0%} vs "
+            f"existente; prag {th:.0%}) — regenerare descriere ({attempt + 1}/{max_attempts}).",
+            flush=True,
+        )
+        d_new = _regenerate_unique_blog_description(
+            model_id, t_en, d_en, body_raw, peer_descs
+        )
+        if d_new and similarity_ratio(d_new, d_en) < 0.88:
+            avoid_descs.append(d_en)
+            d_en = d_new
+            changed = True
+        else:
+            break
+
+    if max_similarity_to_corpus(d_en, peer_descs) > th:
+        print(
+            f"[Gemini] Avertisment: descrierea EN poate fi încă peste {th:.0%} similitudine.",
+            flush=True,
+        )
+
+    return t_en, d_en, changed
+
+
 def _response_text(response: Any) -> str:
     t = getattr(response, "text", None)
     if t is not None:
@@ -442,6 +643,8 @@ Rules:
 - Romanian section: faithful translation — same heading structure, entire body in natural Romanian,
   no English sentences left in the body.
 - TITLE_LINE / DESC_LINE in each section: no calendar dates in titles.
+- TITLE_LINE and DESC_LINE must be clearly unique vs typical SEO posts: avoid stock openers like
+  "Unlock strategies for daily word puzzles" unless the article angle is genuinely different.
 
 Format (copy the marker lines exactly):
 
@@ -601,11 +804,21 @@ def _pipeline_bilingual(
             "încearcă GEMINI_CONTENT_TWO_STEP=1 sau un model cu limită de ieșire mai mare."
         )
 
-    if not ro_ok or not title_ro.strip() or not desc_ro.strip():
-        print(
-            "[Gemini] Secțiune RO: meta slabă — retraduc titlul și descrierea din EN.",
-            flush=True,
-        )
+    title_en, desc_en, meta_deduped = ensure_distinct_en_blog_metadata(
+        active_model, title_en, desc_en, body_en, en_dir
+    )
+    ro_meta_weak = not ro_ok or not title_ro.strip() or not desc_ro.strip()
+    if meta_deduped or ro_meta_weak:
+        if meta_deduped:
+            print(
+                "[Gemini] Meta EN ajustată (similitudine) — aliniez titlul și descrierea RO la EN.",
+                flush=True,
+            )
+        if ro_meta_weak:
+            print(
+                "[Gemini] Secțiune RO: meta slabă — retraduc titlul și descrierea din EN.",
+                flush=True,
+            )
         title_ro, desc_ro = translate_ro_metadata(active_model, title_en, desc_en)
 
     base_slug = assert_new_slug_from_title(title_en, en_dir, ro_dir)
@@ -655,6 +868,9 @@ def _pipeline_two_step(
             "se folosesc valorile extrase sau fallback.",
             flush=True,
         )
+    title_en, desc_en, meta_deduped = ensure_distinct_en_blog_metadata(
+        active_model, title_en, desc_en, body_en, en_dir
+    )
     base_slug = assert_new_slug_from_title(title_en, en_dir, ro_dir)
     en_body = ensure_frontmatter(
         body_en,
@@ -675,11 +891,17 @@ def _pipeline_two_step(
     title_ro, desc_ro, body_ro, ro_ok = split_article_response(
         ro_text, fallback_title=ft_ro, fallback_description=fd_ro
     )
-    if not ro_ok:
-        print(
-            "[Gemini] Traducere RO: meta lipsă sau format greșit — retraduc titlul și descrierea din EN.",
-            flush=True,
-        )
+    if meta_deduped or not ro_ok:
+        if meta_deduped:
+            print(
+                "[Gemini] Meta EN a fost ajustată — aliniez titlul și descrierea RO la EN (flux 2 pași).",
+                flush=True,
+            )
+        if not ro_ok:
+            print(
+                "[Gemini] Traducere RO: meta lipsă sau format greșit — retraduc titlul și descrierea din EN.",
+                flush=True,
+            )
         title_ro, desc_ro = translate_ro_metadata(active_model, title_en, desc_en)
     ro_body = ensure_frontmatter(
         body_ro,

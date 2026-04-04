@@ -1,6 +1,6 @@
 ---
-title: "Puzzle zilnic de cuvinte și WordWave: antrenează-ți creierul și vocabularul"
-description: "Descoperă strategii pentru puzzle-uri zilnice, lărgește-ți vocabularul și domină jocurile multiplayer în stil WordWave. Antrenează-ți mintea cu enigme captivante."
+title: "Ritmul puzzle-ului zilnic: exersare solo vs sesiuni scurte WordWave"
+description: "Combină puzzle-uri liniștite cu sesiuni competitive scurte ca vocabularul să crească sustenabil—fără aceeași reclamă la multiplayer ca în orice alt articol."
 slug: "daily-word-puzzle-wordwave-boost-your-brain-and-vocabulary"
 path_en: "/en/blog/daily-word-puzzle-wordwave-boost-your-brain-and-vocabulary"
 path_ro: "/ro/blog/daily-word-puzzle-wordwave-boost-your-brain-and-vocabulary"

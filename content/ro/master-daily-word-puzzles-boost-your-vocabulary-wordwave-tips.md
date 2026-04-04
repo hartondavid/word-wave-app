@@ -1,6 +1,6 @@
 ---
-title: "Stăpânește Puzzle-uri Zilnice de Cuvinte și Dezvoltă-ți Vocabularul: Sfaturi WordWave"
-description: "Descoperă strategii pentru puzzle-uri zilnice de cuvinte, îmbunătățește-ți vocabularul și domină jocurile WordWave multiplayer cu sfaturi experte și tehnici de antrenare a minții."
+title: "WordWave multiplayer: mai multe runde câștigate cu categorii și ritm"
+description: "Fluxul camerei, ready și momentul în care apeși tastele în WordWave—obiceiuri concrete pentru gazdă și invitați, fără formule generice despre puzzle-uri zilnice."
 slug: "master-daily-word-puzzles-boost-your-vocabulary-wordwave-tips"
 path_en: "/en/blog/master-daily-word-puzzles-boost-your-vocabulary-wordwave-tips"
 path_ro: "/ro/blog/master-daily-word-puzzles-boost-your-vocabulary-wordwave-tips"
