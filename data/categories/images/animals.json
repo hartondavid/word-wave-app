@@ -1,0 +1,417 @@
+[
+  {
+    "word": "acvilă",
+    "word_en": "eagle",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775470583/word-wave/animals/eagle.jpg"
+  },
+  {
+    "word": "albină",
+    "word_en": "bee",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468358/animals/albin%C4%83.jpg"
+  },
+  {
+    "word": "balenă",
+    "word_en": "whale",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775474219/word-wave/animals/whale.jpg"
+  },
+  {
+    "word": "bizon",
+    "word_en": "bison",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775474222/word-wave/animals/bison.jpg"
+  },
+  {
+    "word": "broască",
+    "word_en": "frog",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468340/animals/broasc%C4%83.jpg"
+  },
+  {
+    "word": "bufniță",
+    "word_en": "owl",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468352/animals/bufni%C8%9B%C4%83.jpg"
+  },
+  {
+    "word": "bufniță",
+    "word_en": "owl",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775473700/word-wave/animals/owl.jpg"
+  },
+  {
+    "word": "câine",
+    "word_en": "dog",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468308/animals/c%C3%A2ine.jpg"
+  },
+  {
+    "word": "cal",
+    "word_en": "horse",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468309/animals/cal.jpg"
+  },
+  {
+    "word": "cal",
+    "word_en": "horse",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775470586/word-wave/animals/horse.jpg"
+  },
+  {
+    "word": "calmar",
+    "word_en": "squid",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468362/animals/calmar.jpg"
+  },
+  {
+    "word": "cangur",
+    "word_en": "kangaroo",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775474215/word-wave/animals/kangaroo.jpg"
+  },
+  {
+    "word": "capră",
+    "word_en": "goat",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468314/animals/capr%C4%83.jpg"
+  },
+  {
+    "word": "căprioară",
+    "word_en": "deer",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775470587/word-wave/animals/deer.jpg"
+  },
+  {
+    "word": "caracatiță",
+    "word_en": "octopus",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468363/animals/caracati%C8%9B%C4%83.jpg"
+  },
+  {
+    "word": "caracatiță",
+    "word_en": "octopus",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775473702/word-wave/animals/octopus.jpg"
+  },
+  {
+    "word": "cerb",
+    "word_en": "deer",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468331/animals/cerb.jpg"
+  },
+  {
+    "word": "cimpanzeu",
+    "word_en": "chimpanzee",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468373/animals/cimpanzeu.jpg"
+  },
+  {
+    "word": "cocoș",
+    "word_en": "rooster",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468318/animals/coco%C8%99.jpg"
+  },
+  {
+    "word": "crab",
+    "word_en": "crab",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468365/animals/crab.jpg"
+  },
+  {
+    "word": "crocodil",
+    "word_en": "crocodile",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468344/animals/crocodil.jpg"
+  },
+  {
+    "word": "crocodil",
+    "word_en": "crocodile",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775474218/word-wave/animals/crocodile.jpg"
+  },
+  {
+    "word": "delfin",
+    "word_en": "dolphin",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775470583/word-wave/animals/dolphin.jpg"
+  },
+  {
+    "word": "elefant",
+    "word_en": "elephant",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468333/animals/elefant.jpg"
+  },
+  {
+    "word": "elefant",
+    "word_en": "elephant",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775470581/word-wave/animals/elephant.jpg"
+  },
+  {
+    "word": "flamingo",
+    "word_en": "flamingo",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775474216/word-wave/animals/flamingo.jpg"
+  },
+  {
+    "word": "fluture",
+    "word_en": "butterfly",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775473702/word-wave/animals/butterfly.jpg"
+  },
+  {
+    "word": "fluture",
+    "word_en": "butterfly",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468355/animals/fluture.jpg"
+  },
+  {
+    "word": "focă",
+    "word_en": "seal",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775474219/word-wave/animals/seal.jpg"
+  },
+  {
+    "word": "furnică",
+    "word_en": "ant",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468359/animals/furnic%C4%83.jpg"
+  },
+  {
+    "word": "găină",
+    "word_en": "hen",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468317/animals/g%C4%83in%C4%83.jpg"
+  },
+  {
+    "word": "ghepard",
+    "word_en": "cheetah",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775474213/word-wave/animals/cheetah.jpg"
+  },
+  {
+    "word": "girafă",
+    "word_en": "giraffe",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468334/animals/giraf%C4%83.jpg"
+  },
+  {
+    "word": "girafă",
+    "word_en": "giraffe",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775473701/word-wave/animals/giraffe.jpg"
+  },
+  {
+    "word": "hipopotam",
+    "word_en": "hippo",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468338/animals/hipopotam.jpg"
+  },
+  {
+    "word": "homar",
+    "word_en": "lobster",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468366/animals/homar.jpg"
+  },
+  {
+    "word": "iepure",
+    "word_en": "rabbit",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468327/animals/iepure.jpg"
+  },
+  {
+    "word": "iepure",
+    "word_en": "rabbit",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775470586/word-wave/animals/rabbit.jpg"
+  },
+  {
+    "word": "lebădă",
+    "word_en": "swan",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468367/animals/leb%C4%83d%C4%83.jpg"
+  },
+  {
+    "word": "leopard",
+    "word_en": "leopard",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775474216/word-wave/animals/leopard.jpg"
+  },
+  {
+    "word": "leu",
+    "word_en": "lion",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468321/animals/leu.jpg"
+  },
+  {
+    "word": "leu",
+    "word_en": "lion",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775470585/word-wave/animals/lion.jpg"
+  },
+  {
+    "word": "lup",
+    "word_en": "wolf",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468325/animals/lup.jpg"
+  },
+  {
+    "word": "lup",
+    "word_en": "wolf",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775473698/word-wave/animals/wolf.jpg"
+  },
+  {
+    "word": "maimuță",
+    "word_en": "monkey",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468339/animals/maimu%C8%9B%C4%83.jpg"
+  },
+  {
+    "word": "mangustă",
+    "word_en": "mongoose",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775474221/word-wave/animals/mongoose.jpg"
+  },
+  {
+    "word": "melc",
+    "word_en": "snail",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468361/animals/melc.jpg"
+  },
+  {
+    "word": "narval",
+    "word_en": "narwhal",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775474223/word-wave/animals/narwhal.jpg"
+  },
+  {
+    "word": "oaie",
+    "word_en": "sheep",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468313/animals/oaie.jpg"
+  },
+  {
+    "word": "ornitorinc",
+    "word_en": "platypus",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775474223/word-wave/animals/platypus.jpg"
+  },
+  {
+    "word": "păianjen",
+    "word_en": "spider",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468360/animals/p%C4%83ianjen.jpg"
+  },
+  {
+    "word": "panda",
+    "word_en": "panda",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775474214/word-wave/animals/panda.jpg"
+  },
+  {
+    "word": "papagal",
+    "word_en": "parrot",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775473703/word-wave/animals/parrot.jpg"
+  },
+  {
+    "word": "păun",
+    "word_en": "peacock",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775474220/word-wave/animals/peacock.jpg"
+  },
+  {
+    "word": "pelican",
+    "word_en": "pelican",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468370/animals/pelican.jpg"
+  },
+  {
+    "word": "pinguin",
+    "word_en": "penguin",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775473701/word-wave/animals/penguin.jpg"
+  },
+  {
+    "word": "pinguin",
+    "word_en": "penguin",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468348/animals/pinguin.jpg"
+  },
+  {
+    "word": "pisică",
+    "word_en": "cat",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468306/animals/pisic%C4%83.jpg"
+  },
+  {
+    "word": "porc",
+    "word_en": "pig",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468315/animals/porc.jpg"
+  },
+  {
+    "word": "porumbel",
+    "word_en": "pigeon",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468353/animals/porumbel.jpg"
+  },
+  {
+    "word": "râs",
+    "word_en": "lynx",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775474221/word-wave/animals/lynx.jpg"
+  },
+  {
+    "word": "rață",
+    "word_en": "duck",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468320/animals/ra%C8%9B%C4%83.jpg"
+  },
+  {
+    "word": "rechin",
+    "word_en": "shark",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775473702/word-wave/animals/shark.jpg"
+  },
+  {
+    "word": "rinocer",
+    "word_en": "rhino",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468337/animals/rinocer.jpg"
+  },
+  {
+    "word": "salamandră",
+    "word_en": "salamander",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775474223/word-wave/animals/salamander.jpg"
+  },
+  {
+    "word": "șarpe",
+    "word_en": "snake",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468342/animals/%C8%99arpe.jpg"
+  },
+  {
+    "word": "șoarece",
+    "word_en": "mouse",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468328/animals/%C8%99oarece.jpg"
+  },
+  {
+    "word": "tapir",
+    "word_en": "tapir",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775474225/word-wave/animals/tapir.jpg"
+  },
+  {
+    "word": "țestoasă",
+    "word_en": "turtle",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775473703/word-wave/animals/turtle.jpg"
+  },
+  {
+    "word": "tigru",
+    "word_en": "tiger",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775470585/word-wave/animals/tiger.jpg"
+  },
+  {
+    "word": "tigru",
+    "word_en": "tiger",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468322/animals/tigru.jpg"
+  },
+  {
+    "word": "urs",
+    "word_en": "bear",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775470587/word-wave/animals/bear.jpg"
+  },
+  {
+    "word": "urs",
+    "word_en": "bear",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468324/animals/urs.jpg"
+  },
+  {
+    "word": "vacă",
+    "word_en": "cow",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468310/animals/vac%C4%83.jpg"
+  },
+  {
+    "word": "veveriță",
+    "word_en": "squirrel",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468329/animals/veveri%C8%9B%C4%83.jpg"
+  },
+  {
+    "word": "vulpe",
+    "word_en": "fox",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775473699/word-wave/animals/fox.jpg"
+  },
+  {
+    "word": "vulpe",
+    "word_en": "fox",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468326/animals/vulpe.jpg"
+  },
+  {
+    "word": "vultur",
+    "word_en": "eagle",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468351/animals/vultur.jpg"
+  },
+  {
+    "word": "vultur",
+    "word_en": "vulture",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775474225/word-wave/animals/vulture.jpg"
+  },
+  {
+    "word": "wombat",
+    "word_en": "wombat",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775474224/word-wave/animals/wombat.jpg"
+  },
+  {
+    "word": "yak",
+    "word_en": "yak",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775474227/word-wave/animals/yak.jpg"
+  },
+  {
+    "word": "zebră",
+    "word_en": "zebra",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775468335/animals/zebr%C4%83.jpg"
+  },
+  {
+    "word": "zebră",
+    "word_en": "zebra",
+    "image": "https://res.cloudinary.com/drtkpapql/image/upload/v1775470588/word-wave/animals/zebra.jpg"
+  }
+]

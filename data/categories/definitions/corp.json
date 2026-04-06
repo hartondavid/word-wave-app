@@ -538,5 +538,122 @@
     "definition": "Mase mari de apă în mișcare rapidă, formate în urma precipitațiilor abundente",
     "word_en": "flash floods",
     "definition_en": "Large masses of fast-moving water formed from heavy rainfall"
+  },
+  {
+    "word": "articulație",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Blausen_0597_KneeAnatomy_SideAnterior.png/500px-Blausen_0597_KneeAnatomy_SideAnterior.png"
+  },
+  {
+    "word": "capilarele",
+    "definition": "Cele mai subțiri vase de sânge, prin care are loc schimbul de gaze și substanțe cu țesuturile",
+    "word_en": "capillaries",
+    "definition_en": "The smallest blood vessels where gas and substance exchange with tissues occurs",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Capillary_system.jpg/500px-Capillary_system.jpg"
+  },
+  {
+    "word": "circulație",
+    "definition": "Mișcarea continuă a sângelui prin inimă și vase, care hrănește tot organismul",
+    "word_en": "circulation",
+    "definition_en": "Continuous movement of blood through the heart and vessels that nourishes the whole body",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Circulatory_System_no_tags.svg/500px-Circulatory_System_no_tags.svg.png"
+  },
+  {
+    "word": "digestibil",
+    "definition": "Aliment sau substanță pe care stomacul și intestinele o pot descompune și absorbi ușor",
+    "word_en": "digestible",
+    "definition_en": "Food or substance the stomach and intestines can break down and absorb easily",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Digestive_system_diagram_en.svg/500px-Digestive_system_diagram_en.svg.png"
+  },
+  {
+    "word": "fiziologie",
+    "definition": "Știința care studiază funcțiile normale ale organelor și ale întregului organism uman",
+    "word_en": "physiology",
+    "definition_en": "Science studying the normal functions of organs and the whole human body",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Organs_of_the_body.svg/500px-Organs_of_the_body.svg.png"
+  },
+  {
+    "word": "încheietură",
+    "definition": "Zona dintre mână și antebraț, unde oasele carpiene formează legătura flexibilă",
+    "word_en": "wrist joint",
+    "definition_en": "Area between the hand and forearm where carpal bones form the flexible connection",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Gray417.png/500px-Gray417.png"
+  },
+  {
+    "word": "metabolism",
+    "definition": "Totalitatea reacțiilor chimice din organism care transformă alimentele în energie și materie",
+    "word_en": "metabolism",
+    "definition_en": "All chemical reactions in the body that turn food into energy and building material",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Mitochondrion_mini.svg/500px-Mitochondrion_mini.svg.png"
+  },
+  {
+    "word": "respirație",
+    "definition": "Schimbul de gaze între organism și mediu: oxigen intră, dioxid de carbon este eliminat",
+    "word_en": "respiration",
+    "definition_en": "Gas exchange between the body and environment: oxygen in, carbon dioxide out",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Respiratory_system_complete_en.svg/500px-Respiratory_system_complete_en.svg.png"
+  },
+  {
+    "word": "somnolență",
+    "definition": "Stare de somn ușor sau nevoie puternică de odihnă, cu reacții și vigilență reduse",
+    "word_en": "drowsiness",
+    "definition_en": "State of light sleep or strong need for rest, with reduced alertness and reactions",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Portrait_of_a_baby_sleeping.jpg/500px-Portrait_of_a_baby_sleeping.jpg"
+  },
+  {
+    "word": "vertebrală",
+    "definition": "Referitor la coloana vertebrală sau la un segment osos care o compune",
+    "word_en": "vertebral",
+    "definition_en": "Relating to the spinal column or to a bony segment that forms it",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Gray111_-_Vertebral_column-coloured.png/500px-Gray111_-_Vertebral_column-coloured.png"
+  },
+  {
+    "word": "articulație",
+    "word_en": "articulation",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Knee_diagram.svg/500px-Knee_diagram.svg.png"
+  },
+  {
+    "word": "capilarele",
+    "word_en": "capillaries",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Blood_vessels-en.svg/500px-Blood_vessels-en.svg.png"
+  },
+  {
+    "word": "circulație",
+    "word_en": "circulation",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Circulatory_System_no_tags.svg/500px-Circulatory_System_no_tags.svg.png"
+  },
+  {
+    "word": "digestibil",
+    "word_en": "digestible",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Digestive_system_diagram_en.svg/500px-Digestive_system_diagram_en.svg.png"
+  },
+  {
+    "word": "fiziologie",
+    "word_en": "physiology",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Internal_organs.png/500px-Internal_organs.png"
+  },
+  {
+    "word": "încheietură",
+    "word_en": "wrist joint",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Gray417.png/500px-Gray417.png"
+  },
+  {
+    "word": "metabolism",
+    "word_en": "metabolism",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Mitochondrion_mini.svg/500px-Mitochondrion_mini.svg.png"
+  },
+  {
+    "word": "respirație",
+    "word_en": "respiration",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Respiratory_system_complete_en.svg/500px-Respiratory_system_complete_en.svg.png"
+  },
+  {
+    "word": "somnolență",
+    "word_en": "drowsiness",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Sleeping_baby_with_arm_extended.jpg/500px-Sleeping_baby_with_arm_extended.jpg"
+  },
+  {
+    "word": "vertebrală",
+    "word_en": "vertebral",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/5/54/Gray_111_-_Vertebral_column-coloured.png"
   }
 ]

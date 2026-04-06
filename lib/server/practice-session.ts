@@ -13,14 +13,21 @@ function getKey(): Buffer {
 
 export { COOKIE_NAME }
 
-export type PracticeRoundSecret = { word: string; definition: string }
+export type PracticeRoundSecret = { word: string; definition: string; image?: string }
 
-/** Encrypt word + definition for httpOnly cookie (server-only). */
-export function sealPracticeRound(word: string, definition: string): string {
+/** Encrypt word + definition (+ imagine opțională) pentru cookie httpOnly (server-only). */
+export function sealPracticeRound(
+  word: string,
+  definition: string,
+  image?: string | null
+): string {
   const key = getKey()
   const iv = randomBytes(12)
   const cipher = createCipheriv("aes-256-gcm", key, iv)
-  const plaintext = JSON.stringify({ w: word, d: definition, t: Date.now() })
+  const i = typeof image === "string" && image.trim() ? image.trim() : undefined
+  const plaintext = JSON.stringify(
+    i ? { w: word, d: definition, t: Date.now(), i } : { w: word, d: definition, t: Date.now() }
+  )
   const enc = Buffer.concat([cipher.update(plaintext, "utf8"), cipher.final()])
   const tag = cipher.getAuthTag()
   return Buffer.concat([iv, tag, enc]).toString("base64url")
@@ -41,7 +48,12 @@ export function unsealPracticeRound(
     const dec = Buffer.concat([decipher.update(enc), decipher.final()]).toString(
       "utf8"
     )
-    const parsed = JSON.parse(dec) as { w?: string; d?: string; t?: number }
+    const parsed = JSON.parse(dec) as {
+      w?: string
+      d?: string
+      t?: number
+      i?: string
+    }
     if (
       typeof parsed.w !== "string" ||
       typeof parsed.d !== "string" ||
@@ -49,7 +61,9 @@ export function unsealPracticeRound(
     )
       return null
     if (Date.now() - parsed.t > MAX_SESSION_MS) return null
-    return { word: parsed.w, definition: parsed.d }
+    const out: PracticeRoundSecret = { word: parsed.w, definition: parsed.d }
+    if (typeof parsed.i === "string" && parsed.i.trim()) out.image = parsed.i.trim()
+    return out
   } catch {
     return null
   }

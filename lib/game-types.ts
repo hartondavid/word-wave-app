@@ -55,6 +55,8 @@ export interface GameRoom {
 export interface WordPair {
   definition: string
   word: string
+  /** URL opțional (ex. din `data/categories/images/*.json`) — afișat lângă definiție în Practice. */
+  image?: string
 }
 
 export const ROUND_DURATION = 60
@@ -116,13 +118,73 @@ export const CATEGORIES = {
   credinta:   { category: 'Faith',       emoji: '🙏' },
   sanatate:   { category: 'Health',      emoji: '💊' },
   educatie:   { category: 'Education',   emoji: '📚' },
+  foods:      { category: 'Food',        emoji: '🍎' },
   natura:     { category: 'Nature',      emoji: '🌿' },
+  animals:    { category: 'Animals',     emoji: '🦁' },
+  architecture: { category: 'Architecture', emoji: '🏗️' },
+  technology: { category: 'Technology',  emoji: '💻' },
   societate:  { category: 'Society',     emoji: '🏛️' },
   filosofie:  { category: 'Philosophy',  emoji: '💭' },
   persoana:   { category: 'Self',        emoji: '👤' },
 } as const
 
 export type CategoryKey = keyof typeof CATEGORIES
+
+/** Liste cu poze: `data/categories/images/<key>.json`. Restul categoriilor: `data/categories/definitions/`. */
+export const CATEGORY_IMAGE_FILE_KEYS = [
+  "animals",
+  "foods",
+  "architecture",
+  "natura",
+  "technology",
+] as const satisfies readonly CategoryKey[]
+export type CategoryImageFileKey = (typeof CATEGORY_IMAGE_FILE_KEYS)[number]
+
+/** Preset pe formularul principal: definiții (fără „Animale” imagine-only) vs. categorii cu poze. */
+export type CategoryPresetId = "definitions" | "images"
+
+/**
+ * 20 categorii pentru modul definiții: Toate + 19 tematice (fără `animals`, `foods`, `hobbies` — axate pe imagini).
+ * Fără `persoana` pentru a păstra exact 20 intrări în listă.
+ */
+export const CATEGORY_PRESET_DEFINITION_KEYS: readonly CategoryKey[] = [
+  "general",
+  "emotii",
+  "relatii",
+  "timp",
+  "succes",
+  "valori",
+  "caracter",
+  "minte",
+  "corp",
+  "munca",
+  "familie",
+  "prietenie",
+  "iubire",
+  "libertate",
+  "credinta",
+  "sanatate",
+  "educatie",
+  "natura",
+  "societate",
+  "filosofie",
+] as const
+
+/** Categorii pentru modul poze (inclusiv Toate + cele din Cloudinary `word-wave/*`). */
+export const CATEGORY_PRESET_IMAGE_KEYS: readonly CategoryKey[] = [
+  "general",
+  "animals",
+  "foods",
+  "architecture",
+  "natura",
+  "technology",
+] as const
+
+export function categoryKeysForPreset(preset: CategoryPresetId): CategoryKey[] {
+  return preset === "definitions"
+    ? [...CATEGORY_PRESET_DEFINITION_KEYS]
+    : [...CATEGORY_PRESET_IMAGE_KEYS]
+}
 
 // All specific category keys (excludes 'general')
 export const SPECIFIC_CATEGORIES = Object.keys(CATEGORIES).filter(k => k !== 'general') as Exclude<CategoryKey, 'general'>[]

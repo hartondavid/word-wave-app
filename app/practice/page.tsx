@@ -115,6 +115,7 @@ export default function PracticePage() {
   const [roundMeta, setRoundMeta] = useState<{
     definition: string
     wordLength: number
+    image?: string
   } | null>(null)
   const answerWordRef = useRef("")
   const [progress, setProgress] = useState("")
@@ -238,7 +239,11 @@ export default function PracticePage() {
     answerWordRef.current = ""
     const meta = await startPracticeRound(cat, lang)
     answerWordRef.current = meta.word
-    setRoundMeta({ definition: meta.definition, wordLength: meta.wordLength })
+    setRoundMeta({
+      definition: meta.definition,
+      wordLength: meta.wordLength,
+      ...(meta.image ? { image: meta.image } : {}),
+    })
     const initProgress = "_".repeat(meta.wordLength)
     progressRef.current = initProgress
     consecutiveWrongRef.current = 0
@@ -345,7 +350,11 @@ export default function PracticePage() {
         stored.progress.length === resume.wordLength
       ) {
         answerWordRef.current = resume.word
-        setRoundMeta({ definition: resume.definition, wordLength: resume.wordLength })
+        setRoundMeta({
+          definition: resume.definition,
+          wordLength: resume.wordLength,
+          ...(resume.image ? { image: resume.image } : {}),
+        })
         progressRef.current = stored.progress
         setProgress(stored.progress)
         setRevealProgress("_".repeat(resume.wordLength))
@@ -874,9 +883,10 @@ export default function PracticePage() {
 
   const definitionText = roundMeta?.definition ?? ""
   const definitionExtraBreaks = (definitionText.match(/\n/g) || []).length
+  const imageLineBoost = roundMeta?.image ? 3 : 0
   const approxDefinitionLines = Math.max(
     1,
-    Math.ceil(definitionText.length / 36) + definitionExtraBreaks
+    Math.ceil(definitionText.length / 36) + definitionExtraBreaks + imageLineBoost
   )
   const defCardVerticalPad =
     approxDefinitionLines <= 2
@@ -1046,10 +1056,27 @@ export default function PracticePage() {
                     {timeLeft}s
                   </p>
                 )}
+                {roundMeta?.image ? (
+                  <div
+                    className={cn(
+                      "mt-2 flex w-full max-w-[13rem] justify-center overflow-hidden rounded-xl sm:max-w-[15rem]",
+                      gameStatus === "playing" && "mt-2.5"
+                    )}
+                  >
+                    {/* img: proporții originale, fără decupare; URL extern nemodificat de optimizator */}
+                    <img
+                      src={roundMeta.image}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      className="h-auto max-h-28 w-auto max-w-full rounded-xl object-contain sm:max-h-32"
+                    />
+                  </div>
+                ) : null}
                 <p
                   className={cn(
                     "w-full text-center text-base sm:text-lg",
-                    gameStatus === "playing" && "mt-1",
+                    roundMeta?.image ? "mt-2" : gameStatus === "playing" && "mt-1",
                     approxDefinitionLines > 4 ? "leading-tight" : "leading-snug"
                   )}
                 >

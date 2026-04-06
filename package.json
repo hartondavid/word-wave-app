@@ -21,7 +21,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "translate:categories": "node scripts/translate-all-categories-en.mjs"
+    "translate:categories": "node scripts/translate-all-categories-en.mjs",
+    "import:pexels-word-wave": "node scripts/word-wave-pexels/import.mjs",
+    "generate:images-cloudinary": "node scripts/generate-images-cloudinary.mjs",
+    "download:cloudinary-images": "node scripts/download-cloudinary-images.mjs",
+    "download:cloudinary-images:discover": "node scripts/download-cloudinary-images.mjs --discover word-wave"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -86,6 +90,11 @@
     "@types/nodemailer": "^7.0.11",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
+    "axios": "^1.14.0",
+    "chalk": "^5.6.2",
+    "cli-progress": "^3.12.0",
+    "cloudinary": "^2.9.0",
+    "dotenv": "^17.4.1",
     "postcss": "^8.5",
     "tailwindcss": "^4.2.0",
     "tw-animate-css": "1.3.3",

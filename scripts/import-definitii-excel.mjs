@@ -4,7 +4,7 @@
  * - Același cuvânt în mai multe fișiere: câștigă ultimul din listă (definitii 5.xlsx).
  * - Înlocuiește câmpul `definition` în JSON-urile de categorie când cuvântul există în Excel.
  * - Cuvinte noi: clasificare automată în categorii (game-types).
- * - Dacă există data/categories/definition.json: intrările sunt împărțite în categorii, apoi fișierul e șters.
+ * - Dacă există data/categories/definitions/definition.json: intrările sunt împărțite în categorii, apoi fișierul e șters.
  * - Dedupe per fișier (același cuvânt normalizat → o singură intrare; definiția din Excel are prioritate).
  *
  * Usage:
@@ -19,7 +19,7 @@ import XLSX from "xlsx"
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.join(__dirname, "..")
-const CAT_DIR = path.join(ROOT, "data", "categories")
+const CAT_DEF = path.join(ROOT, "data", "categories", "definitions")
 const DOWNLOADS = "C:/Users/hdavi/Downloads"
 
 const EXCEL_FILES = [
@@ -57,7 +57,7 @@ const STANDARD_CATS = [
   "persoana",
 ]
 
-/** Fișier temporar: data/categories/definition.json (intrări de clasificat). */
+/** Fișier temporar: data/categories/definitions/definition.json (intrări de clasificat). */
 const definitionJsonBasename = "definition"
 
 /** @typedef {{ w: number, keys: string[] }} Rule */
@@ -209,14 +209,14 @@ function bestCategory(word, definition) {
 }
 
 function loadCategory(cat) {
-  const p = path.join(CAT_DIR, `${cat}.json`)
+  const p = path.join(CAT_DEF, `${cat}.json`)
   if (!fs.existsSync(p)) return []
   const data = JSON.parse(fs.readFileSync(p, "utf8"))
   return Array.isArray(data) ? data : []
 }
 
 function saveCategory(cat, arr) {
-  const p = path.join(CAT_DIR, `${cat}.json`)
+  const p = path.join(CAT_DEF, `${cat}.json`)
   fs.writeFileSync(p, JSON.stringify(arr, null, 2) + "\n", "utf8")
 }
 
@@ -339,7 +339,7 @@ function main() {
 
   let placed = collectWordSet(data)
 
-  const definitionPoolPath = path.join(CAT_DIR, `${definitionJsonBasename}.json`)
+  const definitionPoolPath = path.join(CAT_DEF, `${definitionJsonBasename}.json`)
   if (fs.existsSync(definitionPoolPath)) {
     const pool = JSON.parse(fs.readFileSync(definitionPoolPath, "utf8"))
     if (Array.isArray(pool)) {

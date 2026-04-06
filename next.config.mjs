@@ -23,6 +23,18 @@ const nextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 112, 128, 160, 192, 256],
     qualities: [40, 45, 50, 60, 75],
     minimumCacheTTL: 60 * 60 * 24 * 7,
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.pexels.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "upload.wikimedia.org",
+        pathname: "/wikipedia/**",
+      },
+    ],
   },
   experimental: {
     optimizePackageImports: ["lucide-react", "@radix-ui/react-tabs"],

@@ -1,7 +1,7 @@
 import fs from "fs"
 import path from "path"
 import type { WordPair } from "@/lib/game-types"
-import { SPECIFIC_CATEGORIES } from "@/lib/game-types"
+import { CATEGORY_IMAGE_FILE_KEYS, SPECIFIC_CATEGORIES } from "@/lib/game-types"
 import type { CategoryKey } from "@/lib/game-types"
 
 /** Same shapes as în fișierele JSON — format vechi { word, definition } sau multilingual. */
@@ -9,12 +9,24 @@ interface MultilingualEntry {
   word: string
   words?: Record<string, string>
   definitions?: Record<string, string>
+  image?: string
 }
 
 /** Opțional: word_en / definition_en lângă word / definition (RO). */
 interface BilingualFlat extends WordPair {
   word_en?: string
   definition_en?: string
+  image?: string
+}
+
+function entryImageUrl(
+  entry: MultilingualEntry | WordPair | BilingualFlat
+): string | undefined {
+  const raw =
+    "image" in entry && typeof (entry as { image?: unknown }).image === "string"
+      ? (entry as { image: string }).image.trim()
+      : ""
+  return raw || undefined
 }
 
 function unwrapCategoryDefinitions(raw: unknown): (MultilingualEntry | WordPair | BilingualFlat)[] {
@@ -33,7 +45,8 @@ function unwrapCategoryDefinitions(raw: unknown): (MultilingualEntry | WordPair 
 /**
  * Returnează perechea pentru limba cerută.
  * - `definitions` / `words` (obiecte per limbă)
- * - sau `word`+`definition` (RO) cu opțional `word_en` / `definition_en`
+ * - sau `word`+`definition` (RO) cu opțional `word_en` / `definition_en` / `image`
+ * - dacă lipsește definiția dar există `image`, definiția devine "" (indiciu doar vizual)
  * - pentru `en` fără traducere: fallback la RO ca să nu rupă jocul
  */
 function extractPair(
@@ -45,26 +58,51 @@ function extractPair(
   const defs = "definitions" in entry ? entry.definitions : undefined
   if (defs && Object.keys(defs).length > 0) {
     const e = entry as MultilingualEntry
-    const def = defs[lang] ?? defs["en"] ?? defs["ro"] ?? ""
-    const word =
-      e.words?.[lang] ?? e.words?.["en"] ?? e.words?.["ro"] ?? e.word ?? ""
-    if (!def.trim() || !word.trim()) return null
-    return { word: word.trim(), definition: def.trim() }
+    const def = (defs[lang] ?? defs["en"] ?? defs["ro"] ?? "").trim()
+    const word = (
+      e.words?.[lang] ??
+      e.words?.["en"] ??
+      e.words?.["ro"] ??
+      e.word ??
+      ""
+    ).trim()
+    if (!word) return null
+    const img = entryImageUrl(entry)
+    if (!def && !img) return null
+    return img
+      ? { word, definition: def, image: img }
+      : { word, definition: def }
   }
 
   const flat = entry as BilingualFlat
-  if (!flat.word?.trim() || !flat.definition?.trim()) return null
+  const wordBase = flat.word?.trim()
+  if (!wordBase) return null
+
+  const img = entryImageUrl(flat)
+  const roDef = (flat.definition ?? "").trim()
+  const wEn = flat.word_en?.trim()
+  const dEn = (flat.definition_en ?? "").trim()
+
+  const hasTextClue = roDef.length > 0 || dEn.length > 0
+  if (!hasTextClue && !img) return null
 
   if (lang === "en") {
-    const w = flat.word_en?.trim()
-    const d = flat.definition_en?.trim()
-    if (w && d) {
-      return { word: w.toLowerCase(), definition: d }
+    if (wEn && dEn) {
+      return img
+        ? { word: wEn.toLowerCase(), definition: dEn, image: img }
+        : { word: wEn.toLowerCase(), definition: dEn }
     }
-    return { word: flat.word.trim(), definition: flat.definition.trim() }
+    if (wEn && img) {
+      return { word: wEn.toLowerCase(), definition: dEn || roDef, image: img }
+    }
+    return img
+      ? { word: wordBase, definition: roDef, image: img }
+      : { word: wordBase, definition: roDef }
   }
 
-  return { word: flat.word.trim(), definition: flat.definition.trim() }
+  return img
+    ? { word: wordBase, definition: roDef, image: img }
+    : { word: wordBase, definition: roDef }
 }
 
 function isAllowedCategory(category: string): category is Exclude<CategoryKey, "general"> {
@@ -72,8 +110,7 @@ function isAllowedCategory(category: string): category is Exclude<CategoryKey, "
 }
 
 /**
- * Citește `data/categories/<category>.json` (nu e în public → nu e accesibil direct din browser).
- * Returnează o singură pereche aleatoare pentru limbă.
+ * Citește `data/categories/definitions/<category>.json` sau `.../images/` pentru animale / alimente / hobby-uri.
  */
 export function pickRandomWordPairFromCategoryFile(
   category: string,
@@ -84,7 +121,9 @@ export function pickRandomWordPairFromCategoryFile(
     throw new Error("invalid category")
   }
 
-  const filePath = path.join(process.cwd(), "data", "categories", `${key}.json`)
+  const sub =
+    (CATEGORY_IMAGE_FILE_KEYS as readonly string[]).includes(key) ? "images" : "definitions"
+  const filePath = path.join(process.cwd(), "data", "categories", sub, `${key}.json`)
   if (!fs.existsSync(filePath)) {
     throw new Error("category file missing")
   }

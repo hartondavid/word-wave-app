@@ -25,7 +25,7 @@ function pickFromRandomCategories(
   throw lastErr ?? new Error("Nu s-au putut încărca cuvinte din categorii.")
 }
 
-/** Rezolvă perechea pentru rundă — doar din `data/categories/*.json` (Server Actions). */
+/** Rezolvă perechea pentru rundă — din `data/categories/definitions/` și `.../images/` (Server Actions). */
 export async function resolveWordPairForRound(
   category: string | null | undefined,
   language: string

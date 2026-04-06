@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import {
@@ -9,7 +9,9 @@ import {
   LANGUAGES,
   TOTAL_ROUNDS,
   languageForMultiplayerRoom,
+  categoryKeysForPreset,
   type CategoryKey,
+  type CategoryPresetId,
   type LanguageKey,
 } from "@/lib/game-types"
 import { syncGameRoomLanguage } from "@/app/game/actions"
@@ -137,6 +139,7 @@ export function HomePlayClient() {
   const [practiceRoundSeconds, setPracticeRoundSeconds] = useState<PracticeRoundTimerSeconds>(30)
   const [practiceHintsEnabled, setPracticeHintsEnabled] = useState(false)
   const [roundsError, setRoundsError] = useState("")
+  const [categoryPreset, setCategoryPreset] = useState<CategoryPresetId>("definitions")
   const [selectedCategory, setSelectedCategory] = useState<CategoryKey>("general")
   const [selectedLanguage, setSelectedLanguage] = useState<LanguageKey>("en")
   const [activeTab, setActiveTab] = useState<"create" | "join">("create")
@@ -168,6 +171,7 @@ export function HomePlayClient() {
       const j = JSON.parse(prev) as {
         practice_round_seconds?: unknown
         practice_hints_enabled?: unknown
+        category_preset?: unknown
       }
       if (j.practice_round_seconds === 30 || j.practice_round_seconds === 60) {
         setPracticeRoundSeconds(j.practice_round_seconds)
@@ -175,10 +179,37 @@ export function HomePlayClient() {
       if (typeof j.practice_hints_enabled === "boolean") {
         setPracticeHintsEnabled(j.practice_hints_enabled)
       }
+      if (j.category_preset === "definitions" || j.category_preset === "images") {
+        setCategoryPreset(j.category_preset)
+      }
     } catch {
       /* ignore */
     }
   }, [])
+
+  const categoryOptions = useMemo(
+    () => categoryKeysForPreset(categoryPreset),
+    [categoryPreset]
+  )
+
+  useEffect(() => {
+    if (!categoryOptions.includes(selectedCategory)) {
+      setSelectedCategory(categoryOptions[0] ?? "general")
+    }
+  }, [categoryPreset, categoryOptions, selectedCategory])
+
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    try {
+      const raw = localStorage.getItem("wordmatch_player")
+      if (!raw) return
+      const o = JSON.parse(raw) as Record<string, unknown>
+      o.category_preset = categoryPreset
+      localStorage.setItem("wordmatch_player", JSON.stringify(o))
+    } catch {
+      /* ignore */
+    }
+  }, [categoryPreset])
 
   async function handlePracticeSolo() {
     const nameErr = validatePlayerName(playerName, t)
@@ -192,6 +223,7 @@ export function HomePlayClient() {
       name: playerName.trim(),
       mode: "practice",
       category: selectedCategory,
+      category_preset: categoryPreset,
       language: selectedLanguage,
       max_rounds: !isNaN(rounds) && rounds > 0 ? rounds : 10,
       practice_round_seconds: practiceRoundSeconds,
@@ -424,19 +456,57 @@ export function HomePlayClient() {
           </div>
 
           {activeTab === "create" && (
-            <div className="space-y-2">
-              <label htmlFor="categorySelect" className="text-sm font-medium">{t.category}</label>
+            <div className="space-y-3">
+              <div className="space-y-2">
+                <label htmlFor="categorySelect" className="text-sm font-medium">
+                  {t.category}
+                </label>
+                
+                <div className="flex w-full flex-col gap-2 sm:flex-row">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className={cn(
+                      "h-9 min-h-9 w-full min-w-0 flex-1 px-5 text-center text-xs leading-tight sm:min-w-[13rem] sm:px-6 sm:text-sm",
+                      categoryPreset === "definitions"
+                        ? "border-blue-600 bg-blue-600 text-white hover:bg-blue-600 hover:text-white dark:border-blue-500 dark:bg-blue-600 dark:hover:bg-blue-600"
+                        : "hover:border-blue-600 hover:bg-blue-600 hover:text-white dark:hover:border-blue-500 dark:hover:bg-blue-600"
+                    )}
+                    onClick={() => setCategoryPreset("definitions")}
+                  >
+                    {t.categoryPresetDefinitions}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className={cn(
+                      "h-9 min-h-9 w-full min-w-0 flex-1 px-5 text-center text-xs leading-tight sm:min-w-[13rem] sm:px-6 sm:text-sm",
+                      categoryPreset === "images"
+                        ? "border-blue-600 bg-blue-600 text-white hover:bg-blue-600 hover:text-white dark:border-blue-500 dark:bg-blue-600 dark:hover:bg-blue-600"
+                        : "hover:border-blue-600 hover:bg-blue-600 hover:text-white dark:hover:border-blue-500 dark:hover:bg-blue-600"
+                    )}
+                    onClick={() => setCategoryPreset("images")}
+                  >
+                    {t.categoryPresetImages}
+                  </Button>
+                </div>
+              </div>
               <select
                 id="categorySelect"
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value as CategoryKey)}
-                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
-                {(Object.entries(CATEGORIES) as [CategoryKey, { category: string; emoji: string }][]).map(([key, { category, emoji }]) => (
-                  <option key={key} value={key}>
-                    {categoryLabelForLocale(key, category, emoji, formLocale)}
-                  </option>
-                ))}
+                {categoryOptions.map((key) => {
+                  const { category, emoji } = CATEGORIES[key]
+                  return (
+                    <option key={key} value={key}>
+                      {categoryLabelForLocale(key, category, emoji, formLocale)}
+                    </option>
+                  )
+                })}
               </select>
             </div>
           )}

@@ -2,6 +2,13 @@
 
 JSON-urile din acest folder **nu** sunt servite ca fișiere statice. Toate cuvintele pentru joc vin **doar** de aici (Server Actions: Practice / multiplayer). Nu se mai folosește Open Trivia sau `/api/words`.
 
+## Structură
+
+- **`definitions/`** — categorii pe definiții (text): `corp.json`, `emotii.json`, …
+- **`images/`** — categorii axate pe poze: `animals.json`, `foods.json`, `hobbies.json`
+
+Serverul rezolvă calea după `CATEGORY_IMAGE_FILE_KEYS` din `lib/game-types.ts`.
+
 Nu muta aceste fișiere înapoi în `public/` — ar deveni din nou vizibile integral în rețea.
 
 ## Limba engleză (UI)

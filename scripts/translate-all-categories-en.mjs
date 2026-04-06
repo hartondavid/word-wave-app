@@ -1,5 +1,6 @@
 /**
- * Adds word_en + definition_en to every entry in data/categories/*.json
+ * Adds word_en + definition_en to every entry in data/categories/definitions/*.json
+ * and data/categories/images/*.json
  *
  * 1) OPENAI_API_KEY — one batch per file (recommended).
  * 2) Otherwise MyMemory (ro→en), per entry; optional MYMEMORY_EMAIL for higher limits.
@@ -14,7 +15,20 @@ import { fileURLToPath } from "url"
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.join(__dirname, "..")
-const CAT_DIR = path.join(ROOT, "data", "categories")
+const CAT_DEF = path.join(ROOT, "data", "categories", "definitions")
+const CAT_IMG = path.join(ROOT, "data", "categories", "images")
+
+function listCategoryJsonPaths() {
+  const out = []
+  for (const dir of [CAT_DEF, CAT_IMG]) {
+    if (!fs.existsSync(dir)) continue
+    for (const f of fs.readdirSync(dir)) {
+      if (!f.endsWith(".json")) continue
+      out.push(path.join(dir, f))
+    }
+  }
+  return out.sort((a, b) => path.basename(a).localeCompare(path.basename(b)))
+}
 
 const FORCE = process.argv.includes("--force")
 const DELAY_MS = Number(process.env.TRANSLATE_DELAY_MS || "320")
@@ -130,13 +144,10 @@ async function main() {
   const openaiKey = process.env.OPENAI_API_KEY
   const mmEmail = process.env.MYMEMORY_EMAIL || ""
 
-  const files = fs
-    .readdirSync(CAT_DIR)
-    .filter((f) => f.endsWith(".json"))
-    .sort()
+  const files = listCategoryJsonPaths()
 
-  for (const file of files) {
-    const fp = path.join(CAT_DIR, file)
+  for (const fp of files) {
+    const file = path.basename(fp)
     let data
     try {
       data = JSON.parse(fs.readFileSync(fp, "utf8"))

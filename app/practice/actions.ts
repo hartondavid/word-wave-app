@@ -15,6 +15,8 @@ export type PracticeRoundPublic = {
   wordLength: number
   /** Sent to client for instant local validation (practice only; cookie still authoritative for finalize). */
   word: string
+  /** URL imagine din intrarea categoriei (`image`), dacă există. */
+  image?: string
 }
 
 export type PracticePlacement = { index: number; char: string }
@@ -55,6 +57,7 @@ export async function tryResumePracticeSession(): Promise<PracticeRoundPublic | 
     definition: secret.definition,
     wordLength: secret.word.length,
     word: secret.word,
+    ...(secret.image ? { image: secret.image } : {}),
   }
 }
 
@@ -64,13 +67,14 @@ export async function startPracticeRound(
   language: string
 ): Promise<PracticeRoundPublic> {
   const pair = await resolveWordPairForRound(category || null, language)
-  const sealed = sealPracticeRound(pair.word, pair.definition)
+  const sealed = sealPracticeRound(pair.word, pair.definition, pair.image ?? null)
   const store = await cookies()
   store.set(COOKIE_NAME, sealed, practiceCookieOptions())
   return {
     definition: pair.definition,
     wordLength: pair.word.length,
     word: pair.word,
+    ...(pair.image ? { image: pair.image } : {}),
   }
 }
 

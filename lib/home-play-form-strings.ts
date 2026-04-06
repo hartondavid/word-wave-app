@@ -21,6 +21,10 @@ const CATEGORY_LABELS_RO: Record<CategoryKey, string> = {
   sanatate: "Sănătate",
   educatie: "Educație",
   natura: "Natură",
+  foods: "Alimente",
+  animals: "Animale",
+  architecture: "Arhitectură",
+  technology: "Tehnologie",
   societate: "Societate",
   filosofie: "Filosofie",
   persoana: "Sine",
@@ -58,6 +62,8 @@ export type HomePlayFormStrings = {
   yourName: string
   nicknamePlaceholder: string
   category: string
+  categoryPresetDefinitions: string
+  categoryPresetImages: string
   definitionLanguage: string
   definitionLanguageAria: string
   numberOfRounds: string
@@ -103,6 +109,8 @@ const STRINGS: Record<HomePlayFormLocale, HomePlayFormStrings> = {
     yourName: "Your Name",
     nicknamePlaceholder: "Enter your nickname",
     category: "Category",
+    categoryPresetDefinitions: "Definitions",
+    categoryPresetImages: "Pictures",
     definitionLanguage: "Definition & word language",
     definitionLanguageAria: "Definition and word language",
     numberOfRounds: "Number of Rounds",
@@ -148,6 +156,8 @@ const STRINGS: Record<HomePlayFormLocale, HomePlayFormStrings> = {
     yourName: "Numele tău",
     nicknamePlaceholder: "Pseudonim",
     category: "Categorie",
+    categoryPresetDefinitions: "Definiții",
+    categoryPresetImages: "Poze",
     definitionLanguage: "Limba definiției și a cuvântului",
     definitionLanguageAria: "Limba definiției și a cuvântului",
     numberOfRounds: "Număr de runde",
