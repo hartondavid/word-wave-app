@@ -1213,7 +1213,7 @@ export default function GamePage({ params }: GamePageProps) {
       player1_ready: false, player2_ready: false,
       player1_progress: null, player2_progress: null,
       current_round: 0, game_status: "waiting",
-      current_word: null, current_definition: null,
+      current_word: null, current_definition: null, current_image: null,
       round_winner: null,
       round_end_reason: null,
       player1_speech_eliminated: false,
@@ -1244,6 +1244,16 @@ export default function GamePage({ params }: GamePageProps) {
           player4_speech_eliminated: _d,
           ...rest
         } = payload
+        payload = rest
+        const retry = await supabase.from("game_rooms").update(payload).eq("room_code", roomCode).select()
+        data = retry.data
+        error = retry.error
+      }
+    }
+    if (error) {
+      const msg = (error.message ?? "").toLowerCase()
+      if (msg.includes("current_image")) {
+        const { current_image: _i, ...rest } = payload
         payload = rest
         const retry = await supabase.from("game_rooms").update(payload).eq("room_code", roomCode).select()
         data = retry.data
@@ -1832,9 +1842,14 @@ export default function GamePage({ params }: GamePageProps) {
   /** Ca la practice: înălțime card definiție + timp după lungimea textului */
   const definitionText = room.current_definition ?? ""
   const definitionExtraBreaks = (definitionText.match(/\n/g) || []).length
+  const roundImageUrl =
+    room.current_image != null && String(room.current_image).trim() !== ""
+      ? String(room.current_image).trim()
+      : ""
+  const imageLineBoost = roundImageUrl ? 3 : 0
   const approxDefinitionLines = Math.max(
     1,
-    Math.ceil(definitionText.length / 36) + definitionExtraBreaks
+    Math.ceil(definitionText.length / 36) + definitionExtraBreaks + imageLineBoost
   )
   const defCardVerticalPad =
     approxDefinitionLines <= 2
@@ -1931,9 +1946,22 @@ export default function GamePage({ params }: GamePageProps) {
             {/* ── Definition (kept visible) ── */}
             <Card className="w-full shadow-sm">
               <CardContent className="px-6 py-4 sm:px-8 sm:py-5">
-                <p className="text-base sm:text-lg text-center leading-relaxed">
-                  {room.current_definition}
-                </p>
+                <div className="flex w-full flex-col items-center text-center">
+                  {roundImageUrl ? (
+                    <div className="mb-3 flex w-full max-w-[13rem] justify-center overflow-hidden rounded-xl sm:max-w-[15rem]">
+                      <img
+                        src={roundImageUrl}
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                        className="h-auto max-h-28 w-auto max-w-full rounded-xl object-contain sm:max-h-32"
+                      />
+                    </div>
+                  ) : null}
+                  <p className="text-base sm:text-lg text-center leading-relaxed">
+                    {room.current_definition}
+                  </p>
+                </div>
               </CardContent>
             </Card>
 
@@ -2073,9 +2101,26 @@ export default function GamePage({ params }: GamePageProps) {
                   >
                     {timeRemaining}s
                   </p>
+                  {roundImageUrl ? (
+                    <div
+                      className={cn(
+                        "mt-2 flex w-full max-w-[13rem] justify-center overflow-hidden rounded-xl sm:max-w-[15rem]",
+                        room.game_status === "playing" && "mt-2.5"
+                      )}
+                    >
+                      <img
+                        src={roundImageUrl}
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                        className="h-auto max-h-28 w-auto max-w-full rounded-xl object-contain sm:max-h-32"
+                      />
+                    </div>
+                  ) : null}
                   <p
                     className={cn(
-                      "mt-1 w-full text-base sm:text-lg",
+                      "w-full text-center text-base sm:text-lg",
+                      roundImageUrl ? "mt-2" : "mt-1",
                       approxDefinitionLines > 4 ? "leading-tight" : "leading-snug"
                     )}
                   >

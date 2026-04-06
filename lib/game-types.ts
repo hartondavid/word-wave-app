@@ -9,6 +9,8 @@ export interface GameRoom {
 
   current_word: string | null
   current_definition: string | null
+  /** URL imagine pentru runda curentă (categorii cu poze); null dacă nu există. */
+  current_image?: string | null
 
   player1_id: string | null
   player1_name: string | null

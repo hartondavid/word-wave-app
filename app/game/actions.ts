@@ -62,10 +62,14 @@ export async function serverStartNewRound(
   const active = activeSlots(r)
   const roundSeconds = effectiveRoundDurationSeconds(r)
 
+  const imageUrl =
+    word.image != null && String(word.image).trim() !== "" ? String(word.image).trim() : null
+
   const update: Record<string, unknown> = {
     language: playLang,
     current_word: word.word,
     current_definition: word.definition,
+    current_image: imageUrl,
     player1_progress: active.includes(1) ? init : null,
     player2_progress: active.includes(2) ? init : null,
     player1_ready: false,
@@ -117,6 +121,17 @@ export async function serverStartNewRound(
         round_end_reason: _r,
         ...rest
       } = payload
+      payload = rest
+      const retry = await supabase.from("game_rooms").update(payload).eq("room_code", code)
+      upErr = retry.error
+    }
+  }
+
+  // DB fără `011_add_current_image.sql`
+  if (upErr) {
+    const msg = (upErr.message ?? "").toLowerCase()
+    if (msg.includes("current_image")) {
+      const { current_image: _img, ...rest } = payload
       payload = rest
       const retry = await supabase.from("game_rooms").update(payload).eq("room_code", code)
       upErr = retry.error
