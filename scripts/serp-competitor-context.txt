@@ -1,6 +1,3 @@
-WordWave - Multiplayer Word Guessing Game | wordwave.live
-Fast head‑to‑head word guessing against live players. [web:5]
-
 WordWave – English Learning + Word Games (Google Play)
 Learn English through fun word games and mini‑lessons. [web:11]
 
