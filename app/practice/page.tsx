@@ -35,14 +35,14 @@ import {
   applySpeechRecognitionResultToProgress,
   speechLocaleForRoundLanguage,
 } from "@/lib/speech-word-match"
-import type { CategoryKey } from "@/lib/game-types"
+import type { CategoryKey, CategoryPresetId } from "@/lib/game-types"
 import { CATEGORIES } from "@/lib/game-types"
 import { currentLocaleFromPathname } from "@/lib/locale-switch-paths"
 import { categoryTitleForLocale } from "@/lib/home-play-form-strings"
 import { gameUiStrings } from "@/lib/game-ui-strings"
 import { speechUiStrings } from "@/lib/speech-ui-strings"
 import { ArrowLeft, RotateCcw, Trophy, Mic } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn, focusWithoutScroll } from "@/lib/utils"
 import Confetti from "react-confetti"
 import { LetterCellDelayBorder } from "@/components/letter-cell-delay-border"
 import {
@@ -53,6 +53,7 @@ import { CorrectLetterChar, useCorrectLetterFx } from "@/components/correct-lett
 import { LetterSoundToggle } from "@/components/letter-sound-toggle"
 import { AmbientWavesToggle } from "@/components/ambient-waves-toggle"
 import { FinishedPlayerScoreRow } from "@/components/game-finished-score-row"
+import { useSyncGameViewportHeight } from "@/hooks/use-sync-game-viewport-height"
 
 const PRACTICE_TIMER_SECONDS_OPTIONS = [30, 60] as const
 type PracticeTimerSeconds = (typeof PRACTICE_TIMER_SECONDS_OPTIONS)[number]
@@ -82,6 +83,7 @@ type PracticeSessionSnapshot = {
   wordLength: number
   category: string
   language: string
+  category_preset?: CategoryPresetId
   roundTimerSeconds?: number
   hintLettersRemaining?: number
 }
@@ -109,6 +111,7 @@ export default function PracticePage() {
   const [playerName, setPlayerName] = useState("")
   /** Fixed defaults on first paint so SSR HTML matches the client (prefs applied in bootstrap effect). */
   const [category, setCategory] = useState("general")
+  const [categoryPreset, setCategoryPreset] = useState<CategoryPresetId>("definitions")
   const [language, setLanguage] = useState("en")
   const [totalRounds, setTotalRounds] = useState(10)
   /** Definition + length for UI; `answerWordRef` holds the word for instant local typing (server cookie still used on finalize). */
@@ -143,6 +146,7 @@ export default function PracticePage() {
   // Letters auto-revealed when time expires (shown in red)
   const [revealProgress, setRevealProgress] = useState("")
   const hiddenInputRef = useRef<HTMLInputElement>(null)
+  const gameShellRef = useRef<HTMLElement>(null)
   const wordMaskRef = useRef<HTMLDivElement>(null)
   const progressRef = useRef("")
   const shakeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -168,7 +172,7 @@ export default function PracticePage() {
   const [hintLettersRemaining, setHintLettersRemaining] = useState(PRACTICE_HINT_LETTERS_PER_ROUND)
   const hintLettersRemainingRef = useRef(PRACTICE_HINT_LETTERS_PER_ROUND)
   const restoreTypingFocus = useCallback(() => {
-    hiddenInputRef.current?.focus()
+    focusWithoutScroll(hiddenInputRef.current)
   }, [])
   const {
     cellBursts: correctLetterBursts,
@@ -224,11 +228,13 @@ export default function PracticePage() {
     async (
       overrideCategory?: string,
       overrideLanguage?: string,
-      overrideTimerSeconds?: PracticeTimerSeconds
+      overrideTimerSeconds?: PracticeTimerSeconds,
+      overridePreset?: CategoryPresetId
     ) => {
     const cat = overrideCategory ?? category
     const lang = overrideLanguage ?? language
     const roundDuration = overrideTimerSeconds ?? practiceTimerSeconds
+    const preset = overridePreset ?? categoryPreset
     try {
       sessionStorage.removeItem(PRACTICE_SESSION_KEY)
     } catch {
@@ -237,7 +243,7 @@ export default function PracticePage() {
     setGameStatus("loading")
     resetCorrectLetterFx()
     answerWordRef.current = ""
-    const meta = await startPracticeRound(cat, lang)
+    const meta = await startPracticeRound(cat, lang, preset)
     answerWordRef.current = meta.word
     setRoundMeta({
       definition: meta.definition,
@@ -263,7 +269,7 @@ export default function PracticePage() {
     roundConcludedRef.current = false
     setGameStatus("playing")
   },
-    [category, language, practiceTimerSeconds, resetCorrectLetterFx]
+    [category, categoryPreset, language, practiceTimerSeconds, resetCorrectLetterFx]
   )
 
   useEffect(() => {
@@ -318,6 +324,9 @@ export default function PracticePage() {
   useEffect(() => {
     const cat = readStoredField("category", "general")
     const lang = readStoredField("language", "en")
+    const presetRaw = readStoredField<string>("category_preset", "definitions")
+    const preset: CategoryPresetId = presetRaw === "images" ? "images" : "definitions"
+    setCategoryPreset(preset)
     const maxR = readStoredField("max_rounds", 10)
     const timerSec = normalizePracticeTimerSeconds(
       readStoredField("practice_round_seconds", DEFAULT_PRACTICE_TIMER_SECONDS)
@@ -346,6 +355,7 @@ export default function PracticePage() {
         stored.wordLength === resume.wordLength &&
         stored.category === cat &&
         stored.language === lang &&
+        (stored.category_preset ?? "definitions") === preset &&
         typeof stored.progress === "string" &&
         stored.progress.length === resume.wordLength
       ) {
@@ -376,7 +386,7 @@ export default function PracticePage() {
         setGameStatus("playing")
         return
       }
-      await loadNewWord(cat, lang, timerSec)
+      await loadNewWord(cat, lang, timerSec, preset)
     })()
     return () => {
       cancelled = true
@@ -395,6 +405,7 @@ export default function PracticePage() {
         wordLength: roundMeta.wordLength,
         category,
         language,
+        category_preset: categoryPreset,
         roundTimerSeconds: practiceTimerSeconds,
         hintLettersRemaining,
       }
@@ -410,6 +421,7 @@ export default function PracticePage() {
     round,
     score,
     category,
+    categoryPreset,
     language,
     practiceTimerSeconds,
     hintLettersRemaining,
@@ -771,7 +783,7 @@ export default function PracticePage() {
   // Auto-focus hidden input when round starts (shows mobile keyboard), blur when it ends
   useEffect(() => {
     if (gameStatus === "playing") {
-      queueMicrotask(() => hiddenInputRef.current?.focus())
+      queueMicrotask(() => focusWithoutScroll(hiddenInputRef.current))
     } else {
       hiddenInputRef.current?.blur()
     }
@@ -789,6 +801,8 @@ export default function PracticePage() {
     vv.addEventListener("resize", onResize)
     return () => vv.removeEventListener("resize", onResize)
   }, [])
+
+  useSyncGameViewportHeight(gameShellRef, gameStatus !== "finished")
 
   useEffect(() => {
     if (gameStatus !== "playing" || !roundMeta) return
@@ -897,9 +911,10 @@ export default function PracticePage() {
 
   return (
     <main
+      ref={gameShellRef}
       id="main-content"
       className={cn(
-        "relative h-dvh flex flex-col overflow-hidden bg-gradient-to-b from-background to-secondary/30 outline-none",
+        "relative h-dvh max-h-dvh min-h-0 flex flex-col overflow-y-auto overflow-x-hidden bg-gradient-to-b from-background to-secondary/30 outline-none scrollbar-none",
         isShaking && "animate-[shake_0.3s_ease-in-out]"
       )}
       tabIndex={0}
@@ -914,7 +929,7 @@ export default function PracticePage() {
       {showConfetti && <Confetti recycle={false} numberOfPieces={500} />}
 
       {/* Sticky top bar — same grid + player row pattern as multiplayer (scores not in header) */}
-      <div className="sticky top-0 z-20 border-b border-border/60 bg-background/90 shadow-[0_1px_0_hsl(var(--border)/0.35)] backdrop-blur-md supports-[backdrop-filter]:bg-background/80">
+      <div className="sticky top-0 z-20 shrink-0 border-b border-border/60 bg-background/90 shadow-[0_1px_0_hsl(var(--border)/0.35)] backdrop-blur-md supports-[backdrop-filter]:bg-background/80">
         <div className="mx-auto flex w-full max-w-2xl flex-col gap-2.5 px-3 pt-2.5 pb-2 sm:px-4 sm:pt-3 sm:pb-2.5">
           <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-x-2 sm:gap-x-3">
             <div className="flex min-w-0 justify-start">
@@ -984,11 +999,11 @@ export default function PracticePage() {
         </div>
       </div>
 
-      {/* Main content — tap anywhere to re-focus keyboard on iOS */}
+      {/* Conținut: fără scroll propriu — scroll unic pe <main> (Safari / tastatură). */}
       <div
-        className="mx-auto flex w-full max-w-2xl flex-1 min-h-0 flex-col items-stretch justify-start gap-5 overflow-y-auto overflow-x-hidden px-4 pb-6 pt-2 scrollbar-none"
+        className="mx-auto flex w-full max-w-2xl flex-col items-stretch justify-start gap-5 px-4 pb-6 pt-2"
         onClick={() => {
-          if (gameStatus === "playing") hiddenInputRef.current?.focus()
+          if (gameStatus === "playing") focusWithoutScroll(hiddenInputRef.current)
         }}
       >
 

@@ -1,10 +1,15 @@
 export type PlayerSlot = 1 | 2 | 3 | 4
 
+/** Preset listă categorii (home / cameră): definiții vs. poze. */
+export type CategoryPresetId = "definitions" | "images"
+
 export interface GameRoom {
   id: string
   room_code: string
   max_players: number
   category?: string | null
+  /** Mod listă categorii la creare: `images` → „Toate” trage doar din `data/categories/images/`. */
+  category_preset?: CategoryPresetId | null
   language?: string | null
 
   current_word: string | null
@@ -142,9 +147,6 @@ export const CATEGORY_IMAGE_FILE_KEYS = [
 ] as const satisfies readonly CategoryKey[]
 export type CategoryImageFileKey = (typeof CATEGORY_IMAGE_FILE_KEYS)[number]
 
-/** Preset pe formularul principal: definiții (fără „Animale” imagine-only) vs. categorii cu poze. */
-export type CategoryPresetId = "definitions" | "images"
-
 /**
  * 20 categorii pentru modul definiții: Toate + 19 tematice (fără `animals`, `foods`, `hobbies` — axate pe imagini).
  * Fără `persoana` pentru a păstra exact 20 intrări în listă.
@@ -190,6 +192,19 @@ export function categoryKeysForPreset(preset: CategoryPresetId): CategoryKey[] {
 
 // All specific category keys (excludes 'general')
 export const SPECIFIC_CATEGORIES = Object.keys(CATEGORIES).filter(k => k !== 'general') as Exclude<CategoryKey, 'general'>[]
+
+/**
+ * Pool pentru categoria „Toate” (`general`): în modul poze, doar fișiere `images/`;
+ * altfel toate categoriile specifice (comportament clasic).
+ */
+export function categoryKeysForRandomGeneral(
+  preset: CategoryPresetId | null | undefined
+): Exclude<CategoryKey, "general">[] {
+  if (preset === "images") {
+    return [...CATEGORY_IMAGE_FILE_KEYS]
+  }
+  return [...SPECIFIC_CATEGORIES]
+}
 
 /** Toți jucătorii activi au fost eliminați la microfon (cuvânt greșit) în runda curentă. */
 export function allActivePlayersSpeechEliminated(room: GameRoom): boolean {

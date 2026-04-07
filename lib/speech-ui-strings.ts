@@ -53,7 +53,7 @@ export function speechUiStrings(lang: SpeechUiLang): SpeechUiStrings {
       practiceHintPlaying:
         "Taste pentru litere sau microfonul pentru cuvântul întreg (nu o singură literă).",
       practiceHintNoMic: "Folosește tastele pentru a completa cuvântul.",
-      practiceWonRound: "Ai câștigat runda!",
+      practiceWonRound: "Ai câștigat!",
       practiceTimeUp: "Timpul a expirat!",
       practiceWrongWord: "Răspuns greșit la microfon — cuvântul a fost afișat.",
       practiceNextRound: "Runda următoare",

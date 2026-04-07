@@ -6,7 +6,13 @@ import { usePathname, useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { getClearSlotPayload, patchClearPlayerSlotKeepalive } from "@/lib/supabase/clear-player-slot-keepalive"
 import { deleteGameRoomRow } from "@/lib/supabase/delete-game-room"
-import type { GameRoom, PlayerSlot, CategoryKey, LanguageKey } from "@/lib/game-types"
+import type {
+  CategoryPresetId,
+  GameRoom,
+  PlayerSlot,
+  CategoryKey,
+  LanguageKey,
+} from "@/lib/game-types"
 import {
   ROUND_DURATION,
   WIN_SCORE,
@@ -64,11 +70,12 @@ import {
   LetterHistoryToggleButton,
 } from "@/components/letter-history-over-timer"
 import { Spinner } from "@/components/ui/spinner"
-import { cn } from "@/lib/utils"
+import { cn, focusWithoutScroll } from "@/lib/utils"
 import { Copy, Check, Timer, Trophy, ArrowLeft, AlertCircle, Mic, Link2 } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
 import Confetti from "react-confetti"
 import { FinishedPlayerScoreRow } from "@/components/game-finished-score-row"
+import { useSyncGameViewportHeight } from "@/hooks/use-sync-game-viewport-height"
 
 interface PlayerInfo {
   id: string
@@ -78,6 +85,8 @@ interface PlayerInfo {
   /** Set by host on create — used to patch DB if language/category didn’t persist. */
   language?: LanguageKey
   category?: CategoryKey
+  /** Mod listă (poze vs definiții) — „Toate” + images = doar JSON-uri cu poze. */
+  category_preset?: CategoryPresetId
   /** Same key as practice/home: hint button in rounds (default off if missing). */
   practice_hints_enabled?: boolean
 }
@@ -220,6 +229,7 @@ export default function GamePage({ params }: GamePageProps) {
   const prevProgressRef = useRef<Record<number, string>>({})
   const startGameRef = useRef(false)
   const hiddenInputRef = useRef<HTMLInputElement>(null)
+  const gameShellRef = useRef<HTMLElement>(null)
   const wordMaskRef = useRef<HTMLDivElement>(null)
   // Local progress ref to avoid race condition on rapid key presses
   const localProgressRef = useRef<string | null>(null)
@@ -240,7 +250,7 @@ export default function GamePage({ params }: GamePageProps) {
   const [typedLetterHistory, setTypedLetterHistory] = useState<string[]>([])
   const [letterHistoryOpen, setLetterHistoryOpen] = useState(false)
   const restoreTypingFocus = useCallback(() => {
-    hiddenInputRef.current?.focus()
+    focusWithoutScroll(hiddenInputRef.current)
   }, [])
   const {
     cellBursts: correctLetterBursts,
@@ -392,7 +402,7 @@ export default function GamePage({ params }: GamePageProps) {
       .then(({ data }) => { if (data) setRoom(data); setIsLoading(false) })
   }, [roomCode, supabase])
 
-  // Gazdă: dacă în DB lipsește limba/categoria sau diferă de ce a ales la creare, reparăm înainte de start.
+  // Gazdă: dacă în DB lipsește limba/categoria/category_preset sau diferă de localStorage, reparăm în lobby.
   useEffect(() => {
     if (!room || !playerInfo || playerInfo.playerSlot !== 1) return
     if (room.game_status !== "waiting") return
@@ -403,19 +413,31 @@ export default function GamePage({ params }: GamePageProps) {
       ? languageForMultiplayerRoom(playerInfo.language)
       : undefined
     const wantCat = playerInfo.category
-    if (!wantLang && !wantCat) return
+    const wantPreset: CategoryPresetId | undefined =
+      playerInfo.category_preset === "images" || playerInfo.category_preset === "definitions"
+        ? playerInfo.category_preset
+        : undefined
+
+    if (!wantLang && !wantCat && wantPreset === undefined) return
 
     const roomLang = languageForMultiplayerRoom(room.language)
     const roomCat = (room.category ?? "").toString().trim()
+    const roomPreset: CategoryPresetId | undefined =
+      room.category_preset === "images" || room.category_preset === "definitions"
+        ? room.category_preset
+        : undefined
+
     const langOk = !wantLang || roomLang === wantLang
     const catOk = !wantCat || roomCat === wantCat
-    if (langOk && catOk) {
+    const presetOk = wantPreset === undefined || roomPreset === wantPreset
+    if (langOk && catOk && presetOk) {
       hostRoomPrefsSyncedRef.current = true
       return
     }
 
     const langMismatch = !!(wantLang && roomLang !== wantLang)
     const catMismatch = !!(wantCat && roomCat !== wantCat)
+    const presetMismatch = !!(wantPreset !== undefined && roomPreset !== wantPreset)
 
     hostLobbySyncInFlightRef.current = true
     void (async () => {
@@ -437,12 +459,41 @@ export default function GamePage({ params }: GamePageProps) {
             return
           }
         }
+        if (presetMismatch && wantPreset) {
+          const { error: presetErr } = await supabase
+            .from("game_rooms")
+            .update({ category_preset: wantPreset })
+            .eq("room_code", roomCode)
+          if (presetErr) {
+            console.warn("Host category_preset sync:", presetErr.message)
+            return
+          }
+        }
         hostRoomPrefsSyncedRef.current = true
       } finally {
         hostLobbySyncInFlightRef.current = false
       }
     })()
   }, [room, playerInfo, roomCode, supabase])
+
+  /** Invitați: aliniază category_preset din rândul camerei în state + localStorage (pentru hint la start rundă). */
+  useEffect(() => {
+    if (!room || !playerInfo) return
+    const rp = room.category_preset
+    if (rp !== "images" && rp !== "definitions") return
+    if (playerInfo.category_preset === rp) return
+    const next = { ...playerInfo, category_preset: rp }
+    setPlayerInfo(next)
+    try {
+      const raw = localStorage.getItem("wordmatch_player")
+      if (!raw) return
+      const o = JSON.parse(raw) as Record<string, unknown>
+      o.category_preset = rp
+      localStorage.setItem("wordmatch_player", JSON.stringify(o))
+    } catch {
+      /* ignore */
+    }
+  }, [room, playerInfo])
 
   useEffect(() => {
     const ch = supabase
@@ -841,7 +892,7 @@ export default function GamePage({ params }: GamePageProps) {
       return
     }
     if (room?.game_status === "playing") {
-      queueMicrotask(() => hiddenInputRef.current?.focus())
+      queueMicrotask(() => focusWithoutScroll(hiddenInputRef.current))
     } else {
       hiddenInputRef.current?.blur()
     }
@@ -1195,7 +1246,14 @@ export default function GamePage({ params }: GamePageProps) {
         ? String(playerInfo.language).trim()
         : ""
     const languageHint = rowLang !== "" ? rowLang : lsLang !== "" ? lsLang : undefined
-    const result = await serverStartNewRound(roomCode, languageHint)
+    const rowHasPreset =
+      room.category_preset === "images" || room.category_preset === "definitions"
+    const piPreset =
+      playerInfo?.category_preset === "images" || playerInfo?.category_preset === "definitions"
+        ? playerInfo.category_preset
+        : undefined
+    const categoryPresetHint = rowHasPreset ? undefined : piPreset
+    const result = await serverStartNewRound(roomCode, languageHint, categoryPresetHint)
     if (!result.ok) {
       console.error("startNewRound:", result.error)
     }
@@ -1300,6 +1358,12 @@ export default function GamePage({ params }: GamePageProps) {
     router.push(homePath)
   }
 
+  const syncGamePlayViewport =
+    !!room &&
+    !!playerInfo &&
+    (room.game_status === "playing" || room.game_status === "round_end")
+  useSyncGameViewportHeight(gameShellRef, syncGamePlayViewport)
+
   // ── render helpers ─────────────────────────────────────────────────────────
 
   function renderTopTransientNoticeBanner() {
@@ -1337,7 +1401,8 @@ export default function GamePage({ params }: GamePageProps) {
     const active = activeSlots(room)
     return (
       <div className="w-full overflow-x-auto overflow-y-visible scrollbar-none py-0.5">
-        <div className="flex gap-1.5 w-max mx-auto px-0.5 items-stretch">
+        <div className="mx-auto flex w-max max-w-full justify-center px-0.5 sm:px-1">
+          <div className="flex w-max items-stretch gap-2 sm:gap-1.5">
           {active.map(slot => {
             const d = slotData(slot, room)
             const isMe = slot === mySlot
@@ -1346,25 +1411,38 @@ export default function GamePage({ params }: GamePageProps) {
               <div
                 key={slot}
                 className={cn(
-                  "flex items-center gap-1.5 px-2 py-1 rounded-lg border-2 transition-all duration-200 box-border",
-                  isMe ? "shadow-sm" : "opacity-65"
+                  "box-border flex items-center gap-2 rounded-xl border-2 px-2.5 py-1.5 transition-all duration-200 sm:px-3 sm:py-2",
+                  isMe
+                    ? "shadow-sm ring-1 ring-black/[0.06] dark:ring-white/[0.08]"
+                    : "opacity-65 ring-1 ring-transparent"
                 )}
                 style={{
                   borderColor: isMe ? color : "transparent",
                   background: `${color}${isMe ? "18" : "08"}`,
                 }}
               >
-                <div className="size-2 rounded-full shrink-0" style={{ background: color }} />
-                <div className="min-w-0">
-                  <p className="font-bold text-xs leading-tight truncate max-w-[72px]">
+                <div
+                  className="size-2 shrink-0 rounded-full sm:size-2.5"
+                  style={{ background: color }}
+                />
+                <div className="min-w-0 text-left">
+                  <p className="max-w-[min(12rem,70vw)] truncate text-xs font-bold leading-tight sm:max-w-[14rem] sm:text-sm">
                     {d.name ?? ui.playerFallback(slot)}
-                    {isMe && <span className="font-normal text-[10px] text-muted-foreground">{ui.youParen}</span>}
+                    {isMe && (
+                      <span className="font-normal text-[10px] text-muted-foreground sm:text-xs">{ui.youParen}</span>
+                    )}
                   </p>
-                  <p className="text-[10px] font-bold leading-tight" style={{ color }}>{d.score} {ui.pts}</p>
+                  <p
+                    className="text-[10px] font-bold tabular-nums leading-tight sm:text-xs"
+                    style={{ color }}
+                  >
+                    {d.score} {ui.pts}
+                  </p>
                 </div>
               </div>
             )
           })}
+          </div>
         </div>
       </div>
     )
@@ -1879,9 +1957,10 @@ export default function GamePage({ params }: GamePageProps) {
 
   return (
     <main
+      ref={gameShellRef}
       id="main-content"
       className={cn(
-        "relative h-dvh flex flex-col overflow-hidden bg-gradient-to-b from-background to-secondary/30 outline-none",
+        "relative h-dvh max-h-dvh min-h-0 flex flex-col overflow-y-auto overflow-x-hidden bg-gradient-to-b from-background to-secondary/30 outline-none scrollbar-none",
         isShaking && "animate-[shake_0.3s_ease-in-out]"
       )}
       tabIndex={0}
@@ -1897,46 +1976,59 @@ export default function GamePage({ params }: GamePageProps) {
         <Confetti recycle={false} numberOfPieces={300} />
       )}
 
-      {/* Sticky top bar */}
-      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b px-4 pt-3 pb-2 space-y-2">
-        {/* Row: Exit · Round+Category · Timer */}
-        <div className="flex items-center justify-between">
-          <Button variant="ghost" size="sm" className="h-8 px-2" onClick={() => void handleExitRoom()}>
-            <ArrowLeft className="w-4 h-4 mr-1" />{ui.exit}
-          </Button>
-          <div className="flex flex-col items-center gap-0">
-            <span className="text-sm font-semibold text-muted-foreground tabular-nums">
-              {ui.roundProgress(room.current_round, room.total_rounds ?? TOTAL_ROUNDS)}
-            </span>
-            {room.category && CATEGORIES[room.category as CategoryKey] && (
-              <div className="flex items-center gap-1 text-xs leading-tight text-muted-foreground/70 max-w-[min(12rem,55vw)] justify-center">
-                <span className="text-xs leading-none shrink-0 inline-block" aria-hidden>
-                  {CATEGORIES[room.category as CategoryKey].emoji}
-                </span>
-                <span className="truncate">
-                  {categoryTitleForLocale(room.category as CategoryKey, siteLocale === "ro" ? "ro" : "en")}
-                </span>
-              </div>
-            )}
+      {/* Sticky top bar — același grid + stil ca practice (Exit | centru | sunet/ambient) */}
+      <div className="sticky top-0 z-20 shrink-0 border-b border-border/60 bg-background/90 shadow-[0_1px_0_hsl(var(--border)/0.35)] backdrop-blur-md supports-[backdrop-filter]:bg-background/80">
+        <div className="mx-auto flex w-full max-w-2xl flex-col gap-2.5 px-3 pt-2.5 pb-2 sm:px-4 sm:pt-3 sm:pb-2.5">
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-x-2 sm:gap-x-3">
+            <div className="flex min-w-0 justify-start">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="-ml-1.5 h-9 shrink-0 px-2 text-muted-foreground hover:text-foreground sm:-ml-1 sm:h-8"
+                onClick={() => void handleExitRoom()}
+              >
+                <ArrowLeft className="mr-1 size-4 shrink-0" aria-hidden />
+                {ui.exit}
+              </Button>
+            </div>
+            <div className="flex min-w-0 max-w-[min(16rem,52vw)] flex-col items-center gap-1 text-center sm:max-w-xs">
+              <span className="text-sm font-semibold tabular-nums tracking-tight text-foreground sm:text-base">
+                {ui.roundProgress(room.current_round, room.total_rounds ?? TOTAL_ROUNDS)}
+              </span>
+              {room.category && CATEGORIES[room.category as CategoryKey] && (
+                <div
+                  className="inline-flex max-w-full items-center gap-1 rounded-full border border-border/40 bg-muted/50 px-2.5 py-0.5 text-[11px] leading-tight text-muted-foreground sm:text-xs"
+                  title={categoryTitleForLocale(room.category as CategoryKey, siteLocale === "ro" ? "ro" : "en")}
+                  suppressHydrationWarning
+                >
+                  <span className="shrink-0 text-[13px] leading-none sm:text-sm" aria-hidden>
+                    {CATEGORIES[room.category as CategoryKey].emoji}
+                  </span>
+                  <span className="min-w-0 truncate font-medium">
+                    {categoryTitleForLocale(room.category as CategoryKey, siteLocale === "ro" ? "ro" : "en")}
+                  </span>
+                </div>
+              )}
+            </div>
+            <div className="flex min-w-0 items-center justify-end gap-1 sm:gap-1.5">
+              <AmbientWavesToggle />
+              <LetterSoundToggle />
+            </div>
           </div>
-          <div className="flex min-w-[5.25rem] flex-wrap items-center justify-end gap-1 sm:min-w-0">
-            <AmbientWavesToggle />
-            <LetterSoundToggle />
-          </div>
+
+          {/* Player row — același spațiere ca practice */}
+          {renderPlayerTopBar()}
+
+          {renderTopTransientNoticeBanner()}
         </div>
-
-        {/* Player top bar */}
-        {renderPlayerTopBar()}
-
-        {renderTopTransientNoticeBanner()}
       </div>
 
-      {/* Main content */}
+      {/* Conținut: scroll unic pe <main> (tastatură / browsere non-Chrome). */}
       <div
-        className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-none flex flex-col items-stretch justify-start px-4 pt-2 pb-6 max-w-2xl mx-auto w-full gap-5"
+        className="flex w-full max-w-2xl flex-col items-stretch justify-start gap-5 px-4 pt-2 pb-6 mx-auto"
         onClick={() => {
           if (!isRoundEnd && !roundEliminated && !allPlayersSpeechWrongReveal) {
-            hiddenInputRef.current?.focus()
+            focusWithoutScroll(hiddenInputRef.current)
           }
         }}
       >

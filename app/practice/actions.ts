@@ -9,6 +9,7 @@ import {
   isValidProgressAgainstWord,
 } from "@/lib/server/practice-session"
 import { isWordComplete } from "@/lib/words"
+import type { CategoryPresetId } from "@/lib/game-types"
 
 export type PracticeRoundPublic = {
   definition: string
@@ -64,9 +65,10 @@ export async function tryResumePracticeSession(): Promise<PracticeRoundPublic | 
 /** Start round: stores answer in httpOnly cookie; response has no `word`. */
 export async function startPracticeRound(
   category: string,
-  language: string
+  language: string,
+  categoryPreset?: CategoryPresetId | null
 ): Promise<PracticeRoundPublic> {
-  const pair = await resolveWordPairForRound(category || null, language)
+  const pair = await resolveWordPairForRound(category || null, language, categoryPreset ?? null)
   const sealed = sealPracticeRound(pair.word, pair.definition, pair.image ?? null)
   const store = await cookies()
   store.set(COOKIE_NAME, sealed, practiceCookieOptions())

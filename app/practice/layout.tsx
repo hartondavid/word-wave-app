@@ -1,5 +1,10 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { alternatesEnCanonical } from "@/lib/seo-alternates"
+
+/** Aliniază comportamentul tastaturii cu Chrome (redimensionare conținut). */
+export const viewport: Viewport = {
+  interactiveWidget: "resizes-content",
+}
 
 export const metadata: Metadata = {
   title: "Practice",

@@ -1,5 +1,9 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { alternatesRoCanonical } from "@/lib/seo-alternates"
+
+export const viewport: Viewport = {
+  interactiveWidget: "resizes-content",
+}
 
 export const metadata: Metadata = {
   title: "Practice",

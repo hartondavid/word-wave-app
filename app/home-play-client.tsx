@@ -259,10 +259,17 @@ export function HomePlayClient() {
         total_rounds: maxRounds,
       }
 
-      const OPTIONAL_COLUMNS = ["language", "category", "max_players", "round_duration_seconds"] as const
+      const OPTIONAL_COLUMNS = [
+        "language",
+        "category",
+        "category_preset",
+        "max_players",
+        "round_duration_seconds",
+      ] as const
       const optionalValues: Record<string, unknown> = {
         max_players: maxPlayers,
         category: selectedCategory,
+        category_preset: categoryPreset,
         language: roomLanguage,
         round_duration_seconds: practiceRoundSeconds,
       }
@@ -295,6 +302,7 @@ export function HomePlayClient() {
         .update({
           language: roomLanguage,
           category: selectedCategory,
+          category_preset: categoryPreset,
           max_players: maxPlayers,
           round_duration_seconds: practiceRoundSeconds,
         })
@@ -315,6 +323,7 @@ export function HomePlayClient() {
         playerSlot: 1,
         language: roomLanguage,
         category: selectedCategory,
+        category_preset: categoryPreset,
         practice_hints_enabled: practiceHintsEnabled,
       }))
       router.push(formLocale === "ro" ? `/ro/game/${newRoomCode}` : `/game/${newRoomCode}`)
@@ -398,11 +407,16 @@ export function HomePlayClient() {
         return
       }
 
+      const jp = (room as { category_preset?: string | null }).category_preset
+      const categoryPreset: CategoryPresetId | undefined =
+        jp === "images" || jp === "definitions" ? jp : undefined
+
       localStorage.setItem("wordmatch_player", JSON.stringify({
         id: playerId,
         name: playerName.trim(),
         roomCode: upperCode,
         playerSlot,
+        ...(categoryPreset != null ? { category_preset: categoryPreset } : {}),
         practice_hints_enabled: practiceHintsEnabled,
       }))
       router.push(formLocale === "ro" ? `/ro/game/${upperCode}` : `/game/${upperCode}`)
@@ -458,11 +472,7 @@ export function HomePlayClient() {
           {activeTab === "create" && (
             <div className="space-y-3">
               <div className="space-y-2">
-                <label htmlFor="categorySelect" className="text-sm font-medium">
-                  {t.category}
-                </label>
-                
-                <div className="flex w-full flex-col gap-2 sm:flex-row">
+              <div className="flex w-full flex-col gap-2 sm:flex-row">
                   <Button
                     type="button"
                     variant="outline"
@@ -492,6 +502,11 @@ export function HomePlayClient() {
                     {t.categoryPresetImages}
                   </Button>
                 </div>
+                <label htmlFor="categorySelect" className="text-sm font-medium">
+                  {t.category}
+                </label>
+                
+             
               </div>
               <select
                 id="categorySelect"

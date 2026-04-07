@@ -21,6 +21,10 @@ După extragerea TITLE_LINE/DESC_LINE, scriptul compară titlul și descrierea E
 deja din content/en/*.md (similitudine SequenceMatcher, prag implicit 0.5 = 50%).
 Peste prag: apeluri Gemini pentru titlu / descriere noi. Variabilă: BLOG_META_SIMILARITY_THRESHOLD.
 Pentru descriere, se verifică și similitudinea corpului articolului față de corpurile existente.
+
+Context concurență / SERP (opțional): dacă există scripts/serp-competitor-context.txt
+(sau calea din GEMINI_SERP_CONTEXT_FILE), conținutul e adăugat la prompt ca „ce să nu copiezi”.
+Liniile care încep cu # sunt ignorate. Vezi scripts/serp-competitor-context.example.txt.
 """
 
 from __future__ import annotations
@@ -62,6 +66,50 @@ _model_chain_cache: list[str] | None = None
 
 keywords_en = ["daily word puzzle", "brain teaser", "vocabulary game"]
 keywords_ro = ["puzzle zilnic cuvinte", "joc de vocabular", "antrenament minte"]
+
+_SERP_CONTEXT_MAX_CHARS = 4000
+
+
+def load_serp_competitor_context(root: Path) -> tuple[str, Path | None]:
+    """
+    Încarcă titluri/snippet-uri din SERP (un fișier text). Gol dacă fișierul lipsește.
+    Returnează (text, path_rezolvat) — path e setat și când fișierul există dar e gol după #.
+    """
+    override = (os.getenv("GEMINI_SERP_CONTEXT_FILE") or "").strip()
+    if override:
+        p = Path(override)
+        if not p.is_absolute():
+            p = (root / p).resolve()
+    else:
+        p = (root / "scripts" / "serp-competitor-context.txt").resolve()
+    if not p.is_file():
+        return "", None
+    raw = p.read_text(encoding="utf-8", errors="replace")
+    lines: list[str] = []
+    for ln in raw.splitlines():
+        if ln.lstrip().startswith("#"):
+            continue
+        lines.append(ln)
+    body = "\n".join(lines).strip()
+    if not body:
+        return "", p
+    if len(body) > _SERP_CONTEXT_MAX_CHARS:
+        body = body[:_SERP_CONTEXT_MAX_CHARS].rstrip() + "\n[… truncated for prompt size]"
+    return body, p
+
+
+def _serp_context_prompt_block(serp_context: str) -> str:
+    s = serp_context.strip()
+    if not s:
+        return ""
+    return f"""
+Competitor / SERP reference (from real search results for your target queries). Do NOT copy
+their titles, openings, or H2 patterns. Pick a different angle, concrete hooks, and section themes
+that would stand out next to these:
+---
+{s}
+---
+"""
 
 _GEN_CONFIG = types.GenerateContentConfig(max_output_tokens=8192)
 # Un răspuns = EN + RO (~2× articol); fără response_json_schema (text liber cu markeri).
@@ -118,30 +166,60 @@ def _model_chain() -> list[str]:
     return out
 
 
-def _should_try_next_model(exc: errors.ClientError) -> bool:
+def _http_status(exc: BaseException) -> int | None:
+    for name in ("code", "status_code", "status"):
+        v = getattr(exc, name, None)
+        if isinstance(v, int):
+            return v
+    return None
+
+
+def _should_try_next_model(exc: BaseException) -> bool:
     """401/403 = cheie sau permisiuni — schimbarea modelului nu ajută."""
-    c = getattr(exc, "code", None)
+    c = _http_status(exc)
     if c in (401, 403):
         return False
     return True
 
 
-def _retry_sleep_seconds(exc: BaseException) -> float:
+# 429 cotă; 502/503/504 și UNAVAILABLE Gemini (cerere mare) — merită backoff + alt model.
+_RETRYABLE_HTTP: frozenset[int] = frozenset({429, 502, 503, 504})
+
+
+def _gemini_retry_exception_types() -> tuple[type, ...]:
+    types_list: list[type] = [errors.ClientError]
+    se = getattr(errors, "ServerError", None)
+    if se is not None and isinstance(se, type):
+        types_list.append(se)
+    return tuple(types_list)
+
+
+_GEMINI_RETRY_EXC: tuple[type, ...] = _gemini_retry_exception_types()
+
+
+def _retry_sleep_seconds(exc: BaseException, attempt: int) -> float:
     m = re.search(r"retry in ([\d.]+)\s*s", str(exc), re.IGNORECASE)
     if m:
         return min(float(m.group(1)) + 3.0, 180.0)
-    return 45.0
+    code = _http_status(exc)
+    if code == 503:
+        return min(18.0 + attempt * 14.0, 120.0)
+    if code == 429:
+        return 45.0
+    if code in (502, 504):
+        return min(12.0 + attempt * 10.0, 90.0)
+    return 40.0
 
 
 def generate_with_retry(
     model_id: str,
     prompt: str,
     *,
-    max_attempts: int = 8,
+    max_attempts: int = 10,
     what: str = "generate_content",
     gen_config: types.GenerateContentConfig | dict[str, Any] | None = None,
 ) -> Any:
-    """429 → pauză și reîncearcă. Alte ClientError → propagă imediat."""
+    """429 / 503 / 502 / 504 → pauză și reîncearcă; altfel propagă."""
     cfg: types.GenerateContentConfig | dict[str, Any] = (
         gen_config if gen_config is not None else _GEN_CONFIG
     )
@@ -153,14 +231,15 @@ def generate_with_retry(
                 contents=prompt,
                 config=cfg,
             )
-        except errors.ClientError as e:
+        except _GEMINI_RETRY_EXC as e:
             last = e
-            if e.code != 429:
+            code = _http_status(e)
+            if code not in _RETRYABLE_HTTP:
                 raise
-            wait = _retry_sleep_seconds(e)
+            wait = _retry_sleep_seconds(e, attempt)
             print(
-                f"[Gemini] {what} ({model_id}): 429 (încercare {attempt}/{max_attempts}), "
-                f"pauză {wait:.0f}s…",
+                f"[Gemini] {what} ({model_id}): HTTP {code} "
+                f"(încercare {attempt}/{max_attempts}), pauză {wait:.0f}s…",
                 flush=True,
             )
             time.sleep(wait)
@@ -174,7 +253,7 @@ def generate_with_model_fallback(
     *,
     gen_config: types.GenerateContentConfig | dict[str, Any] | None = None,
 ) -> tuple[Any, str]:
-    """Parcurge lanțul de modele la erori ClientError (excl. 401/403), inclusiv după 429 epuizat."""
+    """Parcurge lanțul de modele la erori tranzitorii sau de model (excl. 401/403)."""
     chain = _model_chain()
     if not chain:
         raise SystemExit("Niciun model Gemini configurat.")
@@ -185,12 +264,12 @@ def generate_with_model_fallback(
                 mid, prompt, what=f"{what} [{mid}]", gen_config=gen_config
             )
             return resp, mid
-        except errors.ClientError as e:
+        except _GEMINI_RETRY_EXC as e:
             last_err = e
             if _should_try_next_model(e) and i < len(chain) - 1:
                 nxt = chain[i + 1]
                 print(
-                    f"[Gemini] «{mid}» a eșuat ({getattr(e, 'code', '?')}). Încerc: «{nxt}»…",
+                    f"[Gemini] «{mid}» a eșuat ({_http_status(e) or '?'}). Încerc: «{nxt}»…",
                     flush=True,
                 )
                 continue
@@ -618,19 +697,23 @@ Descriere (EN): {desc_en}
     return sanitize_title_no_dates(title_en)[:200], desc_en[:400]
 
 
-def _gemini_exit(e: errors.ClientError) -> None:
+def _gemini_exit(e: BaseException) -> None:
+    code = _http_status(e)
+    detail = getattr(e, "message", None) or str(e)
     raise SystemExit(
-        f"Gemini a eșuat ({e.code}): {e.message or e}. "
+        f"Gemini a eșuat ({code}): {detail}. "
         f"Lanț încercat: {', '.join(_model_chain())}. "
         "Ajustează GEMINI_MODEL / GEMINI_MODEL_FALLBACK / GEMINI_EXTRA_MODELS "
-        "sau GEMINI_DISCOVER_MODELS=1; verifică cota cheii: "
+        "sau GEMINI_DISCOVER_MODELS=1; la 503 repetă jobul mai târziu. Cote: "
         "https://ai.google.dev/gemini-api/docs/models"
     ) from None
 
 
-_PROMPT_BILINGUAL = f"""
+def build_prompt_bilingual(serp_context: str) -> str:
+    serp = _serp_context_prompt_block(serp_context)
+    return f"""
 Produce ONE response for a word game website (WordWave-style). Exactly two marked sections.
-
+{serp}
 Topic: daily word puzzle / vocabulary and WordWave-style multiplayer tips.
 English keywords (English section only): {", ".join(keywords_en)}.
 English article length: ~900-1200 words of body text.
@@ -664,9 +747,11 @@ DESC_LINE: <Romanian meta description, max ~155 characters>
 """
 
 
-def _prompt_en_only() -> str:
+def build_prompt_en_only(serp_context: str) -> str:
+    serp = _serp_context_prompt_block(serp_context)
     return f"""
 Write a high-quality SEO article in English for a word game website.
+{serp}
 Topic: daily word puzzle / vocabulary and WordWave-style multiplayer tips.
 Target keywords: {", ".join(keywords_en)}.
 Length: 900 to 1200 words.
@@ -773,15 +858,16 @@ def _pipeline_bilingual(
     now: datetime,
     en_dir: Path,
     ro_dir: Path,
+    serp_context: str,
 ) -> tuple[str, str, str, str, tuple[str, str, str, str]]:
     """1 apel Gemini: secțiuni delimitate cu markeri + TITLE_LINE/DESC_LINE în fiecare."""
     try:
         response, active_model = generate_with_model_fallback(
-            _PROMPT_BILINGUAL,
+            build_prompt_bilingual(serp_context),
             "Articol EN+RO (markeri)",
             gen_config=_GEN_CONFIG_BILINGUAL,
         )
-    except errors.ClientError as e:
+    except _GEMINI_RETRY_EXC as e:
         _gemini_exit(e)
     raw = _response_text(response)
     en_text, ro_text = split_bilingual_response(raw)
@@ -848,13 +934,14 @@ def _pipeline_two_step(
     now: datetime,
     en_dir: Path,
     ro_dir: Path,
+    serp_context: str,
 ) -> tuple[str, str, str, str, tuple[str, str, str, str]]:
     """2 apeluri (flux vechi)."""
     try:
         en_response, active_model = generate_with_model_fallback(
-            _prompt_en_only(), "Articol EN"
+            build_prompt_en_only(serp_context), "Articol EN"
         )
-    except errors.ClientError as e:
+    except _GEMINI_RETRY_EXC as e:
         _gemini_exit(e)
     en_text = _response_text(en_response)
     ft_en, fd_en = _fallback_en()
@@ -924,10 +1011,24 @@ def main() -> None:
     en_dir.mkdir(parents=True, exist_ok=True)
     ro_dir.mkdir(parents=True, exist_ok=True)
 
+    serp_ctx, serp_path = load_serp_competitor_context(root)
+    if serp_ctx:
+        rel = serp_path.relative_to(root) if serp_path is not None else "?"
+        print(
+            f"[Gemini] Context SERP/concurență: {len(serp_ctx)} caractere din {rel}",
+            flush=True,
+        )
+    elif serp_path is not None:
+        print(
+            f"[Gemini] Fișier context SERP gol (sau doar comentarii #): "
+            f"{serp_path.relative_to(root)}",
+            flush=True,
+        )
+
     if _env_flag("GEMINI_CONTENT_TWO_STEP"):
         print("[Gemini] Mod două pași (GEMINI_CONTENT_TWO_STEP=1).", flush=True)
         active_model, base_slug, en_body, ro_body, meta = _pipeline_two_step(
-            now, en_dir, ro_dir
+            now, en_dir, ro_dir, serp_ctx
         )
     else:
         print(
@@ -937,7 +1038,7 @@ def main() -> None:
         )
         try:
             active_model, base_slug, en_body, ro_body, meta = _pipeline_bilingual(
-                now, en_dir, ro_dir
+                now, en_dir, ro_dir, serp_ctx
             )
         except ValueError as e:
             raise SystemExit(

@@ -1,7 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
-import type { GameRoom } from "@/lib/game-types"
+import type { CategoryPresetId, GameRoom } from "@/lib/game-types"
 import { effectiveRoundDurationSeconds, languageForMultiplayerRoom } from "@/lib/game-types"
 import { resolveWordPairForRound } from "@/lib/server/resolve-round-word"
 
@@ -20,6 +20,11 @@ export async function syncGameRoomLanguage(
   return { ok: true }
 }
 
+function categoryPresetFromRoom(r: GameRoom): CategoryPresetId | null {
+  const p = r.category_preset
+  return p === "images" || p === "definitions" ? p : null
+}
+
 function activeSlots(room: GameRoom): number[] {
   const s: number[] = []
   if (room.player1_id) s.push(1)
@@ -33,10 +38,12 @@ function activeSlots(room: GameRoom): number[] {
  * Alege cuvântul pe server și actualizează camera în Supabase.
  * `languageHint` — trimis de gazdă din localStorage când coloana `language` lipsește din DB;
  * altfel se folosește `room.language`.
+ * `categoryPresetHint` — de la gazdă (slot 1) când `category_preset` lipsește în DB dar e în localStorage.
  */
 export async function serverStartNewRound(
   roomCode: string,
-  languageHint?: string | null
+  languageHint?: string | null,
+  categoryPresetHint?: string | null
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const supabase = await createClient()
   const code = roomCode.trim().toUpperCase()
@@ -57,7 +64,12 @@ export async function serverStartNewRound(
       : ""
   // Hint de la gazdă (localStorage) când lipsește coloana `language` sau e goală în răspuns.
   const playLang = languageForMultiplayerRoom(hintTrim !== "" ? hintTrim : r.language)
-  const word = await resolveWordPairForRound(r.category, playLang)
+  let preset = categoryPresetFromRoom(r)
+  if (preset == null && categoryPresetHint != null && String(categoryPresetHint).trim() !== "") {
+    const h = String(categoryPresetHint).trim().toLowerCase()
+    if (h === "images" || h === "definitions") preset = h
+  }
+  const word = await resolveWordPairForRound(r.category, playLang, preset)
   const init = "_".repeat(word.word.length)
   const active = activeSlots(r)
   const roundSeconds = effectiveRoundDurationSeconds(r)

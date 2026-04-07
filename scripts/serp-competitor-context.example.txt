@@ -1,0 +1,13 @@
+# Copiază acest fișier ca: scripts/serp-competitor-context.txt
+# (nu e obligatoriu — fără el, generarea merge ca înainte)
+#
+# Pune aici, câte un rând, titluri sau snippet-uri copiate din primele rezultate Google
+# pentru query-urile tale țintă (EN sau RO). Liniile cu # sunt ignorate.
+#
+# Altă cale: setează GEMINI_SERP_CONTEXT_FILE=notes/serp.txt (relativ la rădăcina repo).
+
+# exemplu (înlocuiește cu date reale din SERP):
+# 10 Word Puzzle Strategies That Work
+# Free online vocabulary games for adults
+# How to get better at daily word games
+
