@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback, useRef, useMemo, use, type CSSProperties } from "react"
+import { useEffect, useState, useCallback, useRef, useMemo, use, useLayoutEffect, type CSSProperties } from "react"
 import { flushSync } from "react-dom"
 import { usePathname, useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
@@ -230,6 +230,8 @@ export default function GamePage({ params }: GamePageProps) {
   const startGameRef = useRef(false)
   const hiddenInputRef = useRef<HTMLInputElement>(null)
   const gameShellRef = useRef<HTMLElement>(null)
+  const topBarRef = useRef<HTMLDivElement>(null)
+  const [stickyTopPx, setStickyTopPx] = useState(0)
   const wordMaskRef = useRef<HTMLDivElement>(null)
   // Local progress ref to avoid race condition on rapid key presses
   const localProgressRef = useRef<string | null>(null)
@@ -918,13 +920,31 @@ export default function GamePage({ params }: GamePageProps) {
   useEffect(() => {
     const vv = window.visualViewport
     if (!vv) return
+    let prevH = vv.height
     const onResize = () => {
-      if (window.innerHeight - vv.height > 100) {
-        setTimeout(() => wordMaskRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 200)
+      const keyboardOpen = window.innerHeight - vv.height > 100
+      const openingNow = vv.height < prevH - 24
+      prevH = vv.height
+      if (keyboardOpen && openingNow) {
+        setTimeout(() => wordMaskRef.current?.scrollIntoView({ block: "nearest" }), 120)
       }
     }
     vv.addEventListener("resize", onResize)
     return () => vv.removeEventListener("resize", onResize)
+  }, [])
+
+  // With document-level scrolling, avoid forcing root height.
+  useSyncGameViewportHeight(gameShellRef, false)
+
+  useLayoutEffect(() => {
+    const el = topBarRef.current
+    if (!el) return
+    const update = () => setStickyTopPx(Math.max(0, Math.round(el.getBoundingClientRect().height)))
+    update()
+    if (typeof ResizeObserver === "undefined") return
+    const ro = new ResizeObserver(() => update())
+    ro.observe(el)
+    return () => ro.disconnect()
   }, [])
 
   // Keyboard input
@@ -948,6 +968,8 @@ export default function GamePage({ params }: GamePageProps) {
   // Enter = Next Round when everyone is ready (orice jucător; limba vine din room / hint la startNewRound)
   useEffect(() => {
     if (!room || !playerInfo || room.game_status !== "round_end" || !allReady(room)) return
+    // When the round ends, scroll to top so the (sticky) definition and header are fully visible.
+    window.scrollTo({ top: 0, left: 0, behavior: "smooth" })
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Enter" || e.repeat) return
       const t = e.target as HTMLElement | null
@@ -1358,11 +1380,7 @@ export default function GamePage({ params }: GamePageProps) {
     router.push(homePath)
   }
 
-  const syncGamePlayViewport =
-    !!room &&
-    !!playerInfo &&
-    (room.game_status === "playing" || room.game_status === "round_end")
-  useSyncGameViewportHeight(gameShellRef, syncGamePlayViewport)
+  // Height syncing is handled above (disabled) to keep document-level scrolling.
 
   // ── render helpers ─────────────────────────────────────────────────────────
 
@@ -1960,7 +1978,8 @@ export default function GamePage({ params }: GamePageProps) {
       ref={gameShellRef}
       id="main-content"
       className={cn(
-        "relative h-dvh max-h-dvh min-h-0 flex flex-col overflow-y-auto overflow-x-hidden bg-gradient-to-b from-background to-secondary/30 outline-none scrollbar-none",
+        // Let the document scroll so mobile browser chrome can collapse.
+        "relative min-h-dvh flex flex-col overflow-x-hidden bg-gradient-to-b from-background to-secondary/30 outline-none scrollbar-none",
         isShaking && "animate-[shake_0.3s_ease-in-out]"
       )}
       tabIndex={0}
@@ -1977,7 +1996,10 @@ export default function GamePage({ params }: GamePageProps) {
       )}
 
       {/* Sticky top bar — același grid + stil ca practice (Exit | centru | sunet/ambient) */}
-      <div className="sticky top-0 z-20 shrink-0 border-b border-border/60 bg-background/90 shadow-[0_1px_0_hsl(var(--border)/0.35)] backdrop-blur-md supports-[backdrop-filter]:bg-background/80">
+      <div
+        ref={topBarRef}
+        className="sticky top-0 z-30 shrink-0 border-b border-border/60 bg-background/90 shadow-[0_1px_0_hsl(var(--border)/0.35)] backdrop-blur-md supports-[backdrop-filter]:bg-background/80"
+      >
         <div className="mx-auto flex w-full max-w-2xl flex-col gap-2.5 px-3 pt-2.5 pb-2 sm:px-4 sm:pt-3 sm:pb-2.5">
           <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-x-2 sm:gap-x-3">
             <div className="flex min-w-0 justify-start">
@@ -2137,6 +2159,7 @@ export default function GamePage({ params }: GamePageProps) {
           <>
             {/* Definiție + bară jos în card: tastatură | panou | microfon */}
             <div className="flex w-full flex-col">
+            <div className={cn("sticky z-20", room.game_status === "playing" && "pt-2")} style={{ top: stickyTopPx }}>
             <Card
               className={cn(
                 "relative w-full gap-0 py-0 shadow-sm border-2 transition-[border-color] duration-200",
@@ -2178,7 +2201,10 @@ export default function GamePage({ params }: GamePageProps) {
                         }}
                         onClick={(e) => {
                           e.stopPropagation()
-                          void requestMultiplayerHint()
+                          void requestMultiplayerHint().finally(() => {
+                            // Keep the mobile keyboard open after tapping hint.
+                            focusWithoutScroll(hiddenInputRef.current)
+                          })
                         }}
                       >
                         {hintLettersRemaining}
@@ -2267,6 +2293,7 @@ export default function GamePage({ params }: GamePageProps) {
                 </div>
               )}
             </Card>
+            </div>
             </div>
             {roundEliminated && !allPlayersSpeechWrongReveal && (
               <p className="text-xs text-center text-destructive font-medium px-2">

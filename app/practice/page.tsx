@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef, useMemo } from "react"
+import { useState, useEffect, useCallback, useRef, useMemo, useLayoutEffect } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -147,6 +147,8 @@ export default function PracticePage() {
   const [revealProgress, setRevealProgress] = useState("")
   const hiddenInputRef = useRef<HTMLInputElement>(null)
   const gameShellRef = useRef<HTMLElement>(null)
+  const topBarRef = useRef<HTMLDivElement>(null)
+  const [stickyTopPx, setStickyTopPx] = useState(0)
   const wordMaskRef = useRef<HTMLDivElement>(null)
   const progressRef = useRef("")
   const shakeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -793,16 +795,34 @@ export default function PracticePage() {
   useEffect(() => {
     const vv = window.visualViewport
     if (!vv) return
+    let prevH = vv.height
     const onResize = () => {
-      if (window.innerHeight - vv.height > 100) {
-        setTimeout(() => wordMaskRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 200)
+      const keyboardOpen = window.innerHeight - vv.height > 100
+      const openingNow = vv.height < prevH - 24
+      prevH = vv.height
+      if (keyboardOpen && openingNow) {
+        // Only when keyboard opens (avoid jumping when it closes)
+        setTimeout(() => wordMaskRef.current?.scrollIntoView({ block: "nearest" }), 120)
       }
     }
     vv.addEventListener("resize", onResize)
     return () => vv.removeEventListener("resize", onResize)
   }, [])
 
-  useSyncGameViewportHeight(gameShellRef, gameStatus !== "finished")
+  // With document-level scrolling, we don't need to force the root height on visualViewport.
+  useSyncGameViewportHeight(gameShellRef, false)
+
+  // Measure sticky top bar height so the definition can pin under it while scrolling.
+  useLayoutEffect(() => {
+    const el = topBarRef.current
+    if (!el) return
+    const update = () => setStickyTopPx(Math.max(0, Math.round(el.getBoundingClientRect().height)))
+    update()
+    if (typeof ResizeObserver === "undefined") return
+    const ro = new ResizeObserver(() => update())
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
 
   useEffect(() => {
     if (gameStatus !== "playing" || !roundMeta) return
@@ -819,6 +839,8 @@ export default function PracticePage() {
   // Enter = Next Round / See Results (single player — same as multiplayer UX)
   useEffect(() => {
     if (gameStatus !== "won" && gameStatus !== "timeout" && gameStatus !== "lost") return
+    // When the round ends, scroll to top so the (sticky) definition and header are fully visible.
+    window.scrollTo({ top: 0, left: 0, behavior: "smooth" })
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Enter" || e.repeat) return
       const t = e.target as HTMLElement | null
@@ -914,7 +936,8 @@ export default function PracticePage() {
       ref={gameShellRef}
       id="main-content"
       className={cn(
-        "relative h-dvh max-h-dvh min-h-0 flex flex-col overflow-y-auto overflow-x-hidden bg-gradient-to-b from-background to-secondary/30 outline-none scrollbar-none",
+        // Let the document scroll so mobile browser chrome can collapse.
+        "relative min-h-dvh flex flex-col overflow-x-hidden bg-gradient-to-b from-background to-secondary/30 outline-none scrollbar-none",
         isShaking && "animate-[shake_0.3s_ease-in-out]"
       )}
       tabIndex={0}
@@ -929,7 +952,10 @@ export default function PracticePage() {
       {showConfetti && <Confetti recycle={false} numberOfPieces={500} />}
 
       {/* Sticky top bar — same grid + player row pattern as multiplayer (scores not in header) */}
-      <div className="sticky top-0 z-20 shrink-0 border-b border-border/60 bg-background/90 shadow-[0_1px_0_hsl(var(--border)/0.35)] backdrop-blur-md supports-[backdrop-filter]:bg-background/80">
+      <div
+        ref={topBarRef}
+        className="sticky top-0 z-30 shrink-0 border-b border-border/60 bg-background/90 shadow-[0_1px_0_hsl(var(--border)/0.35)] backdrop-blur-md supports-[backdrop-filter]:bg-background/80"
+      >
         <div className="mx-auto flex w-full max-w-2xl flex-col gap-2.5 px-3 pt-2.5 pb-2 sm:px-4 sm:pt-3 sm:pb-2.5">
           <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-x-2 sm:gap-x-3">
             <div className="flex min-w-0 justify-start">
@@ -1009,6 +1035,10 @@ export default function PracticePage() {
 
         {/* Definiție + bară jos în card: tastatură | panou | microfon */}
         <div className="flex w-full flex-col">
+        <div
+          className={cn("sticky z-20", gameStatus === "playing" && "pt-2")}
+          style={{ top: stickyTopPx }}
+        >
         <Card
           className={cn(
             "relative w-full gap-0 py-0 shadow-sm border-2 transition-[border-color] duration-200",
@@ -1054,7 +1084,10 @@ export default function PracticePage() {
                       }}
                       onClick={(e) => {
                         e.stopPropagation()
-                        void requestHintLetter()
+                        void requestHintLetter().finally(() => {
+                          // Keep the mobile keyboard open after tapping hint.
+                          focusWithoutScroll(hiddenInputRef.current)
+                        })
                       }}
                     >
                       {hintLettersRemaining}
@@ -1148,6 +1181,7 @@ export default function PracticePage() {
             </div>
           )}
         </Card>
+        </div>
         </div>
 
         {/* Word mask — hidden input placed here so browser auto-scroll targets this area */}
