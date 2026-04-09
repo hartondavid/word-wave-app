@@ -54,6 +54,8 @@ import { LetterSoundToggle } from "@/components/letter-sound-toggle"
 import { AmbientWavesToggle } from "@/components/ambient-waves-toggle"
 import { FinishedPlayerScoreRow } from "@/components/game-finished-score-row"
 import { useSyncGameViewportHeight } from "@/hooks/use-sync-game-viewport-height"
+import { RoundHistoryCarousel } from "@/components/round-history-carousel"
+import type { RoundHistoryItem } from "@/lib/round-history"
 
 const PRACTICE_TIMER_SECONDS_OPTIONS = [30, 60] as const
 type PracticeTimerSeconds = (typeof PRACTICE_TIMER_SECONDS_OPTIONS)[number]
@@ -170,6 +172,8 @@ export default function PracticePage() {
   const wrongLetterDelayRingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [typedLetterHistory, setTypedLetterHistory] = useState<string[]>([])
   const [letterHistoryOpen, setLetterHistoryOpen] = useState(false)
+  const [roundHistory, setRoundHistory] = useState<RoundHistoryItem[]>([])
+  const recordedRoundEndRef = useRef<number>(0)
   const [practiceHintsEnabled, setPracticeHintsEnabled] = useState(false)
   const [hintLettersRemaining, setHintLettersRemaining] = useState(PRACTICE_HINT_LETTERS_PER_ROUND)
   const hintLettersRemainingRef = useRef(PRACTICE_HINT_LETTERS_PER_ROUND)
@@ -840,7 +844,7 @@ export default function PracticePage() {
   useEffect(() => {
     if (gameStatus !== "won" && gameStatus !== "timeout" && gameStatus !== "lost") return
     // When the round ends, scroll to top so the (sticky) definition and header are fully visible.
-    window.scrollTo({ top: 0, left: 0, behavior: "smooth" })
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" })
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Enter" || e.repeat) return
       const t = e.target as HTMLElement | null
@@ -851,6 +855,25 @@ export default function PracticePage() {
     window.addEventListener("keydown", onKey, true)
     return () => window.removeEventListener("keydown", onKey, true)
   }, [gameStatus])
+
+  // Snapshot current round when it ends (for endgame history carousel).
+  useEffect(() => {
+    if (gameStatus !== "won" && gameStatus !== "timeout" && gameStatus !== "lost") return
+    if (!roundMeta) return
+    if (recordedRoundEndRef.current === round) return
+    const answerWord = answerWordRef.current
+    if (!answerWord) return
+    recordedRoundEndRef.current = round
+    const item: RoundHistoryItem = {
+      round,
+      definition: roundMeta.definition ?? "",
+      imageUrl: roundMeta.image ?? undefined,
+      answerWord,
+      myProgress: progressRef.current,
+      endReason: gameStatus,
+    }
+    setRoundHistory((prev) => [...prev, item])
+  }, [gameStatus, round, roundMeta])
 
   function handleNextRound() {
     if (round >= totalRounds) { setGameStatus("finished"); return }
@@ -897,6 +920,13 @@ export default function PracticePage() {
                 maxForBar={maxBarScore}
                 youSuffix={ui.finishedYouSuffix}
                 ptsSuffix={ui.finishedPts}
+              />
+            </div>
+
+            <div className="text-left">
+              <RoundHistoryCarousel
+                items={roundHistory}
+                foundColor={PRACTICE_PLAYER_COLOR}
               />
             </div>
             <div className="flex gap-3 justify-center">

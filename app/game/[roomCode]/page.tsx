@@ -76,6 +76,8 @@ import { Switch } from "@/components/ui/switch"
 import Confetti from "react-confetti"
 import { FinishedPlayerScoreRow } from "@/components/game-finished-score-row"
 import { useSyncGameViewportHeight } from "@/hooks/use-sync-game-viewport-height"
+import { RoundHistoryCarousel } from "@/components/round-history-carousel"
+import type { RoundHistoryItem } from "@/lib/round-history"
 
 interface PlayerInfo {
   id: string
@@ -251,6 +253,8 @@ export default function GamePage({ params }: GamePageProps) {
   const [multiplayerHintsEnabled, setMultiplayerHintsEnabled] = useState(false)
   const [typedLetterHistory, setTypedLetterHistory] = useState<string[]>([])
   const [letterHistoryOpen, setLetterHistoryOpen] = useState(false)
+  const [roundHistory, setRoundHistory] = useState<RoundHistoryItem[]>([])
+  const recordedRoundEndRef = useRef<number>(0)
   const restoreTypingFocus = useCallback(() => {
     focusWithoutScroll(hiddenInputRef.current)
   }, [])
@@ -969,7 +973,7 @@ export default function GamePage({ params }: GamePageProps) {
   useEffect(() => {
     if (!room || !playerInfo || room.game_status !== "round_end" || !allReady(room)) return
     // When the round ends, scroll to top so the (sticky) definition and header are fully visible.
-    window.scrollTo({ top: 0, left: 0, behavior: "smooth" })
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" })
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Enter" || e.repeat) return
       const t = e.target as HTMLElement | null
@@ -979,6 +983,41 @@ export default function GamePage({ params }: GamePageProps) {
     }
     window.addEventListener("keydown", onKey, true)
     return () => window.removeEventListener("keydown", onKey, true)
+  }, [room, playerInfo])
+
+  // Snapshot finished rounds (client-side history) when we enter round_end.
+  useEffect(() => {
+    if (!room || !playerInfo) return
+    if (room.game_status !== "round_end") return
+    const r = room.current_round
+    if (!r || recordedRoundEndRef.current === r) return
+    const answerWord = room.current_word
+    if (!answerWord) return
+    recordedRoundEndRef.current = r
+
+    const active = activeSlots(room)
+    const winnerName = room.round_winner
+    const winnerSlot =
+      winnerName != null
+        ? (active.find((s) => slotData(s, room).name === winnerName) ?? null)
+        : null
+    const mySlot = (playerInfo.playerSlot ?? 1) as PlayerSlot
+    const myProgress = slotData(mySlot, room).progress ?? ""
+
+    const item: RoundHistoryItem = {
+      round: r,
+      definition: room.current_definition ?? "",
+      imageUrl:
+        room.current_image != null && String(room.current_image).trim() !== ""
+          ? String(room.current_image).trim()
+          : undefined,
+      answerWord,
+      myProgress,
+      endReason: "round_end",
+      winnerName,
+      winnerSlot,
+    }
+    setRoundHistory((prev) => [...prev, item])
   }, [room, playerInfo])
 
   // ── derived values ─────────────────────────────────────────────────────────
@@ -1726,6 +1765,17 @@ export default function GamePage({ params }: GamePageProps) {
                   ptsSuffix={ui.finishedPts}
                 />
               ))}
+            </div>
+
+            <div className="text-left">
+              <RoundHistoryCarousel
+                items={roundHistory}
+                foundColorForItem={(it) => {
+                  const s = it.winnerSlot
+                  if (s === 1 || s === 2 || s === 3 || s === 4) return PLAYER_COLORS[s - 1]
+                  return undefined
+                }}
+              />
             </div>
             <div className="flex gap-3 justify-center">
               <Button variant="outline" onClick={() => void handleExitRoom()}>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
@@ -31,6 +31,11 @@ export function SiteNavbar({ homePriorityLogo = false }: { homePriorityLogo?: bo
   const links = getSiteNavLinksForLocale(locale)
   const homeHref = locale === "ro" ? "/ro" : "/"
   const [menuOpen, setMenuOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/70 bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80">
@@ -85,56 +90,70 @@ export function SiteNavbar({ homePriorityLogo = false }: { homePriorityLogo?: bo
           <SiteLocaleSwitch />
           <AmbientWavesToggle />
 
-          <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-            <SheetTrigger asChild>
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                className="shrink-0 lg:hidden"
-                aria-label="Open menu"
+          {mounted ? (
+            <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+              <SheetTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="shrink-0 lg:hidden"
+                  aria-label="Open menu"
+                >
+                  <Menu className="h-5 w-5" aria-hidden />
+                </Button>
+              </SheetTrigger>
+              <SheetContent
+                side="right"
+                className="flex !w-[min(78vw,15rem)] max-w-[15rem] flex-col gap-0"
               >
-                <Menu className="h-5 w-5" aria-hidden />
-              </Button>
-            </SheetTrigger>
-            <SheetContent
-              side="right"
-              className="flex !w-[min(78vw,15rem)] max-w-[15rem] flex-col gap-0"
+                <SheetHeader className="border-b border-border/60 text-left">
+                  <SheetTitle>{locale === "ro" ? "Meniu" : "Menu"}</SheetTitle>
+                </SheetHeader>
+                <div className="flex flex-1 flex-col gap-1 overflow-y-auto p-4 pt-2">
+                  {links.map((item) =>
+                    item.external ? (
+                      <a
+                        key={item.label}
+                        href={item.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={cn(
+                          "rounded-md px-3 py-2.5 text-base font-medium text-foreground hover:bg-muted"
+                        )}
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        {item.label}
+                      </a>
+                    ) : (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={cn(
+                          "rounded-md px-3 py-2.5 text-base font-medium text-foreground hover:bg-muted"
+                        )}
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        {item.label}
+                      </Link>
+                    )
+                  )}
+                </div>
+              </SheetContent>
+            </Sheet>
+          ) : (
+            // Avoid SSR hydration mismatch for Radix-generated ids.
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="shrink-0 lg:hidden"
+              aria-label="Open menu"
+              disabled
             >
-              <SheetHeader className="border-b border-border/60 text-left">
-                <SheetTitle>{locale === "ro" ? "Meniu" : "Menu"}</SheetTitle>
-              </SheetHeader>
-              <div className="flex flex-1 flex-col gap-1 overflow-y-auto p-4 pt-2">
-                {links.map((item) =>
-                  item.external ? (
-                    <a
-                      key={item.label}
-                      href={item.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={cn(
-                        "rounded-md px-3 py-2.5 text-base font-medium text-foreground hover:bg-muted"
-                      )}
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      {item.label}
-                    </a>
-                  ) : (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={cn(
-                        "rounded-md px-3 py-2.5 text-base font-medium text-foreground hover:bg-muted"
-                      )}
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      {item.label}
-                    </Link>
-                  )
-                )}
-              </div>
-            </SheetContent>
-          </Sheet>
+              <Menu className="h-5 w-5" aria-hidden />
+            </Button>
+          )}
         </div>
       </nav>
     </header>

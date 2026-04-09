@@ -22,9 +22,8 @@ deja din content/en/*.md (similitudine SequenceMatcher, prag implicit 0.5 = 50%)
 Peste prag: apeluri Gemini pentru titlu / descriere noi. Variabilă: BLOG_META_SIMILARITY_THRESHOLD.
 Pentru descriere, se verifică și similitudinea corpului articolului față de corpurile existente.
 
-Context concurență / SERP (opțional): dacă există scripts/serp-competitor-context.txt
-(sau calea din GEMINI_SERP_CONTEXT_FILE), conținutul e adăugat la prompt ca „ce să nu copiezi”.
-Liniile care încep cu # sunt ignorate. Vezi scripts/serp-competitor-context.example.txt.
+Brief SEO / brand (opțional): scripts/blog-seo-brief.txt sau GEMINI_SEO_BRIEF_FILE — instrucțiuni
+lungi (nișă, concurenți, structură articol, keywords). Vezi scripts/blog-seo-brief.example.txt.
 """
 
 from __future__ import annotations
@@ -66,50 +65,6 @@ _model_chain_cache: list[str] | None = None
 
 keywords_en = ["daily word puzzle", "brain teaser", "vocabulary game"]
 keywords_ro = ["puzzle zilnic cuvinte", "joc de vocabular", "antrenament minte"]
-
-_SERP_CONTEXT_MAX_CHARS = 4000
-
-
-def load_serp_competitor_context(root: Path) -> tuple[str, Path | None]:
-    """
-    Încarcă titluri/snippet-uri din SERP (un fișier text). Gol dacă fișierul lipsește.
-    Returnează (text, path_rezolvat) — path e setat și când fișierul există dar e gol după #.
-    """
-    override = (os.getenv("GEMINI_SERP_CONTEXT_FILE") or "").strip()
-    if override:
-        p = Path(override)
-        if not p.is_absolute():
-            p = (root / p).resolve()
-    else:
-        p = (root / "scripts" / "serp-competitor-context.txt").resolve()
-    if not p.is_file():
-        return "", None
-    raw = p.read_text(encoding="utf-8", errors="replace")
-    lines: list[str] = []
-    for ln in raw.splitlines():
-        if ln.lstrip().startswith("#"):
-            continue
-        lines.append(ln)
-    body = "\n".join(lines).strip()
-    if not body:
-        return "", p
-    if len(body) > _SERP_CONTEXT_MAX_CHARS:
-        body = body[:_SERP_CONTEXT_MAX_CHARS].rstrip() + "\n[… truncated for prompt size]"
-    return body, p
-
-
-def _serp_context_prompt_block(serp_context: str) -> str:
-    s = serp_context.strip()
-    if not s:
-        return ""
-    return f"""
-Competitor / SERP reference (from real search results for your target queries). Do NOT copy
-their titles, openings, or H2 patterns. Pick a different angle, concrete hooks, and section themes
-that would stand out next to these:
----
-{s}
----
-"""
 
 _GEN_CONFIG = types.GenerateContentConfig(max_output_tokens=8192)
 # Un răspuns = EN + RO (~2× articol); fără response_json_schema (text liber cu markeri).
@@ -709,11 +664,9 @@ def _gemini_exit(e: BaseException) -> None:
     ) from None
 
 
-def build_prompt_bilingual(serp_context: str) -> str:
-    serp = _serp_context_prompt_block(serp_context)
+def build_prompt_bilingual() -> str:
     return f"""
 Produce ONE response for a word game website (WordWave-style). Exactly two marked sections.
-{serp}
 Topic: daily word puzzle / vocabulary and WordWave-style multiplayer tips.
 English keywords (English section only): {", ".join(keywords_en)}.
 English article length: ~900-1200 words of body text.
@@ -747,11 +700,9 @@ DESC_LINE: <Romanian meta description, max ~155 characters>
 """
 
 
-def build_prompt_en_only(serp_context: str) -> str:
-    serp = _serp_context_prompt_block(serp_context)
+def build_prompt_en_only() -> str:
     return f"""
 Write a high-quality SEO article in English for a word game website.
-{serp}
 Topic: daily word puzzle / vocabulary and WordWave-style multiplayer tips.
 Target keywords: {", ".join(keywords_en)}.
 Length: 900 to 1200 words.
@@ -858,12 +809,11 @@ def _pipeline_bilingual(
     now: datetime,
     en_dir: Path,
     ro_dir: Path,
-    serp_context: str,
 ) -> tuple[str, str, str, str, tuple[str, str, str, str]]:
     """1 apel Gemini: secțiuni delimitate cu markeri + TITLE_LINE/DESC_LINE în fiecare."""
     try:
         response, active_model = generate_with_model_fallback(
-            build_prompt_bilingual(serp_context),
+            build_prompt_bilingual(),
             "Articol EN+RO (markeri)",
             gen_config=_GEN_CONFIG_BILINGUAL,
         )
@@ -934,12 +884,11 @@ def _pipeline_two_step(
     now: datetime,
     en_dir: Path,
     ro_dir: Path,
-    serp_context: str,
 ) -> tuple[str, str, str, str, tuple[str, str, str, str]]:
     """2 apeluri (flux vechi)."""
     try:
         en_response, active_model = generate_with_model_fallback(
-            build_prompt_en_only(serp_context), "Articol EN"
+            build_prompt_en_only(), "Articol EN"
         )
     except _GEMINI_RETRY_EXC as e:
         _gemini_exit(e)
@@ -1011,24 +960,10 @@ def main() -> None:
     en_dir.mkdir(parents=True, exist_ok=True)
     ro_dir.mkdir(parents=True, exist_ok=True)
 
-    serp_ctx, serp_path = load_serp_competitor_context(root)
-    if serp_ctx:
-        rel = serp_path.relative_to(root) if serp_path is not None else "?"
-        print(
-            f"[Gemini] Context SERP/concurență: {len(serp_ctx)} caractere din {rel}",
-            flush=True,
-        )
-    elif serp_path is not None:
-        print(
-            f"[Gemini] Fișier context SERP gol (sau doar comentarii #): "
-            f"{serp_path.relative_to(root)}",
-            flush=True,
-        )
-
     if _env_flag("GEMINI_CONTENT_TWO_STEP"):
         print("[Gemini] Mod două pași (GEMINI_CONTENT_TWO_STEP=1).", flush=True)
         active_model, base_slug, en_body, ro_body, meta = _pipeline_two_step(
-            now, en_dir, ro_dir, serp_ctx
+            now, en_dir, ro_dir
         )
     else:
         print(
@@ -1038,7 +973,7 @@ def main() -> None:
         )
         try:
             active_model, base_slug, en_body, ro_body, meta = _pipeline_bilingual(
-                now, en_dir, ro_dir, serp_ctx
+                now, en_dir, ro_dir
             )
         except ValueError as e:
             raise SystemExit(
