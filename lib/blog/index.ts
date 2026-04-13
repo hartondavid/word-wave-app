@@ -24,6 +24,12 @@ export {
   urlSegmentForBlogPost,
 } from "./en-ro-slugs"
 export { formatBlogDateForDisplay, stripBlogTitleDateSuffix } from "./format-blog-date"
+export {
+  BLOG_PAGE_SIZE,
+  blogListTotalPages,
+  parseBlogListPage,
+  sliceBlogPostsPage,
+} from "./pagination"
 
 const byDateDesc = (a: BlogPost, b: BlogPost) =>
   new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -51,6 +57,18 @@ export function blogPostsForLocale(locale: BlogLocale): BlogPost[] {
     const loc = getPostLocale(p)
     if (loc === "both") return true
     return loc === locale
+  })
+}
+
+/**
+ * Listă pentru `/ro/blog`: ghidurile TS (URL slug RO + titluri din `romanianListingForPost`) și
+ * articole markdown `ro` / `both`. Fără `blogPostsForLocale("ro")` ar lipsi ghidurile EN din index.
+ */
+export function blogPostsForRomanianBlogIndex(): BlogPost[] {
+  return allBlogPosts.filter((p) => {
+    if (p.source === "blocks") return true
+    const loc = getPostLocale(p)
+    return loc === "ro" || loc === "both"
   })
 }
 

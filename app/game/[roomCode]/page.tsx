@@ -255,6 +255,8 @@ export default function GamePage({ params }: GamePageProps) {
   const [letterHistoryOpen, setLetterHistoryOpen] = useState(false)
   const [roundHistory, setRoundHistory] = useState<RoundHistoryItem[]>([])
   const recordedRoundEndRef = useRef<number>(0)
+  /** Previous `room` snapshot for detecting skipped `round_end` renders (Realtime batching). */
+  const roundHistoryPrevRoomRef = useRef<GameRoom | null>(null)
   const restoreTypingFocus = useCallback(() => {
     focusWithoutScroll(hiddenInputRef.current)
   }, [])
@@ -985,39 +987,63 @@ export default function GamePage({ params }: GamePageProps) {
     return () => window.removeEventListener("keydown", onKey, true)
   }, [room, playerInfo])
 
-  // Snapshot finished rounds (client-side history) when we enter round_end.
+  // Snapshot finished rounds (client-side history) on `round_end` / match `finished`, and
+  // backfill when Realtime delivers `round_end` + next `playing` in one paint (no `round_end` render).
   useEffect(() => {
+    const prevSnap = roundHistoryPrevRoomRef.current
+    roundHistoryPrevRoomRef.current = room
+
     if (!room || !playerInfo) return
-    if (room.game_status !== "round_end") return
-    const r = room.current_round
-    if (!r || recordedRoundEndRef.current === r) return
-    const answerWord = room.current_word
-    if (!answerWord) return
-    recordedRoundEndRef.current = r
 
-    const active = activeSlots(room)
-    const winnerName = room.round_winner
-    const winnerSlot =
-      winnerName != null
-        ? (active.find((s) => slotData(s, room).name === winnerName) ?? null)
-        : null
-    const mySlot = (playerInfo.playerSlot ?? 1) as PlayerSlot
-    const myProgress = slotData(mySlot, room).progress ?? ""
+    const appendFromSnapshot = (snap: GameRoom) => {
+      const terminal = snap.game_status === "round_end" || snap.game_status === "finished"
+      if (!terminal) return
+      const r = snap.current_round
+      if (!r || recordedRoundEndRef.current === r) return
+      const answerWord = snap.current_word
+      if (!answerWord) return
+      recordedRoundEndRef.current = r
 
-    const item: RoundHistoryItem = {
-      round: r,
-      definition: room.current_definition ?? "",
-      imageUrl:
-        room.current_image != null && String(room.current_image).trim() !== ""
-          ? String(room.current_image).trim()
-          : undefined,
-      answerWord,
-      myProgress,
-      endReason: "round_end",
-      winnerName,
-      winnerSlot,
+      const active = activeSlots(snap)
+      const winnerName = snap.round_winner
+      const winnerSlot =
+        winnerName != null
+          ? (active.find((s) => slotData(s, snap).name === winnerName) ?? null)
+          : null
+      const mySlot = (playerInfo.playerSlot ?? 1) as PlayerSlot
+      const myProgress = slotData(mySlot, snap).progress ?? ""
+      const slotProgressBySlot: Partial<Record<PlayerSlot, string>> = {}
+      for (const s of active) {
+        slotProgressBySlot[s] = slotData(s, snap).progress ?? ""
+      }
+
+      const item: RoundHistoryItem = {
+        round: r,
+        definition: snap.current_definition ?? "",
+        imageUrl:
+          snap.current_image != null && String(snap.current_image).trim() !== ""
+            ? String(snap.current_image).trim()
+            : undefined,
+        answerWord,
+        myProgress,
+        endReason: "round_end",
+        winnerName,
+        winnerSlot,
+        slotProgressBySlot,
+        viewerSlot: mySlot,
+      }
+      setRoundHistory((h) => [...h, item])
     }
-    setRoundHistory((prev) => [...prev, item])
+
+    appendFromSnapshot(room)
+
+    if (
+      room.game_status === "playing" &&
+      prevSnap?.game_status === "round_end" &&
+      typeof prevSnap.current_round === "number"
+    ) {
+      appendFromSnapshot(prevSnap)
+    }
   }, [room, playerInfo])
 
   // ── derived values ─────────────────────────────────────────────────────────
@@ -1768,14 +1794,7 @@ export default function GamePage({ params }: GamePageProps) {
             </div>
 
             <div className="text-left">
-              <RoundHistoryCarousel
-                items={roundHistory}
-                foundColorForItem={(it) => {
-                  const s = it.winnerSlot
-                  if (s === 1 || s === 2 || s === 3 || s === 4) return PLAYER_COLORS[s - 1]
-                  return undefined
-                }}
-              />
+              <RoundHistoryCarousel items={roundHistory} />
             </div>
             <div className="flex gap-3 justify-center">
               <Button variant="outline" onClick={() => void handleExitRoom()}>

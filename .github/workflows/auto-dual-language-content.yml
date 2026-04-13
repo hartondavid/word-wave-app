@@ -32,9 +32,10 @@ jobs:
         run: pip install -r requirements-dual-lang.txt
 
       # Opțional (repo → Settings → Actions → Variables):
-      #   GEMINI_MODEL, GEMINI_MODEL_FALLBACK — prioritate în lanț.
+      #   GEMINI_MODEL, GEMINI_MODEL_FALLBACK — prioritate în lanț (evită 2.0-flash-001 dacă ai 429).
       #   GEMINI_EXTRA_MODELS — ID-uri separate prin virgulă.
       #   GEMINI_DISCOVER_MODELS — 1 sau true = adaugă modele din API (list).
+      #   Două pași (EN apoi RO): mai puțin trunchiat decât un singur răspuns cu markeri EN+RO.
       - name: Generate EN and RO articles
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
@@ -42,6 +43,7 @@ jobs:
           GEMINI_MODEL_FALLBACK: ${{ vars.GEMINI_MODEL_FALLBACK }}
           GEMINI_EXTRA_MODELS: ${{ vars.GEMINI_EXTRA_MODELS }}
           GEMINI_DISCOVER_MODELS: ${{ vars.GEMINI_DISCOVER_MODELS }}
+          GEMINI_CONTENT_TWO_STEP: "1"
         run: python scripts/generate_content.py
 
       - name: Commit and push changes

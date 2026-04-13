@@ -17,5 +17,9 @@ export type RoundHistoryItem = {
   endReason: RoundHistoryEndReason
   winnerName?: string | null
   winnerSlot?: PlayerSlot | null
+  /** Multiplayer: progress masks at round end (active slots only). */
+  slotProgressBySlot?: Partial<Record<PlayerSlot, string>>
+  /** Multiplayer: slot of the client who owns this history (for my vs opponent colors). */
+  viewerSlot?: PlayerSlot
 }
 

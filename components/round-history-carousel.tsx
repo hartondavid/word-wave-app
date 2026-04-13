@@ -4,6 +4,11 @@ import { useMemo } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import type { RoundHistoryItem } from "@/lib/round-history"
+import type { PlayerSlot } from "@/lib/game-types"
+import { PLAYER_COLORS } from "@/lib/game-types"
+
+/** Same hue as `text-red-500` / round-end timeout reveal in game UI. */
+const UNGUESSED_LETTER_COLOR = "#EF4444"
 
 type RoundHistoryCarouselProps = {
   items: RoundHistoryItem[]
@@ -11,14 +16,64 @@ type RoundHistoryCarouselProps = {
   header?: React.ReactNode
   /** Default color for found letters (practice: player color). */
   foundColor?: string
-  /** Optional per-item color (multiplayer: winner color). */
+  /** Optional per-item color when `slotProgressBySlot` is missing (legacy). */
   foundColorForItem?: (item: RoundHistoryItem) => string | undefined
 }
 
 function isComplete(progress: string | undefined, answer: string): boolean {
-  if (!progress) return false
-  if (progress.length !== answer.length) return false
-  return !progress.includes("_")
+  if (!answer.length) return false
+  const p = padProgressMask(progress, answer.length)
+  return !p.includes("_")
+}
+
+function padProgressMask(progress: string | undefined, len: number): string {
+  const p = progress ?? ""
+  if (p.length >= len) return p.slice(0, len)
+  return p + "_".repeat(len - p.length)
+}
+
+type MultiplayerCell = {
+  char: string
+  /** Player color hex, or red for unguessed. */
+  color: string
+  unguessed: boolean
+}
+
+function multiplayerLetterCell(
+  it: RoundHistoryItem,
+  idx: number,
+  answerWord: string
+): MultiplayerCell {
+  const L = answerWord.length
+  const ansCh = answerWord[idx] ?? "_"
+  const mySlot = it.viewerSlot ?? 1
+  const bySlot = it.slotProgressBySlot ?? {}
+  const pad = (s?: string) => padProgressMask(s, L)
+
+  const myP = pad(it.myProgress)
+  if (myP[idx] !== "_") {
+    return { char: myP[idx]!, color: PLAYER_COLORS[mySlot - 1], unguessed: false }
+  }
+
+  const winnerSlot = it.winnerSlot
+  if (winnerSlot != null && winnerSlot !== mySlot) {
+    const wp = pad(bySlot[winnerSlot])
+    const wch = wp[idx] ?? "_"
+    const ch = wch !== "_" ? wch : ansCh
+    return { char: ch, color: PLAYER_COLORS[winnerSlot - 1], unguessed: false }
+  }
+
+  const otherSlots = ([1, 2, 3, 4] as PlayerSlot[])
+    .filter((s) => s !== mySlot && bySlot[s] != null)
+    .sort((a, b) => a - b)
+  for (const s of otherSlots) {
+    const p = pad(bySlot[s])
+    if (p[idx] !== "_") {
+      return { char: p[idx]!, color: PLAYER_COLORS[s - 1], unguessed: false }
+    }
+  }
+
+  return { char: ansCh, color: UNGUESSED_LETTER_COLOR, unguessed: true }
 }
 
 export function RoundHistoryCarousel({
@@ -72,9 +127,41 @@ export function RoundHistoryCarousel({
                 </div>
 
                 <div className="flex flex-wrap justify-center gap-1.5">
-                  {it.answerWord.split("").map((ansCh, idx) => {
+                  {it.answerWord.split("").map((_letter, idx) => {
+                    const ansCh = it.answerWord[idx] ?? "_"
+                    const useMulti =
+                      it.slotProgressBySlot != null &&
+                      it.viewerSlot != null &&
+                      Object.keys(it.slotProgressBySlot).length > 0
+
+                    if (useMulti) {
+                      const cell = multiplayerLetterCell(it, idx, it.answerWord)
+                      return (
+                        <div
+                          key={idx}
+                          className="flex h-9 w-9 select-none items-center justify-center rounded-lg border-2 text-base font-extrabold shadow-[0_0_0_1px_rgba(0,0,0,0.04)]"
+                          style={
+                            cell.unguessed
+                              ? {
+                                  borderColor: `${UNGUESSED_LETTER_COLOR}99`,
+                                  background: `${UNGUESSED_LETTER_COLOR}18`,
+                                  color: UNGUESSED_LETTER_COLOR,
+                                }
+                              : {
+                                  borderColor: `${cell.color}80`,
+                                  background: `${cell.color}18`,
+                                  color: cell.color,
+                                }
+                          }
+                          title={cell.unguessed ? "Not guessed" : "Found"}
+                        >
+                          {cell.char.toUpperCase()}
+                        </div>
+                      )
+                    }
+
                     const color = foundColorForItem?.(it) ?? foundColor
-                    const p = it.myProgress ?? ""
+                    const p = padProgressMask(it.myProgress, it.answerWord.length)
                     const ch = p[idx] ?? "_"
                     const found = ch !== "_"
                     const missed = !found

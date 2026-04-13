@@ -106,26 +106,37 @@ export function buildBlogArticleMetadata(post: BlogPost, locale: BlogLocale): Me
   }
 }
 
-export function buildBlogIndexMetadata(locale: BlogLocale): Metadata {
+export function buildBlogIndexMetadata(
+  locale: BlogLocale,
+  options?: { page?: number }
+): Metadata {
+  const page = Math.max(1, Math.floor(options?.page ?? 1))
   const base = getSiteUrl()
-  const enUrl = `${base}/en/blog`
-  const roUrl = `${base}/ro/blog`
+  const enPath = "/en/blog"
+  const roPath = "/ro/blog"
+  const enUrl = `${base}${enPath}`
+  const roUrl = `${base}${roPath}`
+  const pageQuery = page > 1 ? `?page=${page}` : ""
+  const canonical =
+    locale === "en" ? `${enUrl}${pageQuery}` : `${roUrl}${pageQuery}`
+  const titlePageSuffix =
+    page > 1 ? (locale === "en" ? ` — Page ${page}` : ` — Pagina ${page}`) : ""
 
   if (locale === "en") {
     return {
-      title: "Blog",
+      title: `Blog${titlePageSuffix}`,
       description:
         "Guides and articles about WordWave: multiplayer tips, typing strategy, voice input, categories, game nights, and fair play.",
       alternates: {
-        canonical: enUrl,
-        languages: { en: enUrl, ro: roUrl, "x-default": enUrl },
+        canonical,
+        ...(page === 1 ? { languages: { en: enUrl, ro: roUrl, "x-default": enUrl } } : {}),
       },
       robots: { index: true, follow: true },
       openGraph: {
-        title: "WordWave blog",
+        title: page > 1 ? `WordWave blog${titlePageSuffix}` : "WordWave blog",
         description:
           "Guides for hosts and players: rooms, typing strategy, voice input, categories, and game nights.",
-        url: enUrl,
+        url: canonical,
         type: "website",
         locale: "en_US",
       },
@@ -139,19 +150,19 @@ export function buildBlogIndexMetadata(locale: BlogLocale): Metadata {
   }
 
   return {
-    title: "Blog",
+    title: `Blog${titlePageSuffix}`,
     description:
       "Articole și ghiduri WordWave: multiplayer, strategii de tastare, microfon, categorii, seri de joc.",
     alternates: {
-      canonical: roUrl,
-      languages: { en: enUrl, ro: roUrl, "x-default": enUrl },
+      canonical,
+      ...(page === 1 ? { languages: { en: enUrl, ro: roUrl, "x-default": enUrl } } : {}),
     },
     robots: { index: true, follow: true },
     openGraph: {
-      title: "Blog WordWave",
+      title: page > 1 ? `Blog WordWave${titlePageSuffix}` : "Blog WordWave",
       description:
         "Ghiduri pentru gazde și jucători: camere, strategie, voce, categorii și seri de joc.",
-      url: roUrl,
+      url: canonical,
       type: "website",
       locale: "ro_RO",
     },

@@ -1,17 +1,41 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { allBlogPosts, blogPostPath, formatBlogDateForDisplay } from "@/lib/blog"
+import {
+  blogPostPath,
+  blogPostsForRomanianBlogIndex,
+  blogListTotalPages,
+  formatBlogDateForDisplay,
+  parseBlogListPage,
+  sliceBlogPostsPage,
+} from "@/lib/blog"
+import { BlogPagination } from "@/components/blog-pagination"
 import { romanianListingForPost } from "@/lib/blog/ro-blog-listing"
 import { buildBlogIndexMetadata } from "@/lib/blog/seo-metadata"
 
-export const metadata: Metadata = buildBlogIndexMetadata("ro")
+type Props = { searchParams?: Promise<{ page?: string }> }
 
-export default function RoBlogIndexPage() {
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const sp = await searchParams
+  const allPosts = blogPostsForRomanianBlogIndex()
+  const totalPages = blogListTotalPages(allPosts.length)
+  const requested = parseBlogListPage(sp?.page)
+  const page = Math.min(requested, totalPages)
+  return buildBlogIndexMetadata("ro", { page })
+}
+
+export default async function RoBlogIndexPage({ searchParams }: Props) {
+  const sp = await searchParams
+  const allPosts = blogPostsForRomanianBlogIndex()
+  const totalPages = blogListTotalPages(allPosts.length)
+  const requested = parseBlogListPage(sp?.page)
+  const page = Math.min(requested, totalPages)
+  const posts = sliceBlogPostsPage(allPosts, page)
+
   return (
     <div>
       <h1 className="mb-3 text-3xl font-bold tracking-tight text-foreground">Blog WordWave</h1>
       <ul className="space-y-8">
-        {allBlogPosts.map((post) => {
+        {posts.map((post) => {
           const href = blogPostPath(post, "ro")
           const { title, description } = romanianListingForPost(post)
           return (
@@ -28,6 +52,7 @@ export default function RoBlogIndexPage() {
           )
         })}
       </ul>
+      <BlogPagination locale="ro" page={page} totalPages={totalPages} basePath="/ro/blog" />
     </div>
   )
 }

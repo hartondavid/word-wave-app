@@ -44,14 +44,16 @@ api_key = os.getenv("GEMINI_API_KEY")
 if not api_key:
     raise SystemExit("GEMINI_API_KEY is missing")
 
-# Ordine: rapide/ieftine întâi; sufixe alternative pentru conturi/regiuni diferite.
+# Ordine: modele noi (cote mai mari în AI Studio) → 2.5 → 2.0 → 1.5.
+# Nu folosi modele *TTS* / Live audio (ex. gemini-2.5-flash-preview-tts) pentru text — alt tip de API.
 _GEMINI_MODEL_CANDIDATES: tuple[str, ...] = (
+    "gemini-3.1-flash-lite-preview",
+    "gemini-3-flash-preview",
     "gemini-2.5-flash",
     "gemini-2.5-flash-lite",
     "gemini-2.0-flash",
     "gemini-2.0-flash-001",
     "gemini-2.0-flash-lite",
-    "gemini-1.5-flash-8b",
     "gemini-1.5-flash",
     "gemini-1.5-flash-002",
     "gemini-2.5-pro",
@@ -96,6 +98,9 @@ def _discovered_generate_model_ids() -> list[str]:
             short = name.rsplit("/", 1)[-1]
             methods = getattr(item, "supported_generation_methods", None)
             if methods is not None and "generateContent" not in methods:
+                continue
+            # Evită modele TTS / non-text care apar în listă.
+            if "-tts" in short.lower() or "native-audio" in short.lower():
                 continue
             found.append(short)
     except Exception as e:
@@ -207,6 +212,7 @@ def generate_with_model_fallback(
     what: str,
     *,
     gen_config: types.GenerateContentConfig | dict[str, Any] | None = None,
+    max_attempts_per_model: int = 5,
 ) -> tuple[Any, str]:
     """Parcurge lanțul de modele la erori tranzitorii sau de model (excl. 401/403)."""
     chain = _model_chain()
@@ -216,7 +222,11 @@ def generate_with_model_fallback(
     for i, mid in enumerate(chain):
         try:
             resp = generate_with_retry(
-                mid, prompt, what=f"{what} [{mid}]", gen_config=gen_config
+                mid,
+                prompt,
+                what=f"{what} [{mid}]",
+                gen_config=gen_config,
+                max_attempts=max_attempts_per_model,
             )
             return resp, mid
         except _GEMINI_RETRY_EXC as e:
@@ -976,11 +986,13 @@ def main() -> None:
                 now, en_dir, ro_dir
             )
         except ValueError as e:
-            raise SystemExit(
-                f"{e}\n"
-                "Sfat: GEMINI_CONTENT_TWO_STEP=1 (două apeluri) sau verifică că modelul respectă "
-                "markerii și TITLE_LINE/DESC_LINE; reduce lungimea cerută dacă răspunsul e trunchiat."
-            ) from e
+            print(
+                f"[Gemini] Apel unic EN+RO a eșuat ({e}); trec la două pași automat.",
+                flush=True,
+            )
+            active_model, base_slug, en_body, ro_body, meta = _pipeline_two_step(
+                now, en_dir, ro_dir
+            )
 
     title_en, desc_en, title_ro, desc_ro = meta
     ro_body = _maybe_retry_ro_if_similar(
