@@ -1,32 +1,1370 @@
 [
   {
-    "word": "eșec",
-    "definition": "Rezultat negativ al unei tentative, absența succesului",
-    "word_en": "failure",
-    "definition_en": "Not succeeding in an action"
+    "word": "agasa",
+    "definition": "A provoca disconfort cuiva prin insistențe sau comentarii frecvente",
+    "word_en": "annoying",
+    "definition_en": "To make someone uncomfortable by frequent insistence or comments"
   },
   {
-    "word": "fotbalist",
-    "definition": "Sportiv profesionist care activează în competiții de performanță"
+    "word": "aplatiza",
+    "definition": "A reduce grosimea sau volumul unui obiect prin aplicarea unei forțe; a face plat",
+    "word_en": "flatten",
+    "definition_en": "To reduce the thickness or volume of an object by applying a force; to make flat"
   },
   {
-    "word": "inițiativă",
-    "definition": "Capacitatea de a întreprinde acțiuni din proprie voință, fără a fi stimulat",
-    "word_en": "initiative",
-    "definition_en": "Starting something on your own"
+    "word": "bibili",
+    "definition": "a acorda atenție tuturor detaliilor, a lucra un lucru din nou și din nou ca ouăle de bibilică",
+    "word_en": "whites",
+    "definition_en": "to pay attention to every detail, to work one thing over and over again like peacock eggs"
   },
   {
-    "word": "obstacol",
-    "definition": "Element care împiedică sau îngreunează desfășurarea normală a unei activități",
-    "word_en": "obstacle",
-    "definition_en": "What blocks you from moving forward"
+    "word": "chema",
+    "definition": "A solicita prezenței cuiva într-un loc sau la un eveniment",
+    "word_en": "call",
+    "definition_en": "To request someone's presence in a place or at an event"
   },
   {
-    "word": "progresa",
-    "definition": "A avansa continuu spre un nivel superior de dezvoltare sau performanță"
+    "word": "completa",
+    "definition": "A adăuga elementele lipsă pentru a restaura capacitatea de funcționare a unui sistem",
+    "word_en": "fill",
+    "definition_en": "Add the missing elements to restore the functionality of a system"
   },
   {
-    "word": "recorduri",
-    "definition": "Performanțe sau valori care depășesc semnificativ standardele așteptate"
+    "word": "corespunde",
+    "definition": "A satisface cerințele sau standardele impuse",
+    "word_en": "MEET",
+    "definition_en": "To meet the requirements or standards imposed"
+  },
+  {
+    "word": "decortica",
+    "definition": "A îndepărta coaja sau stratul exterior al unui aliment pentru a-l consuma",
+    "word_en": "decorticate",
+    "definition_en": "To remove the skin or outer layer of a food in order to eat it"
+  },
+  {
+    "word": "derapa",
+    "definition": "A pierde aderența pe o suprafață alunecoasă, deplasându-se necontrolat lateral",
+    "word_en": "skid",
+    "definition_en": "To lose grip on a slippery surface, moving uncontrollably sideways"
+  },
+  {
+    "word": "dispărea",
+    "definition": "A deveni invizibil sau a nu mai fi perceptibil simțurilor; a se face nevăzut",
+    "word_en": "disappear",
+    "definition_en": "To become invisible or no longer perceptible to the senses; to make oneself invisible"
+  },
+  {
+    "word": "exhuma",
+    "definition": "a face să iasă la iveală sau a readuce ceva în prim-plan",
+    "word_en": "exhume",
+    "definition_en": "to bring out or bring something back to the fore"
+  },
+  {
+    "word": "frecventa",
+    "definition": "A se prezenta și lua parte la o activitate sau loc în mod consecvent și regulat",
+    "word_en": "frequency",
+    "definition_en": "To show up and take part in an activity or place consistently and regularly"
+  },
+  {
+    "word": "huli",
+    "definition": "A defăima, a vorbi de rău despre cineva sau ceva",
+    "word_en": "blaspheme",
+    "definition_en": "To slander, speak ill of someone or something"
+  },
+  {
+    "word": "inunda",
+    "definition": "A acoperi un teren cu apă în urma revărsării unui curs de apă",
+    "word_en": "flood",
+    "definition_en": "To cover a land with water following the overflow of a water course"
+  },
+  {
+    "word": "locii",
+    "definition": "A sta pe ouă pentru a le incuba, specific găinilor",
+    "word_en": "loci",
+    "definition_en": "To sit on eggs to incubate them, specific to hens"
+  },
+  {
+    "word": "mânui",
+    "definition": "A folosi sau manevra ceva cu abilitate și îndemânare",
+    "word_en": "handle",
+    "definition_en": "To use or handle something with skill and skill"
+  },
+  {
+    "word": "paște",
+    "definition": "A mesteca îndelung hrana, specific rumegătoarelor",
+    "word_en": "pasta",
+    "definition_en": "To chew food for a long time, specific to ruminants"
+  },
+  {
+    "word": "povesti",
+    "definition": "A relata pe larg o întâmplare sau experiență, cu detalii și nuanțe",
+    "word_en": "tell",
+    "definition_en": "To recount an incident or experience at length, with detail and nuance"
+  },
+  {
+    "word": "putea",
+    "definition": "A fi în stare, a dispune de capacitatea sau posibilitatea de a face ceva",
+    "word_en": "TO",
+    "definition_en": "To be able, to have the ability or possibility to do something"
+  },
+  {
+    "word": "refuza",
+    "definition": "A respinge sau nega ceva în mod hotărât și ferm, fără echivoc",
+    "word_en": "refuse",
+    "definition_en": "To reject or deny something decisively and firmly, unequivocally"
+  },
+  {
+    "word": "rumega",
+    "definition": "A fi permanent preocupat și chinuit de gânduri sau frământări interioare",
+    "word_en": "ruminant",
+    "definition_en": "Being constantly preoccupied and tormented by thoughts or inner turmoil"
+  },
+  {
+    "word": "abține",
+    "definition": "A nu ceda unui impuls sau dorință spontane, menținând controlul asupra comportamentului propriu",
+    "word_en": "refrain",
+    "definition_en": "Not giving in to a spontaneous impulse or desire, maintaining control over one's own behavior"
+  },
+  {
+    "word": "curenta",
+    "definition": "A intra în contact cu un curent electric și a suferi un șoc electric",
+    "word_en": "the current",
+    "definition_en": "Coming into contact with an electric current and suffering an electric shock"
+  },
+  {
+    "word": "găti",
+    "definition": "A se îmbrăca și îngriji aspectul pentru o ocazie specială",
+    "word_en": "cook",
+    "definition_en": "To dress and look for a special occasion"
+  },
+  {
+    "word": "recupera",
+    "definition": "A traversa un proces de recuperare sau de readucere la starea inițială",
+    "word_en": "recover",
+    "definition_en": "To go through a process of recovery or restoration"
+  },
+  {
+    "word": "smulge",
+    "definition": "A se elibera brusc și cu forță din strânsoarea cuiva",
+    "word_en": "pluck",
+    "definition_en": "To break free suddenly and forcefully from one's grasp"
+  },
+  {
+    "word": "împăca",
+    "definition": "A restabili relațiile amiabile între persoane sau grupuri aflate în conflict",
+    "word_en": "reconcile",
+    "definition_en": "To restore amicable relations between persons or groups in conflict"
+  },
+  {
+    "word": "sorcovi",
+    "definition": "A merge la rude sau prieteni în prima zi a anului nou cu urări tradiționale",
+    "word_en": "Sorcerer",
+    "definition_en": "Going to relatives or friends on the first day of the new year with traditional wishes"
+  },
+  {
+    "word": "supralicita",
+    "definition": "A spori suma pariată; a mări riscul asumat sperând la un câștig mai mare",
+    "word_en": "outbid",
+    "definition_en": "To increase the amount bet; to increase the risk taken in the hope of a greater gain"
+  },
+  {
+    "word": "tolera",
+    "definition": "A accepta sau suporta ceva diferit de propria opinie sau tradiție",
+    "word_en": "tolerate",
+    "definition_en": "To accept or tolerate something different from one's own opinion or tradition"
+  },
+  {
+    "word": "ușura",
+    "definition": "A reduce complexitatea sau dificultatea unei sarcini, probleme sau situații",
+    "word_en": "ease",
+    "definition_en": "To reduce the complexity or difficulty of a task, problem or situation"
+  },
+  {
+    "word": "îmbrățișa",
+    "definition": "A strânge pe cineva în brațe ca semn de afecțiune și apropriere",
+    "word_en": "embrace",
+    "definition_en": "To hold someone in one's arms as a sign of affection and belonging"
+  },
+  {
+    "word": "înfiora",
+    "definition": "A resimți o senzație de frig instantaneu și fiori care parcurg corpul în urma unui stimul emoțional",
+    "word_en": "creepy",
+    "definition_en": "Feeling an instant cold sensation and shivers running through the body following an emotional stimulus"
+  },
+  {
+    "word": "înverzi",
+    "definition": "a reflecta culorile renașterii în natură, a face copacii să-și capete frunzele verzi",
+    "word_en": "green",
+    "definition_en": "to reflect the colors of rebirth in nature, to make the trees grow their green leaves"
+  },
+  {
+    "word": "absent",
+    "definition": "Care nu este prezent, care lipsește dintr-un loc sau situație",
+    "word_en": "absent",
+    "definition_en": "Which is not present, which is missing from a place or situation"
+  },
+  {
+    "word": "aclamată",
+    "definition": "Adjectiv care descrie o persoană sau realizare primită cu entuziasm și aplauze",
+    "word_en": "acclaimed",
+    "definition_en": "Adjective describing a person or achievement received with enthusiasm and applause"
+  },
+  {
+    "word": "adaptabil",
+    "definition": "Care se adaptează rapid la condiții sau situații noi, fără dificultate",
+    "word_en": "adaptable",
+    "definition_en": "Which quickly adapts to new conditions or situations without difficulty"
+  },
+  {
+    "word": "aerodrom",
+    "definition": "Infrastructură destinată decolării și aterizării aeronavelor mici",
+    "word_en": "aerodrome",
+    "definition_en": "Infrastructure for the take-off and landing of small aircraft"
+  },
+  {
+    "word": "airbag",
+    "definition": "Sac de siguranță care se umflă instantaneu la impact pentru protecția ocupanților",
+    "word_en": "airbag",
+    "definition_en": "Airbag that inflates instantly on impact for occupant protection"
+  },
+  {
+    "word": "alocație",
+    "definition": "ajutor financiar acordat cetățenilor de către stat",
+    "word_en": "allowance",
+    "definition_en": "financial aid granted to citizens by the state"
+  },
+  {
+    "word": "alviță",
+    "definition": "Dulce tradițional din zahăr ars cu nuci sau semințe, cu consistență vâscoasă și gust dulce-amărui",
+    "word_en": "pan",
+    "definition_en": "Traditional candy made from burnt sugar with nuts or seeds, with a viscous consistency and a bittersweet taste"
+  },
+  {
+    "word": "amfiteatru",
+    "definition": "Construcție cu tribune dispuse în semicerc în jurul unui spațiu central",
+    "word_en": "amphitheater",
+    "definition_en": "Construction with tribunes arranged in a semicircle around a central space"
+  },
+  {
+    "word": "animator",
+    "definition": "persoana care creează atmosferă într-un spectacol, distrează publicul",
+    "word_en": "animating",
+    "definition_en": "the person who creates atmosphere in a show, entertains the audience"
+  },
+  {
+    "word": "anvelope",
+    "definition": "învelișuri de protecție ale camerei de aer a vehiculelor, puse pe jante",
+    "word_en": "TIRES",
+    "definition_en": "protective coverings of the air chamber of vehicles, placed on rims"
+  },
+  {
+    "word": "arcaș",
+    "definition": "Luptător medieval care folosea arcul ca armă principală de atac la distanță",
+    "word_en": "archer",
+    "definition_en": "Medieval warrior who used the bow as his primary ranged attack weapon"
+  },
+  {
+    "word": "artere",
+    "definition": "Vase sangvine care transportă sângele prin organism",
+    "word_en": "arteries",
+    "definition_en": "Blood vessels that carry blood through the body"
+  },
+  {
+    "word": "aspersoare",
+    "definition": "Dispozitiv de irigare care distribuie apa în picături fine asupra terenului",
+    "word_en": "sprinklers",
+    "definition_en": "Irrigation device that distributes water in fine drops over the land"
+  },
+  {
+    "word": "audiată",
+    "definition": "Persoana chemată să dea declarații formale în fața autorităților sau instanțelor",
+    "word_en": "hearing",
+    "definition_en": "The person called to give formal statements before authorities or courts"
+  },
+  {
+    "word": "avioane",
+    "definition": "păsări de fier, mijloace de transport rapid pentru oameni și mărfuri",
+    "word_en": "AIRPLANES",
+    "definition_en": "iron birds, fast means of transport for people and goods"
+  },
+  {
+    "word": "bacșiș",
+    "definition": "Sumă suplimentară acordată voluntar unui prestator de servicii ca semn de apreciere",
+    "word_en": "tip",
+    "definition_en": "Additional amount voluntarily given to a service provider as a token of appreciation"
+  },
+  {
+    "word": "banc",
+    "definition": "Scurtă istorioară spirituală sau replică menită să stârnească amuzamentul",
+    "word_en": "bank",
+    "definition_en": "Short witty story or line intended to spark amusement"
+  },
+  {
+    "word": "basculantă",
+    "definition": "Vehicul greu cu bena care se poate înclina pentru descărcarea materialelor transportate",
+    "word_en": "Dump",
+    "definition_en": "The heavy vehicle with tilting body for unloading the transported materials"
+  },
+  {
+    "word": "bermude",
+    "definition": "Pantaloni scurți de vară din material ușor, ce se termină deasupra genunchilor",
+    "word_en": "Bermuda shorts",
+    "definition_en": "Summer shorts in light material, ending above the knees"
+  },
+  {
+    "word": "bine",
+    "definition": "Adjectiv care descrie o persoană cu dispoziție pozitivă, mulțumită și optimistă",
+    "word_en": "good",
+    "definition_en": "Adjective describing a person with a positive, contented and optimistic mood"
+  },
+  {
+    "word": "blesteme",
+    "definition": "Suferințe sau necazuri atribuite intervenției divine sau destinului",
+    "word_en": "accursed",
+    "definition_en": "Sufferings or troubles attributed to divine intervention or fate"
+  },
+  {
+    "word": "bondar",
+    "definition": "Insectă mare, zumzăitoare, înrudită cu albina, cu corp robust",
+    "word_en": "bumble-bee",
+    "definition_en": "Large, humming insect, related to the bee, with a robust body"
+  },
+  {
+    "word": "bravo",
+    "definition": "Exclamație de laudă și aprobare adresată cuiva pentru o realizare",
+    "word_en": "Bravo",
+    "definition_en": "Exclamation of praise and approval addressed to someone for an achievement"
+  },
+  {
+    "word": "brăzdată",
+    "definition": "Care prezintă urme de frecare sau eroziune la suprafață; șlefuit sau corodat",
+    "word_en": "furrow",
+    "definition_en": "Which shows traces of friction or erosion on the surface; ground or corroded"
+  },
+  {
+    "word": "bumerang",
+    "definition": "Proiectil din lemn curb folosit de aborigenii australieni care revine la punctul de plecare",
+    "word_en": "boomerang",
+    "definition_en": "Curved wooden projectile used by Australian Aborigines that returns to the starting point"
+  },
+  {
+    "word": "băcănie",
+    "definition": "Magazin tradițional de cartier care vinde produse alimentare și de uz casnic",
+    "word_en": "grocer's",
+    "definition_en": "Traditional neighborhood store selling food and household goods"
+  },
+  {
+    "word": "cablu",
+    "definition": "Cablu sau conductor prin care se transmite energia electrică",
+    "word_en": "cable",
+    "definition_en": "Cable or conductor through which electricity is transmitted"
+  },
+  {
+    "word": "calorifere",
+    "definition": "Aparat electric sau hidraulic de încălzire a spațiilor, montat pe perete sau în podea",
+    "word_en": "radiators",
+    "definition_en": "Electric or hydraulic space heating device, mounted on the wall or in the floor"
+  },
+  {
+    "word": "capot",
+    "definition": "halatul de casă, îmbrăcăminte lejeră pentru interior",
+    "word_en": "dressing gown",
+    "definition_en": "dressing gown, light indoor wear"
+  },
+  {
+    "word": "caserole",
+    "definition": "Recipiente cu capac utilizate pentru păstrarea alimentelor preparate",
+    "word_en": "Casero",
+    "definition_en": "Containers with lids used to store prepared foods"
+  },
+  {
+    "word": "cațcă",
+    "definition": "Persoană care critică și mustrează repetat și insistent pe cei din jur",
+    "word_en": "cat",
+    "definition_en": "A person who repeatedly and persistently criticizes and scolds those around them"
+  },
+  {
+    "word": "cert",
+    "definition": "Care nu poate fi pus la îndoială; evident, sigur, indubitabil",
+    "word_en": "certainly",
+    "definition_en": "Which cannot be doubted; obvious, certain, indubitable"
+  },
+  {
+    "word": "chiciură",
+    "definition": "Fenomen meteorologic în care vaporii de apă se depun pe ramuri formând un strat alb pufos",
+    "word_en": "hoar-frost",
+    "definition_en": "Meteorological phenomenon in which water vapor settles on the branches forming a fluffy white layer"
+  },
+  {
+    "word": "cimpoi",
+    "definition": "Instrument muzical de suflat cu rezervor de aer din piele de animal, specific mai multor culturi",
+    "word_en": "bagpipe",
+    "definition_en": "Wind musical instrument with animal skin air reservoir, specific to several cultures"
+  },
+  {
+    "word": "ciucuri",
+    "definition": "Ornamente textile alcătuite din fire sau șuvițe atârnate decorativ",
+    "word_en": "tassel",
+    "definition_en": "Textile ornaments made up of threads or strands hung decoratively"
+  },
+  {
+    "word": "clasă",
+    "definition": "Sala de cursuri unde se desfășoară activitățile didactice și unde se face prezența",
+    "word_en": "class",
+    "definition_en": "The lecture hall where teaching activities are carried out and where attendance is taken"
+  },
+  {
+    "word": "clop",
+    "definition": "Pălărie tradițională rotundă din Țara Oașului, decorată cu panglici, pene și broderii colorate",
+    "word_en": "clock",
+    "definition_en": "Traditional round hat from Oașului, decorated with ribbons, feathers and colorful embroidery"
+  },
+  {
+    "word": "cocktail",
+    "definition": "Băutură preparată prin amestecarea mai multor ingrediente lichide, servită ca aperitiv",
+    "word_en": "cocktail",
+    "definition_en": "Drink prepared by mixing several liquid ingredients, served as an aperitif"
+  },
+  {
+    "word": "colindători",
+    "definition": "Persoane care merg din casă în casă la Crăciun cântând colinde tradiționale",
+    "word_en": "carol",
+    "definition_en": "People going from house to house at Christmas singing traditional carols"
+  },
+  {
+    "word": "complement",
+    "definition": "Element gramatical care completează sau determină sensul predicatului, exprimând circumstanțele acțiunii",
+    "word_en": "complement",
+    "definition_en": "Grammatical element that completes or determines the meaning of the predicate, expressing the circumstances of the action"
+  },
+  {
+    "word": "confetti",
+    "definition": "Bucăți mici de hârtie colorată aruncate în aer la sărbători și festivități",
+    "word_en": "confetti",
+    "definition_en": "Small pieces of colored paper thrown into the air at holidays and festivities"
+  },
+  {
+    "word": "consuma",
+    "definition": "A folosi complet și fără rezerve un bun sau o resursă disponibilă",
+    "word_en": "consume",
+    "definition_en": "To make full and unreserved use of an available asset or resource"
+  },
+  {
+    "word": "copii",
+    "definition": "Copie identică sau aproape identică cu originalul, fără valoare artistică proprie",
+    "word_en": "BOYS",
+    "definition_en": "Copy identical or nearly identical to the original, without artistic value of its own"
+  },
+  {
+    "word": "cosit",
+    "definition": "Care a fost tăiat cu coasa sau mașina de cosit; destinat furajării animalelor",
+    "word_en": "mowing",
+    "definition_en": "Which has been cut with a scythe or mower; intended for animal feed"
+  },
+  {
+    "word": "creioane",
+    "definition": "Accesorii de scris folosite la școală sau birou, consumabile prin uz",
+    "word_en": "pencils",
+    "definition_en": "Writing accessories used at school or office, consumables by use"
+  },
+  {
+    "word": "croitorii",
+    "definition": "Atelier sau spațiu specializat în confecționarea și modificarea îmbrăcămintei",
+    "word_en": "Tailors",
+    "definition_en": "Workshop or space specialized in the making and alteration of clothing"
+  },
+  {
+    "word": "cumva",
+    "definition": "Cuvânt care exprimă o modalitate sau un mod nedefinit de realizare a ceva",
+    "word_en": "perhaps",
+    "definition_en": "A word that expresses an undefined way or way of doing something"
+  },
+  {
+    "word": "cuticule",
+    "definition": "Pielea subțire care înconjoară baza unghiilor, protejând-o",
+    "word_en": "Cuticle",
+    "definition_en": "The thin skin that surrounds the base of the nail, protecting it"
+  },
+  {
+    "word": "cârje",
+    "definition": "Dispozitive de sprijin utilizate de persoane cu dificultăți locomotorii",
+    "word_en": "crutch",
+    "definition_en": "Support devices used by people with locomotor difficulties"
+  },
+  {
+    "word": "căni",
+    "definition": "Recipiente mici de ceramică sau porțelan cu mâner, folosite pentru băuturi calde",
+    "word_en": "JUGS",
+    "definition_en": "Small ceramic or porcelain vessels with handles, used for hot drinks"
+  },
+  {
+    "word": "de",
+    "definition": "Parte de vorbire neflexibilă care leagă cuvinte sau grupuri de cuvinte",
+    "word_en": "of",
+    "definition_en": "Inflexible part of speech that connects words or groups of words"
+  },
+  {
+    "word": "defileu",
+    "definition": "Pasaj îngust între munți, tăiat de un râu sau format prin eroziunea rocii",
+    "word_en": "defile",
+    "definition_en": "Narrow passage between mountains, cut by a river or formed by erosion of rock"
+  },
+  {
+    "word": "democrație",
+    "definition": "Formă de guvernare în care puterea aparține poporului",
+    "word_en": "democracy",
+    "definition_en": "Form of government in which power belongs to the people"
+  },
+  {
+    "word": "descindere",
+    "definition": "Intervenție autoritară a forțelor de ordine pentru verificarea unui spațiu",
+    "word_en": "raid",
+    "definition_en": "Authoritative intervention of law enforcement to check a space"
+  },
+  {
+    "word": "devansare",
+    "definition": "Acțiunea de a depăși un rival sau concurent, de a prelua o poziție superioară",
+    "word_en": "outrunning",
+    "definition_en": "The act of surpassing a rival or competitor, of taking a superior position"
+  },
+  {
+    "word": "diacritice",
+    "definition": "Semne ortografice plasate sub sau deasupra literelor pentru a marca pronunțarea specifică",
+    "word_en": "diacritics",
+    "definition_en": "Spelling marks placed below or above letters to mark specific pronunciation"
+  },
+  {
+    "word": "dispoziții",
+    "definition": "Reglementare sau ordin oficial emis de o autoritate cu putere executivă",
+    "word_en": "dispositions",
+    "definition_en": "Regulation or official order issued by an authority with executive power"
+  },
+  {
+    "word": "document",
+    "definition": "Act scris care certifică sau atestă un fapt sau drept",
+    "word_en": "document",
+    "definition_en": "Written act that certifies or attests to a fact or right"
+  },
+  {
+    "word": "dovlecel",
+    "definition": "Plantă din familia cucurbitaceelor cu fructe mici, alungite, de culoare verde",
+    "word_en": "zucchini",
+    "definition_en": "Plant from the cucurbitaceae family with small, elongated, green fruits"
+  },
+  {
+    "word": "drăguț",
+    "definition": "Care are un aspect sau o atitudine plăcută, ce inspiră afecțiune",
+    "word_en": "cute",
+    "definition_en": "Having a pleasant appearance or attitude, which inspires affection"
+  },
+  {
+    "word": "déjà vu",
+    "definition": "Fenomen psihologic prin care o situație nouă pare că a mai fost trăită anterior",
+    "word_en": "déjà vu",
+    "definition_en": "Psychological phenomenon whereby a new situation seems to have been experienced before"
+  },
+  {
+    "word": "ediții",
+    "definition": "versiuni ale unor lucrări, apariții periodice ale unor cărți",
+    "word_en": "EDITION",
+    "definition_en": "versions of some works, periodic appearances of some books"
+  },
+  {
+    "word": "emoticon",
+    "definition": "Pictogramă mică folosită în comunicarea digitală pentru a exprima emoții sau stări",
+    "word_en": "smiley",
+    "definition_en": "Small icon used in digital communication to express emotions or moods"
+  },
+  {
+    "word": "estic",
+    "definition": "Care se referă la punctul cardinal est sau care este situat spre răsărit",
+    "word_en": "EASTERN",
+    "definition_en": "Which refers to the east cardinal point or which is located towards the east"
+  },
+  {
+    "word": "excentrică",
+    "definition": "Care atrage atenția prin aspect neobișnuit sau comportament ieșit din comun",
+    "word_en": "eccentric",
+    "definition_en": "Which attracts attention by unusual appearance or behavior out of the ordinary"
+  },
+  {
+    "word": "extrem",
+    "definition": "tip de sport cu nivel ridicat de adrenalină, care oferă senzații intense",
+    "word_en": "extremely",
+    "definition_en": "type of sport with a high level of adrenaline, which offers intense sensations"
+  },
+  {
+    "word": "fapte",
+    "definition": "Acțiuni concrete și demonstrabile, mai concludente decât simplele vorbe sau promisiuni",
+    "word_en": "Acts",
+    "definition_en": "Concrete and demonstrable actions, more conclusive than mere words or promises"
+  },
+  {
+    "word": "feluri",
+    "definition": "sortimente, varietăți de obiecte, tipuri de oameni",
+    "word_en": "WAYS",
+    "definition_en": "assortments, varieties of objects, types of people"
+  },
+  {
+    "word": "fidea",
+    "definition": "Tip de paste alimentare subțiri, lungi sau scurte",
+    "word_en": "vermicelli",
+    "definition_en": "Type of thin, long or short pasta"
+  },
+  {
+    "word": "fisă",
+    "definition": "Piesă metalică sau disc mic folosit ca mijloc de plată sau acces la servicii",
+    "word_en": "dime",
+    "definition_en": "Metal piece or small disc used as a means of payment or access to services"
+  },
+  {
+    "word": "flori",
+    "definition": "Organe reproductive ale plantelor, apreciate pentru frumusețea și parfumul lor",
+    "word_en": "FLORA",
+    "definition_en": "Reproductive organs of plants, valued for their beauty and fragrance"
+  },
+  {
+    "word": "fosfor",
+    "definition": "Element nemetalic folosit în industria chimică și la producerea chibriturilor",
+    "word_en": "phosphorus",
+    "definition_en": "Non-metallic element used in the chemical industry and in the production of matches"
+  },
+  {
+    "word": "frișcă",
+    "definition": "smântână care bătută cu telul devine spumoasă, servită ca desert cu căpșuni",
+    "word_en": "cream",
+    "definition_en": "whipped cream that becomes frothy, served as a dessert with strawberries"
+  },
+  {
+    "word": "fundă",
+    "definition": "Bandă ornamentală legată în formă decorativă pe un cadou sau obiect",
+    "word_en": "bow",
+    "definition_en": "Ornamental ribbon tied decoratively on a gift or object"
+  },
+  {
+    "word": "gală",
+    "definition": "Eveniment sportiv cu mai multe meciuri de box desfășurate în aceeași seară",
+    "word_en": "gala",
+    "definition_en": "Sports event with several boxing matches held on the same evening"
+  },
+  {
+    "word": "geniu",
+    "definition": "Persoană cu capacități intelectuale sau artistice excepționale",
+    "word_en": "genius",
+    "definition_en": "Person with exceptional intellectual or artistic abilities"
+  },
+  {
+    "word": "ghizi",
+    "definition": "Persoane specializate care conduc și informează turiștii în locuri de interes",
+    "word_en": "guides",
+    "definition_en": "Specialized people who guide and inform tourists in places of interest"
+  },
+  {
+    "word": "golit",
+    "definition": "Care nu mai conține nimic, lipsit de conținut",
+    "word_en": "EMPTY",
+    "definition_en": "Which no longer contains anything, devoid of content"
+  },
+  {
+    "word": "greier",
+    "definition": "Insectă (Gryllus campestris) care produce sunete caracteristice prin frecarea aripilor",
+    "word_en": "cicada",
+    "definition_en": "Insect (Gryllus campestris) that produces characteristic sounds by rubbing its wings"
+  },
+  {
+    "word": "gutuie",
+    "definition": "Fruct galben aromatic cu gust extrem de acid și amar",
+    "word_en": "quince",
+    "definition_en": "Aromatic yellow fruit with an extremely acidic and bitter taste"
+  },
+  {
+    "word": "hală",
+    "definition": "Construcție de mari dimensiuni cu destinație industrială sau comercială, pentru depozitare sau producție",
+    "word_en": "hall",
+    "definition_en": "Large industrial or commercial construction for storage or production"
+  },
+  {
+    "word": "hieroglife",
+    "definition": "Sistem de scriere al Egiptului Antic bazat pe simboluri pictografice",
+    "word_en": "hieroglyphics",
+    "definition_en": "Ancient Egyptian writing system based on pictographic symbols"
+  },
+  {
+    "word": "hotărât",
+    "definition": "Care acționează cu determinare, fără a fi influențat de îndoieli",
+    "word_en": "decided",
+    "definition_en": "Who acts with determination, without being swayed by doubts"
+  },
+  {
+    "word": "identitate",
+    "definition": "Ansamblul trăsăturilor unice care definesc o persoană",
+    "word_en": "identity",
+    "definition_en": "The set of unique traits that define a person"
+  },
+  {
+    "word": "imbatabilă",
+    "definition": "cea care deține superioritate absolută, nu poate fi întrecută de alții",
+    "word_en": "drunk",
+    "definition_en": "that which holds absolute superiority, cannot be surpassed by others"
+  },
+  {
+    "word": "incurabilă",
+    "definition": "boală care nu cunoaște leac, nu există medicament sau tratament",
+    "word_en": "incurable",
+    "definition_en": "disease for which there is no cure, no medicine or treatment"
+  },
+  {
+    "word": "inflamații",
+    "definition": "Reacții de apărare ale corpului la agenți patogeni sau leziuni, manifestate prin roșeață și umflare",
+    "word_en": "inflammations",
+    "definition_en": "Defense reactions of the body to pathogens or injuries, manifested by redness and swelling"
+  },
+  {
+    "word": "insulă",
+    "definition": "Porțiune de uscat complet înconjurată de apă, izolată de continent",
+    "word_en": "island",
+    "definition_en": "A piece of land completely surrounded by water, isolated from the mainland"
+  },
+  {
+    "word": "involuntar",
+    "definition": "Care s-a produs fără intenție deliberată; neintenționat, accidental",
+    "word_en": "involuntary",
+    "definition_en": "Which occurred without deliberate intent; unintentionally, accidentally"
+  },
+  {
+    "word": "izbucni",
+    "definition": "A da drumul violent și brusc emoțiilor negative reprimate până la un punct limită",
+    "word_en": "burst",
+    "definition_en": "Violently and suddenly releasing negative emotions repressed to a breaking point"
+  },
+  {
+    "word": "jofre",
+    "definition": "cilindri conici din ciocolată cu cremă, poartă numele unui general francez",
+    "word_en": "jofre",
+    "definition_en": "conical cylinders of chocolate with cream, named after a French general"
+  },
+  {
+    "word": "lacună",
+    "definition": "Spațiu gol sau informație lipsă dintr-un sistem sau text",
+    "word_en": "gap",
+    "definition_en": "Blank space or missing information in a system or text"
+  },
+  {
+    "word": "leduri",
+    "definition": "Surse de iluminat cu consum redus bazate pe diode emițătoare de lumină",
+    "word_en": "LEDs",
+    "definition_en": "Low consumption lighting sources based on light emitting diodes"
+  },
+  {
+    "word": "lichen",
+    "definition": "Organisme simbiotice compuse din componente fungice și algale, ce cresc pe stânci sau scoarță",
+    "word_en": "lichen",
+    "definition_en": "Symbiotic organisms composed of fungal and algal components that grow on rocks or bark"
+  },
+  {
+    "word": "literar",
+    "definition": "Adjectiv care ține de domeniul literelor, al expresiei scrise sau al culturii livrești",
+    "word_en": "literary",
+    "definition_en": "Adjective that belongs to the field of letters, written expression or book culture"
+  },
+  {
+    "word": "lozuri",
+    "definition": "Bilete de loterie cu câștig imediat descoperit prin răzuire sau deschidere",
+    "word_en": "Scratchcard",
+    "definition_en": "Instant win lottery tickets discovered by scratching or opening"
+  },
+  {
+    "word": "lăcustă",
+    "definition": "Insectă ortopteră migratoare cu picioare posterioare puternice, care produce pagube mari în agricultură",
+    "word_en": "grasshopper",
+    "definition_en": "Migratory orthopteran insect with strong hind legs, causing great damage in agriculture"
+  },
+  {
+    "word": "mahmureală",
+    "definition": "Stare de disconfort fizic după o noapte fără somn sau cu consum de alcool",
+    "word_en": "hangover",
+    "definition_en": "Physical discomfort after a sleepless night or alcohol consumption"
+  },
+  {
+    "word": "manichiură",
+    "definition": "procedură cosmetică de curățare, pilire și lăcuire a unghiilor de la mâini",
+    "word_en": "manicure",
+    "definition_en": "cosmetic procedure of cleaning, filing and varnishing the nails of the hands"
+  },
+  {
+    "word": "martie",
+    "definition": "A treia lună calendaristică, cu 31 de zile, care marchează intrarea primăverii astronomice",
+    "word_en": "March",
+    "definition_en": "The third calendar month, with 31 days, marking the beginning of astronomical spring"
+  },
+  {
+    "word": "medic",
+    "definition": "specialist în diagnosticarea și tratarea afecțiunilor corpului uman",
+    "word_en": "doctor",
+    "definition_en": "specialist in diagnosing and treating ailments of the human body"
+  },
+  {
+    "word": "meșteșugar",
+    "definition": "lucrător care folosește tehnici și instrumente tradiționale, creator de arte în stil popular",
+    "word_en": "craftsman",
+    "definition_en": "worker using traditional techniques and tools, creator of folk-style arts"
+  },
+  {
+    "word": "miros",
+    "definition": "Senzație percepută prin nas, prin intermediul receptorilor olfactivi",
+    "word_en": "smell",
+    "definition_en": "Sensation perceived through the nose, through the olfactory receptors"
+  },
+  {
+    "word": "modestă",
+    "definition": "Care nu se laudă, nu excelează în ostentație, simplă și reținută",
+    "word_en": "modest",
+    "definition_en": "Which does not boast, does not excel in ostentation, simple and restrained"
+  },
+  {
+    "word": "motani",
+    "definition": "Pisici mascule, purtătoare ale caracteristicilor parentale masculine",
+    "word_en": "tomcat",
+    "definition_en": "Male cats, carriers of male parental characteristics"
+  },
+  {
+    "word": "mumii",
+    "definition": "Cadavre umane conservate prin deshidratare sau îmbălsămare, specifice Egiptului",
+    "word_en": "the mummies",
+    "definition_en": "Human corpses preserved by dehydration or embalming, specific to Egypt"
+  },
+  {
+    "word": "mâner",
+    "definition": "Prelungire sau dispozitiv de prindere a unui obiect pentru a-l manevra",
+    "word_en": "handle",
+    "definition_en": "Extension or device for gripping an object to handle it"
+  },
+  {
+    "word": "măsele de minte",
+    "definition": "Molarii de minte, ultimii dinți care erup, situați în zona posterioară a maxilarelor",
+    "word_en": "the masses of the mind",
+    "definition_en": "Wisdom teeth, the last teeth to erupt, located in the back of the jaws"
+  },
+  {
+    "word": "necoapte",
+    "definition": "adjectiv feminin, despre fructe care nu au ajuns la stadiul final de coacere",
+    "word_en": "unripe",
+    "definition_en": "feminine adjective, about fruits that have not reached the final stage of ripening"
+  },
+  {
+    "word": "nicăieri",
+    "definition": "Adverb care exprimă absența totală a unui loc sau spațiu concret",
+    "word_en": "nowhere",
+    "definition_en": "Adverb expressing the total absence of a concrete place or space"
+  },
+  {
+    "word": "note",
+    "definition": "Simboluri care reprezintă sunetele de înălțimi diferite în muzică",
+    "word_en": "NOTES",
+    "definition_en": "Symbols that represent sounds of different pitches in music"
+  },
+  {
+    "word": "nătâng",
+    "definition": "Persoană cu capacități intelectuale limitate; prost",
+    "word_en": "silly",
+    "definition_en": "Person with limited intellectual capacities; silly"
+  },
+  {
+    "word": "oceanograf",
+    "definition": "Specialist în studiul oceanelor, curenților și vieții marine",
+    "word_en": "oceanographer",
+    "definition_en": "Specialist in the study of oceans, currents and marine life"
+  },
+  {
+    "word": "omidă",
+    "definition": "Larva unui fluture sau alte insecte; stadiu timpuriu de dezvoltare al unor insecte",
+    "word_en": "caterpillar",
+    "definition_en": "Larva of a butterfly or other insects; early stage of development of some insects"
+  },
+  {
+    "word": "oricând",
+    "definition": "Adverb ce indică absența oricărei limitări temporale",
+    "word_en": "whenever",
+    "definition_en": "Adverb indicating the absence of any temporal limitation"
+  },
+  {
+    "word": "palincă",
+    "definition": "Băutură alcoolică tare obținută prin distilarea fructelor fermentate, specifică Ardealului și țărilor vecine",
+    "word_en": "brandy",
+    "definition_en": "Strong alcoholic drink obtained by distilling fermented fruits, specific to Transylvania and neighboring countries"
+  },
+  {
+    "word": "parametri",
+    "definition": "mărimile proprii ale unui obiect sau sistem, constante în care trebuie să se încadreze un proces",
+    "word_en": "parameters",
+    "definition_en": "the eigenvalues ​​of an object or system, constants within which a process must fit"
+  },
+  {
+    "word": "pasionat",
+    "definition": "Care manifestă interes intens și persistent față de un domeniu",
+    "word_en": "passionate",
+    "definition_en": "Which shows intense and persistent interest in a field"
+  },
+  {
+    "word": "pelerine",
+    "definition": "piese de îmbrăcăminte purtate pe timp de ploaie",
+    "word_en": "Cushions",
+    "definition_en": "garments worn in the rain"
+  },
+  {
+    "word": "peron",
+    "definition": "Construcție de-a lungul căii ferate destinată urcării și coborârii călătorilor",
+    "word_en": "platform",
+    "definition_en": "Construction along the railway intended for the boarding and alighting of passengers"
+  },
+  {
+    "word": "picnic",
+    "definition": "Masă servită în aer liber, de regulă în natură sau parc",
+    "word_en": "picnic",
+    "definition_en": "Meal served outdoors, usually in nature or a park"
+  },
+  {
+    "word": "pirat",
+    "definition": "Persoană care comite acte de piraterie pe mare sau, prin extindere, în mediul digital",
+    "word_en": "pirate",
+    "definition_en": "Person who commits acts of piracy at sea or, by extension, in the digital environment"
+  },
+  {
+    "word": "plauzibil",
+    "definition": "Care poate fi acceptat, justificat sau considerat plauzibil",
+    "word_en": "plausible",
+    "definition_en": "Which can be accepted, justified or considered plausible"
+  },
+  {
+    "word": "plăcinte moldovenești",
+    "definition": "Preparate tradiționale moldovenești cu foi și diverse umpluturi",
+    "word_en": "Moldavian pies",
+    "definition_en": "Traditional Moldavian dishes with sheets and various fillings"
+  },
+  {
+    "word": "polar",
+    "definition": "Care este specific regiunilor din jurul Polului Sud sau caracterizat de frig extrem",
+    "word_en": "polar",
+    "definition_en": "Which is specific to the regions around the South Pole or characterized by extreme cold"
+  },
+  {
+    "word": "portofel",
+    "definition": "Accesoriu pentru păstrarea banilor, cardurilor și documentelor",
+    "word_en": "wallet",
+    "definition_en": "Accessory for keeping money, cards and documents"
+  },
+  {
+    "word": "preaviz",
+    "definition": "Anunț sau acțiune realizată anticipat, înainte de momentul stabilit",
+    "word_en": "notice",
+    "definition_en": "Announcement or action performed in advance, before the appointed time"
+  },
+  {
+    "word": "prestidigitator",
+    "definition": "Artist care produce efecte vizuale amăgitoare cu îndemânare manuală",
+    "word_en": "prestidigitator",
+    "definition_en": "Artist who produces beguiling visual effects with manual skill"
+  },
+  {
+    "word": "probabil",
+    "definition": "Care prezintă o probabilitate ridicată de a se produce sau a fi adevărat",
+    "word_en": "probable",
+    "definition_en": "Which has a high probability of occurring or being true"
+  },
+  {
+    "word": "protecția naturii",
+    "definition": "Ansamblu de măsuri pentru menținerea diversității speciilor și ecosistemelor",
+    "word_en": "nature protection",
+    "definition_en": "Set of measures to maintain the diversity of species and ecosystems"
+  },
+  {
+    "word": "puls",
+    "definition": "bătăile inimii verificate la arteră, ritmul cardiac",
+    "word_en": "pulse",
+    "definition_en": "heartbeat checked at the artery, heart rate"
+  },
+  {
+    "word": "pâclă",
+    "definition": "ceață deasă care apare dimineața și seara, reduce vizibilitatea",
+    "word_en": "mist",
+    "definition_en": "thick fog that appears in the morning and evening, reduces visibility"
+  },
+  {
+    "word": "păstrăvi",
+    "definition": "pești acvatici din apele reci de munte",
+    "word_en": "trout",
+    "definition_en": "aquatic fish from cold mountain waters"
+  },
+  {
+    "word": "rafinărie",
+    "definition": "Instalație industrială în care se procesează și se rafinează petrolul brut",
+    "word_en": "refinery",
+    "definition_en": "Industrial facility where crude oil is processed and refined"
+  },
+  {
+    "word": "real",
+    "definition": "Autentic, veritabil; în spaniolă înseamnă regal; parte din numele echipei de fotbal din Madrid",
+    "word_en": "real",
+    "definition_en": "Authentic, genuine; in Spanish it means royal; part of the name of the Madrid football team"
+  },
+  {
+    "word": "redus",
+    "definition": "Care a scăzut în cantitate, intensitate sau valoare față de un nivel anterior",
+    "word_en": "reduced",
+    "definition_en": "Which has decreased in quantity, intensity or value from a previous level"
+  },
+  {
+    "word": "reper",
+    "definition": "Punct de referință fizic sau mental folosit pentru orientare în spațiu sau timp",
+    "word_en": "landmark",
+    "definition_en": "Physical or mental reference point used for orientation in space or time"
+  },
+  {
+    "word": "reviste",
+    "definition": "Tipărituri periodice cu articole, știri și imagini",
+    "word_en": "magazines",
+    "definition_en": "Periodicals with articles, news and pictures"
+  },
+  {
+    "word": "risipit",
+    "definition": "Care a fost consumat sau cheltuit inutil, fără beneficii sau rezultate concrete",
+    "word_en": "scattered",
+    "definition_en": "Which was consumed or spent unnecessarily, without concrete benefits or results"
+  },
+  {
+    "word": "rost",
+    "definition": "Motiv sau scop pentru care ceva există sau se face; utilitatea sau menirea sa",
+    "word_en": "joint",
+    "definition_en": "Reason or purpose for which something exists or is done; its utility or purpose"
+  },
+  {
+    "word": "rumenită",
+    "definition": "Care a căpătat o culoare aurie-maronie prin prăjire sau coacere la căldură",
+    "word_en": "ruddy",
+    "definition_en": "Which has acquired a golden-brown color by frying or baking in heat"
+  },
+  {
+    "word": "răposat",
+    "definition": "Persoană care a încetat din viață, defunct, cel care a trecut la cele veșnice",
+    "word_en": "dead",
+    "definition_en": "Person who has passed away, defunct, one who has passed on to the eternal"
+  },
+  {
+    "word": "salon",
+    "definition": "Cameră spațioasă destinată primirii oaspeților sau desfășurării evenimentelor",
+    "word_en": "lounge",
+    "definition_en": "Spacious room for receiving guests or holding events"
+  },
+  {
+    "word": "savoare",
+    "definition": "gustul plăcut al unui aliment, plăcere pe care o dă ceva delicios",
+    "word_en": "flavor",
+    "definition_en": "the pleasant taste of a food, the pleasure that something delicious gives"
+  },
+  {
+    "word": "scorțos",
+    "definition": "Care prezintă o textură aspră, dură și neuniformă la atingere",
+    "word_en": "stiff",
+    "definition_en": "Which has a rough, hard and uneven texture to the touch"
+  },
+  {
+    "word": "sejur",
+    "definition": "Perioadă de timp petrecută într-o stațiune sau hotel, în scop turistic sau de relaxare",
+    "word_en": "RESORTS",
+    "definition_en": "Period of time spent in a resort or hotel, for tourism or relaxation purposes"
+  },
+  {
+    "word": "serafimi",
+    "definition": "Ființe angelice din cea mai înaltă categorie a ierarhiei cerești, descrise ca veghind în imediata prezență divină",
+    "word_en": "seraphim",
+    "definition_en": "Angelic beings in the highest category of the heavenly hierarchy, described as watching in the immediate divine presence"
+  },
+  {
+    "word": "sfărâmat",
+    "definition": "Acțiunea de a rupe sau distruge un obiect în fragmente prin impact sau presiune",
+    "word_en": "broken",
+    "definition_en": "The act of breaking or destroying an object into fragments by impact or pressure"
+  },
+  {
+    "word": "sistem muscular",
+    "definition": "Sistem al corpului uman care produce mișcare prin contracție și relaxare",
+    "word_en": "muscular system",
+    "definition_en": "System of the human body that produces movement through contraction and relaxation"
+  },
+  {
+    "word": "soare",
+    "definition": "Steaua în jurul căreia gravitează Pământul și celelalte planete ale sistemului solar",
+    "word_en": "sun",
+    "definition_en": "The star around which the Earth and the other planets of the solar system gravitate"
+  },
+  {
+    "word": "soț",
+    "definition": "Persoana cu care cineva este căsătorit sau cu care convietuieste",
+    "word_en": "husband",
+    "definition_en": "The person with whom someone is married or lives with"
+  },
+  {
+    "word": "spărgători",
+    "definition": "oameni care forțează ușile închise, specialiști în efracții",
+    "word_en": "break",
+    "definition_en": "people who force locked doors, burglars"
+  },
+  {
+    "word": "stick",
+    "definition": "Dispozitiv de stocare portabil care se conectează la calculator prin port USB",
+    "word_en": "stick",
+    "definition_en": "Portable storage device that connects to the computer via USB port"
+  },
+  {
+    "word": "struguri",
+    "definition": "Fructe mici grupate în ciorchine, folosite la producerea vinului",
+    "word_en": "grapes",
+    "definition_en": "Small fruits grouped in bunches, used in the production of wine"
+  },
+  {
+    "word": "suburbie",
+    "definition": "Zonă periferică a unui oraș, mai ales rezidențială, situată la marginea centrului urban",
+    "word_en": "suburb",
+    "definition_en": "Peripheral area of ​​a city, especially residential, located on the edge of the urban center"
+  },
+  {
+    "word": "suprafață",
+    "definition": "spațiul delimitat de o figură geometrică închisă",
+    "word_en": "surface",
+    "definition_en": "the space bounded by a closed geometric figure"
+  },
+  {
+    "word": "sâmbure",
+    "definition": "Parte centrală dură a fructului care conține sămânța",
+    "word_en": "stone",
+    "definition_en": "Hard central part of the fruit containing the seed"
+  },
+  {
+    "word": "tacâm",
+    "definition": "Ansamblu de vesela, tacâmuri și pahare așezate pentru o singură persoană la masă",
+    "word_en": "canteen",
+    "definition_en": "Set of crockery, cutlery and glasses set for one person at the table"
+  },
+  {
+    "word": "teatru",
+    "definition": "Instituție culturală unde se reprezintă spectacole dramatice sau muzicale",
+    "word_en": "theater",
+    "definition_en": "Cultural institution where dramatic or musical performances are performed"
+  },
+  {
+    "word": "text",
+    "definition": "Unitate de scriere alcătuită din mai multe propoziții",
+    "word_en": "text",
+    "definition_en": "Writing unit made up of several sentences"
+  },
+  {
+    "word": "tobă",
+    "definition": "Aliment specific Crăciunului, din organe de porc în aspic",
+    "word_en": "drum",
+    "definition_en": "Food specific to Christmas, pork organs in aspic"
+  },
+  {
+    "word": "trafaletul",
+    "definition": "unealtă manuală pentru zugrăvit, instrument prin care aplici vopseaua",
+    "word_en": "roller",
+    "definition_en": "hand tool for painting, instrument by which you apply paint"
+  },
+  {
+    "word": "trening",
+    "definition": "Echipament sportiv compus din bluză și pantaloni elastici",
+    "word_en": "training",
+    "definition_en": "Sports equipment consisting of blouse and elastic trousers"
+  },
+  {
+    "word": "trup",
+    "definition": "Organism uman sau animal în totalitatea sa fizică; corp material al unei ființe vii",
+    "word_en": "body",
+    "definition_en": "Human or animal organism in its physical entirety; material body of a living being"
+  },
+  {
+    "word": "tutu",
+    "definition": "Fustă scurtă din tulle sau voal, purtată de balerine în spectacolele de balet",
+    "word_en": "tutu",
+    "definition_en": "Short tulle or veil skirt worn by ballerinas in ballet performances"
+  },
+  {
+    "word": "umbros",
+    "definition": "Care primește o cantitate redusă de lumină; parțial acoperit de umbră",
+    "word_en": "shady",
+    "definition_en": "Which receives a reduced amount of light; partly covered by shadow"
+  },
+  {
+    "word": "univers",
+    "definition": "totalitatea elementelor și fenomenelor care alcătuiesc existența",
+    "word_en": "universe",
+    "definition_en": "the totality of elements and phenomena that make up existence"
+  },
+  {
+    "word": "utilizare",
+    "definition": "Utilizarea unui bun sau resurse conform destinației sale și în mod eficient",
+    "word_en": "use",
+    "definition_en": "Using an asset or resource according to its intended purpose and efficiently"
+  },
+  {
+    "word": "varză",
+    "definition": "Legumă cu frunze suprapuse formând un glob compact, folosită în gătit",
+    "word_en": "cabbage",
+    "definition_en": "Vegetable with overlapping leaves forming a compact globe, used in cooking"
+  },
+  {
+    "word": "verigi",
+    "definition": "Inele metalice interconectate care formează un lanț sau o structură înlănțuită",
+    "word_en": "LINKS",
+    "definition_en": "Interlinked metal rings forming a chain or chain structure"
+  },
+  {
+    "word": "viceversa",
+    "definition": "Expresie latină care desemnează o relație inversă sau reciprocă între două elemente",
+    "word_en": "vice versa",
+    "definition_en": "Latin expression denoting an inverse or reciprocal relationship between two elements"
+  },
+  {
+    "word": "vioară",
+    "definition": "Instrument muzical cu corzi fricate cu arcuș, prezent în orchestre și muzica populară",
+    "word_en": "violin",
+    "definition_en": "Musical instrument with strings plucked with a bow, present in orchestras and popular music"
+  },
+  {
+    "word": "voalat",
+    "definition": "Care este exprimat în mod indirect, ascuns sub un înveliș metaforic sau ambiguu",
+    "word_en": "filmy",
+    "definition_en": "Which is expressed indirectly, hidden under a metaphorical or ambiguous cover"
+  },
+  {
+    "word": "vrăjit",
+    "definition": "Adjectiv care descrie o persoană sau stare afectate de forțe magice sau supranaturale",
+    "word_en": "spellbound",
+    "definition_en": "Adjective describing a person or state affected by magical or supernatural forces"
+  },
+  {
+    "word": "wifi",
+    "definition": "Tehnologie de transmisie a datelor prin unde radio",
+    "word_en": "wifi",
+    "definition_en": "Radio wave data transmission technology"
+  },
+  {
+    "word": "zguduituri",
+    "definition": "Mișcări vibratorii repetitive cu amplitudine redusă, cauzate de forțe mecanice",
+    "word_en": "Bumps",
+    "definition_en": "Low-amplitude repetitive vibratory movements caused by mechanical forces"
+  },
+  {
+    "word": "zulufi",
+    "definition": "Șuvițe de păr răsucite ce cad liber pe față sau umeri",
+    "word_en": "ringlets",
+    "definition_en": "Twisted strands of hair that fall freely on the face or shoulders"
+  },
+  {
+    "word": "împrumutat",
+    "definition": "care a primit sau a oferit ceva cu obligația de a-l returna ulterior",
+    "word_en": "on loan",
+    "definition_en": "who received or offered something with the obligation to return it later"
+  },
+  {
+    "word": "încăpățânat",
+    "definition": "Stubbornly insisting on one's own way and refusing to be persuaded",
+    "word_en": "stubborn",
+    "definition_en": "Stubbornly insisting on one's own way and refusing to be persuaded"
+  },
+  {
+    "word": "înscriere",
+    "definition": "Acțiunea de a se înmatricula oficial sau de a depune actele necesare participării la o activitate",
+    "word_en": "enrollment",
+    "definition_en": "The act of officially registering or submitting the necessary documents to participate in an activity"
+  },
+  {
+    "word": "învârtit",
+    "definition": "Care a fost rotit sau răsucit în jurul unui ax sau centru, efectuând mișcare circulară",
+    "word_en": "whirled",
+    "definition_en": "Which has been rotated or twisted about an axis or center, making circular motion"
+  },
+  {
+    "word": "șanț",
+    "definition": "Săpătură lungă de-a lungul drumurilor sau câmpurilor pentru scurgerea apei",
+    "word_en": "groove",
+    "definition_en": "Long excavation along roads or fields to drain water"
+  },
+  {
+    "word": "șorici",
+    "definition": "Piele grasă de porc pregătită și servită ca aperitiv, de obicei afumată",
+    "word_en": "rind",
+    "definition_en": "Fatty pork skin prepared and served as an appetizer, usually smoked"
+  },
+  {
+    "word": "țipar",
+    "definition": "Pește de apă dulce alungit, cu organe electrice și mustăți sensibile",
+    "word_en": "eel",
+    "definition_en": "Elongated freshwater fish with electric organs and sensitive whiskers"
+  },
+  {
+    "word": "veselă",
+    "definition": "Caracteristică a persoanei mereu vesele, optimiste și cu bună dispoziție",
+    "word_en": "dish",
+    "definition_en": "Characteristic of the person who is always cheerful, optimistic and in a good mood"
+  },
+  {
+    "word": "candelabru",
+    "definition": "Obiect de iluminat suspendat, cu mai multe brațe pentru lumânări sau becuri",
+    "word_en": "chandelier",
+    "definition_en": "Suspended lighting object with several arms for candles or bulbs"
+  },
+  {
+    "word": "undeva",
+    "definition": "Adverb ce indică un loc nedeterminat sau necunoscut",
+    "word_en": "somewhere",
+    "definition_en": "Adverb indicating an indefinite or unknown place"
+  },
+  {
+    "word": "anacondă",
+    "definition": "Cel mai mare șarpe din lume, neveninos, care trăiește în pădurile tropicale sud-americane",
+    "word_en": "anaconda",
+    "definition_en": "The largest snake in the world, non-venomous, living in the South American rainforests"
+  },
+  {
+    "word": "depanatori",
+    "definition": "Specialiști care diagnostichează și repară defecțiunile aparatelor electrice sau electronice",
+    "word_en": "reel",
+    "definition_en": "Specialists who diagnose and repair faults in electrical or electronic appliances"
+  },
+  {
+    "word": "sexy",
+    "definition": "Radiating sensual attractiveness; making a strong impression through physical appeal",
+    "word_en": "sexy",
+    "definition_en": "Radiating sensual attractiveness; making a strong impression through physical appeal"
+  },
+  {
+    "word": "stână",
+    "definition": "Construcție rurală tradițională situată la altitudine, unde ciobanii prepară produse lactate",
+    "word_en": "sheepfold",
+    "definition_en": "Traditional rural building located at altitude, where shepherds prepare dairy products"
+  },
+  {
+    "word": "arici",
+    "definition": "Mamifer mic nocturn acoperit cu țepi ascuțiți ca mijloc de apărare",
+    "word_en": "hedgehog",
+    "definition_en": "Small nocturnal mammal covered with sharp spines as a means of defense"
+  },
+  {
+    "word": "cordoane",
+    "definition": "Fâșii sau șnururi din diverse materiale folosite pentru a lega sau strânge diverse obiecte",
+    "word_en": "CORDS",
+    "definition_en": "Strips or cords of various materials used to tie or fasten various objects"
+  },
+  {
+    "word": "torpile",
+    "definition": "Armă explozivă autopropulsată care se deplasează sub apă",
+    "word_en": "torpedoes",
+    "definition_en": "Self-propelled explosive weapon that moves underwater"
+  },
+  {
+    "word": "hopa",
+    "definition": "Exclamație spontană de surpriză sau efort la ridicarea sau căderea unui obiect",
+    "word_en": "Oops",
+    "definition_en": "Spontaneous exclamation of surprise or effort at lifting or falling an object"
   }
 ]

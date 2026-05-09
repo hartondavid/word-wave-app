@@ -4,9 +4,9 @@ import { HomeHowToPlayCard } from "@/components/home-how-to-play-card"
 import { getHowToPlayStrings } from "@/lib/home-play-form-strings"
 
 const STATS = [
-  { icon: Swords, label: "2–4 Players" },
+  { icon: Swords, label: "2–n Players" },
   { icon: Timer, label: "60s Rounds" },
-  { icon: Trophy, label: "1–? Rounds" },
+  { icon: Trophy, label: "1–n Rounds" },
 ] as const
 
 /**
@@ -17,11 +17,11 @@ export function HomeHero() {
     <div className="flex flex-col gap-6 md:col-span-5">
       <div className="space-y-3 text-center md:text-left">
         <h1 className="text-balance text-2xl font-bold tracking-tight text-foreground sm:text-3xl md:text-4xl">
-          Race to guess the word first
+          Master your vocabulary and race to guess the word first
         </h1>
-      
+
         <p className="mx-auto max-w-prose text-base text-muted-foreground md:mx-0 md:text-lg">
-          Same definition for everyone. Up to 4 players — fastest fingers win the round.
+          Same definition for everyone. Up to n players — fastest fingers win the round.
         </p>
         <PwaClient className="justify-center md:justify-start" />
       </div>

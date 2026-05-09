@@ -22,7 +22,6 @@ import {
   playWordCompleteSound,
   playWordIncompleteFailureSound,
 } from "@/lib/play-correct-letter-sound"
-import { startGameAmbientWaves, stopGameAmbientWaves } from "@/lib/game-ambient-waves"
 import {
   collectSpeechTranscripts,
   firstLetterFromTranscript,
@@ -291,30 +290,7 @@ export default function PracticePage() {
     }
   }, [gameStatus])
 
-  useEffect(() => {
-    if (gameStatus === "loading" || gameStatus === "finished") {
-      stopGameAmbientWaves(true)
-      return
-    }
-    if (gameStatus === "playing") {
-      startGameAmbientWaves()
-      return
-    }
-    if (
-      gameStatus === "won" ||
-      gameStatus === "timeout" ||
-      gameStatus === "lost" ||
-      gameStatus === "revealing" ||
-      gameStatus === "resolving"
-    ) {
-      return
-    }
-    stopGameAmbientWaves(true)
-  }, [gameStatus])
 
-  useEffect(() => {
-    return () => stopGameAmbientWaves(true)
-  }, [])
 
   useEffect(() => {
     return () => {

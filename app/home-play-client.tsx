@@ -23,7 +23,6 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { Switch } from "@/components/ui/switch"
 import { Zap } from "lucide-react"
 import { HomeHowToPlayCard } from "@/components/home-how-to-play-card"
-import { startGameAmbientWaves, stopGameAmbientWaves } from "@/lib/game-ambient-waves"
 import { cn } from "@/lib/utils"
 import { currentLocaleFromPathname } from "@/lib/locale-switch-paths"
 import {
@@ -42,28 +41,11 @@ function generatePlayerId(): string {
   return `player_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
 }
 
-function pickJoinPlayerSlot(
-  room: {
-    player1_id?: string | null
-    player2_id?: string | null
-    player3_id?: string | null
-    player4_id?: string | null
-  },
-  maxPlayers: number
-): 1 | 2 | 3 | 4 | null {
-  const mx = Math.min(Math.max(maxPlayers, 2), 4)
-  const ids = [room.player1_id, room.player2_id, room.player3_id, room.player4_id]
-  const filled = ids.filter(Boolean).length
-  if (filled >= mx) return null
-  const order = ([2, 3, 4, 1] as const).filter(s => s <= mx)
-  for (const s of order) {
-    const id = ids[s - 1]
-    if (!id) return s
-  }
-  return null
-}
+// Removed pickJoinPlayerSlot as we now use the players table
 
-const JOINABLE_GAME_STATUSES = new Set(["waiting", "playing", "round_end", "finished"])
+
+const JOINABLE_GAME_STATUSES = new Set(["waiting"])
+
 
 const MIN_NAME_LENGTH = 2
 
@@ -100,31 +82,8 @@ function persistPracticeHintsEnabledPartial(on: boolean) {
   }
 }
 
-type RoomRowForNameCheck = {
-  player1_id?: string | null
-  player1_name?: string | null
-  player2_id?: string | null
-  player2_name?: string | null
-  player3_id?: string | null
-  player3_name?: string | null
-  player4_id?: string | null
-  player4_name?: string | null
-}
+// isDisplayNameTakenInRoom will now be checked via a direct query to the players table
 
-function isDisplayNameTakenInRoom(room: RoomRowForNameCheck, candidate: string): boolean {
-  const t = candidate.trim().toLocaleLowerCase()
-  const pairs: [string | null | undefined, string | null | undefined][] = [
-    [room.player1_id, room.player1_name],
-    [room.player2_id, room.player2_name],
-    [room.player3_id, room.player3_name],
-    [room.player4_id, room.player4_name],
-  ]
-  for (const [id, name] of pairs) {
-    if (!id || name == null || name === "") continue
-    if (name.trim().toLocaleLowerCase() === t) return true
-  }
-  return false
-}
 
 export function HomePlayClient() {
   const pathname = usePathname() ?? ""
@@ -134,14 +93,15 @@ export function HomePlayClient() {
 
   const [playerName, setPlayerName] = useState("")
   const [roomCode, setRoomCode] = useState("")
-  const [maxPlayers, setMaxPlayers] = useState<2 | 3 | 4>(2)
+
+
   const [maxRoundsInput, setMaxRoundsInput] = useState<string>(String(TOTAL_ROUNDS))
   const [practiceRoundSeconds, setPracticeRoundSeconds] = useState<PracticeRoundTimerSeconds>(30)
   const [practiceHintsEnabled, setPracticeHintsEnabled] = useState(false)
   const [roundsError, setRoundsError] = useState("")
   const [categoryPreset, setCategoryPreset] = useState<CategoryPresetId>("definitions")
   const [selectedCategory, setSelectedCategory] = useState<CategoryKey>("general")
-  const [selectedLanguage, setSelectedLanguage] = useState<LanguageKey>("en")
+  const [selectedLanguage, setSelectedLanguage] = useState<LanguageKey>("ro")
   const [activeTab, setActiveTab] = useState<"create" | "join">("create")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
@@ -149,10 +109,6 @@ export function HomePlayClient() {
   const router = useRouter()
   const supabase = createClient()
 
-  useEffect(() => {
-    startGameAmbientWaves()
-    return () => stopGameAmbientWaves(true)
-  }, [])
 
   useEffect(() => {
     if (typeof window === "undefined") return
@@ -267,7 +223,8 @@ export function HomePlayClient() {
         "round_duration_seconds",
       ] as const
       const optionalValues: Record<string, unknown> = {
-        max_players: maxPlayers,
+        max_players: 100,
+
         category: selectedCategory,
         category_preset: categoryPreset,
         language: roomLanguage,
@@ -275,19 +232,7 @@ export function HomePlayClient() {
       }
 
       let payload = { ...basePayload, ...optionalValues }
-      let { error: roomError } = await supabase.from("game_rooms").insert(payload)
-
-      for (const col of OPTIONAL_COLUMNS) {
-        if (!roomError) break
-        const msg = ((roomError as { message?: string }).message ?? "").toLowerCase()
-        if (msg.includes(col.toLowerCase())) {
-          console.warn(`${col} column missing — run the relevant migration script`)
-          const { [col]: _removed, ...rest } = payload
-          payload = rest
-          const r = await supabase.from("game_rooms").insert(payload)
-          roomError = r.error
-        }
-      }
+      const { error: roomError } = await supabase.from("game_rooms").insert(payload)
 
       if (roomError) {
         const msg = (roomError as { message?: string }).message ?? JSON.stringify(roomError)
@@ -297,35 +242,30 @@ export function HomePlayClient() {
         return
       }
 
-      const { error: patchErr } = await supabase
-        .from("game_rooms")
-        .update({
-          language: roomLanguage,
-          category: selectedCategory,
-          category_preset: categoryPreset,
-          max_players: maxPlayers,
-          round_duration_seconds: practiceRoundSeconds,
-        })
-        .eq("room_code", newRoomCode)
-      if (patchErr) {
-        console.warn("Room language/category patch:", patchErr.message)
-      }
+      // Add the host as the first player
+      const { error: playerError } = await supabase.from("players").insert({
+        room_code: newRoomCode,
+        user_id: playerId,
+        name: playerName.trim(),
+        is_host: true,
+        is_ready: true, // Host is ready by default
+      })
 
-      const syncLang = await syncGameRoomLanguage(newRoomCode, selectedLanguage)
-      if (!syncLang.ok) {
-        console.warn("syncGameRoomLanguage:", syncLang.error)
+      if (playerError) {
+        console.warn("Host player creation error:", playerError.message)
       }
 
       localStorage.setItem("wordmatch_player", JSON.stringify({
         id: playerId,
         name: playerName.trim(),
         roomCode: newRoomCode,
-        playerSlot: 1,
+        playerSlot: 1, // Keep for backward compatibility or UI color
         language: roomLanguage,
         category: selectedCategory,
         category_preset: categoryPreset,
         practice_hints_enabled: practiceHintsEnabled,
       }))
+
       router.push(formLocale === "ro" ? `/ro/game/${newRoomCode}` : `/game/${newRoomCode}`)
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
@@ -368,41 +308,34 @@ export function HomePlayClient() {
         return
       }
 
-      if (isDisplayNameTakenInRoom(room as RoomRowForNameCheck, playerName)) {
+      // Check if name is taken
+      const { data: existingPlayers } = await supabase
+        .from("players")
+        .select("name")
+        .eq("room_code", upperCode)
+
+      if (existingPlayers?.some(p => p.name.trim().toLowerCase() === playerName.trim().toLowerCase())) {
         setNameFieldError(t.nameTaken)
         setIsLoading(false)
         return
       }
 
-      const mx = room.max_players ?? 4
-      const playerSlot = pickJoinPlayerSlot(room, mx)
-      if (playerSlot === null) {
-        setError(t.roomFull)
-        setIsLoading(false)
-        return
-      }
+      const currentCount = existingPlayers?.length ?? 0
 
-      const updateFields: Record<string, unknown> = {
-        [`player${playerSlot}_id`]: playerId,
-        [`player${playerSlot}_name`]: playerName.trim(),
-        [`player${playerSlot}_score`]: 0,
-        [`player${playerSlot}_ready`]: false,
-      }
+      const { error: joinError } = await supabase.from("players").insert({
+        room_code: upperCode,
+        user_id: playerId,
+        name: playerName.trim(),
+        is_ready: false,
+        progress: (room.game_status === "playing" || room.game_status === "round_end") && room.current_word
+          ? "_".repeat(room.current_word.length)
+          : ""
+      })
 
-      if ((room.game_status === "playing" || room.game_status === "round_end") && room.current_word) {
-        updateFields[`player${playerSlot}_progress`] = "_".repeat(room.current_word.length)
-      }
-
-      const { error: updateError } = await supabase
-        .from("game_rooms").update(updateFields).eq("room_code", upperCode)
-      if (updateError) {
-        const msg = (updateError as { message?: string }).message ?? JSON.stringify(updateError)
-        console.error("Join room error:", msg, updateError)
-        if (msg.includes("player3") || msg.includes("player4")) {
-          setError(t.migration34)
-        } else {
-          setError(t.failedJoin(msg))
-        }
+      if (joinError) {
+        const msg = joinError.message
+        console.error("Join room error:", msg)
+        setError(t.failedJoin(msg))
         setIsLoading(false)
         return
       }
@@ -415,10 +348,11 @@ export function HomePlayClient() {
         id: playerId,
         name: playerName.trim(),
         roomCode: upperCode,
-        playerSlot,
+        playerSlot: currentCount + 1, // Approximation for UI color
         ...(categoryPreset != null ? { category_preset: categoryPreset } : {}),
         practice_hints_enabled: practiceHintsEnabled,
       }))
+
       router.push(formLocale === "ro" ? `/ro/game/${upperCode}` : `/game/${upperCode}`)
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
@@ -472,7 +406,7 @@ export function HomePlayClient() {
           {activeTab === "create" && (
             <div className="space-y-3">
               <div className="space-y-2">
-              <div className="flex w-full flex-col gap-2 sm:flex-row">
+                <div className="flex w-full flex-col gap-2 sm:flex-row">
                   <Button
                     type="button"
                     variant="outline"
@@ -502,13 +436,13 @@ export function HomePlayClient() {
                     {t.categoryPresetImages}
                   </Button>
                 </div>
-                <label htmlFor="categorySelect" className="text-sm font-medium">
+                {/* <label htmlFor="categorySelect" className="text-sm font-medium">
                   {t.category}
-                </label>
-                
-             
+                </label> */}
+
+
               </div>
-              <select
+              {/* <select
                 id="categorySelect"
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value as CategoryKey)}
@@ -522,7 +456,7 @@ export function HomePlayClient() {
                     </option>
                   )
                 })}
-              </select>
+              </select> */}
             </div>
           )}
 
@@ -670,44 +604,17 @@ export function HomePlayClient() {
             </TabsList>
 
             <TabsContent value="create" className="space-y-4 pt-4">
-              <div className="space-y-2">
-                <p className="text-sm font-medium">{t.numberOfPlayers}</p>
-                <div className="flex gap-2">
-                  {([2, 3, 4] as const).map((n) => (
-                    <button
-                      key={n}
-                      type="button"
-                      onClick={() => setMaxPlayers(n)}
-                      aria-pressed={maxPlayers === n}
-                      aria-label={t.playerCountButtonAria(n)}
-                      className={cn(
-                        "flex-1 py-3 rounded-xl border-2 font-bold text-sm transition-all",
-                        maxPlayers === n
-                          ? "border-[3px] border-blue-500 text-foreground bg-transparent"
-                          : "border-2 border-muted bg-muted/40 text-muted-foreground hover:border-muted-foreground/40"
-                      )}
-                    >
-                      {n}
-                      <div className="flex justify-center gap-0.5 mt-1">
-                        {Array.from({ length: n }).map((_, i) => (
-                          <div
-                            key={i}
-                            className="w-1.5 h-1.5 rounded-full"
-                            style={{ background: PLAYER_COLORS[i] }}
-                          />
-                        ))}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {t.shareCodeWithFriends(maxPlayers)}
-                </p>
-              </div>
+
 
               <Button className="w-full" size="lg" onClick={handleCreateRoom} disabled={isLoading}>
-                {isLoading ? t.creating : t.createRoomButton(maxPlayers)}
+                {isLoading ? t.creating : t.createRoomButton()}
               </Button>
+              <p className="text-xs text-muted-foreground text-center">
+                {t.shareCodeWithFriends()}
+              </p>
+
+
+
               <div
                 className="space-y-1 min-h-[1.25rem]"
                 aria-live="polite"

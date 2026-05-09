@@ -4,6 +4,8 @@ import { SiteNavbar } from "@/components/site-navbar"
 import { alternatesEnCanonical } from "@/lib/seo-alternates"
 import { getSiteUrl } from "@/lib/site-url"
 import { HomeHero } from "./home-hero"
+import { HomeAbout } from "@/components/home-about"
+import { HomeLatestPosts } from "@/components/home-latest-posts"
 
 const base = getSiteUrl()
 
@@ -44,6 +46,9 @@ export default function HomePage() {
           <HomeHero />
           <HomePlayClient />
         </div>
+
+        <HomeAbout locale="en" />
+        <HomeLatestPosts locale="en" />
       </main>
     </>
   )

@@ -45,7 +45,7 @@ export function getSharedAudioContext(): AudioContext | null {
  */
 export function primeLetterSoundOnUserGesture(): void {
   const ctx = getSharedAudioContext()
-  if (ctx) void ctx.resume().catch(() => {})
+  if (ctx) void ctx.resume().catch(() => { })
   resumeAmbientWavesIfBlocked()
 }
 
@@ -213,3 +213,4 @@ export function playOpponentWonRoundSound(): void {
     scheduleBlip(ctx, t0 + 0.22, 293.66, 0.26, 0.068, "triangle")
   })
 }
+

@@ -19,6 +19,24 @@ export default function AboutPage() {
           same short definition; your job is to uncover the hidden word before anyone else. Matches support two to four
           players in a single room, with a host who chooses category, language, and how many rounds you want to play.
         </p>
+
+        <h2>Key Features</h2>
+        <ul>
+          <li><strong>Real-time Synchronized Play:</strong> Every player receives the same clue at the exact same moment.</li>
+          <li><strong>Diverse Categories:</strong> From daily objects to complex philosophical concepts.</li>
+          <li><strong>Multi-language Support:</strong> Play in English or Romanian to test your skills across different lexicons.</li>
+          <li><strong>Voice Input:</strong> Where supported, use your microphone for a truly hands-free experience.</li>
+          <li><strong>No Install Required:</strong> Works directly in your modern web browser on desktop and mobile.</li>
+        </ul>
+
+        <h2>Our Mission</h2>
+        <p>
+          We believe that learning and fun should go hand-in-hand. WordWave is designed to challenge your mental recall
+          and expand your vocabulary in a competitive yet friendly environment. By keeping the interface clean and the
+          rounds short, we ensure that anyone can join in, regardless of their gaming experience.
+        </p>
+
+        <h2>How It Works</h2>
         <p>
           The game is designed around low friction: you pick a nickname, create or join a room with a four-character code,
           and you are in the lobby. When all seats are filled and players mark themselves ready, rounds begin. Each round
@@ -29,12 +47,15 @@ export default function AboutPage() {
           Practice mode exists so you can warm up alone. It uses the same word pipeline as multiplayer rooms but without
           score pressure from other humans—ideal for learning categories or testing latency on a new device.
         </p>
+
+        <h2>Commitment to Privacy</h2>
         <p>
           WordWave is an independent project. We care about fair play, readable typography on phones, and keeping the
-          experience free of intrusive pop-ups. If you run a classroom, a stream, or a casual game night, we hope the
-          combination of short rounds and simple rules makes it easy to rotate players in and out.
+          experience free of intrusive pop-ups. We do not sell your personal data; we only collect what is strictly
+          necessary to run the game and maintain the service.
         </p>
-        <p>
+
+        <p className="mt-8">
           For gameplay details, see <a href="/rules" className="font-medium text-primary underline underline-offset-4">Rules</a>
           . For data practices, see{" "}
           <a href="/privacy" className="font-medium text-primary underline underline-offset-4">Privacy</a>. To reach us, use{" "}

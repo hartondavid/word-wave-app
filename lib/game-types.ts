@@ -1,7 +1,21 @@
-export type PlayerSlot = 1 | 2 | 3 | 4
+export type PlayerSlot = number // No longer limited to 1-4
+
 
 /** Preset listă categorii (home / cameră): definiții vs. poze. */
 export type CategoryPresetId = "definitions" | "images"
+
+export interface Player {
+  id: string; // UUID from DB
+  user_id: string; // generated locally (player_...)
+  room_code: string;
+  name: string;
+  score: number;
+  progress: string | null;
+  is_ready: boolean;
+  is_host: boolean;
+  speech_eliminated: boolean;
+  created_at: string;
+}
 
 export interface GameRoom {
   id: string
@@ -17,30 +31,6 @@ export interface GameRoom {
   /** URL imagine pentru runda curentă (categorii cu poze); null dacă nu există. */
   current_image?: string | null
 
-  player1_id: string | null
-  player1_name: string | null
-  player1_progress: string | null
-  player1_score: number
-  player1_ready: boolean
-
-  player2_id: string | null
-  player2_name: string | null
-  player2_progress: string | null
-  player2_score: number
-  player2_ready: boolean
-
-  player3_id?: string | null
-  player3_name?: string | null
-  player3_progress?: string | null
-  player3_score?: number
-  player3_ready?: boolean
-
-  player4_id?: string | null
-  player4_name?: string | null
-  player4_progress?: string | null
-  player4_score?: number
-  player4_ready?: boolean
-
   game_status: 'waiting' | 'ready' | 'playing' | 'round_end' | 'finished'
   current_round: number
   total_rounds: number
@@ -51,13 +41,13 @@ export interface GameRoom {
   /** Secunde per rundă de tastare (30 sau 60); setat de gazdă la creare. Lipsește în DB vechi → 60. */
   round_duration_seconds?: number | null
 
-  player1_speech_eliminated?: boolean | null
-  player2_speech_eliminated?: boolean | null
-  player3_speech_eliminated?: boolean | null
-  player4_speech_eliminated?: boolean | null
   created_at: string
   updated_at: string
+
+  // Virtual property for frontend use
+  players?: Player[]
 }
+
 
 export interface WordPair {
   definition: string
@@ -82,8 +72,13 @@ export const SCORE_PER_LETTER = 10
 /** Primul jucător care atinge acest total de puncte câștigă meciul (sau se termină după `total_rounds` runde). */
 export const WIN_SCORE = 500
 
-// P1 Blue | P2 Amber | P3 Emerald | P4 Violet
-export const PLAYER_COLORS = ['#3B82F6', '#F59E0B', '#10B981', '#8B5CF6'] as const
+// P1 Blue | P2 Amber | P3 Emerald | P4 Violet | P5 Rose | P6 Cyan | P7 Orange | P8 Lime
+export const PLAYER_COLORS = [
+  '#3B82F6', '#F59E0B', '#10B981', '#8B5CF6',
+  '#F43F5E', '#06B6D4', '#F97316', '#84CC16',
+  '#EC4899', '#6366F1', '#14B8A6', '#D946EF'
+] as const
+
 
 export const LANGUAGES = {
   en: { label: "English" },
@@ -108,31 +103,31 @@ export function languageForMultiplayerRoom(
 }
 
 export const CATEGORIES = {
-  general:    { category: 'All',         emoji: '🌐' },
-  emotii:     { category: 'Emotions',    emoji: '😊' },
-  relatii:    { category: 'Relationships', emoji: '🤝' },
-  timp:       { category: 'Time',        emoji: '⏰' },
-  succes:     { category: 'Success',     emoji: '🏆' },
-  valori:     { category: 'Values',      emoji: '⚖️' },
-  caracter:   { category: 'Character',   emoji: '🎭' },
-  minte:      { category: 'Mind',        emoji: '🧠' },
-  corp:       { category: 'Body',        emoji: '🫀' },
-  munca:      { category: 'Work',        emoji: '💼' },
-  familie:    { category: 'Family',      emoji: '👨‍👩‍👧' },
-  prietenie:  { category: 'Friendship',  emoji: '🤗' },
-  iubire:     { category: 'Love',        emoji: '❤️' },
-  libertate:  { category: 'Freedom',     emoji: '🕊️' },
-  credinta:   { category: 'Faith',       emoji: '🙏' },
-  sanatate:   { category: 'Health',      emoji: '💊' },
-  educatie:   { category: 'Education',   emoji: '📚' },
-  foods:      { category: 'Food',        emoji: '🍎' },
-  natura:     { category: 'Nature',      emoji: '🌿' },
-  animals:    { category: 'Animals',     emoji: '🦁' },
+  general: { category: 'All', emoji: '🌐' },
+  emotii: { category: 'Emotions', emoji: '😊' },
+  relatii: { category: 'Relationships', emoji: '🤝' },
+  timp: { category: 'Time', emoji: '⏰' },
+  succes: { category: 'Success', emoji: '🏆' },
+  valori: { category: 'Values', emoji: '⚖️' },
+  caracter: { category: 'Character', emoji: '🎭' },
+  minte: { category: 'Mind', emoji: '🧠' },
+  corp: { category: 'Body', emoji: '🫀' },
+  munca: { category: 'Work', emoji: '💼' },
+  familie: { category: 'Family', emoji: '👨‍👩‍👧' },
+  prietenie: { category: 'Friendship', emoji: '🤗' },
+  iubire: { category: 'Love', emoji: '❤️' },
+  libertate: { category: 'Freedom', emoji: '🕊️' },
+  credinta: { category: 'Faith', emoji: '🙏' },
+  sanatate: { category: 'Health', emoji: '💊' },
+  educatie: { category: 'Education', emoji: '📚' },
+  foods: { category: 'Food', emoji: '🍎' },
+  natura: { category: 'Nature', emoji: '🌿' },
+  animals: { category: 'Animals', emoji: '🦁' },
   architecture: { category: 'Architecture', emoji: '🏗️' },
-  technology: { category: 'Technology',  emoji: '💻' },
-  societate:  { category: 'Society',     emoji: '🏛️' },
-  filosofie:  { category: 'Philosophy',  emoji: '💭' },
-  persoana:   { category: 'Self',        emoji: '👤' },
+  technology: { category: 'Technology', emoji: '💻' },
+  societate: { category: 'Society', emoji: '🏛️' },
+  filosofie: { category: 'Philosophy', emoji: '💭' },
+  persoana: { category: 'Self', emoji: '👤' },
 } as const
 
 export type CategoryKey = keyof typeof CATEGORIES
@@ -207,16 +202,9 @@ export function categoryKeysForRandomGeneral(
 }
 
 /** Toți jucătorii activi au fost eliminați la microfon (cuvânt greșit) în runda curentă. */
-export function allActivePlayersSpeechEliminated(room: GameRoom): boolean {
-  const slots: PlayerSlot[] = []
-  if (room.player1_id) slots.push(1)
-  if (room.player2_id) slots.push(2)
-  if (room.player3_id) slots.push(3)
-  if (room.player4_id) slots.push(4)
-  if (slots.length === 0) return false
-  for (const s of slots) {
-    const k = `player${s}_speech_eliminated`
-    if ((room as unknown as Record<string, unknown>)[k] !== true) return false
-  }
-  return true
+export function allActivePlayersSpeechEliminated(players: Player[]): boolean {
+
+  if (players.length === 0) return false
+  return players.every(p => p.speech_eliminated)
 }
+

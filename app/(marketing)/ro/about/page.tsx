@@ -20,6 +20,24 @@ export default function AboutPageRo() {
           patru jucători într-o singură cameră, cu un gazdă care alege categoria, limba definițiilor și câte runde vreți să
           jucați.
         </p>
+
+        <h2>Caracteristici Cheie</h2>
+        <ul>
+          <li><strong>Joc Sincronizat în Timp Real:</strong> Fiecare jucător primește același indiciu în același moment.</li>
+          <li><strong>Categorii Diverse:</strong> De la obiecte cotidiene la concepte filosofice complexe.</li>
+          <li><strong>Suport Multilingv:</strong> Joacă în engleză sau română pentru a-ți testa abilitățile lingvistice.</li>
+          <li><strong>Introducere Vocală:</strong> Unde este suportat, folosește microfonul pentru o experiență hands-free.</li>
+          <li><strong>Fără Instalare:</strong> Funcționează direct în browserul tău, pe desktop sau mobil.</li>
+        </ul>
+
+        <h2>Misiunea Noastră</h2>
+        <p>
+          Credem că învățarea și distracția ar trebui să meargă mână în mână. WordWave este conceput să-ți provoace memoria
+          și să-ți extindă vocabularul într-un mediu competitiv, dar prietenos. Păstrând interfața curată și rundele scurte,
+          ne asigurăm că oricine poate participa, indiferent de experiența în jocuri.
+        </p>
+
+        <h2>Cum Funcționează</h2>
         <p>
           Jocul e gândit pentru fricțiune minimă: alegi un pseudonim, creezi sau intri într-o cameră cu un cod de patru
           caractere, și ești în lobby. Când toate locurile sunt ocupate și jucătorii se marchează gata, încep rundele. Fiecare
@@ -30,12 +48,15 @@ export default function AboutPageRo() {
           Modul practică există ca să te încălzești singur. Folosește același flux de cuvinte ca în multiplayer, dar fără
           presiunea scorului cu alți oameni — util pentru a învăța categorii sau a testa latența pe un dispozitiv nou.
         </p>
+
+        <h2>Angajamentul pentru Confidențialitate</h2>
         <p>
           WordWave este un proiect independent. Ne pasă de fair play, de tipografie lizibilă pe telefon și de o experiență
-          fără pop-up-uri intruzive. Dacă folosești jocul la clasă, pe stream sau la o seară relaxată, ne dorim ca rundele
-          scurte și regulile simple să facă ușoară rotirea jucătorilor.
+          fără pop-up-uri intruzive. Nu vindem datele tale personale; colectăm doar ceea ce este strict necesar pentru a
+          rula jocul și a menține serviciul.
         </p>
-        <p>
+
+        <p className="mt-8">
           Pentru detalii de joc, vezi{" "}
           <a href="/ro/rules" className="font-medium text-primary underline underline-offset-4">
             Regulile

@@ -23,6 +23,7 @@ export {
   blogUrlSegment,
   urlSegmentForBlogPost,
 } from "./en-ro-slugs"
+export { romanianListingForPost } from "./ro-blog-listing"
 export { formatBlogDateForDisplay, stripBlogTitleDateSuffix } from "./format-blog-date"
 export {
   BLOG_PAGE_SIZE,

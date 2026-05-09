@@ -8,6 +8,7 @@ import { AudioGestureUnlock } from '@/components/audio-gesture-unlock'
 import { GoogleAnalytics } from '@/components/google-analytics'
 import { SiteFooter } from '@/components/site-footer'
 import { AdsenseDeferred } from '@/components/adsense-deferred'
+import { AmbientWavesBackground } from '@/components/ambient-waves-background'
 import { getSiteUrl } from '@/lib/site-url'
 import './globals.css'
 
@@ -108,6 +109,7 @@ export default async function RootLayout({
         <SkipToMain lang={lang} />
         <HtmlLangSync />
         <AudioGestureUnlock />
+        <AmbientWavesBackground />
         <GoogleAnalytics />
         {children}
         <SiteFooter />

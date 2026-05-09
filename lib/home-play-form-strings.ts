@@ -57,7 +57,9 @@ export type HomePlayFormStrings = {
   roomFull: string
   migration34: string
   failedJoin: (msg: string) => string
+  minPlayersRequired: (n: number) => string
   cardTitle: string
+
   cardDescription: string
   yourName: string
   nicknamePlaceholder: string
@@ -81,9 +83,11 @@ export type HomePlayFormStrings = {
   joinRoomTab: string
   numberOfPlayers: string
   playerCountButtonAria: (n: number) => string
-  shareCodeWithFriends: (n: number) => string
+  shareCodeWithFriends: () => string
+
   creating: string
-  createRoomButton: (n: number) => string
+  createRoomButton: () => string
+
   createRoomValidationAria: string
   roomCode: string
   joining: string
@@ -104,7 +108,9 @@ const STRINGS: Record<HomePlayFormLocale, HomePlayFormStrings> = {
     migration34:
       "3–4 player support needs a DB migration. Run scripts/005_add_4player_support.sql in Supabase.",
     failedJoin: (msg) => `Failed to join room: ${msg}`,
+    minPlayersRequired: (n) => `Waiting for at least ${n} players to start...`,
     cardTitle: "Play Now",
+
     cardDescription: "Practice solo or multiplayer with friends",
     yourName: "Your Name",
     nicknamePlaceholder: "Enter your nickname",
@@ -129,10 +135,12 @@ const STRINGS: Record<HomePlayFormLocale, HomePlayFormStrings> = {
     joinRoomTab: "Join Room",
     numberOfPlayers: "Number of Players",
     playerCountButtonAria: (n) => `${n} players in the room`,
-    shareCodeWithFriends: (maxPlayers) =>
-      `Share the room code with ${maxPlayers - 1} friend${maxPlayers > 2 ? "s" : ""} to start`,
+    shareCodeWithFriends: () =>
+      `Share the room code with your friends to start`,
+
     creating: "Creating...",
-    createRoomButton: (n) => `Create ${n} Players Room`,
+    createRoomButton: () => `Create Room`,
+
     createRoomValidationAria: "Create room validation",
     roomCode: "Room Code",
     joining: "Joining...",
@@ -151,7 +159,9 @@ const STRINGS: Record<HomePlayFormLocale, HomePlayFormStrings> = {
     migration34:
       "Suportul pentru 3–4 jucători necesită migrare în baza de date. Rulează scripts/005_add_4player_support.sql în Supabase.",
     failedJoin: (msg) => `Nu s-a putut intra în cameră: ${msg}`,
+    minPlayersRequired: (n) => `Așteptăm cel puțin ${n} jucători pentru a începe...`,
     cardTitle: "Joacă acum",
+
     cardDescription: "Exersează singur sau joacă multiplayer cu prietenii",
     yourName: "Numele tău",
     nicknamePlaceholder: "Pseudonim",
@@ -176,13 +186,11 @@ const STRINGS: Record<HomePlayFormLocale, HomePlayFormStrings> = {
     joinRoomTab: "Intră în cameră",
     numberOfPlayers: "Număr de jucători",
     playerCountButtonAria: (n) => `Cameră cu ${n} jucători`,
-    shareCodeWithFriends: (maxPlayers) => {
-      const n = maxPlayers - 1
-      if (n === 1) return "Distribuie codul camerei cu un prieten ca să începeți"
-      return `Distribuie codul camerei cu ${n} prieteni ca să începeți`
-    },
+    shareCodeWithFriends: () => "Distribuie codul camerei cu prietenii ca să începeți",
+
     creating: "Se creează...",
-    createRoomButton: (players) => `Creează cameră (${players} jucători)`,
+    createRoomButton: () => `Creează Camera`,
+
     createRoomValidationAria: "Validare creare cameră",
     roomCode: "Cod cameră",
     joining: "Te alături...",

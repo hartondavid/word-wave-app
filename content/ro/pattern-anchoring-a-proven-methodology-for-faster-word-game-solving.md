@@ -16,7 +16,7 @@ keywords:
 
 Succesul în orice joc de cuvinte depinde de capacitatea ta de a recunoaște prefixe, sufixe și grupări comune de litere. Când privești un amestec de litere, este ușor să fii copleșit de numărul mare de combinații. Secretul, însă, nu este să cauți cuvinte imediat, ci să cauți structuri.
 
-Jucătorii experimentați folosesc adesea o tehnică numită „ancorare”. În loc să încerci să vizualizezi un cuvânt complet, identifică grupări comune precum *TH, ER, ING, ED, PRE* sau *TION*. Izolând aceste fragmente, reduci drastic complexitatea puzzle-ului. Odată ce ai ancorat câteva litere, creierul tău poate completa restul mult mai eficient. Această scurtătură cognitivă este exact motivul pentru care practica regulată duce la timpi de rezolvare mai rapizi; practic, îți antrenezi căile neuronale să prioritizeze combinațiile de litere cu frecvență ridicată.
+Jucătorii experimentați folosesc adesea o tehnică numită „ancorare”. În loc să încerci să vizualizezi un cuvânt complet, identifică grupări comune precum *ȚIE, RE, AT, INA, ESC* sau *TOR*. Izolând aceste fragmente, reduci drastic complexitatea puzzle-ului. Odată ce ai ancorat câteva litere, creierul tău poate completa restul mult mai eficient. Această scurtătură cognitivă este exact motivul pentru care practica regulată duce la timpi de rezolvare mai rapizi; practic, îți antrenezi căile neuronale să prioritizeze combinațiile de litere cu frecvență ridicată.
 
 ## Construirea unui vocabular competitiv
 
@@ -24,7 +24,7 @@ Deși recunoașterea tiparelor te ajută să parcurgi jumătate din drum, un voc
 
 Pentru a-ți extinde arsenalul care aduce victoria, încearcă aceste obiceiuri:
 *   **Studiază vocalele și consoanele de mare valoare:** Cuvintele cu *X, Z, J, Q* și *K* sunt cei mai buni prieteni ai tăi în modurile multiplayer, unde scorul se bazează pe raritatea literelor.
-*   **Învață „câștigătorii mici”:** Memorează cuvinte scurte, extrem de utile, precum *QI, JO, ZA* și *OX*. Acestea sunt salvatoare atunci când ai un set dificil de litere.
+*   **Învață „câștigătorii mici”:** Memorează cuvinte scurte, extrem de utile, precum *OI, AC, OM, ZĂ, DA* și *NU*. Acestea sunt salvatoare atunci când ai un set dificil de litere.
 *   **Puterea pluralelor:** Caută mereu modalități de a transforma un cuvânt de trei litere într-unul de patru adăugând un *S*. Este cea mai simplă cale de a-ți crește scorul.
 *   **Cititul activ:** Când citești cărți sau articole, subliniază cuvintele care îți sunt necunoscute. Adăugarea a doar unui cuvânt nou în repertoriul tău în fiecare zi poate avea un impact semnificativ asupra performanței tale de-a lungul unei luni.
 

@@ -118,6 +118,9 @@ export function startGameAmbientWaves(): void {
   const a = getWavesAudio()
   if (!a) return
 
+  // If already playing, don't restart or re-fade.
+  if (!a.paused && a.volume > 0) return
+
   clearFadeTimer()
   trackIndex = 0
   a.src = WAVE_TRACKS[0]

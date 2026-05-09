@@ -25,14 +25,7 @@ function categoryPresetFromRoom(r: GameRoom): CategoryPresetId | null {
   return p === "images" || p === "definitions" ? p : null
 }
 
-function activeSlots(room: GameRoom): number[] {
-  const s: number[] = []
-  if (room.player1_id) s.push(1)
-  if (room.player2_id) s.push(2)
-  if (room.player3_id) s.push(3)
-  if (room.player4_id) s.push(4)
-  return s
-}
+
 
 /**
  * Alege cuvântul pe server și actualizează camera în Supabase.
@@ -71,7 +64,6 @@ export async function serverStartNewRound(
   }
   const word = await resolveWordPairForRound(r.category, playLang, preset)
   const init = "_".repeat(word.word.length)
-  const active = activeSlots(r)
   const roundSeconds = effectiveRoundDurationSeconds(r)
 
   const imageUrl =
@@ -82,74 +74,27 @@ export async function serverStartNewRound(
     current_word: word.word,
     current_definition: word.definition,
     current_image: imageUrl,
-    player1_progress: active.includes(1) ? init : null,
-    player2_progress: active.includes(2) ? init : null,
-    player1_ready: false,
-    player2_ready: false,
     round_winner: null,
     game_status: "playing",
     current_round: (r.current_round ?? 0) + 1,
     round_end_time: new Date(Date.now() + roundSeconds * 1000).toISOString(),
-  }
-
-  if (active.some(slot => slot >= 3)) {
-    update.player3_progress = active.includes(3) ? init : null
-    update.player4_progress = active.includes(4) ? init : null
-    update.player3_ready = false
-    update.player4_ready = false
-  }
-
-  Object.assign(update, {
-    player1_speech_eliminated: false,
-    player2_speech_eliminated: false,
-    player3_speech_eliminated: false,
-    player4_speech_eliminated: false,
     round_end_reason: null,
-  })
-
-  let payload: Record<string, unknown> = { ...update }
-  let { error: upErr } = await supabase.from("game_rooms").update(payload).eq("room_code", code)
-
-  // DB fără migrarea `008_add_language.sql`: coloana `language` lipsește — rundă merge fără ea.
-  if (upErr) {
-    const msg = (upErr.message ?? "").toLowerCase()
-    if (msg.includes("language")) {
-      const { language: _drop, ...withoutLang } = payload
-      payload = withoutLang
-      const retry = await supabase.from("game_rooms").update(payload).eq("room_code", code)
-      upErr = retry.error
-    }
   }
 
-  // DB fără `009_add_speech_eliminated.sql`
-  if (upErr) {
-    const msg = (upErr.message ?? "").toLowerCase()
-    if (msg.includes("speech_eliminated") || msg.includes("round_end_reason")) {
-      const {
-        player1_speech_eliminated: _a,
-        player2_speech_eliminated: _b,
-        player3_speech_eliminated: _c,
-        player4_speech_eliminated: _d,
-        round_end_reason: _r,
-        ...rest
-      } = payload
-      payload = rest
-      const retry = await supabase.from("game_rooms").update(payload).eq("room_code", code)
-      upErr = retry.error
-    }
-  }
-
-  // DB fără `011_add_current_image.sql`
-  if (upErr) {
-    const msg = (upErr.message ?? "").toLowerCase()
-    if (msg.includes("current_image")) {
-      const { current_image: _img, ...rest } = payload
-      payload = rest
-      const retry = await supabase.from("game_rooms").update(payload).eq("room_code", code)
-      upErr = retry.error
-    }
-  }
-
+  const { error: upErr } = await supabase.from("game_rooms").update(update).eq("room_code", code)
   if (upErr) return { ok: false, error: upErr.message }
+
+  // Reset all players in the room for the new round
+  const { error: pErr } = await supabase.from("players")
+    .update({ 
+      progress: init, 
+      is_ready: false, 
+      speech_eliminated: false 
+    })
+    .eq("room_code", code)
+  
+  if (pErr) console.error("Reset players error:", pErr.message)
+
   return { ok: true }
 }
+

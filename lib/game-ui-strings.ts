@@ -65,7 +65,9 @@ export type GameUiStrings = {
   rivalProgressLegend: string
   gameContinuesBanner: string
   closeNoticeAria: string
+  minPlayersRequired: (n: number) => string
 }
+
 
 function joinWord(locale: SiteLocale, parts: string[]): string {
   if (parts.length === 0) return ""
@@ -175,7 +177,9 @@ export function gameUiStrings(locale: SiteLocale): GameUiStrings {
       rivalProgressLegend: "= progres adversar",
       gameContinuesBanner: " — Jocul continuă.",
       closeNoticeAria: "Închide notificarea",
+      minPlayersRequired: (n) => `Așteptăm cel puțin ${n} jucători pentru a începe...`,
     }
+
   }
 
   return {
@@ -240,5 +244,7 @@ export function gameUiStrings(locale: SiteLocale): GameUiStrings {
     rivalProgressLegend: "= rival progress",
     gameContinuesBanner: " — The game continues.",
     closeNoticeAria: "Dismiss notice",
+    minPlayersRequired: (n) => `Waiting for at least ${n} players to start...`,
   }
 }
+

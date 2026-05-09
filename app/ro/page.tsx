@@ -2,18 +2,20 @@ import dynamic from "next/dynamic"
 import type { Metadata } from "next"
 import { SiteNavbar } from "@/components/site-navbar"
 import { HomeHeroRo } from "@/components/home-hero-ro"
+import { HomeAbout } from "@/components/home-about"
+import { HomeLatestPosts } from "@/components/home-latest-posts"
 import { alternatesRoCanonical } from "@/lib/seo-alternates"
 import { getSiteUrl } from "@/lib/site-url"
 
 const base = getSiteUrl()
 
 export const metadata: Metadata = {
-  title: "WordWave — joc multiplayer de ghicit cuvinte",
+  title: "WordWave — Joc multiplayer de ghicit cuvinte",
   description:
-    "Aceeași definiție pentru toți, până la patru jucători, tastatură sau voce. Creează cameră cu cod sau exersează singur.",
+    "Aceeași definiție pentru toți, până la n jucători, tastatură sau voce. Creează cameră cu cod sau exersează singur.",
   alternates: alternatesRoCanonical("/", "/ro"),
   openGraph: {
-    title: "WordWave — joc multiplayer de ghicit cuvinte",
+    title: "WordWave — Joc multiplayer de ghicit cuvinte",
     description:
       "Ghicește cuvântul primul: cameră cu cod, categorii, runde cronometrate și voce opțională.",
     url: `${base}/ro`,
@@ -23,9 +25,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "WordWave — joc multiplayer de ghicit cuvinte",
+    title: "WordWave — Joc multiplayer de ghicit cuvinte",
     description:
-      "Aceeași definiție pentru toți, până la patru jucători. Joacă în browser cu cod de cameră.",
+      "Aceeași definiție pentru toți, până la n jucători. Joacă în browser cu cod de cameră.",
   },
 }
 
@@ -57,6 +59,9 @@ export default function HomePageRo() {
           <HomeHeroRo />
           <HomePlayClient />
         </div>
+
+        <HomeAbout locale="ro" />
+        <HomeLatestPosts locale="ro" />
       </main>
     </>
   )

@@ -12,6 +12,7 @@ import type {
   PlayerSlot,
   CategoryKey,
   LanguageKey,
+  Player,
 } from "@/lib/game-types"
 import {
   ROUND_DURATION,
@@ -36,7 +37,6 @@ import {
   playWordIncompleteFailureSound,
   playOpponentWonRoundSound,
 } from "@/lib/play-correct-letter-sound"
-import { startGameAmbientWaves, stopGameAmbientWaves } from "@/lib/game-ambient-waves"
 import { currentLocaleFromPathname } from "@/lib/locale-switch-paths"
 import { categoryTitleForLocale } from "@/lib/home-play-form-strings"
 import {
@@ -99,50 +99,52 @@ interface GamePageProps {
 
 // ── slot helpers ──────────────────────────────────────────────────────────────
 
-function slotData(slot: PlayerSlot, room: GameRoom) {
-  const m = {
-    1: { id: room.player1_id, name: room.player1_name, score: room.player1_score ?? 0, progress: room.player1_progress, ready: room.player1_ready },
-    2: { id: room.player2_id, name: room.player2_name, score: room.player2_score ?? 0, progress: room.player2_progress, ready: room.player2_ready },
-    3: { id: room.player3_id, name: room.player3_name, score: room.player3_score ?? 0, progress: room.player3_progress, ready: room.player3_ready },
-    4: { id: room.player4_id, name: room.player4_name, score: room.player4_score ?? 0, progress: room.player4_progress, ready: room.player4_ready },
+function slotData(slot: PlayerSlot, players: Player[] | undefined) {
+  const p = Array.isArray(players) ? players[slot - 1] : undefined
+  return {
+    id: p?.user_id || null,
+    name: p?.name || null,
+    score: p?.score || 0,
+    progress: p?.progress || "",
+    ready: p?.is_ready || false,
+    speech_eliminated: p?.speech_eliminated || false
   }
-  return m[slot]
 }
 
-function activeSlots(room: GameRoom): PlayerSlot[] {
-  return ([1, 2, 3, 4] as PlayerSlot[]).filter(s => !!slotData(s, room).id)
+
+function activeSlots(players: Player[] | undefined): PlayerSlot[] {
+  if (!Array.isArray(players)) return []
+  return players.map((_, i) => (i + 1) as PlayerSlot)
 }
 
-function isFull(room: GameRoom): boolean {
-  return activeSlots(room).length >= (room.max_players ?? 2)
+
+function isFull(room: GameRoom, players: Player[]): boolean {
+  return false
 }
 
-function allReady(room: GameRoom): boolean {
-  const a = activeSlots(room)
-  return a.length >= 2 && a.every(s => slotData(s, room).ready)
+
+
+function allReady(players: Player[]): boolean {
+  return players.length >= 2 && players.every(p => p.is_ready)
 }
 
-/** Names of players who had a slot in `prev` but no longer in `next` (same slot index cleared). */
-function whoLeftPlayerNames(prev: GameRoom, next: GameRoom): string[] {
-  const names: string[] = []
-  for (const s of [1, 2, 3, 4] as PlayerSlot[]) {
-    const before = slotData(s, prev)
-    const after = slotData(s, next)
-    if (before.id && !after.id && before.name) names.push(before.name)
-  }
-  return names
+
+/** Names of players who were in `prev` but no longer in `next`. */
+function whoLeftPlayerNames(prev: Player[], next: Player[]): string[] {
+  const nextIds = new Set(next.map(p => p.user_id))
+  return prev.filter(p => !nextIds.has(p.user_id)).map(p => p.name)
 }
 
 /** Slots that were occupied in `prev` but cleared in `next`. */
-function whoLeftSlots(prev: GameRoom, next: GameRoom): PlayerSlot[] {
+function whoLeftSlots(prev: Player[], next: Player[]): PlayerSlot[] {
+  const nextIds = new Set(next.map(p => p.user_id))
   const slots: PlayerSlot[] = []
-  for (const s of [1, 2, 3, 4] as PlayerSlot[]) {
-    const before = slotData(s, prev)
-    const after = slotData(s, next)
-    if (before.id && !after.id) slots.push(s)
-  }
+  prev.forEach((p, i) => {
+    if (!nextIds.has(p.user_id)) slots.push((i + 1) as PlayerSlot)
+  })
   return slots
 }
+
 
 function normalizePlayerName(n: string | null | undefined): string {
   return (n ?? "").trim().toLowerCase()
@@ -198,7 +200,9 @@ function mixPlayerColorWithWhite(hex: string, whiteFraction: number): string {
 export default function GamePage({ params }: GamePageProps) {
   const { roomCode } = use(params)
   const [room, setRoom] = useState<GameRoom | null>(null)
+  const [players, setPlayers] = useState<Player[]>([])
   const [playerInfo, setPlayerInfo] = useState<PlayerInfo | null>(null)
+
   const [timeRemaining, setTimeRemaining] = useState(ROUND_DURATION)
   const [isLoading, setIsLoading] = useState(true)
   const [isShaking, setIsShaking] = useState(false)
@@ -272,8 +276,10 @@ export default function GamePage({ params }: GamePageProps) {
   /** Toți jucătorii au greșit la microfon — animație + end round (un singur lanț per client). */
   const speechAllFailedEndInProgressRef = useRef(false)
   const [allPlayersSpeechWrongReveal, setAllPlayersSpeechWrongReveal] = useState(false)
-  const startNewRoundRef = useRef<() => Promise<void>>(async () => {})
+  const startNewRoundRef = useRef<() => Promise<void>>(async () => { })
+  const prevPlayersSnapshotRef = useRef<Player[]>([])
   const prevRoomSnapshotRef = useRef<GameRoom | null>(null)
+
   const disconnectHandledRef = useRef(false)
   /** După sync reușit limba/categorie gazdă → DB (lobby). */
   const hostRoomPrefsSyncedRef = useRef(false)
@@ -281,7 +287,8 @@ export default function GamePage({ params }: GamePageProps) {
   const leaveEventKeyRef = useRef<string | null>(null)
   const rejoinEventKeyRef = useRef<string | null>(null)
   /** Slot golit → ultimul jucător plecat (id+nume); reintrare = același nume sau același id */
-  const rejoinPendingBySlotRef = useRef<Map<PlayerSlot, { id: string; name: string }>>(new Map())
+  const rejoinPendingByUserIdRef = useRef<Map<string, { id: string; name: string }>>(new Map())
+
   const topNoticeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const timeRemainingRef = useRef(ROUND_DURATION)
   /** True după Exit explicit — evită dublarea PATCH la pagehide */
@@ -339,7 +346,8 @@ export default function GamePage({ params }: GamePageProps) {
   }, [])
 
   useEffect(() => {
-    rejoinPendingBySlotRef.current.clear()
+    rejoinPendingByUserIdRef.current.clear()
+
     rejoinEventKeyRef.current = null
     hostRoomPrefsSyncedRef.current = false
     hostLobbySyncInFlightRef.current = false
@@ -369,46 +377,27 @@ export default function GamePage({ params }: GamePageProps) {
     if (!playerInfo?.playerSlot) return
     const slot = playerInfo.playerSlot as PlayerSlot
 
-    const onPageHide = (e: PageTransitionEvent) => {
-      if (e.persisted) return
-      if (leftVoluntarilyRef.current) return
-      patchClearPlayerSlotKeepalive(roomCode, slot)
-      clearWordmatchPlayerSession()
-    }
-
-    const onBeforeUnload = () => {
-      if (leftVoluntarilyRef.current) return
-      patchClearPlayerSlotKeepalive(roomCode, slot)
-      clearWordmatchPlayerSession()
-    }
-
-    window.addEventListener("pagehide", onPageHide)
-    window.addEventListener("beforeunload", onBeforeUnload)
-    return () => {
-      window.removeEventListener("pagehide", onPageHide)
-      window.removeEventListener("beforeunload", onBeforeUnload)
-    }
+    // We no longer delete on beforeunload/pagehide to support refresh persistence.
+    // Cleanup is now only handled by voluntary exit or future heartbeat/timeout.
   }, [roomCode, playerInfo?.playerSlot])
+
 
   // Navigare client (ex. fără buton Exit): demontare după >500ms = plecare reală (evită Strict Mode)
   useEffect(() => {
-    if (!playerInfo?.playerSlot) return
-    const slot = playerInfo.playerSlot as PlayerSlot
-    const started = Date.now()
-    return () => {
-      if (Date.now() - started < 500) return
-      if (leftVoluntarilyRef.current) return
-      patchClearPlayerSlotKeepalive(roomCode, slot)
-      clearWordmatchPlayerSession()
-    }
+    // Session persistence: we only clear the session on voluntary exit.
   }, [roomCode, playerInfo?.playerSlot])
+
 
   timeRemainingRef.current = timeRemaining
 
   useEffect(() => {
     supabase.from("game_rooms").select("*").eq("room_code", roomCode).single()
       .then(({ data }) => { if (data) setRoom(data); setIsLoading(false) })
+
+    supabase.from("players").select("*").eq("room_code", roomCode).order("created_at", { ascending: true })
+      .then(({ data }) => { if (data) setPlayers(data as Player[]) })
   }, [roomCode, supabase])
+
 
   // Gazdă: dacă în DB lipsește limba/categoria/category_preset sau diferă de localStorage, reparăm în lobby.
   useEffect(() => {
@@ -520,48 +509,68 @@ export default function GamePage({ params }: GamePageProps) {
           }
           if (payload.eventType !== "UPDATE" && payload.eventType !== "INSERT") return
           const r = payload.new as GameRoom
-          setRoom(prev => {
-            // Detect new enemy hits for pulse animation
-            if (prev?.game_status === "playing") {
-              const newHits = new Set<number>()
-              ;([1, 2, 3, 4] as PlayerSlot[]).forEach(s => {
-                const oldP = slotData(s, prev).progress ?? ""
-                const newP = slotData(s, r).progress ?? ""
-                for (let i = 0; i < newP.length; i++) {
-                  if (oldP[i] === "_" && newP[i] !== "_") newHits.add(i)
-                }
-              })
-              if (newHits.size > 0) {
-                setNewEnemyHits(newHits)
-                setTimeout(() => setNewEnemyHits(new Set()), 600)
-              }
-            }
-            return r
-          })
+          setRoom(r)
           if (r.game_status === "round_end" && r.round_winner) {
             setShowConfetti(true)
             setTimeout(() => setShowConfetti(false), 2500)
           }
           if (r.game_status === "playing") setLastPlacedIndex(null)
         })
+      .on("postgres_changes",
+        { event: "*", schema: "public", table: "players", filter: `room_code=eq.${roomCode}` },
+        (payload) => {
+          setPlayers(current => {
+            let next = [...current]
+            if (payload.eventType === "INSERT") {
+              const p = payload.new as Player
+              if (!next.find(x => x.user_id === p.user_id)) {
+                next.push(p)
+              }
+            } else if (payload.eventType === "UPDATE") {
+              const p = payload.new as Player
+              next = next.map(x => x.user_id === p.user_id ? p : x)
+
+              // Detect new enemy hits for pulse animation
+              if (room?.game_status === "playing") {
+                const oldP = current.find(x => x.user_id === p.user_id)?.progress ?? ""
+                const newP = p.progress ?? ""
+                const newHits = new Set<number>()
+                for (let i = 0; i < newP.length; i++) {
+                  if (oldP[i] === "_" && newP[i] !== "_") newHits.add(i)
+                }
+                if (newHits.size > 0) {
+                  setNewEnemyHits(newHits)
+                  setTimeout(() => setNewEnemyHits(new Set()), 600)
+                }
+              }
+            } else if (payload.eventType === "DELETE") {
+              const p = payload.old as { user_id: string }
+              next = next.filter(x => x.user_id !== p.user_id)
+            }
+            return next.sort((a, b) => a.created_at.localeCompare(b.created_at))
+          })
+        })
       .subscribe()
     return () => { supabase.removeChannel(ch) }
-  }, [roomCode, supabase])
+  }, [roomCode, supabase, room?.game_status])
 
-  // Watch for all players ready → start game (doar gazda pornește runda + trimite limba din localStorage)
+
+  // Watch for all players ready → start game (doar gazda pornește runda)
   useEffect(() => {
-    if (!room || !playerInfo) return
+    if (!room || !playerInfo || players.length === 0) return
     if (room.game_status !== "waiting") return
-    if (!isFull(room) || !allReady(room) || startGameRef.current) return
-    if (playerInfo.playerSlot !== 1) return
+    if (!allReady(players) || startGameRef.current) return
+
+    // Host is the one with is_host = true
+    const isHost = players.find(p => p.user_id === playerInfo.id)?.is_host
+    if (!isHost) return
     startGameRef.current = true
     startNewRound()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    room?.player1_ready, room?.player2_ready, room?.player3_ready, room?.player4_ready,
-    room?.player1_id, room?.player2_id, room?.player3_id, room?.player4_id,
-    room?.game_status,
+    players, room?.game_status,
   ])
+
 
   // Timer countdown
   useEffect(() => {
@@ -573,151 +582,63 @@ export default function GamePage({ params }: GamePageProps) {
     return () => clearInterval(iv)
   }, [room?.round_end_time, room?.game_status])
 
-  // Plecare jucător: 2→1 (gazdă sau invitat) → ecran finished / ≥3 jucători → banderolă 3s
+  // Plecare jucător: banderole și logica de terminare
   useEffect(() => {
     if (!room) return
-    const prev = prevRoomSnapshotRef.current
-
-    const enteredWaitingFromGame =
-      room.game_status === "waiting" &&
-      !!prev &&
-      prev.game_status !== "waiting"
+    const prevPlayers = prevPlayersSnapshotRef.current
+    const currentPlayers = players
 
     if (room.game_status === "waiting") {
       disconnectHandledRef.current = false
       leaveEventKeyRef.current = null
       setDisconnectMessage(null)
       setDisconnectHidePlayAgain(false)
-      // Nu reseta banderola la fiecare UPDATE în lobby — altfel mesajul „s-a întors” dispare instant
-      if (enteredWaitingFromGame) {
-        rejoinEventKeyRef.current = null
-        dismissTopTransientNotice()
-      }
     }
 
-    if (prev) {
-      // Marcăm sloturile golite (id + nume pentru detectarea reintrării)
-      for (const s of [1, 2, 3, 4] as PlayerSlot[]) {
-        const before = slotData(s, prev)
-        const after = slotData(s, room)
-        if (before.id && !after.id) {
-          rejoinPendingBySlotRef.current.set(s, {
-            id: before.id,
-            name: before.name ?? "",
-          })
-        }
-      }
-      const returnedNames: string[] = []
-      for (const s of [1, 2, 3, 4] as PlayerSlot[]) {
-        const before = slotData(s, prev)
-        const after = slotData(s, room)
-        if (!before.id && after.id) {
-          const pending = rejoinPendingBySlotRef.current.get(s)
-          if (pending) {
-            const displayName = (after.name ?? "").trim() || pending.name.trim()
-            if (isSamePlayerRejoin(pending, after.id, after.name)) {
-              rejoinPendingBySlotRef.current.delete(s)
-              if (displayName) returnedNames.push(displayName)
-            } else if (after.name && normalizePlayerName(after.name) !== normalizePlayerName(pending.name)) {
-              // Alt jucător pe același slot (nume diferit)
-              rejoinPendingBySlotRef.current.delete(s)
-            }
-            // Dacă lipsește încă numele în `after`, așteptăm următorul UPDATE (păstrăm pending)
-          }
-        }
-      }
-      // Id setat înaintea numelui: al doilea UPDATE pe același id umple numele
-      for (const s of [1, 2, 3, 4] as PlayerSlot[]) {
-        const before = slotData(s, prev)
-        const after = slotData(s, room)
-        const pending = rejoinPendingBySlotRef.current.get(s)
-        if (!pending || !after.id || before.id !== after.id) continue
-        if (!normalizePlayerName(before.name) && normalizePlayerName(after.name)) {
-          if (isSamePlayerRejoin(pending, after.id, after.name)) {
-            rejoinPendingBySlotRef.current.delete(s)
-            returnedNames.push((after.name ?? "").trim())
-          }
-        }
-      }
-      if (returnedNames.length > 0) {
-        const eventKey = `return-${room.updated_at ?? ""}-${returnedNames.join(",")}`
-        if (rejoinEventKeyRef.current !== eventKey) {
-          rejoinEventKeyRef.current = eventKey
-          const viewerSlot = (playerInfoRef.current?.playerSlot ?? 1) as PlayerSlot
-          const viewerName = slotData(viewerSlot, room).name
-          scheduleTopTransientNotice(
-            formatPlayerReturnedNotice(returnedNames, viewerName, siteLocale),
-            "returned"
-          )
-        }
-      }
-
-      const prevN = activeSlots(prev).length
-      const nextN = activeSlots(room).length
-      const midGame = room.game_status === "playing" || room.game_status === "round_end"
-      const left = whoLeftPlayerNames(prev, room)
-      const leftSlots = whoLeftSlots(prev, room)
-      const someoneLeft = prevN > nextN && left.length > 0 && midGame
+    if (prevPlayers.length > 0) {
+      const left = whoLeftPlayerNames(prevPlayers, currentPlayers)
+      const leftSlots = whoLeftSlots(prevPlayers, currentPlayers)
+      const someoneLeft = prevPlayers.length > currentPlayers.length && left.length > 0
 
       if (someoneLeft) {
-        const eventKey = `${room.updated_at ?? ""}-${left.join(",")}-${prevN}->${nextN}`
-        const alreadyHandled = leaveEventKeyRef.current === eventKey
-        if (!alreadyHandled) {
-          leaveEventKeyRef.current = eventKey
-          const hostLeft = leftSlots.includes(1)
+        const midGame = room.game_status === "playing" || room.game_status === "round_end"
+        if (midGame) {
+          const eventKey = `${room.updated_at ?? ""}-${left.join(",")}-${prevPlayers.length}->${currentPlayers.length}`
+          if (leaveEventKeyRef.current !== eventKey) {
+            leaveEventKeyRef.current = eventKey
+            const hostLeft = prevPlayers.find(p => !currentPlayers.find(c => c.user_id === p.user_id))?.is_host
 
-          // Gazda a ieșit, erau ≥3 jucători → banderolă sus ~3s; timpul merge în continuare
-          if (hostLeft && prevN >= 3) {
-            scheduleDepartedNotice(
-              `${formatPlayerLeftPauseTitle(left, siteLocale)}${ui.gameContinuesBanner}`
-            )
-            prevRoomSnapshotRef.current = room
-            return
-          }
-
-          // Gazda + un invitat (2 jucători) → ecran finished cu numele gazdei, doar Home
-          if (hostLeft && prevN === 2 && nextN === 1 && !disconnectHandledRef.current) {
-            disconnectHandledRef.current = true
-            setDisconnectMessage(formatDisconnectMessage(left, siteLocale))
-            setDisconnectHidePlayAgain(true)
-            setRoom(r => (r ? { ...r, game_status: "finished", round_end_time: null } : r))
-            void (async () => {
-              const { error } = await supabase
-                .from("game_rooms")
-                .update({ game_status: "finished", round_end_time: null })
-                .eq("room_code", roomCode)
-              if (!error) await deleteGameRoomRow(supabase, roomCode)
-            })()
-            prevRoomSnapshotRef.current = room
-            return
-          }
-
-          // ≥3 jucători înainte, încă ≥2 după plecare (non-gazdă) → banderolă; timpul merge
-          if (prevN >= 3 && nextN >= 2) {
-            scheduleDepartedNotice(formatPlayerLeftPauseTitle(left, siteLocale))
-            prevRoomSnapshotRef.current = room
-            return
-          }
-
-          // 2 jucători, invitatul pleacă → rămâne unul: încheiere directă (fără popup gazdă)
-          if (prevN >= 2 && nextN === 1 && !disconnectHandledRef.current) {
-            disconnectHandledRef.current = true
-            setDisconnectMessage(formatDisconnectMessage(left, siteLocale))
-            setRoom(r => (r ? { ...r, game_status: "finished", round_end_time: null } : r))
-            void (async () => {
-              const { error } = await supabase
-                .from("game_rooms")
-                .update({ game_status: "finished", round_end_time: null })
-                .eq("room_code", roomCode)
-              if (!error) await deleteGameRoomRow(supabase, roomCode)
-            })()
+            if (hostLeft && prevPlayers.length >= 3) {
+              scheduleDepartedNotice(`${formatPlayerLeftPauseTitle(left, siteLocale)}${ui.gameContinuesBanner}`)
+            } else if (hostLeft && prevPlayers.length === 2 && currentPlayers.length === 1 && !disconnectHandledRef.current) {
+              disconnectHandledRef.current = true
+              setDisconnectMessage(formatDisconnectMessage(left, siteLocale))
+              setDisconnectHidePlayAgain(true)
+              setRoom(r => (r ? { ...r, game_status: "finished", round_end_time: null } : r))
+              void (async () => {
+                const { error } = await supabase.from("game_rooms").update({ game_status: "finished", round_end_time: null }).eq("room_code", roomCode)
+                if (!error) await deleteGameRoomRow(supabase, roomCode)
+              })()
+            } else if (prevPlayers.length >= 3 && currentPlayers.length >= 2) {
+              scheduleDepartedNotice(formatPlayerLeftPauseTitle(left, siteLocale))
+            } else if (prevPlayers.length >= 2 && currentPlayers.length === 1 && !disconnectHandledRef.current) {
+              disconnectHandledRef.current = true
+              setDisconnectMessage(formatDisconnectMessage(left, siteLocale))
+              setRoom(r => (r ? { ...r, game_status: "finished", round_end_time: null } : r))
+              void (async () => {
+                const { error } = await supabase.from("game_rooms").update({ game_status: "finished", round_end_time: null }).eq("room_code", roomCode)
+                if (!error) await deleteGameRoomRow(supabase, roomCode)
+              })()
+            }
           }
         }
       }
     }
 
+    prevPlayersSnapshotRef.current = currentPlayers
     prevRoomSnapshotRef.current = room
-  }, [room, roomCode, supabase, siteLocale, ui.gameContinuesBanner])
+  }, [room, players, roomCode, supabase, siteLocale, ui.gameContinuesBanner])
+
 
   // When timer hits 0, animate auto-reveal of remaining letters, then end the round
   useEffect(() => {
@@ -726,7 +647,8 @@ export default function GamePage({ params }: GamePageProps) {
     timerEndCalledRef.current = true
     playWordIncompleteFailureSound()
 
-    const cur = localProgressRef.current ?? slotData(mySlot, room).progress ?? ""
+    const cur = localProgressRef.current ?? slotData(mySlot, players).progress ?? ""
+
     const word = room.current_word ?? ""
     const positions: number[] = []
     for (let i = 0; i < word.length; i++) {
@@ -764,27 +686,19 @@ export default function GamePage({ params }: GamePageProps) {
         round_winner: null,
         round_end_reason: reason,
         game_status: r.current_round >= totalRounds ? "finished" : "round_end",
-        player1_ready: false,
-        player2_ready: false,
       }
-      if (activeSlots(r).some(s => s >= 3)) {
-        update.player3_ready = false
-        update.player4_ready = false
-      }
+
       const finished = r.current_round >= totalRounds
       let { error } = await supabase.from("game_rooms").update(update).eq("room_code", roomCode)
-      if (error) {
-        const msg = (error.message ?? "").toLowerCase()
-        if (msg.includes("round_end_reason")) {
-          const { round_end_reason: _drop, ...rest } = update
-          const retry = await supabase.from("game_rooms").update(rest).eq("room_code", roomCode)
-          error = retry.error
-        }
-      }
+
+      // Reset all players ready status for next round
+      await supabase.from("players").update({ is_ready: false }).eq("room_code", roomCode)
+
       if (!error && finished) await deleteGameRoomRow(supabase, roomCode)
     },
     [room, roomCode, supabase]
   )
+
 
   async function handleTimerEnd() {
     await endRoundNoWinner("timeout")
@@ -793,7 +707,8 @@ export default function GamePage({ params }: GamePageProps) {
   // Toți jucătorii activi eliminați la microfon → dezvăluire ca la Practice, apoi round_end.
   useEffect(() => {
     if (!room || room.game_status !== "playing") return
-    if (!allActivePlayersSpeechEliminated(room)) return
+    if (!allActivePlayersSpeechEliminated(players)) return
+
     if (timerEndCalledRef.current) return
     if (speechAllFailedEndInProgressRef.current) return
     speechAllFailedEndInProgressRef.current = true
@@ -802,7 +717,8 @@ export default function GamePage({ params }: GamePageProps) {
     setAllPlayersSpeechWrongReveal(true)
 
     const slot = (playerInfo?.playerSlot ?? 1) as PlayerSlot
-    const cur = localProgressRef.current ?? slotData(slot, room).progress ?? ""
+    const cur = localProgressRef.current ?? slotData(slot, players).progress ?? ""
+
     const word = room.current_word ?? ""
     const positions: number[] = []
     for (let i = 0; i < word.length; i++) {
@@ -831,15 +747,13 @@ export default function GamePage({ params }: GamePageProps) {
     return () => clearTimeout(t)
   }, [
     room?.game_status,
-    room?.player1_speech_eliminated,
-    room?.player2_speech_eliminated,
-    room?.player3_speech_eliminated,
-    room?.player4_speech_eliminated,
+    players,
     room?.current_word,
     playerInfo?.playerSlot,
     endRoundNoWinner,
     triggerCorrectLetterFxAt,
   ])
+
 
   // Reset local progress, optimistic display and penalty counters at round start
   useEffect(() => {
@@ -906,21 +820,7 @@ export default function GamePage({ params }: GamePageProps) {
     }
   }, [room?.game_status, roundEliminated])
 
-  useEffect(() => {
-    const s = room?.game_status
-    if (s === "playing") {
-      startGameAmbientWaves()
-      return
-    }
-    if (s === "round_end") {
-      return
-    }
-    stopGameAmbientWaves(true)
-  }, [room?.game_status])
 
-  useEffect(() => {
-    return () => stopGameAmbientWaves(true)
-  }, [])
 
   // Scroll word mask into view when keyboard opens
   useEffect(() => {
@@ -964,16 +864,18 @@ export default function GamePage({ params }: GamePageProps) {
     }
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     room?.game_status, room?.current_word,
-    room?.player1_progress, room?.player2_progress, room?.player3_progress, room?.player4_progress,
+    players,
     playerInfo,
   ])
 
+
   // Enter = Next Round when everyone is ready (orice jucător; limba vine din room / hint la startNewRound)
   useEffect(() => {
-    if (!room || !playerInfo || room.game_status !== "round_end" || !allReady(room)) return
+    if (!room || !playerInfo || room.game_status !== "round_end" || !allReady(players)) return
+
     // When the round ends, scroll to top so the (sticky) definition and header are fully visible.
     window.scrollTo({ top: 0, left: 0, behavior: "auto" })
     const onKey = (e: KeyboardEvent) => {
@@ -1004,17 +906,17 @@ export default function GamePage({ params }: GamePageProps) {
       if (!answerWord) return
       recordedRoundEndRef.current = r
 
-      const active = activeSlots(snap)
+      const active = activeSlots(players)
       const winnerName = snap.round_winner
       const winnerSlot =
         winnerName != null
-          ? (active.find((s) => slotData(s, snap).name === winnerName) ?? null)
+          ? (active.find((s) => slotData(s, players).name === winnerName) ?? null)
           : null
       const mySlot = (playerInfo.playerSlot ?? 1) as PlayerSlot
-      const myProgress = slotData(mySlot, snap).progress ?? ""
+      const myProgress = slotData(mySlot, players).progress ?? ""
       const slotProgressBySlot: Partial<Record<PlayerSlot, string>> = {}
       for (const s of active) {
-        slotProgressBySlot[s] = slotData(s, snap).progress ?? ""
+        slotProgressBySlot[s] = slotData(s, players).progress ?? ""
       }
 
       const item: RoundHistoryItem = {
@@ -1035,6 +937,7 @@ export default function GamePage({ params }: GamePageProps) {
       setRoundHistory((h) => [...h, item])
     }
 
+
     appendFromSnapshot(room)
 
     if (
@@ -1044,12 +947,13 @@ export default function GamePage({ params }: GamePageProps) {
     ) {
       appendFromSnapshot(prevSnap)
     }
-  }, [room, playerInfo])
+  }, [room, playerInfo, players])
+
 
   // ── derived values ─────────────────────────────────────────────────────────
 
   const mySlot = (playerInfo?.playerSlot ?? 1) as PlayerSlot
-  const myName = room ? slotData(mySlot, room).name : null
+  const myName = room ? slotData(mySlot, players).name : null
 
   useEffect(() => {
     if (!room || !playerInfo) return
@@ -1061,14 +965,15 @@ export default function GamePage({ params }: GamePageProps) {
     if (cur !== "round_end" || !room.round_winner) return
     if (prev !== "playing") return
 
-    const me = slotData(mySlot, room).name ?? playerInfo.name
+    const me = slotData(mySlot, players).name ?? playerInfo.name
     if (normalizePlayerName(room.round_winner) === normalizePlayerName(me)) return
 
-    const prog = slotData(mySlot, room).progress ?? ""
+    const prog = slotData(mySlot, players).progress ?? ""
     if (!prog.includes("_")) return
 
     playOpponentWonRoundSound()
-  }, [room, playerInfo, mySlot])
+  }, [room, playerInfo, mySlot, players])
+
 
   // ── handlers ───────────────────────────────────────────────────────────────
 
@@ -1119,12 +1024,23 @@ export default function GamePage({ params }: GamePageProps) {
         }
       }
       if (lastNew >= 0) setLastPlacedIndex(lastNew)
-      const pf = `player${mySlot}_progress`
-      const sf = `player${mySlot}_score`
+
       const lettersDelta = opts?.skipScore ? 0 : countNewlyFilledLetters(curBefore, next)
-      const baseScore = localLetterScoreRef.current ?? (slotData(mySlot, room).score ?? 0)
+      const baseScore = localLetterScoreRef.current ?? (slotData(mySlot, players).score ?? 0)
       const newScore = baseScore + lettersDelta * SCORE_PER_LETTER
       localLetterScoreRef.current = newScore
+
+      const pInfo = playerInfo
+      if (!pInfo) return
+
+      // Update local player data in players table
+      const { error: pErr } = await supabase.from("players")
+        .update({ progress: next, score: newScore })
+        .eq("room_code", roomCode)
+        .eq("user_id", pInfo.id)
+
+      if (pErr) console.warn("Player progress update error:", pErr.message)
+
 
       if (isWordComplete(next)) {
         hiddenInputRef.current?.blur()
@@ -1135,32 +1051,28 @@ export default function GamePage({ params }: GamePageProps) {
         setTimeout(() => setShowConfetti(false), 3000)
         const totalRounds = room.total_rounds ?? TOTAL_ROUNDS
         const isOver = newScore >= WIN_SCORE || room.current_round >= totalRounds
+
         const roundEndUpdate: Record<string, unknown> = {
-          [pf]: next,
-          [sf]: newScore,
-          round_winner: slotData(mySlot, room).name!,
+          round_winner: slotData(mySlot, players).name!,
           game_status: isOver ? "finished" : "round_end",
-          player1_ready: false,
-          player2_ready: false,
         }
-        if (activeSlots(room).some(s => s >= 3)) {
-          roundEndUpdate.player3_ready = false
-          roundEndUpdate.player4_ready = false
-        }
+
         await supabase.from("game_rooms").update(roundEndUpdate).eq("room_code", roomCode)
-      } else {
-        await supabase.from("game_rooms").update({ [pf]: next, [sf]: newScore }).eq("room_code", roomCode)
+
+        // Reset all players ready status for next round
+        await supabase.from("players").update({ is_ready: false }).eq("room_code", roomCode)
       }
     },
-    [room, mySlot, roomCode, supabase, playerInfo]
+    [room, mySlot, roomCode, supabase, playerInfo, players]
   )
+
 
   const requestMultiplayerHint = useCallback(async () => {
     if (!multiplayerHintsEnabled) return
     if (!room || !playerInfo || room.game_status !== "playing" || !room.current_word) return
     if (eliminatedFromRoundRef.current) return
     if (hintLettersRemainingRef.current <= 0) return
-    const cur = localProgressRef.current ?? slotData(mySlot, room).progress ?? ""
+    const cur = localProgressRef.current ?? slotData(mySlot, players).progress ?? ""
     if (!cur || cur.length !== room.current_word.length) return
     const out = revealRandomAnswerLetter(cur, room.current_word)
     if (!out) return
@@ -1170,7 +1082,8 @@ export default function GamePage({ params }: GamePageProps) {
     if (isWordComplete(next)) playWordCompleteSound()
     else playCorrectLetterSound()
     await commitProgressUpdate(next, cur, { skipScore: true })
-  }, [multiplayerHintsEnabled, room, playerInfo, mySlot, commitProgressUpdate])
+  }, [multiplayerHintsEnabled, room, playerInfo, mySlot, commitProgressUpdate, players])
+
 
   const handleLetterInput = useCallback(async (letter: string) => {
     if (!room || !playerInfo || room.game_status !== "playing" || !room.current_word) return
@@ -1178,7 +1091,7 @@ export default function GamePage({ params }: GamePageProps) {
     // Lockout: after a wrong letter, ignore input for a few seconds
     if (Date.now() < lockedUntilRef.current) return
     // Use localProgressRef to avoid stale state on rapid key presses
-    const cur = localProgressRef.current ?? slotData(mySlot, room).progress
+    const cur = localProgressRef.current ?? slotData(mySlot, players).progress
     if (!cur) return
     const next = tryPlaceLetter(letter, cur, room.current_word)
     if (next) {
@@ -1205,7 +1118,8 @@ export default function GamePage({ params }: GamePageProps) {
       }
       triggerShake()
     }
-  }, [room, mySlot, roomCode, supabase, playerInfo, triggerWrongKeyFlash, commitProgressUpdate])
+  }, [room, mySlot, roomCode, supabase, playerInfo, triggerWrongKeyFlash, commitProgressUpdate, players])
+
 
   handleLetterInputRef.current = handleLetterInput
 
@@ -1239,7 +1153,7 @@ export default function GamePage({ params }: GamePageProps) {
 
     // Voce: același flux ca Practice — lib/speech-word-match.ts → lib/words.ts
     rec.onresult = (event) => {
-      const cur = localProgressRef.current ?? slotData(mySlot, room).progress
+      const cur = localProgressRef.current ?? slotData(mySlot, players).progress
       const word = room.current_word
       if (!cur || !word) return
       const next = applySpeechRecognitionResultToProgress(event, cur, word)
@@ -1258,6 +1172,7 @@ export default function GamePage({ params }: GamePageProps) {
         void commitProgressUpdate(next, cur)
         return
       }
+
 
       if (!isLastSpeechResultFinal(event)) return
 
@@ -1285,18 +1200,17 @@ export default function GamePage({ params }: GamePageProps) {
       hiddenInputRef.current?.blur()
       triggerWrongKeyFlash()
       triggerShake()
-      const slot = (playerInfo?.playerSlot ?? 1) as PlayerSlot
-      const patch: Record<string, unknown> = { [`player${slot}_speech_eliminated`]: true }
+      const pInfo = playerInfo
+      if (!pInfo) return
+
       void supabase
-        .from("game_rooms")
-        .update(patch)
+        .from("players")
+        .update({ speech_eliminated: true })
         .eq("room_code", roomCode)
-        .then(({ error }) => {
-          if (error?.message?.toLowerCase().includes("speech_eliminated")) {
-            console.warn("[game] Run scripts/009_add_speech_eliminated.sql to sync speech elimination")
-          }
-        })
+        .eq("user_id", pInfo.id)
     }
+
+
 
     rec.onerror = (event) => {
       speechListeningRef.current = false
@@ -1319,11 +1233,17 @@ export default function GamePage({ params }: GamePageProps) {
   }, [room, mySlot, roomCode, supabase, playerInfo, triggerWrongKeyFlash, triggerShake, commitProgressUpdate])
 
   async function handleToggleReady() {
-    if (!room || !playerInfo) return
-    await supabase.from("game_rooms")
-      .update({ [`player${mySlot}_ready`]: !slotData(mySlot, room).ready })
+    const pInfo = playerInfo
+    if (!room || !pInfo) return
+    const me = players.find(p => p.user_id === pInfo.id)
+    if (!me) return
+    await supabase.from("players")
+      .update({ is_ready: !me.is_ready })
       .eq("room_code", roomCode)
+      .eq("user_id", pInfo.id)
   }
+
+
 
   async function startNewRound() {
     if (!room) return
@@ -1351,60 +1271,30 @@ export default function GamePage({ params }: GamePageProps) {
   async function handlePlayAgain() {
     startGameRef.current = false
     prevProgressRef.current = {}
-    const active = activeSlots(room!)
 
-    const reset: Record<string, unknown> = {
-      player1_score: 0, player2_score: 0,
-      player1_ready: false, player2_ready: false,
-      player1_progress: null, player2_progress: null,
-      current_round: 0, game_status: "waiting",
-      current_word: null, current_definition: null, current_image: null,
+    // Reset room state
+    const resetRoom: Record<string, unknown> = {
+      current_round: 0,
+      game_status: "waiting",
+      current_word: null,
+      current_definition: null,
+      current_image: null,
       round_winner: null,
       round_end_reason: null,
-      player1_speech_eliminated: false,
-      player2_speech_eliminated: false,
     }
 
-    if (active.some(s => s >= 3)) {
-      reset.player3_score = 0
-      reset.player4_score = 0
-      reset.player3_ready = false
-      reset.player4_ready = false
-      reset.player3_progress = null
-      reset.player4_progress = null
-      reset.player3_speech_eliminated = false
-      reset.player4_speech_eliminated = false
-    }
+    // Reset all players scores and state
+    await supabase.from("players")
+      .update({
+        score: 0,
+        is_ready: false,
+        progress: "",
+        speech_eliminated: false
+      })
+      .eq("room_code", roomCode)
 
-    let payload: Record<string, unknown> = { ...reset }
-    let { data, error } = await supabase.from("game_rooms").update(payload).eq("room_code", roomCode).select()
-    if (error) {
-      const msg = (error.message ?? "").toLowerCase()
-      if (msg.includes("speech_eliminated") || msg.includes("round_end_reason")) {
-        const {
-          round_end_reason: _r,
-          player1_speech_eliminated: _a,
-          player2_speech_eliminated: _b,
-          player3_speech_eliminated: _c,
-          player4_speech_eliminated: _d,
-          ...rest
-        } = payload
-        payload = rest
-        const retry = await supabase.from("game_rooms").update(payload).eq("room_code", roomCode).select()
-        data = retry.data
-        error = retry.error
-      }
-    }
-    if (error) {
-      const msg = (error.message ?? "").toLowerCase()
-      if (msg.includes("current_image")) {
-        const { current_image: _i, ...rest } = payload
-        payload = rest
-        const retry = await supabase.from("game_rooms").update(payload).eq("room_code", roomCode).select()
-        data = retry.data
-        error = retry.error
-      }
-    }
+    let { data, error } = await supabase.from("game_rooms").update(resetRoom).eq("room_code", roomCode).select()
+
     if (error || !data?.length) {
       clearWordmatchPlayerSession()
       router.push(homePath)
@@ -1412,6 +1302,7 @@ export default function GamePage({ params }: GamePageProps) {
     }
     setRoom(data[0] as GameRoom)
   }
+
 
   function handleCopyCode() {
     navigator.clipboard.writeText(roomCode)
@@ -1426,24 +1317,16 @@ export default function GamePage({ params }: GamePageProps) {
     setTimeout(() => setLinkCopied(false), 2000)
   }
 
-  /** Clears this player's slot in Supabase so others detect disconnect; then home. */
+  /** Removes this player from the players table; then home. */
   async function handleExitRoom() {
     leftVoluntarilyRef.current = true
-    if (room && playerInfo?.playerSlot) {
-      const slot = playerInfo.playerSlot as PlayerSlot
-      const payload = getClearSlotPayload(slot)
-      try {
-        await supabase.from("game_rooms").update(payload).eq("room_code", roomCode)
-      } catch (e) {
-        console.error("leave room:", e)
-        patchClearPlayerSlotKeepalive(roomCode, slot)
-      }
-    } else if (playerInfo?.playerSlot) {
-      patchClearPlayerSlotKeepalive(roomCode, playerInfo.playerSlot as PlayerSlot)
+    if (playerInfo?.id) {
+      await supabase.from("players").delete().eq("room_code", roomCode).eq("user_id", playerInfo.id)
     }
     clearWordmatchPlayerSession()
     router.push(homePath)
   }
+
 
   // Height syncing is handled above (disabled) to keep document-level scrolling.
 
@@ -1481,50 +1364,51 @@ export default function GamePage({ params }: GamePageProps) {
 
   function renderPlayerTopBar() {
     if (!room) return null
-    const active = activeSlots(room)
+    const active = activeSlots(players)
     return (
       <div className="w-full overflow-x-auto overflow-y-visible scrollbar-none py-0.5">
         <div className="mx-auto flex w-max max-w-full justify-center px-0.5 sm:px-1">
           <div className="flex w-max items-stretch gap-2 sm:gap-1.5">
-          {active.map(slot => {
-            const d = slotData(slot, room)
-            const isMe = slot === mySlot
-            const color = PLAYER_COLORS[slot - 1]
-            return (
-              <div
-                key={slot}
-                className={cn(
-                  "box-border flex items-center gap-2 rounded-xl border-2 px-2.5 py-1.5 transition-all duration-200 sm:px-3 sm:py-2",
-                  isMe
-                    ? "shadow-sm ring-1 ring-black/[0.06] dark:ring-white/[0.08]"
-                    : "opacity-65 ring-1 ring-transparent"
-                )}
-                style={{
-                  borderColor: isMe ? color : "transparent",
-                  background: `${color}${isMe ? "18" : "08"}`,
-                }}
-              >
+            {active.map(slot => {
+              const d = slotData(slot, players)
+              const isMe = d.id === playerInfo?.id
+              const color = PLAYER_COLORS[(slot - 1) % PLAYER_COLORS.length]
+              return (
+
                 <div
-                  className="size-2 shrink-0 rounded-full sm:size-2.5"
-                  style={{ background: color }}
-                />
-                <div className="min-w-0 text-left">
-                  <p className="max-w-[min(12rem,70vw)] truncate text-xs font-bold leading-tight sm:max-w-[14rem] sm:text-sm">
-                    {d.name ?? ui.playerFallback(slot)}
-                    {isMe && (
-                      <span className="font-normal text-[10px] text-muted-foreground sm:text-xs">{ui.youParen}</span>
-                    )}
-                  </p>
-                  <p
-                    className="text-[10px] font-bold tabular-nums leading-tight sm:text-xs"
-                    style={{ color }}
-                  >
-                    {d.score} {ui.pts}
-                  </p>
+                  key={slot}
+                  className={cn(
+                    "box-border flex items-center gap-2 rounded-xl border-2 px-2.5 py-1.5 transition-all duration-200 sm:px-3 sm:py-2",
+                    isMe
+                      ? "shadow-sm ring-1 ring-black/[0.06] dark:ring-white/[0.08]"
+                      : "opacity-65 ring-1 ring-transparent"
+                  )}
+                  style={{
+                    borderColor: isMe ? color : "transparent",
+                    background: `${color}${isMe ? "18" : "08"}`,
+                  }}
+                >
+                  <div
+                    className="size-2 shrink-0 rounded-full sm:size-2.5"
+                    style={{ background: color }}
+                  />
+                  <div className="min-w-0 text-left">
+                    <p className="max-w-[min(12rem,70vw)] truncate text-xs font-bold leading-tight sm:max-w-[14rem] sm:text-sm">
+                      {d.name ?? ui.playerFallback(slot)}
+                      {isMe && (
+                        <span className="font-normal text-[10px] text-muted-foreground sm:text-xs">{ui.youParen}</span>
+                      )}
+                    </p>
+                    <p
+                      className="text-[10px] font-bold tabular-nums leading-tight sm:text-xs"
+                      style={{ color }}
+                    >
+                      {d.score} {ui.pts}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            )
-          })}
+              )
+            })}
           </div>
         </div>
       </div>
@@ -1535,17 +1419,19 @@ export default function GamePage({ params }: GamePageProps) {
     if (!room?.current_word) return null
     // Prefer local optimistic state so letters appear instantly on key press,
     // falling back to server state when no local update has happened yet.
-    const myProg = myDisplayProgress ?? slotData(mySlot, room).progress ?? ""
+    const myProg = myDisplayProgress ?? slotData(mySlot, players).progress ?? ""
     const myReveal = revealProgress ?? ""
-    const active = activeSlots(room)
-    const myColor = PLAYER_COLORS[mySlot - 1]
+    const active = activeSlots(players)
+    const myColor = PLAYER_COLORS[(mySlot - 1) % PLAYER_COLORS.length]
+
 
     // Find winner slot for round_end reveal
     const winnerSlot = room.round_winner
-      ? active.find(s => slotData(s, room).name === room.round_winner) ?? null
+      ? active.find(s => slotData(s, players).name === room.round_winner) ?? null
       : null
-    const winnerProgress = winnerSlot ? (slotData(winnerSlot, room).progress ?? "") : ""
-    const winnerColor = winnerSlot ? PLAYER_COLORS[winnerSlot - 1] : null
+    const winnerProgress = winnerSlot ? (slotData(winnerSlot, players).progress ?? "") : ""
+    const winnerColor = winnerSlot ? PLAYER_COLORS[(winnerSlot - 1) % PLAYER_COLORS.length] : null
+
 
     return (
       <div className="flex justify-center gap-2 sm:gap-3 flex-wrap">
@@ -1599,18 +1485,19 @@ export default function GamePage({ params }: GamePageProps) {
           const enemyHits = active
             .filter(s => s !== mySlot)
             .filter(s => {
-              const p = slotData(s, room).progress
+              const p = slotData(s, players).progress
               return p && p[i] !== "_"
             })
 
+
           const cellStyle: CSSProperties | undefined = playerFilled
             ? {
-                borderColor: `${myColor}80`,
-                background: `${myColor}18`,
-                ...(isLast && !autoFilled
-                  ? { boxShadow: `0 0 0 2px ${myColor}, 0 0 0 4px hsl(var(--background))` }
-                  : {}),
-              }
+              borderColor: `${myColor}80`,
+              background: `${myColor}18`,
+              ...(isLast && !autoFilled
+                ? { boxShadow: `0 0 0 2px ${myColor}, 0 0 0 4px hsl(var(--background))` }
+                : {}),
+            }
             : undefined
 
           const delayLockActive =
@@ -1646,7 +1533,8 @@ export default function GamePage({ params }: GamePageProps) {
                   className="absolute top-0 bottom-0 transition-all duration-300"
                   style={{
                     width: 3,
-                    background: PLAYER_COLORS[slot - 1],
+                    background: PLAYER_COLORS[(slot - 1) % PLAYER_COLORS.length],
+
                     left: 8 + idx * 9,
                   }}
                 />
@@ -1662,7 +1550,7 @@ export default function GamePage({ params }: GamePageProps) {
                     burstId={correctLetterBursts.get(i)}
                     className="text-xl sm:text-3xl"
                   />
-                  )
+                )
                 : autoFilled
                   ? (
                     <CorrectLetterChar
@@ -1672,7 +1560,7 @@ export default function GamePage({ params }: GamePageProps) {
                       burstId={correctLetterBursts.get(i)}
                       className="text-xl sm:text-3xl"
                     />
-                    )
+                  )
                   : <span className="text-muted-foreground/20 text-base sm:text-xl select-none">_</span>
               }
             </LetterCellDelayBorder>
@@ -1750,8 +1638,8 @@ export default function GamePage({ params }: GamePageProps) {
       )
     }
 
-    const sorted = activeSlots(room)
-      .map(s => ({ slot: s, name: slotData(s, room).name!, score: slotData(s, room).score }))
+    const sorted = activeSlots(players)
+      .map(s => ({ slot: s, name: slotData(s, players).name!, score: slotData(s, players).score }))
       .sort((a, b) => b.score - a.score)
     const topScore = sorted[0]?.score ?? 0
     const isTie = sorted.filter(p => p.score === topScore).length > 1
@@ -1810,7 +1698,7 @@ export default function GamePage({ params }: GamePageProps) {
 
   // ── WAITING (room not full) ────────────────────────────────────────────────
 
-  if (room.game_status === "waiting" && !isFull(room)) {
+  if (room.game_status === "waiting" && players.length < 2) {
     const maxP = room.max_players ?? 2
     return (
       <main
@@ -1824,109 +1712,128 @@ export default function GamePage({ params }: GamePageProps) {
           </div>
         )}
         <div className="flex flex-1 flex-col items-center justify-center p-4">
-        <Card className="w-full max-w-sm">
-          <CardContent className="pt-3 pb-4 text-center space-y-3">
-            <div>
-              <h2 className="text-xl font-bold">{ui.waitingForPlayersTitle}</h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                {ui.joinedCount(activeSlots(room).length, maxP)}
-              </p>
-            </div>
-            <div className="space-y-2">
-              {Array.from({ length: maxP }).map((_, i) => {
-                const s = (i + 1) as PlayerSlot
-                const d = slotData(s, room)
-                return (
-                  <div key={s} className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-muted/40">
-                    <div
-                      className="w-3 h-3 rounded-full transition-all duration-300"
-                      style={{ background: PLAYER_COLORS[i], opacity: d.id ? 1 : 0.25 }}
-                    />
-                    <span className={cn("text-sm font-medium", !d.id && "text-muted-foreground/40 italic")}>
-                      {d.name ?? ui.waitingForPlayerSlot(s)}
-                    </span>
-                    {d.id && <Check className="w-4 h-4 text-emerald-500 ml-auto" />}
-                  </div>
-                )
-              })}
-            </div>
-            <div className="space-y-2">
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">{ui.roomCode}</p>
-              <div className="flex items-center justify-center gap-2 flex-wrap">
-                <div className="text-4xl font-mono font-bold tracking-[0.3em] bg-muted px-6 py-3 rounded-xl">
-                  {roomCode}
-                </div>
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    className="h-9 w-9"
-                    onClick={handleCopyCode}
-                    title={ui.copyRoomCode}
-                    aria-label={ui.copyRoomCode}
-                  >
-                    {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    className="h-9 w-9"
-                    onClick={handleCopyJoinLink}
-                    disabled={!joinRoomUrl}
-                    title="Copy invite link for guests"
-                    aria-label="Copy invite link for guests"
-                  >
-                    {linkCopied ? <Check className="w-4 h-4 text-emerald-600" /> : <Link2 className="w-4 h-4" />}
-                  </Button>
-                </div>
-              </div>
-              <div className="space-y-2 pt-1 text-left">
-                <p className="text-xs text-muted-foreground uppercase tracking-wider text-center">
-                  {ui.linkForPlayers}
+          <Card className="w-full max-w-sm">
+            <CardContent className="pt-3 pb-4 text-center space-y-3">
+              <div>
+                <h2 className="text-xl font-bold">{ui.waitingForPlayersTitle}</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {ui.joinedCount(activeSlots(players).length, 2)}
                 </p>
-                {joinRoomUrl ? (
-                  <div className="flex flex-col gap-2 rounded-xl border border-border/60 bg-muted/30 px-3 py-2.5">
-                    <a
-                      href={joinRoomUrl}
-                      className="text-sm font-mono text-primary break-all underline-offset-2 hover:underline"
-                    >
-                      {joinRoomUrl}
-                    </a>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="sm"
-                      className="w-full shrink-0"
-                      onClick={handleCopyJoinLink}
-                    >
-                      {linkCopied ? (
-                        <>
-                          <Check className="w-4 h-4 mr-2" />
-                          {ui.copied}
-                        </>
+
+              </div>
+              <div className="space-y-2">
+                {players.map((p, i) => {
+                  const s = (i + 1) as PlayerSlot
+                  return (
+                    <div key={p.user_id} className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-muted/40">
+                      <div
+                        className="w-3 h-3 rounded-full transition-all duration-300"
+                        style={{ background: PLAYER_COLORS[i % PLAYER_COLORS.length] }}
+                      />
+                      <span className="text-sm font-medium">
+                        {p.name}
+                        {p.user_id === playerInfo?.id && <span className="text-[10px] ml-1.5 opacity-50">{ui.youParen}</span>}
+                      </span>
+                      {p.is_ready ? (
+                        <Check className="w-4 h-4 text-emerald-500 ml-auto" />
                       ) : (
-                        <>
-                          <Link2 className="w-4 h-4 mr-2" />
-                          {ui.copyLink}
-                        </>
+                        <div className="w-4 h-4 ml-auto" />
                       )}
-                    </Button>
+                    </div>
+                  )
+                })}
+                {players.length < 2 && (
+                  <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-muted/10 border border-dashed border-muted-foreground/20">
+                    <div className="w-3 h-3 rounded-full bg-muted-foreground/20" />
+                    <span className="text-sm font-medium text-muted-foreground/40 italic">
+                      {ui.waitingForPlayerSlot(players.length + 1)}
+                    </span>
                   </div>
-                ) : (
-                  <p className="text-center text-xs text-muted-foreground">{ui.loadingLink}</p>
                 )}
               </div>
-            </div>
-            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-              <Spinner className="w-4 h-4" /> {ui.waitingForPlayersEllipsis}
-            </div>
-            <Button variant="ghost" onClick={() => void handleExitRoom()}>
-              <ArrowLeft className="w-4 h-4 mr-2" />{ui.leaveRoom}
-            </Button>
-          </CardContent>
-        </Card>
+
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider">{ui.roomCode}</p>
+                <div className="flex items-center justify-center gap-2 flex-wrap">
+                  <div className="text-4xl font-mono font-bold tracking-[0.3em] bg-muted px-6 py-3 rounded-xl">
+                    {roomCode}
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="h-9 w-9"
+                      onClick={handleCopyCode}
+                      title={ui.copyRoomCode}
+                      aria-label={ui.copyRoomCode}
+                    >
+                      {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="h-9 w-9"
+                      onClick={handleCopyJoinLink}
+                      disabled={!joinRoomUrl}
+                      title="Copy invite link for guests"
+                      aria-label="Copy invite link for guests"
+                    >
+                      {linkCopied ? <Check className="w-4 h-4 text-emerald-600" /> : <Link2 className="w-4 h-4" />}
+                    </Button>
+                  </div>
+                </div>
+                <div className="space-y-2 pt-1 text-left">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider text-center">
+                    {ui.linkForPlayers}
+                  </p>
+                  {joinRoomUrl ? (
+                    <div className="flex flex-col gap-2 rounded-xl border border-border/60 bg-muted/30 px-3 py-2.5">
+                      <a
+                        href={joinRoomUrl}
+                        className="text-sm font-mono text-primary break-all underline-offset-2 hover:underline"
+                      >
+                        {joinRoomUrl}
+                      </a>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        className="w-full shrink-0"
+                        onClick={handleCopyJoinLink}
+                      >
+                        {linkCopied ? (
+                          <>
+                            <Check className="w-4 h-4 mr-2" />
+                            {ui.copied}
+                          </>
+                        ) : (
+                          <>
+                            <Link2 className="w-4 h-4 mr-2" />
+                            {ui.copyLink}
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  ) : (
+                    <p className="text-center text-xs text-muted-foreground">{ui.loadingLink}</p>
+                  )}
+                </div>
+              </div>
+              <div className="flex flex-col items-center justify-center gap-2 text-sm text-muted-foreground">
+                {players.length < 2 ? (
+                  <p className="animate-pulse">{ui.minPlayersRequired(2)}</p>
+                ) : (
+                  <><Spinner className="w-4 h-4" /> {ui.waitingForPlayersEllipsis}</>
+                )}
+              </div>
+
+              <Button variant="ghost" onClick={() => void handleExitRoom()}>
+                <ArrowLeft className="w-4 h-4 mr-2" />{ui.leaveRoom}
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </main>
     )
@@ -1934,9 +1841,10 @@ export default function GamePage({ params }: GamePageProps) {
 
   // ── READY CHECK ───────────────────────────────────────────────────────────
 
-  if (room.game_status === "waiting" && isFull(room)) {
-    const myReady = slotData(mySlot, room).ready
-    const active = activeSlots(room)
+  if (room.game_status === "waiting" && players.length >= 2) {
+
+    const myReady = slotData(mySlot, players).ready
+    const active = activeSlots(players)
     return (
       <main
         id="main-content"
@@ -1949,49 +1857,49 @@ export default function GamePage({ params }: GamePageProps) {
           </div>
         )}
         <div className="flex flex-1 flex-col items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardContent className="pt-3 pb-4 space-y-3">
-            <div className="text-center">
-              <h2 className="text-xl font-bold">{ui.readyToStartTitle}</h2>
-              <p className="text-sm text-muted-foreground mt-1">{ui.readyToStartSubtitle}</p>
-            </div>
-            <div className={cn(
-              "grid gap-3",
-              active.length <= 2 ? "grid-cols-2" : active.length === 3 ? "grid-cols-3" : "grid-cols-2"
-            )}>
-              {active.map(slot => {
-                const d = slotData(slot, room)
-                return (
-                  <div
-                    key={slot}
-                    className={cn(
-                      "p-3 rounded-xl border-2 text-center transition-all",
-                      d.ready ? "border-emerald-500 bg-emerald-500/10" : "border-muted"
-                    )}
-                  >
-                    <div className="flex items-center justify-center gap-1.5 mb-1">
-                      <div className="w-2.5 h-2.5 rounded-full" style={{ background: PLAYER_COLORS[slot - 1] }} />
-                      <p className="font-semibold text-sm truncate">{d.name}</p>
+          <Card className="w-full max-w-md">
+            <CardContent className="pt-3 pb-4 space-y-3">
+              <div className="text-center">
+                <h2 className="text-xl font-bold">{ui.readyToStartTitle}</h2>
+                <p className="text-sm text-muted-foreground mt-1">{ui.readyToStartSubtitle}</p>
+              </div>
+              <div className={cn(
+                "grid gap-3",
+                active.length <= 2 ? "grid-cols-2" : active.length === 3 ? "grid-cols-3" : "grid-cols-2"
+              )}>
+                {active.map(slot => {
+                  const d = slotData(slot, players)
+                  return (
+                    <div
+                      key={slot}
+                      className={cn(
+                        "p-3 rounded-xl border-2 text-center transition-all",
+                        d.ready ? "border-emerald-500 bg-emerald-500/10" : "border-muted"
+                      )}
+                    >
+                      <div className="flex items-center justify-center gap-1.5 mb-1">
+                        <div className="w-2.5 h-2.5 rounded-full" style={{ background: PLAYER_COLORS[slot - 1] }} />
+                        <p className="font-semibold text-sm truncate">{d.name}</p>
+                      </div>
+                      <p className={cn("text-xs font-medium", d.ready ? "text-emerald-600" : "text-muted-foreground")}>
+                        {d.ready ? ui.readyStatus : ui.notReadyStatus}
+                      </p>
                     </div>
-                    <p className={cn("text-xs font-medium", d.ready ? "text-emerald-600" : "text-muted-foreground")}>
-                      {d.ready ? ui.readyStatus : ui.notReadyStatus}
-                    </p>
-                  </div>
-                )
-              })}
-            </div>
-            <Button
-              className="w-full" size="lg"
-              variant={myReady ? "secondary" : "default"}
-              onClick={handleToggleReady}
-            >
-              {myReady ? ui.cancelReady : ui.imReady}
-            </Button>
-            <Button variant="ghost" className="w-full" onClick={() => void handleExitRoom()}>
-              <ArrowLeft className="w-4 h-4 mr-2" />{ui.leaveRoom}
-            </Button>
-          </CardContent>
-        </Card>
+                  )
+                })}
+              </div>
+              <Button
+                className="w-full" size="lg"
+                variant={myReady ? "secondary" : "default"}
+                onClick={handleToggleReady}
+              >
+                {myReady ? ui.cancelReady : ui.imReady}
+              </Button>
+              <Button variant="ghost" className="w-full" onClick={() => void handleExitRoom()}>
+                <ArrowLeft className="w-4 h-4 mr-2" />{ui.leaveRoom}
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </main>
     )
@@ -2001,8 +1909,9 @@ export default function GamePage({ params }: GamePageProps) {
 
   const isRoundEnd = room.game_status === "round_end"
   const iWonRound = room.round_winner === myName
-  const myReady = slotData(mySlot, room).ready
-  const everyoneReady = allReady(room)
+  const myReady = slotData(mySlot, players).ready
+  const everyoneReady = allReady(players)
+
 
   /** Ca la practice: înălțime card definiție + timp după lungimea textului */
   const definitionText = room.current_definition ?? ""
@@ -2031,7 +1940,7 @@ export default function GamePage({ params }: GamePageProps) {
         ? "pt-4 pb-3"
         : "pt-5 pb-4"
 
-  const myProgressForPad = myDisplayProgress ?? slotData(mySlot, room).progress ?? ""
+  const myProgressForPad = myDisplayProgress ?? slotData(mySlot, players).progress ?? ""
   const playingWordComplete =
     room.game_status === "playing" &&
     !!room.current_word &&
@@ -2179,8 +2088,8 @@ export default function GamePage({ params }: GamePageProps) {
 
             {/* ── Player ready cards ── */}
             <div className="grid grid-cols-2 gap-2 w-full">
-              {activeSlots(room).map(slot => {
-                const d = slotData(slot, room)
+              {activeSlots(players).map(slot => {
+                const d = slotData(slot, players)
                 const isReady = d.ready
                 return (
                   <div
@@ -2228,141 +2137,141 @@ export default function GamePage({ params }: GamePageProps) {
           <>
             {/* Definiție + bară jos în card: tastatură | panou | microfon */}
             <div className="flex w-full flex-col">
-            <div className={cn("sticky z-20", room.game_status === "playing" && "pt-2")} style={{ top: stickyTopPx }}>
-            <Card
-              className={cn(
-                "relative w-full gap-0 py-0 shadow-sm border-2 transition-[border-color] duration-200",
-                wrongKeyFlash
-                  ? "border-red-500 dark:border-red-400"
-                  : timeRemaining <= 10
-                    ? "border-[#fecaca] animate-[practiceUrgentBorder_0.75s_ease-in-out_infinite]"
-                    : "border-border"
-              )}
-            >
-              <CardContent
-                className={cn(
-                  "px-4",
-                  defCardPlayingVerticalPad,
-                  !roundEliminated &&
-                    !allPlayersSpeechWrongReveal &&
-                    cn(
-                      "relative px-10 sm:px-12",
-                      playingWordComplete ? "pt-4 pb-3" : "pt-8 pb-6"
-                    )
-                )}
-              >
-                <div className="flex w-full flex-col items-center text-center">
-                  {!roundEliminated && !allPlayersSpeechWrongReveal && multiplayerHintsEnabled && hintLettersRemaining > 0 ? (
-                    <div
-                      className="absolute left-2 top-2 z-10 sm:left-3 sm:top-3"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        title={ui.hintRevealTitleMultiplayer}
-                        aria-label={ui.hintRevealAriaMultiplayer(hintLettersRemaining)}
-                        className="flex size-6 min-h-6 min-w-6 shrink-0 items-center justify-center rounded-md border-2 p-0 shadow-md text-[11px] font-bold tabular-nums leading-none"
-                        style={{
-                          borderColor: `${myPlayerColor}80`,
-                          background: `${myPlayerColor}18`,
-                          color: myPlayerColor,
-                        }}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          void requestMultiplayerHint().finally(() => {
-                            // Keep the mobile keyboard open after tapping hint.
-                            focusWithoutScroll(hiddenInputRef.current)
-                          })
-                        }}
-                      >
-                        {hintLettersRemaining}
-                      </Button>
-                    </div>
-                  ) : null}
-                  <p
+              <div className={cn("sticky z-20", room.game_status === "playing" && "pt-2")} style={{ top: stickyTopPx }}>
+                <Card
+                  className={cn(
+                    "relative w-full gap-0 py-0 shadow-sm border-2 transition-[border-color] duration-200",
+                    wrongKeyFlash
+                      ? "border-red-500 dark:border-red-400"
+                      : timeRemaining <= 10
+                        ? "border-[#fecaca] animate-[practiceUrgentBorder_0.75s_ease-in-out_infinite]"
+                        : "border-border"
+                  )}
+                >
+                  <CardContent
                     className={cn(
-                      "w-full text-lg sm:text-xl font-bold tabular-nums leading-none",
-                      timeRemaining <= 10 ? "text-red-400" : "text-muted-foreground"
+                      "px-4",
+                      defCardPlayingVerticalPad,
+                      !roundEliminated &&
+                      !allPlayersSpeechWrongReveal &&
+                      cn(
+                        "relative px-10 sm:px-12",
+                        playingWordComplete ? "pt-4 pb-3" : "pt-8 pb-6"
+                      )
                     )}
                   >
-                    {timeRemaining}s
-                  </p>
-                  {roundImageUrl ? (
-                    <div
-                      className={cn(
-                        "mt-2 flex w-full max-w-[13rem] justify-center overflow-hidden rounded-xl sm:max-w-[15rem]",
-                        room.game_status === "playing" && "mt-2.5"
-                      )}
-                    >
-                      <img
-                        src={roundImageUrl}
-                        alt=""
-                        loading="lazy"
-                        decoding="async"
-                        className="h-auto max-h-28 w-auto max-w-full rounded-xl object-contain sm:max-h-32"
+                    <div className="flex w-full flex-col items-center text-center">
+                      {!roundEliminated && !allPlayersSpeechWrongReveal && multiplayerHintsEnabled && hintLettersRemaining > 0 ? (
+                        <div
+                          className="absolute left-2 top-2 z-10 sm:left-3 sm:top-3"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            title={ui.hintRevealTitleMultiplayer}
+                            aria-label={ui.hintRevealAriaMultiplayer(hintLettersRemaining)}
+                            className="flex size-6 min-h-6 min-w-6 shrink-0 items-center justify-center rounded-md border-2 p-0 shadow-md text-[11px] font-bold tabular-nums leading-none"
+                            style={{
+                              borderColor: `${myPlayerColor}80`,
+                              background: `${myPlayerColor}18`,
+                              color: myPlayerColor,
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              void requestMultiplayerHint().finally(() => {
+                                // Keep the mobile keyboard open after tapping hint.
+                                focusWithoutScroll(hiddenInputRef.current)
+                              })
+                            }}
+                          >
+                            {hintLettersRemaining}
+                          </Button>
+                        </div>
+                      ) : null}
+                      <p
+                        className={cn(
+                          "w-full text-lg sm:text-xl font-bold tabular-nums leading-none",
+                          timeRemaining <= 10 ? "text-red-400" : "text-muted-foreground"
+                        )}
+                      >
+                        {timeRemaining}s
+                      </p>
+                      {roundImageUrl ? (
+                        <div
+                          className={cn(
+                            "mt-2 flex w-full max-w-[13rem] justify-center overflow-hidden rounded-xl sm:max-w-[15rem]",
+                            room.game_status === "playing" && "mt-2.5"
+                          )}
+                        >
+                          <img
+                            src={roundImageUrl}
+                            alt=""
+                            loading="lazy"
+                            decoding="async"
+                            className="h-auto max-h-28 w-auto max-w-full rounded-xl object-contain sm:max-h-32"
+                          />
+                        </div>
+                      ) : null}
+                      <p
+                        className={cn(
+                          "w-full text-center text-base sm:text-lg",
+                          roundImageUrl ? "mt-2" : "mt-1",
+                          approxDefinitionLines > 4 ? "leading-tight" : "leading-snug"
+                        )}
+                      >
+                        {room.current_definition}
+                      </p>
+                    </div>
+                  </CardContent>
+                  {!roundEliminated && !allPlayersSpeechWrongReveal && (
+                    <div className="relative z-10 flex w-full min-h-10 items-center justify-between gap-2 px-2 py-2 pb-2.5 pt-1.5 sm:px-3">
+                      <LetterHistoryToggleButton
+                        embedded
+                        letters={typedLetterHistory}
+                        open={letterHistoryOpen}
+                        onOpenChange={setLetterHistoryOpen}
+                        restoreTypingFocus={restoreTypingFocus}
                       />
+                      <div className="flex min-h-6 min-w-0 flex-1 items-center justify-center px-1">
+                        <LetterHistoryPanel
+                          letters={typedLetterHistory}
+                          open={letterHistoryOpen}
+                          onOpenChange={setLetterHistoryOpen}
+                          restoreTypingFocus={restoreTypingFocus}
+                          className="mx-0 max-h-[3.25rem] w-auto max-w-[8.75rem] sm:max-w-[9.75rem]"
+                        />
+                      </div>
+                      <div className="flex size-6 shrink-0 items-center justify-end">
+                        {isBrowserSpeechRecognitionSupported() ? (
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="icon-sm"
+                            className="size-6 min-h-6 min-w-6 rounded-full p-0 shadow-md"
+                            title={
+                              speechListeningUi
+                                ? multiplayerSpeechUi.micTapToStop
+                                : multiplayerSpeechUi.micTitleMultiplayer
+                            }
+                            aria-label={
+                              speechListeningUi ? multiplayerSpeechUi.micTapToStop : multiplayerSpeechUi.micAria
+                            }
+                            aria-pressed={speechListeningUi}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              if (speechListeningRef.current) stopSpeechListening()
+                              else startSpeechLetter()
+                            }}
+                          >
+                            <Mic className={cn("h-3 w-3", speechListeningUi && "animate-pulse text-red-500")} />
+                          </Button>
+                        ) : null}
+                      </div>
                     </div>
-                  ) : null}
-                  <p
-                    className={cn(
-                      "w-full text-center text-base sm:text-lg",
-                      roundImageUrl ? "mt-2" : "mt-1",
-                      approxDefinitionLines > 4 ? "leading-tight" : "leading-snug"
-                    )}
-                  >
-                    {room.current_definition}
-                  </p>
-                </div>
-              </CardContent>
-              {!roundEliminated && !allPlayersSpeechWrongReveal && (
-                <div className="relative z-10 flex w-full min-h-10 items-center justify-between gap-2 px-2 py-2 pb-2.5 pt-1.5 sm:px-3">
-                  <LetterHistoryToggleButton
-                    embedded
-                    letters={typedLetterHistory}
-                    open={letterHistoryOpen}
-                    onOpenChange={setLetterHistoryOpen}
-                    restoreTypingFocus={restoreTypingFocus}
-                  />
-                  <div className="flex min-h-6 min-w-0 flex-1 items-center justify-center px-1">
-                    <LetterHistoryPanel
-                      letters={typedLetterHistory}
-                      open={letterHistoryOpen}
-                      onOpenChange={setLetterHistoryOpen}
-                      restoreTypingFocus={restoreTypingFocus}
-                      className="mx-0 max-h-[3.25rem] w-auto max-w-[8.75rem] sm:max-w-[9.75rem]"
-                    />
-                  </div>
-                  <div className="flex size-6 shrink-0 items-center justify-end">
-                    {isBrowserSpeechRecognitionSupported() ? (
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        size="icon-sm"
-                        className="size-6 min-h-6 min-w-6 rounded-full p-0 shadow-md"
-                        title={
-                          speechListeningUi
-                            ? multiplayerSpeechUi.micTapToStop
-                            : multiplayerSpeechUi.micTitleMultiplayer
-                        }
-                        aria-label={
-                          speechListeningUi ? multiplayerSpeechUi.micTapToStop : multiplayerSpeechUi.micAria
-                        }
-                        aria-pressed={speechListeningUi}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          if (speechListeningRef.current) stopSpeechListening()
-                          else startSpeechLetter()
-                        }}
-                      >
-                        <Mic className={cn("h-3 w-3", speechListeningUi && "animate-pulse text-red-500")} />
-                      </Button>
-                    ) : null}
-                  </div>
-                </div>
-              )}
-            </Card>
-            </div>
+                  )}
+                </Card>
+              </div>
             </div>
             {roundEliminated && !allPlayersSpeechWrongReveal && (
               <p className="text-xs text-center text-destructive font-medium px-2">
@@ -2409,15 +2318,15 @@ export default function GamePage({ params }: GamePageProps) {
                       ? multiplayerSpeechUi.multiplayerHintPlaying
                       : multiplayerSpeechUi.multiplayerHintNoMic}
               </p>
-              {activeSlots(room).filter(s => s !== mySlot).length > 0 && (
+              {activeSlots(players).filter(s => s !== mySlot).length > 0 && (
                 <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground/55 flex-wrap">
-                  {activeSlots(room).filter(s => s !== mySlot).map(s => (
+                  {activeSlots(players).filter(s => s !== mySlot).map(s => (
                     <span key={s} className="flex items-center gap-1">
                       <span
                         className="inline-block w-[3px] h-3.5 rounded-full"
                         style={{ background: PLAYER_COLORS[s - 1] }}
                       />
-                      {slotData(s, room).name}
+                      {slotData(s, players).name}
                     </span>
                   ))}
                   <span className="italic">{ui.rivalProgressLegend}</span>

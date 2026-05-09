@@ -37,11 +37,11 @@ Excelența la jocurile solo de tip „puzzle zilnic de cuvinte” înseamnă mai
 
 Iată strategii dovedite pentru a-ți ascuți abilitățile la puzzle-urile de cuvinte:
 
-*   **Începe cu litere și tipare comune:** În multe jocuri de cuvinte, anumite litere apar mai frecvent (E, T, A, O, I, N, S, H, R). Când ghicești sau formezi cuvinte, prioritizează-le pe acestea. În mod similar, caută combinații comune de litere precum „TH,” „SH,” „CH,” „QU,” sau terminații comune de cuvinte precum „-ING,” „-ED,” „-ER,” „-S.”
+*   **Începe cu litere și tipare comune:** În multe jocuri de cuvinte în limba română, anumite litere apar mai frecvent (A, E, I, R, U, N, T, O, L, S). Când ghicești sau formezi cuvinte, prioritizează-le pe acestea. În mod similar, caută combinații comune de litere precum „CE,” „CI,” „GE,” „GI,” sau terminații comune de cuvinte precum „-ESC,” „-AT,” „-ȚIE,” „-RE.”
 *   **Echilibrul vocalelor și consoanelor:** Dacă construiești cuvinte dintr-un set de litere, încearcă să găsești cuvinte cu un bun amestec de vocale și consoane. Concentrațiile extreme de un singur tip limitează adesea opțiunile.
 *   **Brainstorming Sistematic:**
     *   **Lungimea mai întâi:** Dacă puzzle-ul indică lungimea cuvântului, încearcă să te gândești la cuvinte comune de acea lungime specifică.
-    *   **Prefixe și Sufixe:** Începe cu prefixe comune (de ex., RE-, UN-, DE-) sau sufixe (de ex., -LY, -TION, -ABLE) și vezi dacă poți completa un cuvânt.
+    *   **Prefixe și Sufixe:** Începe cu prefixe comune (de ex., NE-, RE-, DEZ-, PRE-) sau sufixe (de ex., -TOR, -ȚIE, -ISM) și vezi dacă poți completa un cuvânt.
     *   **Grupări de litere:** Caută cuvinte mai mici într-un amestec mai mare de litere, apoi încearcă să adaugi litere la ele.
 *   **Eliminare și Deducție:** Mai ales în jocurile de ghicit cuvinte, fiecare ghicire incorectă sau literă dezvăluită oferă informații valoroase. Folosește asta pentru a elimina posibilități. Dacă o literă nu este prezentă, poți exclude toate cuvintele care o conțin. Dacă o literă este prezentă, dar în locul greșit, amintește-ți asta pentru ghicirile viitoare.
 *   **Gândește în Afara Cutiei (și a Tablei):**
@@ -64,7 +64,7 @@ Iată cum să-ți ascuți avantajul în bătăliile multiplayer de cuvinte:
     *   **Memorie Musculară pentru Tastare/Selecție:** Minimizează timpul necesar pentru a introduce cuvântul tău.
     *   **Nu Gândi Prea Mult la Cuvintele Inițiale:** Uneori, un cuvânt scurt, ușor este mai bun decât să petreci prea mult timp căutând unul mai lung, mai complex, mai ales la începutul unei runde.
 *   **Extinde-ți Vocabularul Strategic:**
-    *   **Învață Cuvinte Scurte, Obscure:** Multe jocuri de cuvinte acceptă cuvinte de două, trei sau patru litere care nu sunt utilizate în mod obișnuit (de ex., „QI,” „ZA,” „OAT,” „AAL”). Acestea pot fi salvatoare când literele sunt rare.
+    *   **Învață Cuvinte Scurte, Obscure:** Multe jocuri de cuvinte acceptă cuvinte de două, trei sau patru litere care pot fi folosite pentru a debloca grila (de ex., „ZĂ,” „OI,” „AC,” „OM”). Acestea pot fi salvatoare când literele sunt rare.
     *   **Stăpânește Anagramele:** Practică rearanjarea rapidă a literelor pentru a forma mai multe cuvinte. Aceasta este o abilitate fundamentală în multe jocuri de tip WordWave.
     *   **Concentrează-te pe Literele cu Scor Mare:** În jocurile cu valori ale literelor (cum ar fi titlurile inspirate de Scrabble), cunoaște-ți cuvintele cu „Q,” „Z,” „J,” „X.”
 *   **Joc Strategic și Controlul Tablei (dacă este cazul):**
@@ -117,4 +117,4 @@ Deși „mai inteligent” este un termen larg, jocurile de cuvinte de tip „gh
 
 ### Există strategii specifice pentru a găsi cuvinte mai lungi în puzzle-uri?
 
-Da! Pentru cuvinte mai lungi, concentrează-te pe prefixe și sufixe comune (de ex., „UN-,” „RE-,” „-ȚIE,” „-ABIL”). Caută cuvinte mai mici, comune, care ar putea fi încorporate într-un amestec mai mare de litere, apoi încearcă să le extinzi. În jocurile în care construiești cuvinte dintr-un set de litere, încearcă să folosești toate literele disponibile, deoarece cuvintele mai lungi aduc adesea scoruri mai mari. De asemenea, ia în considerare pluralul și diferite timpuri verbale ale cuvintelor comune.
+Da! Pentru cuvinte mai lungi, concentrează-te pe prefixe și sufixe comune (de ex., „NE-,” „RE-,” „-ȚIE,” „-TOR”). Caută cuvinte mai mici, comune, care ar putea fi încorporate într-un amestec mai mare de litere, apoi încearcă să le extinzi. În jocurile în care construiești cuvinte dintr-un set de litere, încearcă să folosești toate literele disponibile, deoarece cuvintele mai lungi aduc adesea scoruri mai mari. De asemenea, ia în considerare pluralul și diferite timpuri verbale ale cuvintelor comune.
