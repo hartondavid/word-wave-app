@@ -22,8 +22,7 @@ export default function RulesPageRo() {
         </p>
         <h2>Creare sau intrare în cameră</h2>
         <p>
-          Gazda introduce un nume afișat, alege categoria și limba definițiilor, setează numărul de runde și câți jucători
-          (2–4) suportă camera. Se generează un cod de cameră; distribuie-l sau folosește linkul de invitație ca prietenii să
+          Gazda configurează jocul. Se generează un cod de cameră; distribuie-l sau folosește linkul de invitație ca prietenii să
           intre de pe pagina principală. Oaspeții introduc același cod și propriile pseudonime. Numele ar trebui să fie unice
           în cameră ca scorurile să rămână clare.
         </p>

@@ -22,8 +22,7 @@ export default function RulesPage() {
         </p>
         <h2>Creating or joining a room</h2>
         <p>
-          The host enters a display name, picks a category and definition language, sets the number of rounds, and chooses
-          how many players (2–4) the room supports. A room code is generated; share it or use the invite link so friends can
+          The host configures the game. A room code is generated; share it or use the invite link so friends can
           join from the home page. Guests enter the same code and their own nicknames. Names should be unique within the
           room so scores stay unambiguous.
         </p>
